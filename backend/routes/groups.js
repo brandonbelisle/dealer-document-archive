@@ -34,7 +34,7 @@ router.get('/', requireAuth, async (req, res) => {
         'SELECT COUNT(*) AS cnt FROM user_group_memberships WHERE group_id = ?',
         [group.id]
       );
-      group.memberCount = mc[0].cnt;
+      group.memberCount = Number(mc[0].cnt || 0);
     }
 
     res.json(groups);

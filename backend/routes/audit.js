@@ -48,7 +48,7 @@ router.get('/', requireAuth, requirePermission('viewAuditLog'), async (req, res)
     }
     const [countRows] = await db.execute(countSql, countParams);
 
-    res.json({ entries: rows, total: countRows[0].total });
+    res.json({ entries: rows, total: Number(countRows[0].total || 0) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });

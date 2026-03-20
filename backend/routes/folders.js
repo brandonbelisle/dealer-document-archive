@@ -42,8 +42,8 @@ router.get('/', requireAuth, async (req, res) => {
     for (const folder of rows) {
       const [fc] = await db.execute('SELECT COUNT(*) AS cnt FROM files WHERE folder_id = ?', [folder.id]);
       const [sc] = await db.execute('SELECT COUNT(*) AS cnt FROM folders WHERE parent_id = ?', [folder.id]);
-      folder.fileCount = fc[0].cnt;
-      folder.subfolderCount = sc[0].cnt;
+      folder.fileCount = Number(fc[0].cnt || 0);
+      folder.subfolderCount = Number(sc[0].cnt || 0);
     }
 
     res.json(rows);

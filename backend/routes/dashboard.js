@@ -5,6 +5,9 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Helper: MySQL COUNT(*) can return BigInt — convert to regular number
+const num = (val) => Number(val || 0);
+
 // ── GET /api/dashboard ────────────────────────────────────
 router.get('/', requireAuth, async (req, res) => {
   try {
@@ -30,6 +33,14 @@ router.get('/', requireAuth, async (req, res) => {
        ORDER BY l.name`
     );
 
+    // Convert BigInt values in locationStats
+    const normalizedStats = locationStats.map(l => ({
+      id: l.id,
+      name: l.name,
+      folder_count: num(l.folder_count),
+      file_count: num(l.file_count),
+    }));
+
     // Recent uploads (last 10)
     const [recentFiles] = await db.execute(
       `SELECT f.id, f.name, f.file_size_bytes, f.page_count, f.uploaded_at,
@@ -44,15 +55,28 @@ router.get('/', requireAuth, async (req, res) => {
        LIMIT 10`
     );
 
+    // Normalize recentFiles too (file_size_bytes and page_count can be BigInt)
+    const normalizedFiles = recentFiles.map(f => ({
+      id: f.id,
+      name: f.name,
+      file_size_bytes: num(f.file_size_bytes),
+      page_count: num(f.page_count),
+      uploaded_at: f.uploaded_at,
+      folder_id: f.folder_id,
+      folder_name: f.folder_name,
+      location_name: f.location_name,
+      department_name: f.department_name,
+    }));
+
     res.json({
-      totalFiles: fileCount[0].cnt,
-      totalFolders: folderCount[0].cnt,
-      totalLocations: locationCount[0].cnt,
-      totalDepartments: deptCount[0].cnt,
-      filesToday: filesToday[0].cnt,
-      foldersToday: foldersToday[0].cnt,
-      locationStats,
-      recentFiles,
+      totalFiles: num(fileCount[0].cnt),
+      totalFolders: num(folderCount[0].cnt),
+      totalLocations: num(locationCount[0].cnt),
+      totalDepartments: num(deptCount[0].cnt),
+      filesToday: num(filesToday[0].cnt),
+      foldersToday: num(foldersToday[0].cnt),
+      locationStats: normalizedStats,
+      recentFiles: normalizedFiles,
     });
   } catch (err) {
     console.error(err);

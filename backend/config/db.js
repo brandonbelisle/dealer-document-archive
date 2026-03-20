@@ -16,6 +16,11 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 0,
   // Return dates as strings to avoid timezone issues
   dateStrings: true,
+  // Return BIGINT as regular JavaScript numbers instead of BigInt objects.
+  // This prevents React error #310 ("Objects are not valid as a React child")
+  // when rendering COUNT(*) results directly.
+  supportBigNumbers: true,
+  bigNumberStrings: false,
 });
 
 // Test connection on startup

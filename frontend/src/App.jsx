@@ -333,6 +333,12 @@ function AppInner() {
       }).catch(console.error);
   }, [isLoggedIn, page, adminSection, auditFilterAction, auditFilterUser, auditFilterDate]);
 
+  // ── Load dashboard data from API ───────────────────────────
+  useEffect(() => {
+    if (!isLoggedIn || page !== "dashboard") return;
+    api.getDashboard().then(setDashboardData).catch(console.error);
+  }, [isLoggedIn, page]);
+
   const handleLogin = async () => {
     setLoginError("");
     if (!loginForm.username.trim() || !loginForm.password.trim()) { setLoginError("Please enter both fields."); return; }
@@ -768,15 +774,9 @@ function AppInner() {
   const demoUsers = adminUsers;
   const demoGroups = securityGroups.map(g => ({ ...g, members: g.memberCount || 0, permCount: g.permissions ? Object.values(g.permissions).filter(Boolean).length : 0 }));
 
-  // ── Load dashboard data from API ───────────────────────────
-  useEffect(() => {
-    if (!isLoggedIn || page !== "dashboard") return;
-    api.getDashboard().then(setDashboardData).catch(console.error);
-  }, [isLoggedIn, page]);
-
   const dd = dashboardData || {};
   const totalByLocation = (dd.locationStats || []).map(l => ({ name: l.name, folders: l.folder_count, files: l.file_count }));
-  const recentFiles = (dd.recentFiles || []).map(f => ({ id: f.id, name: f.name, size: f.file_size_bytes, pages: f.page_count, folderId: f.folder_id, folderName: f.folder_name, locationName: f.location_name, departmentName: f.department_name }));
+  const recentFiles = (dd.recentFiles || []).map(f => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), pages: Number(f.page_count || 0), folderId: f.folder_id, folderName: f.folder_name, locationName: f.location_name, departmentName: f.department_name }));
 
   const StatCard = ({ icon, label, value, color, sub }) => (
     <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: "20px 18px", flex: 1, minWidth: 0, animation: "fadeIn 0.3s ease" }}>

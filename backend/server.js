@@ -51,12 +51,30 @@ app.use((err, req, res, next) => {
 });
 
 // ── Start ─────────────────────────────────────────────────
+const fs = require('fs');
+const PID_FILE = path.resolve(__dirname, 'server.pid');
+
 app.listen(PORT, () => {
+  // Write PID file so `npm stop` can find and kill the process
+  fs.writeFileSync(PID_FILE, String(process.pid));
+
   console.log(`
   ┌─────────────────────────────────────────────┐
   │  Dealer Document Archive — API Server       │
   │  Running on http://localhost:${PORT}           │
-  │  Environment: ${process.env.NODE_ENV || 'development'}               │
+  │  PID: ${String(process.pid).padEnd(39, ' ')} │
+  │  Environment: ${(process.env.NODE_ENV || 'development').padEnd(28, ' ')} │
   └─────────────────────────────────────────────┘
   `);
+});
+
+// Clean up PID file on exit
+function cleanup() {
+  try { if (fs.existsSync(PID_FILE)) fs.unlinkSync(PID_FILE); } catch {}
+  process.exit();
+}
+process.on('SIGTERM', cleanup);
+process.on('SIGINT', cleanup);
+process.on('exit', () => {
+  try { if (fs.existsSync(PID_FILE)) fs.unlinkSync(PID_FILE); } catch {}
 });

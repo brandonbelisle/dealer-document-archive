@@ -12,6 +12,7 @@
     "dev:frontend": "cd frontend && npm run dev",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "start:backend": "cd backend && npm start",
+    "stop:backend": "cd backend && npm stop",
     "build:frontend": "cd frontend && npm run build",
     "seed": "cd backend && node seed-admin.js"
   },

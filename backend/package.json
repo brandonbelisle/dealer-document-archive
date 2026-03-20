@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "stop": "node stop.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "production": "cd ../frontend && npm run build && cd ../backend && node server.js"
   },
   "engines": {
     "node": ">=18.0.0"

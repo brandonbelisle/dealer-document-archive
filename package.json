@@ -11,9 +11,9 @@
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "start:backend": "cd backend && npm start",
-    "stop:backend": "cd backend && npm stop",
-    "build:frontend": "cd frontend && npm run build",
+    "build": "cd frontend && npm run build",
+    "start": "node start-production.js",
+    "stop": "cd backend && node stop.js",
     "seed": "cd backend && node seed-admin.js"
   },
   "devDependencies": {

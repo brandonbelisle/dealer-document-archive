@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import * as api from "./api";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
 const ACCEPTED_TYPE = "application/pdf";
@@ -40,12 +41,8 @@ const DashboardIcon = ({ size = 16 }) => I(<><rect x="3" y="3" width="7" height=
 const TrendUpIcon = ({ size = 18 }) => I(<><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></>, size);
 const AlertTriangleIcon = ({ size = 22 }) => I(<><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></>, size);
 
-const DEFAULT_LOCATIONS = [{ id: "tampa", name: "Tampa" }, { id: "lakeland", name: "Lakeland" }, { id: "fort_myers", name: "Fort Myers" }];
-const DEFAULT_DEPARTMENTS = [
-  { id: "tampa_service", name: "Service", locationId: "tampa" }, { id: "tampa_parts", name: "Parts", locationId: "tampa" }, { id: "tampa_sales", name: "Sales", locationId: "tampa" }, { id: "tampa_admin", name: "Admin", locationId: "tampa" },
-  { id: "lakeland_service", name: "Service", locationId: "lakeland" }, { id: "lakeland_parts", name: "Parts", locationId: "lakeland" }, { id: "lakeland_sales", name: "Sales", locationId: "lakeland" }, { id: "lakeland_admin", name: "Admin", locationId: "lakeland" },
-  { id: "fm_service", name: "Service", locationId: "fort_myers" }, { id: "fm_parts", name: "Parts", locationId: "fort_myers" }, { id: "fm_sales", name: "Sales", locationId: "fort_myers" }, { id: "fm_admin", name: "Admin", locationId: "fort_myers" },
-];
+const DEFAULT_LOCATIONS = [];
+const DEFAULT_DEPARTMENTS = [];
 const ADMIN_MENU = [
   { id: "users", label: "Users", icon: <UsersIcon size={17} />, desc: "Manage user accounts and access" },
   { id: "groups", label: "Groups", icon: <ShieldIcon size={17} />, desc: "Manage security groups and permissions" },
@@ -71,7 +68,6 @@ function PdfCanvasPreview({ dataUrl, darkMode }) {
 
     (async () => {
       try {
-        // Decode base64 data URL to Uint8Array directly (no fetch needed)
         const base64 = dataUrl.split(",")[1];
         const binaryString = atob(base64);
         const bytes = new Uint8Array(binaryString.length);
@@ -134,12 +130,12 @@ export default function App() {
   const [departments, setDepartments] = useState(DEFAULT_DEPARTMENTS);
   const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
-  const [activeLocation, setActiveLocation] = useState("tampa");
-  const [activeDepartment, setActiveDepartment] = useState("tampa_service");
+  const [activeLocation, setActiveLocation] = useState(null);
+  const [activeDepartment, setActiveDepartment] = useState(null);
   const [activeFolderId, setActiveFolderId] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [showDeptDropdown, setShowDeptDropdown] = useState(false);
-  const [expandedLocations, setExpandedLocations] = useState({ tampa: true });
+  const [expandedLocations, setExpandedLocations] = useState({});
   const [pdfjsLoaded, setPdfjsLoaded] = useState(false);
   const [stagedFiles, setStagedFiles] = useState([]);
   const [targetFolderId, setTargetFolderId] = useState("");
@@ -169,6 +165,27 @@ export default function App() {
   const [renamingFileId, setRenamingFileId] = useState(null);
   const [renamingFileName, setRenamingFileName] = useState("");
   const [viewingFileId, setViewingFileId] = useState(null);
+  const [securityGroups, setSecurityGroups] = useState([]);
+  const [editingGroupId, setEditingGroupId] = useState(null);
+  const [addingGroup, setAddingGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupDesc, setNewGroupDesc] = useState("");
+  const PERMISSION_LABELS = {
+    viewFiles: { label: "View Files", category: "Documents", desc: "Browse and preview uploaded documents" },
+    uploadFiles: { label: "Upload Files", category: "Documents", desc: "Upload new PDF files to folders" },
+    deleteFiles: { label: "Delete Files", category: "Documents", desc: "Remove uploaded files permanently" },
+    renameFiles: { label: "Rename Files", category: "Documents", desc: "Rename uploaded file display names" },
+    createFolders: { label: "Create Folders", category: "Folders", desc: "Create new folders and subfolders" },
+    deleteFolders: { label: "Delete Folders", category: "Folders", desc: "Remove folders and their contents" },
+    manageLocations: { label: "Manage Locations", category: "Administration", desc: "Add, edit, and remove dealer locations" },
+    manageDepartments: { label: "Manage Departments", category: "Administration", desc: "Add, edit, and remove departments" },
+    manageUsers: { label: "Manage Users", category: "Administration", desc: "Create, edit, and deactivate user accounts" },
+    manageGroups: { label: "Manage Groups", category: "Administration", desc: "Edit security groups and permissions" },
+    viewAuditLog: { label: "View Audit Log", category: "Audit", desc: "View system activity and change history" },
+    exportAuditLog: { label: "Export Audit Log", category: "Audit", desc: "Download audit log data as CSV" },
+    manageSettings: { label: "Manage Settings", category: "Administration", desc: "Modify application configuration" },
+  };
+  const PERMISSION_CATEGORIES = ["Documents", "Folders", "Administration", "Audit"];
   const newSubfolderRef = useRef(null);
   const newDeptFolderRef = useRef(null);
   const renameFileRef = useRef(null);
@@ -193,23 +210,137 @@ export default function App() {
   useEffect(() => { if (!showDeptDropdown) return; const h = () => setShowDeptDropdown(false); window.addEventListener("click", h); return () => window.removeEventListener("click", h); }, [showDeptDropdown]);
   useEffect(() => { if (!showProfileMenu) return; const h = () => setShowProfileMenu(false); window.addEventListener("click", h); return () => window.removeEventListener("click", h); }, [showProfileMenu]);
 
-  const handleLogin = () => { setLoginError(""); if (!loginForm.username.trim() || !loginForm.password.trim()) { setLoginError("Please enter both fields."); return; } setLoginLoading(true); setTimeout(() => { setLoginLoading(false); const u = loginForm.username.trim(); setLoggedInUser({ name: u, groups: u.toLowerCase().includes("admin") ? ["User", "Administrator"] : ["User"] }); setIsLoggedIn(true); setLoginForm({ username: "", password: "" }); }, 800); };
-  const handleLogout = () => { setIsLoggedIn(false); setLoggedInUser(null); setPage("folders"); setSelectedFile(null); };
+  // ── Session restore on mount ──────────────────────────────
+  useEffect(() => {
+    if (api.isAuthenticated()) {
+      api.getMe().then(user => {
+        setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions });
+        setIsLoggedIn(true);
+      }).catch(() => { api.logout(); });
+    }
+  }, []);
+
+  // ── Load data from API when logged in ─────────────────────
+  const loadCoreData = useCallback(async () => {
+    try {
+      const [locs, depts] = await Promise.all([api.getLocations(), api.getDepartments()]);
+      // Normalize field names from DB (snake_case) to React (camelCase)
+      const normLocs = locs.map(l => ({ id: l.id, name: l.name }));
+      const normDepts = depts.map(d => ({ id: d.id, name: d.name, locationId: d.location_id || d.locationId }));
+      setLocations(normLocs);
+      setDepartments(normDepts);
+      if (normLocs.length > 0 && !activeLocation) {
+        setActiveLocation(normLocs[0].id);
+        setExpandedLocations({ [normLocs[0].id]: true });
+        const firstDept = normDepts.find(d => d.locationId === normLocs[0].id);
+        if (firstDept) setActiveDepartment(firstDept.id);
+      }
+    } catch (err) { console.error("Failed to load core data:", err); }
+  }, [activeLocation]);
+
+  useEffect(() => { if (isLoggedIn) loadCoreData(); }, [isLoggedIn]);
+
+  // ── Load folders when department changes ───────────────────
+  useEffect(() => {
+    if (!isLoggedIn || !activeDepartment) return;
+    api.getFolders({ departmentId: activeDepartment }).then(rows => {
+      const norm = rows.map(f => ({ id: f.id, name: f.name, locationId: f.location_id || f.locationId, departmentId: f.department_id || f.departmentId, parentId: f.parent_id || f.parentId || null, createdAt: f.created_at, fileCount: f.fileCount, subfolderCount: f.subfolderCount }));
+      setFolders(prev => {
+        // Merge: keep folders from other departments, replace this department's
+        const otherDept = prev.filter(f => f.departmentId !== activeDepartment);
+        return [...otherDept, ...norm];
+      });
+    }).catch(console.error);
+  }, [isLoggedIn, activeDepartment]);
+
+  // ── Load files when active folder changes ──────────────────
+  useEffect(() => {
+    if (!isLoggedIn || !activeFolderId) return;
+    api.getFiles(activeFolderId).then(rows => {
+      const norm = rows.map(f => ({
+        id: f.id, name: f.name, size: f.file_size_bytes, type: f.mime_type || "application/pdf",
+        pages: f.page_count, status: f.status, text: f.extracted_text,
+        folderId: f.folder_id, fileStoragePath: f.file_storage_path,
+        error: f.error_message, progress: f.status === "done" ? 100 : 0,
+      }));
+      setFiles(prev => {
+        const otherFolder = prev.filter(f => f.folderId !== activeFolderId);
+        return [...otherFolder, ...norm];
+      });
+    }).catch(console.error);
+  }, [isLoggedIn, activeFolderId]);
+
+  // ── Load security groups when admin section opens ──────────
+  useEffect(() => {
+    if (!isLoggedIn || page !== "admin" || adminSection !== "groups") return;
+    api.getGroups().then(groups => {
+      const norm = groups.map(g => ({ id: g.id, name: g.name, desc: g.description, permissions: g.permissions, memberCount: g.memberCount }));
+      setSecurityGroups(norm);
+    }).catch(console.error);
+  }, [isLoggedIn, page, adminSection]);
+
+  // ── Load users when admin users section opens ──────────────
+  useEffect(() => {
+    if (!isLoggedIn || page !== "admin" || adminSection !== "users") return;
+    api.getUsers().then(users => {
+      setAdminUsers(users.map(u => ({ name: u.display_name, email: u.email, groups: u.groups || [], status: u.status === "active" ? "Active" : "Inactive", id: u.id })));
+    }).catch(console.error);
+  }, [isLoggedIn, page, adminSection]);
+
+  // ── Load audit log when admin audit section opens ──────────
+  useEffect(() => {
+    if (!isLoggedIn || page !== "admin" || adminSection !== "audit") return;
+    api.getAuditLog({ action: auditFilterAction || undefined, user: auditFilterUser || undefined, date: auditFilterDate || undefined })
+      .then(data => {
+        setAuditLog((data.entries || []).map(e => ({
+          id: e.id, action: e.action, detail: e.detail,
+          user: e.user_name, timestamp: new Date(e.timestamp).getTime(),
+        })));
+      }).catch(console.error);
+  }, [isLoggedIn, page, adminSection, auditFilterAction, auditFilterUser, auditFilterDate]);
+
+  const handleLogin = async () => {
+    setLoginError("");
+    if (!loginForm.username.trim() || !loginForm.password.trim()) { setLoginError("Please enter both fields."); return; }
+    setLoginLoading(true);
+    try {
+      const user = await api.login(loginForm.username.trim(), loginForm.password.trim());
+      setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions });
+      setIsLoggedIn(true);
+      setLoginForm({ username: "", password: "" });
+    } catch (err) {
+      setLoginError(err.message || "Login failed");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+  const handleLogout = () => { api.logout(); setIsLoggedIn(false); setLoggedInUser(null); setPage("dashboard"); setSelectedFile(null); setLocations([]); setDepartments([]); setFolders([]); setFiles([]); setActiveLocation(null); setActiveDepartment(null); };
 
   const validateFile = file => { if (file.type !== ACCEPTED_TYPE && !file.name.toLowerCase().endsWith(".pdf")) return { valid: false, error: "Only PDFs" }; if (file.size > MAX_FILE_SIZE) return { valid: false, error: "Too large" }; return { valid: true }; };
   const processFile = useCallback(async (rawFile, folderId) => {
     const id = uid(), v = validateFile(rawFile);
-    // Store raw file data as base64 for preview
     let fileDataUrl = null;
     try { fileDataUrl = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(rawFile); }); } catch {}
-    const entry = { id, name: rawFile.name, size: rawFile.size, type: rawFile.type || "", fileDataUrl, status: v.valid ? "processing" : "error", progress: 0, error: v.error || null, text: null, pages: 0, folderId: folderId || null };
+    const entry = { id, name: rawFile.name, size: rawFile.size, type: rawFile.type || "", fileDataUrl, status: v.valid ? "processing" : "error", progress: 0, error: v.error || null, text: null, pages: 0, folderId: folderId || null, _rawFile: rawFile };
     if (folderId) setFiles(p => [...p, entry]); else setStagedFiles(p => [...p, entry]);
     if (!v.valid) return;
     try {
+      // Extract text client-side
       const r = await extractTextFromPDF(rawFile, prog => { const up = p => p.map(f => f.id === id ? { ...f, progress: prog } : f); if (folderId) setFiles(up); else setStagedFiles(up); });
-      const up = p => p.map(f => f.id === id ? { ...f, status: "done", text: r.text, pages: r.pages, progress: 100 } : f);
-      if (folderId) setFiles(up); else setStagedFiles(up);
-      setAuditLog(prev => [{ id: uid(), action: "File Uploaded", detail: `"${rawFile.name}" (${r.pages} pages, ${fmtSize(rawFile.size)})`, user: loggedInUser?.name || "System", timestamp: Date.now() }, ...prev]);
+      if (folderId) {
+        // Upload directly to server
+        try {
+          const uploaded = await api.uploadFile(rawFile, folderId, r.text, r.pages);
+          const norm = { id: uploaded.id, name: uploaded.name, size: uploaded.file_size_bytes, type: uploaded.mime_type || "application/pdf", pages: uploaded.page_count, status: "done", text: uploaded.extracted_text, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, progress: 100 };
+          setFiles(p => p.map(f => f.id === id ? norm : f));
+        } catch (err) {
+          setFiles(p => p.map(f => f.id === id ? { ...f, status: "error", error: err.message } : f));
+        }
+      } else {
+        // Staged: just mark as done locally, will upload on folder assignment
+        const up = p => p.map(f => f.id === id ? { ...f, status: "done", text: r.text, pages: r.pages, progress: 100 } : f);
+        setStagedFiles(up);
+      }
     } catch { const up = p => p.map(f => f.id === id ? { ...f, status: "error", error: "Failed" } : f); if (folderId) setFiles(up); else setStagedFiles(up); }
   }, []);
   const handleUploadFiles = useCallback(fl => { if (!pdfjsLoaded) return; Array.from(fl).forEach(f => processFile(f, null)); }, [processFile, pdfjsLoaded]);
@@ -223,11 +354,42 @@ export default function App() {
     if (!pdfjsLoaded || !activeFolderId) return;
     Array.from(fl).forEach(f => processFile(f, activeFolderId));
   }, [processFile, pdfjsLoaded, activeFolderId]);
-  const assignStagedToFolder = () => { if (!targetFolderId) return; const ready = stagedFiles.filter(f => f.status !== "processing").map(f => ({ ...f, folderId: targetFolderId })); setFiles(p => [...p, ...ready]); setStagedFiles(p => p.filter(f => f.status === "processing")); const tf = folders.find(f => f.id === targetFolderId); if (tf) { setActiveLocation(tf.locationId); setActiveDepartment(tf.departmentId); setActiveFolderId(targetFolderId); setPage("folder-detail"); } setTargetFolderId(""); };
-  const removeFile = id => { setFiles(p => p.filter(f => f.id !== id)); if (selectedFile?.id === id) setSelectedFile(null); if (viewingFileId === id) { setViewingFileId(null); setPage("folder-detail"); } };
-  const renameFile = (id, newName) => { const n = newName.trim(); if (n) { const old = files.find(f => f.id === id); setFiles(p => p.map(f => f.id === id ? { ...f, name: n } : f)); addAudit("File Renamed", `"${old?.name}" → "${n}"`); } setRenamingFileId(null); };
+  const assignStagedToFolder = async () => {
+    if (!targetFolderId) return;
+    const ready = stagedFiles.filter(f => f.status !== "processing" && f.status !== "error");
+    for (const sf of ready) {
+      try {
+        await api.uploadFile(sf._rawFile || new Blob(), targetFolderId, sf.text, sf.pages);
+      } catch (err) { console.error("Upload failed:", sf.name, err); }
+    }
+    setStagedFiles(p => p.filter(f => f.status === "processing"));
+    const tf = folders.find(f => f.id === targetFolderId);
+    if (tf) { setActiveLocation(tf.locationId); setActiveDepartment(tf.departmentId); setActiveFolderId(targetFolderId); setPage("folder-detail"); }
+    setTargetFolderId("");
+    // Reload files for the target folder
+    api.getFiles(targetFolderId).then(rows => {
+      const norm = rows.map(f => ({ id: f.id, name: f.name, size: f.file_size_bytes, type: f.mime_type || "application/pdf", pages: f.page_count, status: f.status, text: f.extracted_text, folderId: f.folder_id, fileStoragePath: f.file_storage_path, progress: 100 }));
+      setFiles(prev => [...prev.filter(f => f.folderId !== targetFolderId), ...norm]);
+    }).catch(console.error);
+  };
+  const removeFile = async (id) => {
+    try { await api.deleteFile(id); } catch (err) { console.error(err); }
+    setFiles(p => p.filter(f => f.id !== id));
+    if (selectedFile?.id === id) setSelectedFile(null);
+    if (viewingFileId === id) { setViewingFileId(null); setPage("folder-detail"); }
+  };
+  const renameFile = async (id, newName) => {
+    const n = newName.trim();
+    if (n) {
+      try {
+        await api.renameFile(id, n);
+        setFiles(p => p.map(f => f.id === id ? { ...f, name: n } : f));
+      } catch (err) { console.error(err); }
+    }
+    setRenamingFileId(null);
+  };
   const removeStagedFile = id => setStagedFiles(p => p.filter(f => f.id !== id));
-  const createFolder = () => { const n = newLocationName.trim(); /* unused, folders created via admin */ };
+  const createFolder = () => {};
 
   const filesInFolder = id => files.filter(f => f.folderId === id);
   const subfoldersOf = parentId => folders.filter(f => f.parentId === parentId);
@@ -244,23 +406,29 @@ export default function App() {
   const currentLocation = locations.find(l => l.id === activeLocation);
   const activeFolder = folders.find(f => f.id === activeFolderId);
   const copyText = txt => navigator.clipboard.writeText(txt);
-  const addAudit = (action, detail) => setAuditLog(p => [{ id: uid(), action, detail, user: loggedInUser?.name || "System", timestamp: Date.now() }, ...p]);
+  const addAudit = () => {}; // Server handles audit logging now
 
-  const createSubfolder = () => {
+  const createSubfolder = async () => {
     const name = newSubfolderName.trim();
     if (!name || !activeFolderId) { setCreatingSubfolder(false); return; }
     const parent = folders.find(f => f.id === activeFolderId);
     if (!parent) return;
-    setFolders(p => [...p, { id: uid(), name, createdAt: Date.now(), locationId: parent.locationId, departmentId: parent.departmentId, parentId: activeFolderId }]);
-    addAudit("Subfolder Created", `"${name}" inside "${parent.name}"`);
+    try {
+      const created = await api.createFolder(name, parent.locationId, parent.departmentId, activeFolderId);
+      const norm = { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: created.parent_id || created.parentId || null, createdAt: created.created_at };
+      setFolders(p => [...p, norm]);
+    } catch (err) { console.error(err); }
     setNewSubfolderName(""); setCreatingSubfolder(false);
   };
 
-  const createDeptFolder = () => {
+  const createDeptFolder = async () => {
     const name = newDeptFolderName.trim();
     if (!name) { setCreatingDeptFolder(false); return; }
-    setFolders(p => [...p, { id: uid(), name, createdAt: Date.now(), locationId: activeLocation, departmentId: activeDepartment, parentId: null }]);
-    addAudit("Folder Created", `"${name}" in ${currentLocation?.name} — ${currentDept?.name}`);
+    try {
+      const created = await api.createFolder(name, activeLocation, activeDepartment, null);
+      const norm = { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: null, createdAt: created.created_at };
+      setFolders(p => [...p, norm]);
+    } catch (err) { console.error(err); }
     setNewDeptFolderName(""); setCreatingDeptFolder(false);
   };
 
@@ -276,13 +444,30 @@ export default function App() {
 
   const handleDeleteLocation = loc => {
     const lf = foldersInLocation(loc.id), lFiles = lf.reduce((s, f) => s + filesInFolder(f.id).length, 0);
-    const doDelete = () => { const fids = new Set(lf.map(f => f.id)); setFiles(p => p.filter(f => !fids.has(f.folderId))); setFolders(p => p.filter(f => f.locationId !== loc.id)); setDepartments(p => p.filter(d => d.locationId !== loc.id)); setLocations(p => p.filter(l => l.id !== loc.id)); addAudit("Location Deleted", `"${loc.name}" (${lf.length} folders, ${lFiles} files removed)`); if (activeLocation === loc.id) { const rem = locations.filter(l => l.id !== loc.id); if (rem.length) setActiveLocation(rem[0].id); } };
+    const doDelete = async () => {
+      try {
+        await api.deleteLocation(loc.id);
+        setFiles(p => p.filter(f => !new Set(lf.map(ff => ff.id)).has(f.folderId)));
+        setFolders(p => p.filter(f => f.locationId !== loc.id));
+        setDepartments(p => p.filter(d => d.locationId !== loc.id));
+        setLocations(p => p.filter(l => l.id !== loc.id));
+        if (activeLocation === loc.id) { const rem = locations.filter(l => l.id !== loc.id); if (rem.length) setActiveLocation(rem[0].id); }
+      } catch (err) { console.error(err); }
+    };
     if (lf.length > 0 || lFiles > 0) setWarningModal({ title: `Remove "${loc.name}"?`, message: `This location has ${lf.length} folder(s) and ${lFiles} file(s). Are you sure you want to unlink these files? This action cannot be undone.`, onConfirm: doDelete });
     else doDelete();
   };
   const handleDeleteDept = (dept, locName) => {
     const df = foldersInDepartment(dept.id), dFiles = df.reduce((s, f) => s + filesInFolder(f.id).length, 0);
-    const doDelete = () => { const fids = new Set(df.map(f => f.id)); setFiles(p => p.filter(f => !fids.has(f.folderId))); setFolders(p => p.filter(f => f.departmentId !== dept.id)); setDepartments(p => p.filter(d => d.id !== dept.id)); addAudit("Department Deleted", `"${dept.name}" from ${locName} (${df.length} folders, ${dFiles} files removed)`); if (activeDepartment === dept.id) { const rem = deptsInLocation(dept.locationId).filter(d => d.id !== dept.id); if (rem.length) setActiveDepartment(rem[0].id); } };
+    const doDelete = async () => {
+      try {
+        await api.deleteDepartment(dept.id);
+        setFiles(p => p.filter(f => !new Set(df.map(ff => ff.id)).has(f.folderId)));
+        setFolders(p => p.filter(f => f.departmentId !== dept.id));
+        setDepartments(p => p.filter(d => d.id !== dept.id));
+        if (activeDepartment === dept.id) { const rem = deptsInLocation(dept.locationId).filter(d => d.id !== dept.id); if (rem.length) setActiveDepartment(rem[0].id); }
+      } catch (err) { console.error(err); }
+    };
     if (df.length > 0 || dFiles > 0) setWarningModal({ title: `Remove "${dept.name}" from ${locName}?`, message: `This department has ${df.length} folder(s) and ${dFiles} file(s). Are you sure you want to unlink these files? This action cannot be undone.`, onConfirm: doDelete });
     else doDelete();
   };
@@ -293,7 +478,6 @@ export default function App() {
   const SmallBtn = ({ children, onClick, title }) => <button onClick={onClick} title={title} className="icon-btn" style={{ background: "transparent", border: "none", borderRadius: 6, padding: 5, cursor: "pointer", color: t.textDim, display: "flex", alignItems: "center" }}>{children}</button>;
   const FileCard = ({ file, idx, staged }) => <div onClick={() => !staged && file.status === "done" && (() => { setViewingFileId(file.id); setPage("file-detail"); })()} className="file-card" style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "12px 14px", cursor: !staged && file.status === "done" ? "pointer" : "default", transition: "all 0.2s", animation: `fadeIn 0.3s ease ${idx * 0.04}s both`, position: "relative", overflow: "hidden" }}>{file.status === "processing" && <div style={{ position: "absolute", left: 0, bottom: 0, height: 2, width: "100%", background: t.progressBg }}><div style={{ height: "100%", width: `${file.progress}%`, background: `linear-gradient(90deg,${t.accent},${t.accentDark})`, transition: "width 0.3s" }} /></div>}<div style={{ display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 36, height: 36, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: file.status === "error" ? t.errorSoft : file.status === "done" ? t.successSoft : t.accentSoft, color: file.status === "error" ? t.error : file.status === "done" ? t.success : t.accent }}>{file.status === "done" ? <CheckIcon /> : <FileDocIcon size={18} />}</div><div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 12.5, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{file.name}</div><div style={{ fontSize: 10.5, color: t.textMuted, marginTop: 1, display: "flex", gap: 6, flexWrap: "wrap" }}><span>{fmtSize(file.size)}</span>{file.pages > 0 && <span>· {file.pages} pg</span>}{file.status === "processing" && <span style={{ color: t.accent }}>Extracting {file.progress}%</span>}{file.status === "error" && <span style={{ color: t.error }}>{file.error}</span>}{file.status === "done" && <span style={{ color: t.success }}>Ready</span>}</div></div><div style={{ display: "flex", gap: 2 }}>{!staged && file.status === "done" && <SmallBtn title="Rename" onClick={e => { e.stopPropagation(); setRenamingFileId(file.id); setRenamingFileName(file.name); }}><EditIcon /></SmallBtn>}{!staged && file.status === "done" && <SmallBtn title="Copy text" onClick={e => { e.stopPropagation(); copyText(file.text); }}><CopyIcon /></SmallBtn>}<SmallBtn title="Remove" onClick={e => { e.stopPropagation(); staged ? removeStagedFile(file.id) : removeFile(file.id); }}><TrashIcon /></SmallBtn></div></div></div>;
 
-  /* Warning Modal */
   const warnModalEl = warningModal && (
     <div style={{ position: "fixed", inset: 0, zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }} onClick={() => setWarningModal(null)} />
@@ -310,7 +494,6 @@ export default function App() {
     </div>
   );
 
-  /* Rename file modal */
   const renameModalEl = renamingFileId && (
     <div style={{ position: "fixed", inset: 0, zIndex: 250, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={() => setRenamingFileId(null)} />
@@ -331,7 +514,6 @@ export default function App() {
     </div>
   );
 
-  /* File detail page */
   const fileDetailPage = (() => {
     const vf = files.find(f => f.id === viewingFileId);
     if (!vf) return null;
@@ -344,14 +526,11 @@ export default function App() {
 
     return (
       <div style={{ display: "flex", flex: 1, minHeight: "calc(100vh - 55px)", animation: "fadeIn 0.3s ease" }}>
-        {/* Left: File info + extracted text */}
         <div style={{ width: 400, minWidth: 400, borderRight: `1px solid ${t.border}`, background: darkMode ? "rgba(15,17,20,0.5)" : "rgba(246,244,240,0.6)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          {/* File info section */}
           <div style={{ padding: "20px 20px 0", flexShrink: 0 }}>
             <button onClick={() => { setViewingFileId(null); if (folder) { setActiveFolderId(folder.id); setPage("folder-detail"); } else setPage("folders"); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 12.5, fontWeight: 500, display: "flex", alignItems: "center", gap: 6, padding: 0, fontFamily: "inherit", marginBottom: 16 }}>
               <ArrowLeftIcon /> Back to {folder?.name || "Folder"}
             </button>
-
             <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 16 }}>
               <div style={{ width: 44, height: 44, borderRadius: 12, background: t.successSoft, color: t.success, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <FileDocIcon size={22} />
@@ -363,8 +542,6 @@ export default function App() {
                 </button>
               </div>
             </div>
-
-            {/* Info grid */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 16px", fontSize: 12.5, marginBottom: 14 }}>
               <div><div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textDim, marginBottom: 2 }}>Size</div><div style={{ fontWeight: 500 }}>{fmtSize(vf.size)}</div></div>
               <div><div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textDim, marginBottom: 2 }}>Pages</div><div style={{ fontWeight: 500 }}>{vf.pages}</div></div>
@@ -379,18 +556,12 @@ export default function App() {
                 {breadcrumb.map(b => b.name).join(" / ")}
               </div>
             )}
-
-            {/* Actions */}
             <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
               <Btn primary onClick={() => copyText(vf.text)} style={{ fontSize: 11.5, padding: "6px 12px" }}><CopyIcon /> Copy Text</Btn>
               <button onClick={() => removeFile(vf.id)} style={{ background: t.errorSoft, color: t.error, border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 4 }}><TrashIcon size={12} /> Delete</button>
             </div>
-
-            {/* Divider */}
             <div style={{ borderBottom: `1px solid ${t.border}`, marginBottom: 0 }} />
           </div>
-
-          {/* Extracted text */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
             <div style={{ padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
               <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textDim }}>Extracted Text</span>
@@ -401,8 +572,6 @@ export default function App() {
             </pre>
           </div>
         </div>
-
-        {/* Right: File preview */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
           <div style={{ padding: "12px 20px", borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
@@ -411,34 +580,41 @@ export default function App() {
             <span style={{ fontSize: 11, color: t.textDim }}>{vf.name}</span>
           </div>
           <div style={{ flex: 1, background: darkMode ? "#0a0c0f" : "#e8e5e0", overflow: "hidden" }}>
-            {vf.fileDataUrl ? (
-              isPdf ? (
-                <PdfCanvasPreview dataUrl={vf.fileDataUrl} darkMode={darkMode} />
-              ) : isImage ? (
-                <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, overflow: "auto" }}>
-                  <img src={vf.fileDataUrl} alt={vf.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 4 }} />
-                </div>
-              ) : (
+            {(() => {
+              const previewUrl = vf.fileStoragePath ? api.getFilePreviewUrl(vf.fileStoragePath) : vf.fileDataUrl;
+              if (previewUrl) {
+                if (isPdf) {
+                  if (vf.fileDataUrl) return <PdfCanvasPreview dataUrl={vf.fileDataUrl} darkMode={darkMode} />;
+                  // For server files, embed via iframe
+                  return <iframe src={previewUrl} style={{ width: "100%", height: "100%", border: "none" }} title="PDF Preview" />;
+                }
+                if (isImage) return (
+                  <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, overflow: "auto" }}>
+                    <img src={previewUrl} alt={vf.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 4 }} />
+                  </div>
+                );
+                return (
+                  <div style={{ textAlign: "center", color: t.textDim, padding: 40, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%" }}>
+                    <FileDocIcon size={48} />
+                    <div style={{ fontSize: 14, fontWeight: 500, marginTop: 14 }}>No preview available for this file type</div>
+                    <div style={{ fontSize: 12, marginTop: 4, color: t.textDim }}>{vf.type || "Unknown type"}</div>
+                  </div>
+                );
+              }
+              return (
                 <div style={{ textAlign: "center", color: t.textDim, padding: 40, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%" }}>
                   <FileDocIcon size={48} />
-                  <div style={{ fontSize: 14, fontWeight: 500, marginTop: 14 }}>No preview available for this file type</div>
-                  <div style={{ fontSize: 12, marginTop: 4, color: t.textDim }}>{vf.type || "Unknown type"}</div>
+                  <div style={{ fontSize: 14, fontWeight: 500, marginTop: 14 }}>Preview not available</div>
+                  <div style={{ fontSize: 12, marginTop: 4 }}>File data is no longer in memory</div>
                 </div>
-              )
-            ) : (
-              <div style={{ textAlign: "center", color: t.textDim, padding: 40, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%" }}>
-                <FileDocIcon size={48} />
-                <div style={{ fontSize: 14, fontWeight: 500, marginTop: 14 }}>Preview not available</div>
-                <div style={{ fontSize: 12, marginTop: 4 }}>File data is no longer in memory</div>
-              </div>
-            )}
+              );
+            })()}
           </div>
         </div>
       </div>
     );
   })();
 
-  /* LOGIN */
   if (!isLoggedIn) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: darkMode ? "#0d0f12" : "#eeeae5", fontFamily: "'Geist','DM Sans',system-ui,sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" /><link href="https://cdn.jsdelivr.net/npm/geist@1.2.2/dist/fonts/geist-sans/style.min.css" rel="stylesheet" />
@@ -458,17 +634,20 @@ export default function App() {
   );
 
   const adminActiveMenu = ADMIN_MENU.find(m => m.id === adminSection);
-  const demoUsers = [{ name: "Admin User", email: "admin@dealer.com", groups: ["Administrator", "User"], status: "Active" }, { name: "Sarah Johnson", email: "sarah.j@dealer.com", groups: ["User"], status: "Active" }, { name: "Mike Peters", email: "mike.p@dealer.com", groups: ["User"], status: "Active" }, { name: "Lisa Chen", email: "lisa.c@dealer.com", groups: ["User"], status: "Inactive" }];
-  const demoGroups = [{ name: "Administrator", members: 1, desc: "Full system access" }, { name: "User", members: 4, desc: "Standard access" }, { name: "Read Only", members: 0, desc: "View-only" }, { name: "Manager", members: 0, desc: "Department management" }];
+  const [adminUsers, setAdminUsers] = useState([]);
+  const demoUsers = adminUsers;
+  const demoGroups = securityGroups.map(g => ({ ...g, members: g.memberCount || 0, permCount: g.permissions ? Object.values(g.permissions).filter(Boolean).length : 0 }));
+  const [dashboardData, setDashboardData] = useState(null);
 
-  /* Folders page */
-  /* Dashboard */
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const filesToday = files.filter(f => f.folderId && f.status === "done");
-  const foldersToday = folders.filter(f => f.createdAt && f.createdAt >= todayStart);
-  const recentFiles = [...files].filter(f => f.status === "done").reverse().slice(0, 10);
-  const totalByLocation = locations.map(loc => ({ name: loc.name, folders: foldersInLocation(loc.id).length, files: foldersInLocation(loc.id).reduce((s, f) => s + filesInFolder(f.id).length, 0) }));
+  // ── Load dashboard data from API ───────────────────────────
+  useEffect(() => {
+    if (!isLoggedIn || page !== "dashboard") return;
+    api.getDashboard().then(setDashboardData).catch(console.error);
+  }, [isLoggedIn, page]);
+
+  const dd = dashboardData || {};
+  const totalByLocation = (dd.locationStats || []).map(l => ({ name: l.name, folders: l.folder_count, files: l.file_count }));
+  const recentFiles = (dd.recentFiles || []).map(f => ({ id: f.id, name: f.name, size: f.file_size_bytes, pages: f.page_count, folderId: f.folder_id, folderName: f.folder_name, locationName: f.location_name, departmentName: f.department_name }));
 
   const StatCard = ({ icon, label, value, color, sub }) => (
     <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: "20px 18px", flex: 1, minWidth: 0, animation: "fadeIn 0.3s ease" }}>
@@ -487,16 +666,12 @@ export default function App() {
         <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0, letterSpacing: "-0.03em" }}>Dashboard</h1>
         <p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>Welcome back, {loggedInUser?.name}</p>
       </div>
-
-      {/* Stats row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 28 }}>
-        <StatCard icon={<FileDocIcon size={20} />} label="Total Files" value={files.filter(f => f.status === "done").length} color={t.accentSoft} sub={`${filesToday.length} uploaded today`} />
-        <StatCard icon={<FolderClosedIcon size={20} />} label="Total Folders" value={folders.length} color={t.successSoft} sub={`${foldersToday.length} created today`} />
-        <StatCard icon={<MapPinIcon size={20} />} label="Locations" value={locations.length} color={darkMode ? "rgba(210,153,34,0.12)" : "rgba(180,83,9,0.08)"} />
-        <StatCard icon={<LayersIcon size={20} />} label="Departments" value={departments.length} color={darkMode ? "rgba(248,81,73,0.1)" : "rgba(225,29,72,0.07)"} />
+        <StatCard icon={<FileDocIcon size={20} />} label="Total Files" value={dd.totalFiles ?? 0} color={t.accentSoft} sub={`${dd.filesToday ?? 0} uploaded today`} />
+        <StatCard icon={<FolderClosedIcon size={20} />} label="Total Folders" value={dd.totalFolders ?? 0} color={t.successSoft} sub={`${dd.foldersToday ?? 0} created today`} />
+        <StatCard icon={<MapPinIcon size={20} />} label="Locations" value={dd.totalLocations ?? 0} color={darkMode ? "rgba(210,153,34,0.12)" : "rgba(180,83,9,0.08)"} />
+        <StatCard icon={<LayersIcon size={20} />} label="Departments" value={dd.totalDepartments ?? 0} color={darkMode ? "rgba(248,81,73,0.1)" : "rgba(225,29,72,0.07)"} />
       </div>
-
-      {/* Files per location */}
       <div style={{ marginBottom: 28 }}>
         <h2 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 12px", letterSpacing: "-0.01em" }}>Files by Location</h2>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -519,23 +694,18 @@ export default function App() {
           })}
         </div>
       </div>
-
-      {/* Recent uploads */}
       <div>
         <h2 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 12px", letterSpacing: "-0.01em" }}>Recent Uploads</h2>
         {recentFiles.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             {recentFiles.map((file, idx) => {
-              const folder = folders.find(f => f.id === file.folderId);
-              const loc = folder ? locations.find(l => l.id === folder.locationId) : null;
-              const dept = folder ? departments.find(d => d.id === folder.departmentId) : null;
               return (
-                <div key={file.id} className="folder-row" onClick={() => { if (folder) { setActiveLocation(folder.locationId); setActiveDepartment(folder.departmentId); setActiveFolderId(folder.id); setPage("folder-detail"); } }} style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "10px 16px", cursor: "pointer", transition: "all 0.2s", animation: `fadeIn 0.25s ease ${idx * 0.03}s both` }}>
+                <div key={file.id} className="folder-row" onClick={() => { if (file.folderId) { setActiveFolderId(file.folderId); setPage("folder-detail"); } }} style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "10px 16px", cursor: "pointer", transition: "all 0.2s", animation: `fadeIn 0.25s ease ${idx * 0.03}s both` }}>
                   <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
                     <div style={{ width: 32, height: 32, borderRadius: 8, background: t.successSoft, color: t.success, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><FileDocIcon size={16} /></div>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{file.name}</div>
-                      <div style={{ fontSize: 10.5, color: t.textDim }}>{loc?.name} / {dept?.name} / {folder?.name}</div>
+                      <div style={{ fontSize: 10.5, color: t.textDim }}>{file.locationName} / {file.departmentName} / {file.folderName}</div>
                     </div>
                   </div>
                   <div style={{ fontSize: 11, color: t.textMuted, flexShrink: 0, marginLeft: 12 }}>{fmtSize(file.size)}</div>
@@ -574,13 +744,11 @@ export default function App() {
             </Btn>
           )}
         </div>
-
         <div style={{ display: "flex", alignItems: "center", gap: 10, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "10px 14px", marginBottom: 16 }}>
           <SearchIcon size={16} />
           <input value={folderSearch} onChange={e => setFolderSearch(e.target.value)} placeholder="Search folders..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 13.5, color: t.text, outline: "none", fontFamily: "inherit" }} />
           {folderSearch && <button onClick={() => setFolderSearch("")} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.textDim, display: "flex", padding: 2 }}><XIcon size={14} /></button>}
         </div>
-
         {creatingDeptFolder && (
           <div style={{ background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 10, padding: "12px 14px", marginBottom: 12, display: "flex", alignItems: "center", gap: 10, boxShadow: `0 0 0 3px ${t.accentSoft}`, animation: "fadeIn 0.2s ease" }}>
             <div style={{ color: t.accent }}><FolderClosedIcon size={18} /></div>
@@ -596,7 +764,6 @@ export default function App() {
             <button onClick={() => { setCreatingDeptFolder(false); setNewDeptFolderName(""); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.textDim, display: "flex", padding: 3 }}><XIcon size={14} /></button>
           </div>
         )}
-
         {filtered.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             {filtered.map((folder, idx) => {
@@ -628,7 +795,6 @@ export default function App() {
     );
   })();
 
-  /* Folder detail */
   const folderDetail = (() => {
     if (!activeFolder) return null;
     const ff = filesInFolder(activeFolderId), fd = departments.find(d => d.id === activeFolder.departmentId), fl = locations.find(l => l.id === activeFolder.locationId);
@@ -651,10 +817,7 @@ export default function App() {
             </div>
           </div>
         )}
-
         <input ref={folderDetailInputRef} type="file" accept=".pdf" multiple onChange={e => { handleFolderDetailFiles(e.target.files); e.target.value = ""; }} style={{ display: "none" }} />
-
-        {/* Breadcrumb */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 20, flexWrap: "wrap" }}>
           <button onClick={() => { setPage("folders"); setSelectedFile(null); setCreatingSubfolder(false); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 12.5, fontWeight: 500, display: "flex", alignItems: "center", gap: 4, padding: 0, fontFamily: "inherit" }}>
             {fl?.name} — {fd?.name}
@@ -672,7 +835,6 @@ export default function App() {
             </span>
           ))}
         </div>
-
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{ color: t.accent }}><FolderOpenIcon size={28} /></div>
@@ -694,8 +856,6 @@ export default function App() {
             </Btn>
           </div>
         </div>
-
-        {/* Create subfolder inline */}
         {creatingSubfolder && (
           <div style={{ background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 10, padding: "12px 14px", marginBottom: 12, display: "flex", alignItems: "center", gap: 10, boxShadow: `0 0 0 3px ${t.accentSoft}`, animation: "fadeIn 0.2s ease" }}>
             <div style={{ color: t.accent }}><FolderClosedIcon size={18} /></div>
@@ -711,8 +871,6 @@ export default function App() {
             <button onClick={() => { setCreatingSubfolder(false); setNewSubfolderName(""); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.textDim, display: "flex", padding: 3 }}><XIcon size={14} /></button>
           </div>
         )}
-
-        {/* Subfolders */}
         {subs.length > 0 && (
           <div style={{ marginBottom: 16 }}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textDim, marginBottom: 8, paddingLeft: 4 }}>Subfolders</div>
@@ -737,14 +895,10 @@ export default function App() {
             </div>
           </div>
         )}
-
-        {/* Drop zone hint */}
         <div onClick={() => folderDetailInputRef.current?.click()} style={{ border: `1px dashed ${t.border}`, borderRadius: 10, padding: "16px 20px", marginBottom: 16, display: "flex", alignItems: "center", gap: 12, cursor: "pointer", background: t.dropzone }}>
           <div style={{ color: t.textDim }}><UploadCloudIcon size={24} /></div>
           <div><div style={{ fontSize: 13, fontWeight: 500, color: t.text }}>Drag & drop files here or click to browse</div><div style={{ fontSize: 11, color: t.textDim }}>PDFs added directly to this folder</div></div>
         </div>
-
-        {/* Files */}
         {ff.length > 0 ? (
           <div>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textDim, marginBottom: 8, paddingLeft: 4 }}>Files</div>
@@ -761,10 +915,8 @@ export default function App() {
     );
   })();
 
-  /* Upload page */
   const uploadPage = (() => { const allDone = stagedFiles.length > 0 && stagedFiles.every(f => f.status !== "processing"); return <div style={{ maxWidth: 720, margin: "0 auto", padding: "36px 28px", animation: "fadeIn 0.35s ease" }}><div style={{ marginBottom: 28 }}><h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>Upload</h1><p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>Upload PDF files, then choose a folder</p></div><div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: t.accent, marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 20, height: 20, borderRadius: "50%", background: t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>1</span> Select Files</div><div onDrop={handleDrop} onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={e => { e.preventDefault(); setDragOver(false); }} onClick={() => fileInputRef.current?.click()} style={{ border: `2px dashed ${dragOver ? t.accent : t.border}`, borderRadius: 14, padding: "44px 24px", textAlign: "center", cursor: "pointer", background: dragOver ? t.dropzoneActive : t.dropzone, marginBottom: 20, position: "relative" }}><div style={{ color: dragOver ? t.accent : t.textDim, marginBottom: 10 }}><UploadCloudIcon /></div><p style={{ fontSize: 16, fontWeight: 500, marginBottom: 4, color: t.text }}>{dragOver ? "Drop PDFs" : "Drag & drop PDF files"}</p><p style={{ fontSize: 12, color: t.textMuted, margin: 0 }}>or click · max 50 MB</p><input ref={fileInputRef} type="file" accept=".pdf" multiple onChange={e => { handleUploadFiles(e.target.files); e.target.value = ""; }} style={{ display: "none" }} /></div>{stagedFiles.length > 0 && <div style={{ marginBottom: 28 }}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}><span style={{ fontSize: 12, fontWeight: 600, color: t.textMuted }}>{stagedFiles.length} file{stagedFiles.length !== 1 ? "s" : ""}</span><button onClick={() => setStagedFiles([])} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.error, fontSize: 11, fontWeight: 500, fontFamily: "inherit" }}>Clear</button></div><div style={{ display: "flex", flexDirection: "column", gap: 6 }}>{stagedFiles.map((f, i) => <FileCard key={f.id} file={f} idx={i} staged />)}</div></div>}{stagedFiles.length > 0 && <div><div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: allDone ? t.accent : t.textDim, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, background: allDone ? t.accentSoft : "transparent", border: allDone ? "none" : `1px solid ${t.textDim}` }}>2</span> Choose Folder</div>{!allDone ? <div style={{ padding: "16px 20px", background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, color: t.textDim, fontSize: 13 }}>Processing...</div> : <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12 }}><div style={{ padding: "16px 20px" }}><label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 8 }}>Destination Folder</label><div style={{ position: "relative" }}><div onClick={() => { setShowFolderSelect(!showFolderSelect); setFolderSelectSearch(""); }} style={{ border: `1px solid ${showFolderSelect ? t.accent : t.border}`, borderRadius: 8, padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: showFolderSelect ? `0 0 0 3px ${t.accentSoft}` : "none" }}><div style={{ display: "flex", alignItems: "center", gap: 10 }}><FolderClosedIcon size={16} /><span style={{ fontSize: 13.5, fontWeight: 500, color: targetFolderId ? t.text : t.textDim }}>{targetFolderId ? (() => { const tf = folders.find(f => f.id === targetFolderId); if (!tf) return "Select..."; return `${locations.find(l => l.id === tf.locationId)?.name} / ${departments.find(d => d.id === tf.departmentId)?.name} / ${tf.name}`; })() : "Select a folder..."}</span></div><ChevronDown /></div>{showFolderSelect && (() => { const sq = folderSelectSearch.trim(), dff = sq ? folders.map(f => ({ folder: f, ...fuzzyMatch(sq, f.name) })).filter(r => r.match).sort((a, b) => b.score - a.score).map(r => r.folder) : folders; return <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 50, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, boxShadow: "0 12px 36px rgba(0,0,0,0.2)", overflow: "hidden" }}><div style={{ padding: "8px 10px", borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", gap: 8 }}><SearchIcon size={14} /><input ref={folderSelectInputRef} value={folderSelectSearch} onChange={e => setFolderSelectSearch(e.target.value)} onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === "Escape") { setShowFolderSelect(false); setFolderSelectSearch(""); } if (e.key === "Enter" && dff.length === 1) { setTargetFolderId(dff[0].id); setShowFolderSelect(false); setFolderSelectSearch(""); } }} placeholder="Search..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 12.5, color: t.text, outline: "none", fontFamily: "inherit" }} /></div><div style={{ padding: 4, maxHeight: 300, overflowY: "auto" }}>{dff.length > 0 ? locations.map(loc => { const li = dff.filter(f => f.locationId === loc.id); if (!li.length) return null; return <div key={loc.id}><div style={{ padding: "7px 10px 3px", fontSize: 10, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: t.textMuted, marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}><MapPinIcon size={11} /> {loc.name}</div>{deptsInLocation(loc.id).map(dept => { const di = li.filter(f => f.departmentId === dept.id); if (!di.length) return null; return <div key={dept.id}><div style={{ padding: "5px 12px 2px 22", fontSize: 9.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: t.textDim }}>{dept.name}</div>{di.map(folder => <div key={folder.id} onClick={() => { setTargetFolderId(folder.id); setShowFolderSelect(false); setFolderSelectSearch(""); }} className="folder-select-item" style={{ padding: "7px 12px 7px 32", borderRadius: 6, cursor: "pointer", fontSize: 12.5, display: "flex", alignItems: "center", gap: 9, background: targetFolderId === folder.id ? t.accentSoft : "transparent", color: targetFolderId === folder.id ? t.accent : t.text, fontWeight: 500 }}><FolderClosedIcon size={14} /><span style={{ flex: 1 }}><HighlightedName name={folder.name} query={sq} accentColor={t.accent} /></span><span style={{ fontSize: 10, color: t.textDim }}>{filesInFolder(folder.id).length}</span></div>)}</div>; })}</div>; }) : <div style={{ padding: "14px 12px", fontSize: 12, color: t.textDim, textAlign: "center" }}>{sq ? `No match` : "No folders"}</div>}</div></div>; })()}</div></div><div style={{ padding: "0 20px 18px", display: "flex", justifyContent: "flex-end" }}><Btn primary onClick={assignStagedToFolder} style={{ opacity: targetFolderId ? 1 : 0.4, pointerEvents: targetFolderId ? "auto" : "none", padding: "10px 24px", fontSize: 13 }}><CheckIcon /> Add {stagedFiles.filter(f => f.status !== "processing").length} File{stagedFiles.filter(f => f.status !== "processing").length !== 1 ? "s" : ""}</Btn></div></div>}</div>}</div>; })();
 
-  /* Admin page (inline) */
   const adminPage = <div style={{ display: "flex", flex: 1, minHeight: "calc(100vh - 55px)", animation: "fadeIn 0.3s ease" }}>
     <div style={{ width: 260, minWidth: 260, borderRight: `1px solid ${t.border}`, background: darkMode ? "rgba(15,17,20,0.5)" : "rgba(246,244,240,0.6)", padding: "20px 10px", display: "flex", flexDirection: "column" }}>
       <button onClick={() => setPage("folders")} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 12, fontWeight: 500, display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", fontFamily: "inherit", marginBottom: 16, borderRadius: 6 }}><ArrowLeftIcon /> Back to Documents</button>
@@ -772,28 +924,198 @@ export default function App() {
       {ADMIN_MENU.map(item => <div key={item.id} onClick={() => setAdminSection(item.id)} className="admin-menu-item" style={{ padding: "9px 12px", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 10, background: adminSection === item.id ? t.accentSoft : "transparent", color: adminSection === item.id ? t.accent : t.text, fontWeight: adminSection === item.id ? 600 : 500, fontSize: 13, borderLeft: adminSection === item.id ? `2px solid ${t.accent}` : "2px solid transparent", marginBottom: 2 }}><span style={{ color: adminSection === item.id ? t.accent : t.textDim, display: "flex" }}>{item.icon}</span> {item.label}</div>)}
     </div>
     <div style={{ flex: 1, padding: "32px 36px", overflowY: "auto" }}><div style={{ maxWidth: 860 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}><div><h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 10 }}><span style={{ color: t.accent }}>{adminActiveMenu?.icon}</span> {adminActiveMenu?.label}</h1><p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>{adminActiveMenu?.desc}</p></div>{(adminSection === "users" || adminSection === "groups") && <Btn primary style={{ fontSize: 12 }}><PlusIcon size={13} /> Add {adminSection === "users" ? "User" : "Group"}</Btn>}{adminSection === "locations" && !addingLocation && <Btn primary onClick={() => { setAddingLocation(true); setNewLocationName(""); }} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add Location</Btn>}</div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}><div><h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 10 }}><span style={{ color: t.accent }}>{adminActiveMenu?.icon}</span> {adminActiveMenu?.label}</h1><p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>{adminActiveMenu?.desc}</p></div>{(adminSection === "users") && <Btn primary style={{ fontSize: 12 }}><PlusIcon size={13} /> Add User</Btn>}{(adminSection === "groups") && !addingGroup && <Btn primary onClick={() => { setAddingGroup(true); setNewGroupName(""); setNewGroupDesc(""); }} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add Group</Btn>}{adminSection === "locations" && !addingLocation && <Btn primary onClick={() => { setAddingLocation(true); setNewLocationName(""); }} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add Location</Btn>}</div>
 
       {adminSection === "users" && <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>{demoUsers.map((u, i) => <div key={i} className="folder-row" style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "12px 16px", animation: `fadeIn 0.25s ease ${i * 0.04}s both` }}><div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 32, height: 32, borderRadius: "50%", background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>{u.name.charAt(0)}</div><div><div style={{ fontSize: 13, fontWeight: 600 }}>{u.name}</div><div style={{ fontSize: 11, color: t.textDim }}>{u.email}</div></div></div><div style={{ width: 180, display: "flex", gap: 4, flexWrap: "wrap" }}>{u.groups.map(g => <span key={g} style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: g === "Administrator" ? t.accentSoft : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)", color: g === "Administrator" ? t.accent : t.textMuted }}>{g}</span>)}</div><div style={{ width: 80, textAlign: "center" }}><span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: u.status === "Active" ? t.successSoft : t.errorSoft, color: u.status === "Active" ? t.success : t.error }}>{u.status}</span></div><div style={{ width: 60, display: "flex", justifyContent: "flex-end", gap: 2 }}><SmallBtn title="Edit"><EditIcon /></SmallBtn><SmallBtn title="Remove"><TrashIcon size={12} /></SmallBtn></div></div>)}</div>}
 
-      {adminSection === "groups" && <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>{demoGroups.map((g, i) => <div key={i} className="folder-row" style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "14px 16px", animation: `fadeIn 0.25s ease ${i * 0.04}s both` }}><div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 34, height: 34, borderRadius: 8, background: g.name === "Administrator" ? t.accentSoft : darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)", color: g.name === "Administrator" ? t.accent : t.textMuted, display: "flex", alignItems: "center", justifyContent: "center" }}><ShieldIcon size={16} /></div><div><div style={{ fontSize: 13, fontWeight: 600 }}>{g.name}</div><div style={{ fontSize: 11, color: t.textDim }}>{g.desc}</div></div></div><div style={{ width: 90, textAlign: "center" }}><span style={{ fontSize: 11, fontWeight: 600, color: g.members > 0 ? t.accent : t.textDim, background: g.members > 0 ? t.accentSoft : "transparent", padding: "2px 9px", borderRadius: 12 }}>{g.members}</span></div><div style={{ width: 60, display: "flex", justifyContent: "flex-end", gap: 2 }}><SmallBtn title="Edit"><EditIcon /></SmallBtn><SmallBtn title="Remove"><TrashIcon size={12} /></SmallBtn></div></div>)}</div>}
+      {adminSection === "groups" && (() => {
+        const editingGroup = editingGroupId ? securityGroups.find(g => g.id === editingGroupId) : null;
+        const togglePerm = (groupId, perm) => {
+          setSecurityGroups(p => {
+            const updated = p.map(g => g.id === groupId ? { ...g, permissions: { ...g.permissions, [perm]: !g.permissions[perm] } } : g);
+            const group = updated.find(g => g.id === groupId);
+            if (group) api.updateGroupPermissions(groupId, group.permissions).catch(console.error);
+            return updated;
+          });
+        };
+        const toggleAllInCategory = (groupId, category, value) => {
+          const permsInCat = Object.entries(PERMISSION_LABELS).filter(([, v]) => v.category === category).map(([k]) => k);
+          setSecurityGroups(p => {
+            const updated = p.map(g => g.id === groupId ? { ...g, permissions: { ...g.permissions, ...Object.fromEntries(permsInCat.map(pk => [pk, value])) } } : g);
+            const group = updated.find(g => g.id === groupId);
+            if (group) api.updateGroupPermissions(groupId, group.permissions).catch(console.error);
+            return updated;
+          });
+        };
+        const saveGroupName = async (groupId, name, desc) => {
+          const n = name.trim(), d = desc.trim();
+          if (n) {
+            try {
+              await api.updateGroup(groupId, n, d || undefined);
+              setSecurityGroups(p => p.map(g => g.id === groupId ? { ...g, name: n, desc: d || g.desc } : g));
+            } catch (err) { console.error(err); }
+          }
+        };
+        const deleteGroup = (group) => {
+          setWarningModal({ title: `Delete "${group.name}"?`, message: `This will permanently remove the "${group.name}" security group. Users assigned to this group will lose these permissions.`, onConfirm: async () => {
+            try { await api.deleteGroup(group.id); } catch (err) { console.error(err); }
+            setSecurityGroups(p => p.filter(g => g.id !== group.id));
+            if (editingGroupId === group.id) setEditingGroupId(null);
+          }});
+        };
+        const addNewGroup = async () => {
+          const n = newGroupName.trim();
+          if (!n) return;
+          try {
+            const defaultPerms = { viewFiles: true, uploadFiles: false, deleteFiles: false, renameFiles: false, createFolders: false, deleteFolders: false, manageLocations: false, manageDepartments: false, manageUsers: false, manageGroups: false, viewAuditLog: false, exportAuditLog: false, manageSettings: false };
+            const created = await api.createGroup(n, newGroupDesc.trim() || "Custom security group", defaultPerms);
+            const newG = { id: created.id, name: created.name, desc: created.description, permissions: created.permissions || defaultPerms, memberCount: 0 };
+            setSecurityGroups(p => [...p, newG]);
+            setEditingGroupId(newG.id);
+          } catch (err) { console.error(err); }
+          setAddingGroup(false);
+          setNewGroupName("");
+          setNewGroupDesc("");
+        };
 
-      {adminSection === "locations" && <div>{addingLocation && <div style={{ background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 10, padding: "14px 16px", marginBottom: 12, display: "flex", alignItems: "center", gap: 12, boxShadow: `0 0 0 3px ${t.accentSoft}` }}><span style={{ color: t.accent }}><MapPinIcon size={18} /></span><input ref={addLocRef} value={newLocationName} onChange={e => setNewLocationName(e.target.value)} onKeyDown={e => { if (e.key === "Enter") { const n = newLocationName.trim(); if (n) { setLocations(p => [...p, { id: uid(), name: n }]); addAudit("Location Created", `"${n}"`); setNewLocationName(""); setAddingLocation(false); } } if (e.key === "Escape") { setAddingLocation(false); setNewLocationName(""); } }} placeholder="Location name..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 14, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 500 }} /><Btn primary onClick={() => { const n = newLocationName.trim(); if (n) { setLocations(p => [...p, { id: uid(), name: n }]); addAudit("Location Created", `"${n}"`); setNewLocationName(""); setAddingLocation(false); } }} style={{ padding: "6px 14px", fontSize: 12 }}>Add</Btn><button onClick={() => { setAddingLocation(false); setNewLocationName(""); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.textDim, display: "flex", padding: 4 }}><XIcon size={16} /></button></div>}<div style={{ display: "flex", flexDirection: "column", gap: 4 }}>{locations.map((loc, idx) => { const lf = foldersInLocation(loc.id), lFiles = lf.reduce((s, f) => s + filesInFolder(f.id).length, 0), isEd = editingLocationId === loc.id; return <div key={loc.id} className="folder-row" style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${isEd ? t.accent : t.border}`, borderRadius: 10, padding: "12px 16px", boxShadow: isEd ? `0 0 0 3px ${t.accentSoft}` : "none", animation: `fadeIn 0.25s ease ${idx * 0.04}s both` }}><div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 34, height: 34, borderRadius: 8, background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center" }}><MapPinIcon size={16} /></div>{isEd ? <input ref={editLocRef} value={editingLocationName} onChange={e => setEditingLocationName(e.target.value)} onBlur={() => { const n = editingLocationName.trim(); if (n) { addAudit("Location Renamed", `"${loc.name}" → "${n}"`); setLocations(p => p.map(l => l.id === loc.id ? { ...l, name: n } : l)); } setEditingLocationId(null); }} onKeyDown={e => { if (e.key === "Enter") { const n = editingLocationName.trim(); if (n) { addAudit("Location Renamed", `"${loc.name}" → "${n}"`); setLocations(p => p.map(l => l.id === loc.id ? { ...l, name: n } : l)); } setEditingLocationId(null); } if (e.key === "Escape") setEditingLocationId(null); }} style={{ flex: 1, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.accent}`, borderRadius: 6, padding: "5px 10px", fontSize: 13.5, fontWeight: 600, color: t.text, outline: "none", fontFamily: "inherit" }} /> : <div style={{ fontSize: 13.5, fontWeight: 600 }}>{loc.name}</div>}</div><div style={{ width: 100, textAlign: "center" }}><span style={{ fontSize: 11, fontWeight: 600, color: lf.length > 0 ? t.accent : t.textDim, background: lf.length > 0 ? t.accentSoft : "transparent", padding: "2px 9px", borderRadius: 12 }}>{lf.length}</span></div><div style={{ width: 80, textAlign: "center", fontSize: 11, color: t.textDim }}>{lFiles} files</div>{!isEd && <div style={{ width: 70, display: "flex", justifyContent: "flex-end", gap: 2 }}><SmallBtn title="Edit" onClick={() => { setEditingLocationId(loc.id); setEditingLocationName(loc.name); }}><EditIcon /></SmallBtn><SmallBtn title="Remove" onClick={() => handleDeleteLocation(loc)}><TrashIcon size={12} /></SmallBtn></div>}</div>; })}</div></div>}
+        const PermToggle = ({ checked, onChange, label, desc }) => (
+          <div onClick={onChange} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 8, cursor: "pointer", background: checked ? t.accentSoft : "transparent", border: `1px solid ${checked ? t.accent + "40" : t.border}`, transition: "all 0.2s" }}>
+            <div style={{ width: 36, height: 20, borderRadius: 10, background: checked ? t.accent : (darkMode ? "#2a2e35" : "#d4d0c8"), position: "relative", transition: "background 0.2s", flexShrink: 0 }}>
+              <div style={{ width: 16, height: 16, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: checked ? 18 : 2, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: checked ? t.text : t.textMuted }}>{label}</div>
+              {desc && <div style={{ fontSize: 10.5, color: t.textDim, marginTop: 1 }}>{desc}</div>}
+            </div>
+          </div>
+        );
 
-      {adminSection === "departments" && <div>{locations.map((loc, li) => { const ld = deptsInLocation(loc.id), isAddHere = addingDept && addingDeptLocId === loc.id; return <div key={loc.id} style={{ marginBottom: 28, animation: `fadeIn 0.25s ease ${li * 0.05}s both` }}><div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, padding: "0 4px" }}><div style={{ display: "flex", alignItems: "center", gap: 8 }}><MapPinIcon size={16} /><span style={{ fontSize: 14, fontWeight: 700 }}>{loc.name}</span><span style={{ fontSize: 10.5, color: t.textDim }}>{ld.length} dept{ld.length !== 1 ? "s" : ""}</span></div>{!isAddHere && <button onClick={() => { setAddingDept(true); setAddingDeptLocId(loc.id); setNewDeptName(""); }} style={{ background: "transparent", border: `1px dashed ${t.border}`, borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 11, fontWeight: 500, color: t.textMuted, fontFamily: "inherit", display: "flex", alignItems: "center", gap: 5 }}><PlusIcon size={11} /> Add</button>}</div>{isAddHere && <div style={{ background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 10, boxShadow: `0 0 0 3px ${t.accentSoft}` }}><span style={{ color: t.accent }}><LayersIcon size={16} /></span><input ref={addDeptRef} value={newDeptName} onChange={e => setNewDeptName(e.target.value)} onKeyDown={e => { if (e.key === "Enter") { const n = newDeptName.trim(); if (n) { setDepartments(p => [...p, { id: uid(), name: n, locationId: loc.id }]); addAudit("Department Created", `"${n}" in ${loc.name}`); setNewDeptName(""); setAddingDept(false); setAddingDeptLocId(null); } } if (e.key === "Escape") { setAddingDept(false); setAddingDeptLocId(null); } }} placeholder="Department name..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 13, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 500 }} /><Btn primary onClick={() => { const n = newDeptName.trim(); if (n) { setDepartments(p => [...p, { id: uid(), name: n, locationId: loc.id }]); addAudit("Department Created", `"${n}" in ${loc.name}`); setNewDeptName(""); setAddingDept(false); setAddingDeptLocId(null); } }} style={{ padding: "5px 12px", fontSize: 11.5 }}>Add</Btn><button onClick={() => { setAddingDept(false); setAddingDeptLocId(null); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.textDim, display: "flex", padding: 3 }}><XIcon size={14} /></button></div>}{ld.length > 0 ? <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>{ld.map((dept, di) => { const df = foldersInDepartment(dept.id), dFiles = df.reduce((s, f) => s + filesInFolder(f.id).length, 0), isEd = editingDeptId === dept.id; return <div key={dept.id} className="folder-row" style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${isEd ? t.accent : t.border}`, borderRadius: 9, padding: "10px 14px", boxShadow: isEd ? `0 0 0 3px ${t.accentSoft}` : "none", animation: `fadeIn 0.2s ease ${di * 0.03}s both` }}><div style={{ flex: 1, display: "flex", alignItems: "center", gap: 9 }}><div style={{ width: 30, height: 30, borderRadius: 7, background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center" }}><LayersIcon size={14} /></div>{isEd ? <input ref={editDeptRef} value={editingDeptName} onChange={e => setEditingDeptName(e.target.value)} onBlur={() => { const n = editingDeptName.trim(); if (n) { addAudit("Department Renamed", `"${dept.name}" → "${n}"`); setDepartments(p => p.map(d => d.id === dept.id ? { ...d, name: n } : d)); } setEditingDeptId(null); }} onKeyDown={e => { if (e.key === "Enter") { const n = editingDeptName.trim(); if (n) { addAudit("Department Renamed", `"${dept.name}" → "${n}"`); setDepartments(p => p.map(d => d.id === dept.id ? { ...d, name: n } : d)); } setEditingDeptId(null); } if (e.key === "Escape") setEditingDeptId(null); }} style={{ flex: 1, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.accent}`, borderRadius: 6, padding: "4px 9px", fontSize: 13, fontWeight: 600, color: t.text, outline: "none", fontFamily: "inherit" }} /> : <div style={{ fontSize: 13, fontWeight: 600 }}>{dept.name}</div>}</div><span style={{ fontSize: 10.5, color: t.textDim, width: 70, textAlign: "center" }}>{df.length} folders</span><span style={{ fontSize: 10.5, color: t.textDim, width: 60, textAlign: "center" }}>{dFiles} files</span>{!isEd && <div style={{ width: 60, display: "flex", justifyContent: "flex-end", gap: 2 }}><SmallBtn title="Edit" onClick={() => { setEditingDeptId(dept.id); setEditingDeptName(dept.name); }}><EditIcon /></SmallBtn><SmallBtn title="Remove" onClick={() => handleDeleteDept(dept, loc.name)}><TrashIcon size={12} /></SmallBtn></div>}</div>; })}</div> : !isAddHere && <div style={{ padding: 20, textAlign: "center", color: t.textDim, fontSize: 12.5, background: t.surface, border: `1px dashed ${t.border}`, borderRadius: 9 }}>No departments for {loc.name}</div>}</div>; })}</div>}
+        return (
+          <div style={{ animation: "fadeIn 0.25s ease" }}>
+            {/* Add new group inline */}
+            {addingGroup && (
+              <div style={{ background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 12, padding: "18px 20px", marginBottom: 16, boxShadow: `0 0 0 3px ${t.accentSoft}`, animation: "fadeIn 0.2s ease" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}><ShieldIcon size={16} /> New Security Group</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
+                  <div>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 4 }}>Group Name</label>
+                    <input value={newGroupName} onChange={e => setNewGroupName(e.target.value)} onKeyDown={e => { if (e.key === "Enter") addNewGroup(); if (e.key === "Escape") { setAddingGroup(false); setNewGroupName(""); setNewGroupDesc(""); } }} placeholder="e.g. Supervisor, Auditor..." autoFocus style={{ width: "100%", padding: "9px 12px", fontSize: 13.5, fontFamily: "inherit", background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 8, color: t.text, outline: "none", boxSizing: "border-box", fontWeight: 500 }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 4 }}>Description</label>
+                    <input value={newGroupDesc} onChange={e => setNewGroupDesc(e.target.value)} onKeyDown={e => { if (e.key === "Enter") addNewGroup(); if (e.key === "Escape") { setAddingGroup(false); setNewGroupName(""); setNewGroupDesc(""); } }} placeholder="Brief description of this role..." style={{ width: "100%", padding: "9px 12px", fontSize: 13, fontFamily: "inherit", background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 8, color: t.text, outline: "none", boxSizing: "border-box" }} />
+                  </div>
+                </div>
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                  <button onClick={() => { setAddingGroup(false); setNewGroupName(""); setNewGroupDesc(""); }} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 8, padding: "7px 14px", fontSize: 12.5, fontWeight: 600, cursor: "pointer", color: t.text, fontFamily: "inherit" }}>Cancel</button>
+                  <Btn primary onClick={addNewGroup} style={{ padding: "7px 16px", fontSize: 12.5, opacity: newGroupName.trim() ? 1 : 0.4 }}>Create Group</Btn>
+                </div>
+              </div>
+            )}
+
+            {/* Group list + detail split */}
+            <div style={{ display: "flex", gap: 16 }}>
+              {/* Group list */}
+              <div style={{ width: editingGroupId ? 280 : "100%", minWidth: editingGroupId ? 280 : undefined, transition: "width 0.3s", display: "flex", flexDirection: "column", gap: 4 }}>
+                {demoGroups.map((g, i) => {
+                  const isActive = editingGroupId === g.id;
+                  return (
+                    <div key={g.id} onClick={() => setEditingGroupId(isActive ? null : g.id)} className="folder-row" style={{ display: "flex", alignItems: "center", background: isActive ? t.accentSoft : t.surface, border: `1px solid ${isActive ? t.accent + "60" : t.border}`, borderRadius: 10, padding: editingGroupId ? "10px 12px" : "14px 16px", cursor: "pointer", transition: "all 0.2s", animation: `fadeIn 0.25s ease ${i * 0.04}s both` }}>
+                      <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ width: editingGroupId ? 28 : 34, height: editingGroupId ? 28 : 34, borderRadius: 8, background: isActive ? t.accent + "20" : g.name === "Administrator" ? t.accentSoft : darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)", color: isActive ? t.accent : g.name === "Administrator" ? t.accent : t.textMuted, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}><ShieldIcon size={editingGroupId ? 13 : 16} /></div>
+                        <div>
+                          <div style={{ fontSize: editingGroupId ? 12 : 13, fontWeight: 600, color: isActive ? t.accent : t.text }}>{g.name}</div>
+                          {!editingGroupId && <div style={{ fontSize: 11, color: t.textDim }}>{g.desc}</div>}
+                        </div>
+                      </div>
+                      {!editingGroupId && <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span title="Permissions enabled" style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: t.successSoft, color: t.success }}>{g.permCount}/{Object.keys(PERMISSION_LABELS).length}</span>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: g.members > 0 ? t.accent : t.textDim, background: g.members > 0 ? t.accentSoft : "transparent", padding: "2px 9px", borderRadius: 12 }}>{g.members} member{g.members !== 1 ? "s" : ""}</span>
+                      </div>}
+                      {editingGroupId && <span style={{ fontSize: 9.5, fontWeight: 600, padding: "2px 7px", borderRadius: 8, background: t.successSoft, color: t.success }}>{g.permCount}</span>}
+                      {!editingGroupId && <div style={{ width: 60, display: "flex", justifyContent: "flex-end", gap: 2 }}>
+                        <SmallBtn title="Edit Permissions" onClick={e => { e.stopPropagation(); setEditingGroupId(g.id); }}><EditIcon /></SmallBtn>
+                        <SmallBtn title="Remove" onClick={e => { e.stopPropagation(); deleteGroup(g); }}><TrashIcon size={12} /></SmallBtn>
+                      </div>}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Permission detail panel */}
+              {editingGroup && (
+                <div style={{ flex: 1, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden", animation: "fadeIn 0.25s ease" }}>
+                  {/* Header */}
+                  <div style={{ padding: "18px 20px", borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+                        <div style={{ width: 36, height: 36, borderRadius: 10, background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center" }}><ShieldIcon size={18} /></div>
+                        <div>
+                          <div style={{ fontSize: 17, fontWeight: 700 }}>{editingGroup.name}</div>
+                          <div style={{ fontSize: 11.5, color: t.textMuted }}>{editingGroup.desc}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 6, flexShrink: 0, marginTop: 2 }}>
+                      <button onClick={() => deleteGroup(editingGroup)} style={{ background: t.errorSoft, color: t.error, border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 11.5, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 4 }}><TrashIcon size={11} /> Delete</button>
+                      <button onClick={() => setEditingGroupId(null)} style={{ background: "transparent", border: `1px solid ${t.border}`, borderRadius: 8, padding: "6px 10px", cursor: "pointer", color: t.textDim, display: "flex", fontFamily: "inherit" }}><XIcon size={14} /></button>
+                    </div>
+                  </div>
+
+                  {/* Permission summary bar */}
+                  <div style={{ padding: "12px 20px", borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: t.text }}>Permissions</span>
+                      <span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: t.successSoft, color: t.success }}>{Object.values(editingGroup.permissions).filter(Boolean).length} of {Object.keys(PERMISSION_LABELS).length} enabled</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button onClick={() => { const allTrue = Object.fromEntries(Object.keys(editingGroup.permissions).map(k => [k, true])); setSecurityGroups(p => p.map(g => g.id === editingGroupId ? { ...g, permissions: allTrue } : g)); api.updateGroupPermissions(editingGroupId, allTrue).catch(console.error); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 11, fontWeight: 600, fontFamily: "inherit", padding: "4px 6px" }}>Enable All</button>
+                      <span style={{ color: t.textDim }}>·</span>
+                      <button onClick={() => { const allFalse = Object.fromEntries(Object.keys(editingGroup.permissions).map(k => [k, false])); setSecurityGroups(p => p.map(g => g.id === editingGroupId ? { ...g, permissions: allFalse } : g)); api.updateGroupPermissions(editingGroupId, allFalse).catch(console.error); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.error, fontSize: 11, fontWeight: 600, fontFamily: "inherit", padding: "4px 6px" }}>Disable All</button>
+                    </div>
+                  </div>
+
+                  {/* Permission categories */}
+                  <div style={{ padding: "16px 20px", maxHeight: 480, overflowY: "auto" }}>
+                    {PERMISSION_CATEGORIES.map((cat, ci) => {
+                      const permsInCat = Object.entries(PERMISSION_LABELS).filter(([, v]) => v.category === cat);
+                      const enabledInCat = permsInCat.filter(([k]) => editingGroup.permissions[k]).length;
+                      const allEnabled = enabledInCat === permsInCat.length;
+                      return (
+                        <div key={cat} style={{ marginBottom: ci < PERMISSION_CATEGORIES.length - 1 ? 20 : 0, animation: `fadeIn 0.2s ease ${ci * 0.05}s both` }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, padding: "0 2px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textDim }}>{cat}</span>
+                              <span style={{ fontSize: 9.5, fontWeight: 600, padding: "1px 6px", borderRadius: 6, background: enabledInCat > 0 ? t.successSoft : "transparent", color: enabledInCat > 0 ? t.success : t.textDim }}>{enabledInCat}/{permsInCat.length}</span>
+                            </div>
+                            <button onClick={() => toggleAllInCategory(editingGroupId, cat, !allEnabled)} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 10, fontWeight: 600, fontFamily: "inherit", padding: "2px 4px" }}>
+                              {allEnabled ? "Disable All" : "Enable All"}
+                            </button>
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                            {permsInCat.map(([key, meta]) => (
+                              <PermToggle key={key} checked={editingGroup.permissions[key]} onChange={() => togglePerm(editingGroupId, key)} label={meta.label} desc={meta.desc} />
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
+      {adminSection === "locations" && <div>{addingLocation && <div style={{ background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 10, padding: "14px 16px", marginBottom: 12, display: "flex", alignItems: "center", gap: 12, boxShadow: `0 0 0 3px ${t.accentSoft}` }}><span style={{ color: t.accent }}><MapPinIcon size={18} /></span><input ref={addLocRef} value={newLocationName} onChange={e => setNewLocationName(e.target.value)} onKeyDown={e => { if (e.key === "Enter") { const n = newLocationName.trim(); if (n) { api.createLocation(n).then(created => { setLocations(p => [...p, { id: created.id, name: created.name }]); setNewLocationName(""); setAddingLocation(false); }).catch(console.error); } } if (e.key === "Escape") { setAddingLocation(false); setNewLocationName(""); } }} placeholder="Location name..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 14, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 500 }} /><Btn primary onClick={() => { const n = newLocationName.trim(); if (n) { api.createLocation(n).then(created => { setLocations(p => [...p, { id: created.id, name: created.name }]); setNewLocationName(""); setAddingLocation(false); }).catch(console.error); } }} style={{ padding: "6px 14px", fontSize: 12 }}>Add</Btn><button onClick={() => { setAddingLocation(false); setNewLocationName(""); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.textDim, display: "flex", padding: 4 }}><XIcon size={16} /></button></div>}<div style={{ display: "flex", flexDirection: "column", gap: 4 }}>{locations.map((loc, idx) => { const lf = foldersInLocation(loc.id), lFiles = lf.reduce((s, f) => s + filesInFolder(f.id).length, 0), isEd = editingLocationId === loc.id; return <div key={loc.id} className="folder-row" style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${isEd ? t.accent : t.border}`, borderRadius: 10, padding: "12px 16px", boxShadow: isEd ? `0 0 0 3px ${t.accentSoft}` : "none", animation: `fadeIn 0.25s ease ${idx * 0.04}s both` }}><div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 34, height: 34, borderRadius: 8, background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center" }}><MapPinIcon size={16} /></div>{isEd ? <input ref={editLocRef} value={editingLocationName} onChange={e => setEditingLocationName(e.target.value)} onBlur={() => { const n = editingLocationName.trim(); if (n && n !== loc.name) { api.updateLocation(loc.id, n).then(() => setLocations(p => p.map(l => l.id === loc.id ? { ...l, name: n } : l))).catch(console.error); } setEditingLocationId(null); }} onKeyDown={e => { if (e.key === "Enter") { const n = editingLocationName.trim(); if (n && n !== loc.name) { api.updateLocation(loc.id, n).then(() => setLocations(p => p.map(l => l.id === loc.id ? { ...l, name: n } : l))).catch(console.error); } setEditingLocationId(null); } if (e.key === "Escape") setEditingLocationId(null); }} style={{ flex: 1, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.accent}`, borderRadius: 6, padding: "5px 10px", fontSize: 13.5, fontWeight: 600, color: t.text, outline: "none", fontFamily: "inherit" }} /> : <div style={{ fontSize: 13.5, fontWeight: 600 }}>{loc.name}</div>}</div><div style={{ width: 100, textAlign: "center" }}><span style={{ fontSize: 11, fontWeight: 600, color: lf.length > 0 ? t.accent : t.textDim, background: lf.length > 0 ? t.accentSoft : "transparent", padding: "2px 9px", borderRadius: 12 }}>{lf.length}</span></div><div style={{ width: 80, textAlign: "center", fontSize: 11, color: t.textDim }}>{lFiles} files</div>{!isEd && <div style={{ width: 70, display: "flex", justifyContent: "flex-end", gap: 2 }}><SmallBtn title="Edit" onClick={() => { setEditingLocationId(loc.id); setEditingLocationName(loc.name); }}><EditIcon /></SmallBtn><SmallBtn title="Remove" onClick={() => handleDeleteLocation(loc)}><TrashIcon size={12} /></SmallBtn></div>}</div>; })}</div></div>}
+
+      {adminSection === "departments" && <div>{locations.map((loc, li) => { const ld = deptsInLocation(loc.id), isAddHere = addingDept && addingDeptLocId === loc.id; return <div key={loc.id} style={{ marginBottom: 28, animation: `fadeIn 0.25s ease ${li * 0.05}s both` }}><div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, padding: "0 4px" }}><div style={{ display: "flex", alignItems: "center", gap: 8 }}><MapPinIcon size={16} /><span style={{ fontSize: 14, fontWeight: 700 }}>{loc.name}</span><span style={{ fontSize: 10.5, color: t.textDim }}>{ld.length} dept{ld.length !== 1 ? "s" : ""}</span></div>{!isAddHere && <button onClick={() => { setAddingDept(true); setAddingDeptLocId(loc.id); setNewDeptName(""); }} style={{ background: "transparent", border: `1px dashed ${t.border}`, borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 11, fontWeight: 500, color: t.textMuted, fontFamily: "inherit", display: "flex", alignItems: "center", gap: 5 }}><PlusIcon size={11} /> Add</button>}</div>{isAddHere && <div style={{ background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 10, boxShadow: `0 0 0 3px ${t.accentSoft}` }}><span style={{ color: t.accent }}><LayersIcon size={16} /></span><input ref={addDeptRef} value={newDeptName} onChange={e => setNewDeptName(e.target.value)} onKeyDown={e => { if (e.key === "Enter") { const n = newDeptName.trim(); if (n) { api.createDepartment(n, loc.id).then(created => { setDepartments(p => [...p, { id: created.id, name: created.name, locationId: created.location_id || loc.id }]); setNewDeptName(""); setAddingDept(false); setAddingDeptLocId(null); }).catch(console.error); } } if (e.key === "Escape") { setAddingDept(false); setAddingDeptLocId(null); } }} placeholder="Department name..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 13, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 500 }} /><Btn primary onClick={() => { const n = newDeptName.trim(); if (n) { api.createDepartment(n, loc.id).then(created => { setDepartments(p => [...p, { id: created.id, name: created.name, locationId: created.location_id || loc.id }]); setNewDeptName(""); setAddingDept(false); setAddingDeptLocId(null); }).catch(console.error); } }} style={{ padding: "5px 12px", fontSize: 11.5 }}>Add</Btn><button onClick={() => { setAddingDept(false); setAddingDeptLocId(null); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.textDim, display: "flex", padding: 3 }}><XIcon size={14} /></button></div>}{ld.length > 0 ? <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>{ld.map((dept, di) => { const df = foldersInDepartment(dept.id), dFiles = df.reduce((s, f) => s + filesInFolder(f.id).length, 0), isEd = editingDeptId === dept.id; return <div key={dept.id} className="folder-row" style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${isEd ? t.accent : t.border}`, borderRadius: 9, padding: "10px 14px", boxShadow: isEd ? `0 0 0 3px ${t.accentSoft}` : "none", animation: `fadeIn 0.2s ease ${di * 0.03}s both` }}><div style={{ flex: 1, display: "flex", alignItems: "center", gap: 9 }}><div style={{ width: 30, height: 30, borderRadius: 7, background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center" }}><LayersIcon size={14} /></div>{isEd ? <input ref={editDeptRef} value={editingDeptName} onChange={e => setEditingDeptName(e.target.value)} onBlur={() => { const n = editingDeptName.trim(); if (n && n !== dept.name) { api.updateDepartment(dept.id, n).then(() => setDepartments(p => p.map(d => d.id === dept.id ? { ...d, name: n } : d))).catch(console.error); } setEditingDeptId(null); }} onKeyDown={e => { if (e.key === "Enter") { const n = editingDeptName.trim(); if (n && n !== dept.name) { api.updateDepartment(dept.id, n).then(() => setDepartments(p => p.map(d => d.id === dept.id ? { ...d, name: n } : d))).catch(console.error); } setEditingDeptId(null); } if (e.key === "Escape") setEditingDeptId(null); }} style={{ flex: 1, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.accent}`, borderRadius: 6, padding: "4px 9px", fontSize: 13, fontWeight: 600, color: t.text, outline: "none", fontFamily: "inherit" }} /> : <div style={{ fontSize: 13, fontWeight: 600 }}>{dept.name}</div>}</div><span style={{ fontSize: 10.5, color: t.textDim, width: 70, textAlign: "center" }}>{df.length} folders</span><span style={{ fontSize: 10.5, color: t.textDim, width: 60, textAlign: "center" }}>{dFiles} files</span>{!isEd && <div style={{ width: 60, display: "flex", justifyContent: "flex-end", gap: 2 }}><SmallBtn title="Edit" onClick={() => { setEditingDeptId(dept.id); setEditingDeptName(dept.name); }}><EditIcon /></SmallBtn><SmallBtn title="Remove" onClick={() => handleDeleteDept(dept, loc.name)}><TrashIcon size={12} /></SmallBtn></div>}</div>; })}</div> : !isAddHere && <div style={{ padding: 20, textAlign: "center", color: t.textDim, fontSize: 12.5, background: t.surface, border: `1px dashed ${t.border}`, borderRadius: 9 }}>No departments for {loc.name}</div>}</div>; })}</div>}
 
       {adminSection === "audit" && (() => {
         const allActions = [...new Set(auditLog.map(e => e.action))];
         const allUsers = [...new Set(auditLog.map(e => e.user))];
-        const filtered = auditLog.filter(entry => {
-          if (auditFilterUser && entry.user !== auditFilterUser) return false;
-          if (auditFilterAction && entry.action !== auditFilterAction) return false;
-          if (auditFilterDate) {
-            const entryDate = new Date(entry.timestamp).toISOString().split("T")[0];
-            if (entryDate !== auditFilterDate) return false;
-          }
-          return true;
-        });
+        const filtered = auditLog; // Already filtered by API via useEffect
         const exportCSV = () => {
           const header = "Action,Detail,User,Date,Time";
           const rows = filtered.map(e => {
@@ -815,7 +1137,6 @@ export default function App() {
 
         return (
           <div style={{ animation: "fadeIn 0.25s ease" }}>
-            {/* Filters */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
               <select value={auditFilterAction} onChange={e => setAuditFilterAction(e.target.value)} style={selectStyle}>
                 <option value="">All Actions</option>
@@ -840,16 +1161,12 @@ export default function App() {
                 </Btn>
               )}
             </div>
-
-            {/* Column headers */}
             <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 14px 8px", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textDim }}>
               <div style={{ width: 130 }}>Action</div>
               <div style={{ flex: 1 }}>Detail</div>
               <div style={{ width: 100, textAlign: "right" }}>User</div>
               <div style={{ width: 150, textAlign: "right" }}>Date & Time</div>
             </div>
-
-            {/* Rows */}
             {filtered.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
                 {filtered.map((entry, idx) => {

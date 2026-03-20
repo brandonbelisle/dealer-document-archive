@@ -1,0 +1,92 @@
+// routes/users.js
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
+const db = require('../config/db');
+const { requireAuth, requirePermission } = require('../middleware/auth');
+const { logAudit } = require('../middleware/audit');
+
+const router = express.Router();
+
+// ── GET /api/users ────────────────────────────────────────
+router.get('/', requireAuth, requirePermission('manageUsers'), async (req, res) => {
+  try {
+    const [users] = await db.execute(
+      `SELECT u.id, u.username, u.email, u.display_name, u.status, u.last_login_at, u.created_at,
+              GROUP_CONCAT(sg.name ORDER BY sg.name SEPARATOR ', ') AS group_names
+       FROM users u
+       LEFT JOIN user_group_memberships ugm ON u.id = ugm.user_id
+       LEFT JOIN security_groups sg ON ugm.group_id = sg.id
+       GROUP BY u.id
+       ORDER BY u.display_name`
+    );
+    // Parse group_names into array
+    for (const u of users) {
+      u.groups = u.group_names ? u.group_names.split(', ') : [];
+      delete u.group_names;
+    }
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── POST /api/users ───────────────────────────────────────
+router.post('/', requireAuth, requirePermission('manageUsers'), async (req, res) => {
+  try {
+    const { username, email, password, displayName, groupIds } = req.body;
+    if (!username || !email || !password || !displayName) {
+      return res.status(400).json({ error: 'All fields required' });
+    }
+
+    const [existing] = await db.execute(
+      'SELECT id FROM users WHERE username = ? OR email = ?',
+      [username, email]
+    );
+    if (existing.length > 0) {
+      return res.status(409).json({ error: 'Username or email already exists' });
+    }
+
+    const id = uuidv4();
+    const hash = await bcrypt.hash(password, 12);
+    await db.execute(
+      'INSERT INTO users (id, username, email, password_hash, display_name) VALUES (?, ?, ?, ?, ?)',
+      [id, username, email, hash, displayName]
+    );
+
+    // Assign groups
+    if (groupIds && Array.isArray(groupIds)) {
+      for (const gid of groupIds) {
+        await db.execute(
+          'INSERT IGNORE INTO user_group_memberships (user_id, group_id, assigned_by) VALUES (?, ?, ?)',
+          [id, gid, req.user.id]
+        );
+      }
+    }
+
+    await logAudit('User Created', `"${displayName}" (${username})`, req.user, req.ip);
+    res.status(201).json({ id, username, email, displayName });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── PUT /api/users/:id/status ─────────────────────────────
+router.put('/:id/status', requireAuth, requirePermission('manageUsers'), async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!['active', 'inactive', 'suspended'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+    await db.execute('UPDATE users SET status = ? WHERE id = ?', [status, req.params.id]);
+    await logAudit('User Status Changed', `User ${req.params.id} → ${status}`, req.user, req.ip);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+module.exports = router;

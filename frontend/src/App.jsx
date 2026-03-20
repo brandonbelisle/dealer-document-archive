@@ -482,6 +482,56 @@ function AppInner() {
     return trail;
   };
 
+  const handleDeleteFolder = (folder) => {
+    const childFolders = subfoldersOf(folder.id);
+    const fileCount = allFilesInFolderRecursive(folder.id);
+    const hasChildren = childFolders.length > 0 || fileCount > 0;
+    const message = hasChildren
+      ? `Delete "${folder.name}" and everything inside it? This includes ${childFolders.length} subfolder${childFolders.length !== 1 ? "s" : ""} and ${fileCount} file${fileCount !== 1 ? "s" : ""}. This cannot be undone.`
+      : `Delete the folder "${folder.name}"? This cannot be undone.`;
+
+    const doDelete = async () => {
+      try {
+        // Delete child folders first (deepest first), then the parent
+        const getAllDescendants = (parentId) => {
+          const children = subfoldersOf(parentId);
+          let all = [];
+          for (const child of children) {
+            all = [...all, ...getAllDescendants(child.id), child];
+          }
+          return all;
+        };
+        const descendants = getAllDescendants(folder.id);
+
+        // Delete all descendant files from state
+        const allFolderIds = new Set([folder.id, ...descendants.map(d => d.id)]);
+        setFiles(p => p.filter(f => !allFolderIds.has(f.folderId)));
+
+        // Delete descendants (deepest first), then the folder itself
+        for (const desc of descendants) {
+          await api.deleteFolder(desc.id).catch(console.error);
+        }
+        await api.deleteFolder(folder.id);
+
+        // Remove all deleted folders from state
+        setFolders(p => p.filter(f => !allFolderIds.has(f.id)));
+
+        // If we were viewing this folder, go back
+        if (activeFolderId === folder.id || allFolderIds.has(activeFolderId)) {
+          if (folder.parentId) {
+            setActiveFolderId(folder.parentId);
+          } else {
+            setActiveFolderId(null);
+            setPage("folders");
+          }
+        }
+      } catch (err) { console.error("Delete folder failed:", err); }
+      setWarningModal(null);
+    };
+
+    setWarningModal({ title: "Delete Folder", message, onConfirm: doDelete });
+  };
+
   const handleDeleteLocation = loc => {
     const lf = foldersInLocation(loc.id), lFiles = lf.reduce((s, f) => s + filesInFolder(f.id).length, 0);
     const doDelete = async () => {
@@ -907,7 +957,8 @@ function AppInner() {
                     </div>
                   </div>
                   <span style={{ fontSize: 11, fontWeight: 600, color: c > 0 ? t.accent : t.textDim, background: c > 0 ? t.accentSoft : "transparent", padding: "2px 9px", borderRadius: 12 }}>{c}</span>
-                  <div style={{ width: 30, display: "flex", justifyContent: "flex-end", color: t.textDim }}><ChevronRightIcon /></div>
+                  <div style={{ width: 30, display: "flex", justifyContent: "flex-end", marginLeft: 6 }}><SmallBtn title="Delete folder" onClick={e => { e.stopPropagation(); handleDeleteFolder(folder); }}><TrashIcon size={12} /></SmallBtn></div>
+                  <div style={{ width: 24, display: "flex", justifyContent: "flex-end", color: t.textDim }}><ChevronRightIcon /></div>
                 </div>
               );
             })}
@@ -1017,7 +1068,8 @@ function AppInner() {
                       </div>
                     </div>
                     <span style={{ fontSize: 10.5, fontWeight: 600, color: sc > 0 ? t.accent : t.textDim, background: sc > 0 ? t.accentSoft : "transparent", padding: "2px 8px", borderRadius: 10 }}>{sc} file{sc !== 1 ? "s" : ""}</span>
-                    <div style={{ width: 24, display: "flex", justifyContent: "flex-end", color: t.textDim, marginLeft: 8 }}><ChevronRightIcon /></div>
+                    <div style={{ display: "flex", justifyContent: "flex-end", marginLeft: 6 }}><SmallBtn title="Delete subfolder" onClick={e => { e.stopPropagation(); handleDeleteFolder(sub); }}><TrashIcon size={12} /></SmallBtn></div>
+                    <div style={{ width: 24, display: "flex", justifyContent: "flex-end", color: t.textDim, marginLeft: 4 }}><ChevronRightIcon /></div>
                   </div>
                 );
               })}

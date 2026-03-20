@@ -68,6 +68,20 @@ export function isAuthenticated() {
   return !!authToken;
 }
 
+export async function changePassword(currentPassword, newPassword) {
+  return request('/auth/change-password', {
+    method: 'PUT',
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}
+
+export async function adminSetPassword(userId, newPassword) {
+  return request(`/users/${userId}/password`, {
+    method: 'PUT',
+    body: JSON.stringify({ newPassword }),
+  });
+}
+
 // ── Dashboard ─────────────────────────────────────────────
 export async function getDashboard() {
   return request('/dashboard');

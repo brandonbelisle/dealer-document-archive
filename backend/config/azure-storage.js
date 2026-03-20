@@ -26,6 +26,17 @@ function getClient() {
   const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
   const accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY;
 
+  // Skip if still using the placeholder values from .env.example
+  const isPlaceholder = connectionString && (
+    connectionString.includes('youraccount') ||
+    connectionString.includes('yourkey') ||
+    connectionString === 'DefaultEndpointsProtocol=https;AccountName=youraccount;AccountKey=yourkey;EndpointSuffix=core.windows.net'
+  );
+
+  if (isPlaceholder) {
+    throw new Error('Azure connection string still has placeholder values — update .env with your real credentials');
+  }
+
   if (connectionString) {
     _blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
   } else if (accountName && accountKey) {

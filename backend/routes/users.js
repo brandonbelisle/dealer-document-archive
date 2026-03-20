@@ -89,4 +89,42 @@ router.put('/:id/status', requireAuth, requirePermission('manageUsers'), async (
   }
 });
 
+// ── PUT /api/users/:id/password ───────────────────────────
+// Admin: set a new password for any user (no current password required).
+router.put('/:id/password', requireAuth, requirePermission('manageUsers'), async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+    if (!newPassword) {
+      return res.status(400).json({ error: 'New password is required' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    // Verify user exists
+    const [users] = await db.execute(
+      'SELECT id, display_name, username FROM users WHERE id = ?',
+      [req.params.id]
+    );
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const hash = await bcrypt.hash(newPassword, 12);
+    await db.execute('UPDATE users SET password_hash = ? WHERE id = ?', [hash, req.params.id]);
+
+    await logAudit(
+      'Password Reset by Admin',
+      `"${users[0].display_name}" (${users[0].username}) password was reset by admin`,
+      req.user,
+      req.ip
+    );
+
+    res.json({ success: true, message: `Password set for ${users[0].display_name}` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

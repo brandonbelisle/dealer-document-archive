@@ -161,4 +161,48 @@ router.get('/me', requireAuth, (req, res) => {
   });
 });
 
+// ── PUT /api/auth/change-password ─────────────────────────
+// Self-service: logged-in user changes their own password.
+// Requires current password for verification.
+router.put('/change-password', requireAuth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    }
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ error: 'New password must be different from current password' });
+    }
+
+    // Fetch current hash
+    const [users] = await db.execute(
+      'SELECT id, password_hash, display_name FROM users WHERE id = ?',
+      [req.user.id]
+    );
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Verify current password
+    const valid = await bcrypt.compare(currentPassword, users[0].password_hash);
+    if (!valid) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    // Hash and save new password
+    const hash = await bcrypt.hash(newPassword, 12);
+    await db.execute('UPDATE users SET password_hash = ? WHERE id = ?', [hash, req.user.id]);
+
+    await logAudit('Password Changed', `"${users[0].display_name}" changed their password`, req.user, req.ip);
+
+    res.json({ success: true, message: 'Password changed successfully' });
+  } catch (err) {
+    console.error('Change password error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

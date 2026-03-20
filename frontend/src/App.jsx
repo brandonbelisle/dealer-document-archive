@@ -186,6 +186,16 @@ export default function App() {
     manageSettings: { label: "Manage Settings", category: "Administration", desc: "Modify application configuration" },
   };
   const PERMISSION_CATEGORIES = ["Documents", "Folders", "Administration", "Audit"];
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [changePasswordForm, setChangePasswordForm] = useState({ current: "", new: "", confirm: "" });
+  const [changePasswordError, setChangePasswordError] = useState("");
+  const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
+  const [changePasswordLoading, setChangePasswordLoading] = useState(false);
+  const [adminSetPasswordUserId, setAdminSetPasswordUserId] = useState(null);
+  const [adminSetPasswordForm, setAdminSetPasswordForm] = useState({ new: "", confirm: "" });
+  const [adminSetPasswordError, setAdminSetPasswordError] = useState("");
+  const [adminSetPasswordSuccess, setAdminSetPasswordSuccess] = useState("");
+  const [adminSetPasswordLoading, setAdminSetPasswordLoading] = useState(false);
   const newSubfolderRef = useRef(null);
   const newDeptFolderRef = useRef(null);
   const renameFileRef = useRef(null);
@@ -509,6 +519,104 @@ export default function App() {
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
           <button onClick={() => setRenamingFileId(null)} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", color: t.text, fontFamily: "inherit" }}>Cancel</button>
           <Btn primary onClick={() => renameFile(renamingFileId, renamingFileName)} style={{ padding: "8px 16px", fontSize: 13 }}>Save</Btn>
+        </div>
+      </div>
+    </div>
+  );
+
+  /* Change Password handler (self-service) */
+  const handleChangePassword = async () => {
+    setChangePasswordError(""); setChangePasswordSuccess("");
+    if (!changePasswordForm.current || !changePasswordForm.new || !changePasswordForm.confirm) {
+      setChangePasswordError("All fields are required."); return;
+    }
+    if (changePasswordForm.new.length < 6) {
+      setChangePasswordError("New password must be at least 6 characters."); return;
+    }
+    if (changePasswordForm.new !== changePasswordForm.confirm) {
+      setChangePasswordError("New passwords do not match."); return;
+    }
+    setChangePasswordLoading(true);
+    try {
+      await api.changePassword(changePasswordForm.current, changePasswordForm.new);
+      setChangePasswordSuccess("Password changed successfully.");
+      setChangePasswordForm({ current: "", new: "", confirm: "" });
+      setTimeout(() => { setShowChangePassword(false); setChangePasswordSuccess(""); }, 1500);
+    } catch (err) {
+      setChangePasswordError(err.message || "Failed to change password.");
+    } finally {
+      setChangePasswordLoading(false);
+    }
+  };
+
+  /* Admin Set Password handler */
+  const handleAdminSetPassword = async () => {
+    setAdminSetPasswordError(""); setAdminSetPasswordSuccess("");
+    if (!adminSetPasswordForm.new || !adminSetPasswordForm.confirm) {
+      setAdminSetPasswordError("All fields are required."); return;
+    }
+    if (adminSetPasswordForm.new.length < 6) {
+      setAdminSetPasswordError("Password must be at least 6 characters."); return;
+    }
+    if (adminSetPasswordForm.new !== adminSetPasswordForm.confirm) {
+      setAdminSetPasswordError("Passwords do not match."); return;
+    }
+    setAdminSetPasswordLoading(true);
+    try {
+      const result = await api.adminSetPassword(adminSetPasswordUserId, adminSetPasswordForm.new);
+      setAdminSetPasswordSuccess(result.message || "Password set successfully.");
+      setAdminSetPasswordForm({ new: "", confirm: "" });
+      setTimeout(() => { setAdminSetPasswordUserId(null); setAdminSetPasswordSuccess(""); }, 1500);
+    } catch (err) {
+      setAdminSetPasswordError(err.message || "Failed to set password.");
+    } finally {
+      setAdminSetPasswordLoading(false);
+    }
+  };
+
+  /* Change Password Modal (self-service from profile menu) */
+  const changePasswordModalEl = showChangePassword && (
+    <div style={{ position: "fixed", inset: 0, zIndex: 260, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={() => { setShowChangePassword(false); setChangePasswordError(""); setChangePasswordSuccess(""); setChangePasswordForm({ current: "", new: "", confirm: "" }); }} />
+      <div style={{ position: "relative", width: "100%", maxWidth: 420, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 14, padding: "28px 24px", boxShadow: "0 20px 50px rgba(0,0,0,0.3)", animation: "modalIn 0.2s ease" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center" }}><ShieldIcon size={18} /></div>
+          <div><div style={{ fontSize: 17, fontWeight: 700 }}>Change Password</div><div style={{ fontSize: 12, color: t.textMuted }}>Enter your current password and choose a new one</div></div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
+          <div><label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 4 }}>Current Password</label><input type="password" value={changePasswordForm.current} onChange={e => { setChangePasswordForm(p => ({ ...p, current: e.target.value })); setChangePasswordError(""); }} onKeyDown={e => e.key === "Enter" && handleChangePassword()} placeholder="Enter current password" style={{ width: "100%", padding: "10px 14px", fontSize: 13.5, fontFamily: "inherit", background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 8, color: t.text, outline: "none", boxSizing: "border-box" }} /></div>
+          <div><label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 4 }}>New Password</label><input type="password" value={changePasswordForm.new} onChange={e => { setChangePasswordForm(p => ({ ...p, new: e.target.value })); setChangePasswordError(""); }} onKeyDown={e => e.key === "Enter" && handleChangePassword()} placeholder="At least 6 characters" style={{ width: "100%", padding: "10px 14px", fontSize: 13.5, fontFamily: "inherit", background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 8, color: t.text, outline: "none", boxSizing: "border-box" }} /></div>
+          <div><label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 4 }}>Confirm New Password</label><input type="password" value={changePasswordForm.confirm} onChange={e => { setChangePasswordForm(p => ({ ...p, confirm: e.target.value })); setChangePasswordError(""); }} onKeyDown={e => e.key === "Enter" && handleChangePassword()} placeholder="Re-enter new password" style={{ width: "100%", padding: "10px 14px", fontSize: 13.5, fontFamily: "inherit", background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 8, color: t.text, outline: "none", boxSizing: "border-box" }} /></div>
+        </div>
+        {changePasswordError && <div style={{ padding: "8px 12px", borderRadius: 7, marginBottom: 12, background: t.errorSoft, color: t.error, fontSize: 12.5, fontWeight: 500 }}>{changePasswordError}</div>}
+        {changePasswordSuccess && <div style={{ padding: "8px 12px", borderRadius: 7, marginBottom: 12, background: t.successSoft, color: t.success, fontSize: 12.5, fontWeight: 500 }}>{changePasswordSuccess}</div>}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+          <button onClick={() => { setShowChangePassword(false); setChangePasswordError(""); setChangePasswordSuccess(""); setChangePasswordForm({ current: "", new: "", confirm: "" }); }} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", color: t.text, fontFamily: "inherit" }}>Cancel</button>
+          <Btn primary onClick={handleChangePassword} style={{ padding: "8px 18px", fontSize: 13, opacity: changePasswordLoading ? 0.6 : 1 }}>{changePasswordLoading ? "Saving..." : "Change Password"}</Btn>
+        </div>
+      </div>
+    </div>
+  );
+
+  /* Admin Set Password Modal */
+  const adminSetPasswordUser = adminSetPasswordUserId ? demoUsers.find(u => u.id === adminSetPasswordUserId) : null;
+  const adminSetPasswordModalEl = adminSetPasswordUserId && (
+    <div style={{ position: "fixed", inset: 0, zIndex: 260, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={() => { setAdminSetPasswordUserId(null); setAdminSetPasswordError(""); setAdminSetPasswordSuccess(""); setAdminSetPasswordForm({ new: "", confirm: "" }); }} />
+      <div style={{ position: "relative", width: "100%", maxWidth: 420, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 14, padding: "28px 24px", boxShadow: "0 20px 50px rgba(0,0,0,0.3)", animation: "modalIn 0.2s ease" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: darkMode ? "rgba(210,153,34,0.12)" : "rgba(180,83,9,0.08)", color: t.warn, display: "flex", alignItems: "center", justifyContent: "center" }}><ShieldIcon size={18} /></div>
+          <div><div style={{ fontSize: 17, fontWeight: 700 }}>Set Password</div><div style={{ fontSize: 12, color: t.textMuted }}>Set a new password for {adminSetPasswordUser?.name || "this user"}</div></div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
+          <div><label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 4 }}>New Password</label><input type="password" value={adminSetPasswordForm.new} onChange={e => { setAdminSetPasswordForm(p => ({ ...p, new: e.target.value })); setAdminSetPasswordError(""); }} onKeyDown={e => e.key === "Enter" && handleAdminSetPassword()} autoFocus placeholder="At least 6 characters" style={{ width: "100%", padding: "10px 14px", fontSize: 13.5, fontFamily: "inherit", background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 8, color: t.text, outline: "none", boxSizing: "border-box" }} /></div>
+          <div><label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 4 }}>Confirm Password</label><input type="password" value={adminSetPasswordForm.confirm} onChange={e => { setAdminSetPasswordForm(p => ({ ...p, confirm: e.target.value })); setAdminSetPasswordError(""); }} onKeyDown={e => e.key === "Enter" && handleAdminSetPassword()} placeholder="Re-enter password" style={{ width: "100%", padding: "10px 14px", fontSize: 13.5, fontFamily: "inherit", background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 8, color: t.text, outline: "none", boxSizing: "border-box" }} /></div>
+        </div>
+        {adminSetPasswordError && <div style={{ padding: "8px 12px", borderRadius: 7, marginBottom: 12, background: t.errorSoft, color: t.error, fontSize: 12.5, fontWeight: 500 }}>{adminSetPasswordError}</div>}
+        {adminSetPasswordSuccess && <div style={{ padding: "8px 12px", borderRadius: 7, marginBottom: 12, background: t.successSoft, color: t.success, fontSize: 12.5, fontWeight: 500 }}>{adminSetPasswordSuccess}</div>}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+          <button onClick={() => { setAdminSetPasswordUserId(null); setAdminSetPasswordError(""); setAdminSetPasswordSuccess(""); setAdminSetPasswordForm({ new: "", confirm: "" }); }} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", color: t.text, fontFamily: "inherit" }}>Cancel</button>
+          <Btn primary onClick={handleAdminSetPassword} style={{ padding: "8px 18px", fontSize: 13, opacity: adminSetPasswordLoading ? 0.6 : 1 }}>{adminSetPasswordLoading ? "Saving..." : "Set Password"}</Btn>
         </div>
       </div>
     </div>
@@ -926,7 +1034,7 @@ export default function App() {
     <div style={{ flex: 1, padding: "32px 36px", overflowY: "auto" }}><div style={{ maxWidth: 860 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}><div><h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 10 }}><span style={{ color: t.accent }}>{adminActiveMenu?.icon}</span> {adminActiveMenu?.label}</h1><p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>{adminActiveMenu?.desc}</p></div>{(adminSection === "users") && <Btn primary style={{ fontSize: 12 }}><PlusIcon size={13} /> Add User</Btn>}{(adminSection === "groups") && !addingGroup && <Btn primary onClick={() => { setAddingGroup(true); setNewGroupName(""); setNewGroupDesc(""); }} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add Group</Btn>}{adminSection === "locations" && !addingLocation && <Btn primary onClick={() => { setAddingLocation(true); setNewLocationName(""); }} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add Location</Btn>}</div>
 
-      {adminSection === "users" && <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>{demoUsers.map((u, i) => <div key={i} className="folder-row" style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "12px 16px", animation: `fadeIn 0.25s ease ${i * 0.04}s both` }}><div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 32, height: 32, borderRadius: "50%", background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>{u.name.charAt(0)}</div><div><div style={{ fontSize: 13, fontWeight: 600 }}>{u.name}</div><div style={{ fontSize: 11, color: t.textDim }}>{u.email}</div></div></div><div style={{ width: 180, display: "flex", gap: 4, flexWrap: "wrap" }}>{u.groups.map(g => <span key={g} style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: g === "Administrator" ? t.accentSoft : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)", color: g === "Administrator" ? t.accent : t.textMuted }}>{g}</span>)}</div><div style={{ width: 80, textAlign: "center" }}><span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: u.status === "Active" ? t.successSoft : t.errorSoft, color: u.status === "Active" ? t.success : t.error }}>{u.status}</span></div><div style={{ width: 60, display: "flex", justifyContent: "flex-end", gap: 2 }}><SmallBtn title="Edit"><EditIcon /></SmallBtn><SmallBtn title="Remove"><TrashIcon size={12} /></SmallBtn></div></div>)}</div>}
+      {adminSection === "users" && <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>{demoUsers.map((u, i) => <div key={i} className="folder-row" style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "12px 16px", animation: `fadeIn 0.25s ease ${i * 0.04}s both` }}><div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 32, height: 32, borderRadius: "50%", background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>{u.name.charAt(0)}</div><div><div style={{ fontSize: 13, fontWeight: 600 }}>{u.name}</div><div style={{ fontSize: 11, color: t.textDim }}>{u.email}</div></div></div><div style={{ width: 180, display: "flex", gap: 4, flexWrap: "wrap" }}>{u.groups.map(g => <span key={g} style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: g === "Administrator" ? t.accentSoft : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)", color: g === "Administrator" ? t.accent : t.textMuted }}>{g}</span>)}</div><div style={{ width: 80, textAlign: "center" }}><span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: u.status === "Active" ? t.successSoft : t.errorSoft, color: u.status === "Active" ? t.success : t.error }}>{u.status}</span></div><div style={{ width: 90, display: "flex", justifyContent: "flex-end", gap: 2 }}><SmallBtn title="Set Password" onClick={() => { setAdminSetPasswordUserId(u.id); setAdminSetPasswordForm({ new: "", confirm: "" }); setAdminSetPasswordError(""); setAdminSetPasswordSuccess(""); }}><ShieldIcon size={12} /></SmallBtn><SmallBtn title="Edit"><EditIcon /></SmallBtn><SmallBtn title="Remove"><TrashIcon size={12} /></SmallBtn></div></div>)}</div>}
 
       {adminSection === "groups" && (() => {
         const editingGroup = editingGroupId ? securityGroups.find(g => g.id === editingGroupId) : null;
@@ -1238,7 +1346,7 @@ export default function App() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {files.length > 0 && <span style={{ fontSize: 10.5, fontWeight: 600, color: t.textDim }}>{files.length} file{files.length !== 1 ? "s" : ""}</span>}
-          {loggedInUser && <div style={{ position: "relative" }}><div onClick={e => { e.stopPropagation(); setShowProfileMenu(!showProfileMenu); }} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", padding: "4px 8px", borderRadius: 8, background: showProfileMenu ? t.navActive : "transparent" }}><div style={{ width: 28, height: 28, borderRadius: "50%", background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, textTransform: "uppercase" }}>{loggedInUser.name.charAt(0)}</div><span style={{ fontSize: 12, fontWeight: 500, color: t.textMuted }}>{loggedInUser.name}</span><ChevronDown /></div>{showProfileMenu && <div onClick={e => e.stopPropagation()} style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 200, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)", padding: 4, minWidth: 200, animation: "fadeIn 0.15s ease" }}><div style={{ padding: "10px 12px 8px", borderBottom: `1px solid ${t.border}`, marginBottom: 4 }}><div style={{ fontSize: 13, fontWeight: 600 }}>{loggedInUser.name}</div><div style={{ fontSize: 10.5, color: t.textDim, marginTop: 2 }}>{loggedInUser.groups?.join(", ")}</div></div>{[{ l: "My Account", i: <UserIcon /> }, { l: "Security", i: <ShieldIcon /> }, { l: "Settings", i: <GearIcon /> }].map(item => <div key={item.l} onClick={() => setShowProfileMenu(false)} className="folder-select-item" style={{ padding: "8px 12px", borderRadius: 7, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 10, color: t.text, fontWeight: 500 }}><span style={{ color: t.textMuted }}>{item.i}</span> {item.l}</div>)}{loggedInUser.groups?.includes("Administrator") && <div onClick={() => { setShowProfileMenu(false); setPage("admin"); setAdminSection("users"); }} className="folder-select-item" style={{ padding: "8px 12px", borderRadius: 7, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 10, color: t.text, fontWeight: 500 }}><span style={{ color: t.textMuted }}><WrenchIcon /></span> Administration</div>}<div style={{ borderTop: `1px solid ${t.border}`, marginTop: 4, paddingTop: 4 }}><div onClick={() => { setShowProfileMenu(false); handleLogout(); }} className="folder-select-item" style={{ padding: "8px 12px", borderRadius: 7, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 10, color: t.error, fontWeight: 500 }}><LogOutIcon /> Sign Out</div></div></div>}</div>}
+          {loggedInUser && <div style={{ position: "relative" }}><div onClick={e => { e.stopPropagation(); setShowProfileMenu(!showProfileMenu); }} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", padding: "4px 8px", borderRadius: 8, background: showProfileMenu ? t.navActive : "transparent" }}><div style={{ width: 28, height: 28, borderRadius: "50%", background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, textTransform: "uppercase" }}>{loggedInUser.name.charAt(0)}</div><span style={{ fontSize: 12, fontWeight: 500, color: t.textMuted }}>{loggedInUser.name}</span><ChevronDown /></div>{showProfileMenu && <div onClick={e => e.stopPropagation()} style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 200, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)", padding: 4, minWidth: 200, animation: "fadeIn 0.15s ease" }}><div style={{ padding: "10px 12px 8px", borderBottom: `1px solid ${t.border}`, marginBottom: 4 }}><div style={{ fontSize: 13, fontWeight: 600 }}>{loggedInUser.name}</div><div style={{ fontSize: 10.5, color: t.textDim, marginTop: 2 }}>{loggedInUser.groups?.join(", ")}</div></div>{[{ l: "My Account", i: <UserIcon /> }, { l: "Change Password", i: <ShieldIcon /> }, { l: "Settings", i: <GearIcon /> }].map(item => <div key={item.l} onClick={() => { setShowProfileMenu(false); if (item.l === "Change Password") { setShowChangePassword(true); setChangePasswordForm({ current: "", new: "", confirm: "" }); setChangePasswordError(""); setChangePasswordSuccess(""); } }} className="folder-select-item" style={{ padding: "8px 12px", borderRadius: 7, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 10, color: t.text, fontWeight: 500 }}><span style={{ color: t.textMuted }}>{item.i}</span> {item.l}</div>)}{loggedInUser.groups?.includes("Administrator") && <div onClick={() => { setShowProfileMenu(false); setPage("admin"); setAdminSection("users"); }} className="folder-select-item" style={{ padding: "8px 12px", borderRadius: 7, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 10, color: t.text, fontWeight: 500 }}><span style={{ color: t.textMuted }}><WrenchIcon /></span> Administration</div>}<div style={{ borderTop: `1px solid ${t.border}`, marginTop: 4, paddingTop: 4 }}><div onClick={() => { setShowProfileMenu(false); handleLogout(); }} className="folder-select-item" style={{ padding: "8px 12px", borderRadius: 7, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 10, color: t.error, fontWeight: 500 }}><LogOutIcon /> Sign Out</div></div></div>}</div>}
           <button onClick={() => setDarkMode(!darkMode)} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 7, padding: 6, cursor: "pointer", color: t.textMuted, display: "flex", alignItems: "center" }}>{darkMode ? <SunIcon /> : <MoonIcon />}</button>
         </div>
       </nav>
@@ -1251,6 +1359,8 @@ export default function App() {
       {page === "admin" && adminPage}
       {renameModalEl}
       {warnModalEl}
+      {changePasswordModalEl}
+      {adminSetPasswordModalEl}
     </div>
   );
 }

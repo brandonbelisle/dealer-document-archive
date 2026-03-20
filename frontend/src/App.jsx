@@ -170,6 +170,10 @@ function AppInner() {
   const [folderSearch, setFolderSearch] = useState("");
   const [globalSearch, setGlobalSearch] = useState("");
   const [globalSearchFocused, setGlobalSearchFocused] = useState(false);
+  const [movingFileId, setMovingFileId] = useState(null);
+  const [moveTargetFolderId, setMoveTargetFolderId] = useState("");
+  const [showMoveSelect, setShowMoveSelect] = useState(false);
+  const [moveSelectSearch, setMoveSelectSearch] = useState("");
   const [addingLocation, setAddingLocation] = useState(false);
   const [newLocationName, setNewLocationName] = useState("");
   const [editingLocationId, setEditingLocationId] = useState(null);
@@ -230,6 +234,7 @@ function AppInner() {
 
   const fileInputRef = useRef(null);
   const globalSearchRef = useRef(null);
+  const moveSelectRef = useRef(null);
   const folderDetailInputRef = useRef(null);
   const folderSelectInputRef = useRef(null);
   const editLocRef = useRef(null);
@@ -1121,12 +1126,6 @@ function AppInner() {
   })();
 
   /* Move unsorted file to a folder */
-  const [movingFileId, setMovingFileId] = useState(null);
-  const [moveTargetFolderId, setMoveTargetFolderId] = useState("");
-  const [showMoveSelect, setShowMoveSelect] = useState(false);
-  const [moveSelectSearch, setMoveSelectSearch] = useState("");
-  const moveSelectRef = useRef(null);
-
   const handleMoveFile = async (fileId, folderId) => {
     try {
       await api.moveFile(fileId, folderId);

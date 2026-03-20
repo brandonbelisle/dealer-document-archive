@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "Full-stack document management system for dealer locations",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "install:all": "cd backend && npm install && cd ../frontend && npm install",
     "dev:backend": "cd backend && npm run dev",
@@ -13,6 +16,6 @@
     "seed": "cd backend && node seed-admin.js"
   },
   "devDependencies": {
-    "concurrently": "^9.0.1"
+    "concurrently": "^9.2.0"
   }
 }

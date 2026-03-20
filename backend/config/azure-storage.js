@@ -1,53 +1,73 @@
 // config/azure-storage.js
 // Azure Blob Storage client for file uploads, downloads, and deletions.
-// Uses @azure/storage-blob SDK.
-const { BlobServiceClient } = require('@azure/storage-blob');
+// Uses @azure/storage-blob SDK with lazy initialization.
+
+// ── Polyfill: ensure globalThis.crypto is available ───────
+// Some Node.js environments (especially older 18.x builds) don't
+// expose crypto on globalThis, which the Azure SDK expects.
+if (typeof globalThis.crypto === 'undefined') {
+  globalThis.crypto = require('crypto');
+}
+
+const { BlobServiceClient, StorageSharedKeyCredential, BlobSASPermissions, generateBlobSASQueryParameters } = require('@azure/storage-blob');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 require('dotenv').config();
 
-// ── Connection ────────────────────────────────────────────
-// Supports two auth methods:
-//   1. Connection string (simplest for dev)
-//   2. Account name + account key
-const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
-const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
-const accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY;
 const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME || 'documents';
 
-let blobServiceClient;
+// ── Lazy client — only created on first use ───────────────
+let _blobServiceClient = null;
 
-if (connectionString) {
-  blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-} else if (accountName && accountKey) {
-  const { StorageSharedKeyCredential } = require('@azure/storage-blob');
-  const credential = new StorageSharedKeyCredential(accountName, accountKey);
-  blobServiceClient = new BlobServiceClient(
-    `https://${accountName}.blob.core.windows.net`,
-    credential
-  );
-} else {
-  console.error('✗ Azure Storage not configured. Set AZURE_STORAGE_CONNECTION_STRING or AZURE_STORAGE_ACCOUNT_NAME + AZURE_STORAGE_ACCOUNT_KEY in .env');
+function getClient() {
+  if (_blobServiceClient) return _blobServiceClient;
+
+  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+  const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+  const accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY;
+
+  if (connectionString) {
+    _blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+  } else if (accountName && accountKey) {
+    const credential = new StorageSharedKeyCredential(accountName, accountKey);
+    _blobServiceClient = new BlobServiceClient(
+      `https://${accountName}.blob.core.windows.net`,
+      credential
+    );
+  } else {
+    throw new Error(
+      'Azure Storage not configured. Set AZURE_STORAGE_CONNECTION_STRING ' +
+      'or AZURE_STORAGE_ACCOUNT_NAME + AZURE_STORAGE_ACCOUNT_KEY in .env'
+    );
+  }
+
+  return _blobServiceClient;
 }
 
 // ── Ensure container exists on startup ────────────────────
 async function ensureContainer() {
-  if (!blobServiceClient) return;
   try {
-    const containerClient = blobServiceClient.getContainerClient(containerName);
-    await containerClient.createIfNotExists({
+    const client = getClient();
+    const containerClient = client.getContainerClient(containerName);
+    const createResponse = await containerClient.createIfNotExists({
       access: 'blob', // Public read access for blob-level (PDF previews)
     });
-    console.log(`✓ Azure container ready: ${containerName}`);
+    if (createResponse.succeeded) {
+      console.log(`✓ Azure container created: ${containerName}`);
+    } else {
+      console.log(`✓ Azure container ready: ${containerName}`);
+    }
   } catch (err) {
     console.error('✗ Azure container setup failed:', err.message);
+    console.error('  Check your AZURE_STORAGE_CONNECTION_STRING in .env');
   }
 }
 
-// ── Upload a file buffer or stream to Azure ───────────────
+// ── Upload a file buffer to Azure ─────────────────────────
 // Returns { blobName, blobUrl } on success.
 async function uploadBlob(fileBuffer, originalFilename, mimeType) {
-  const containerClient = blobServiceClient.getContainerClient(containerName);
+  const client = getClient();
+  const containerClient = client.getContainerClient(containerName);
   const ext = path.extname(originalFilename);
   const blobName = `${uuidv4()}${ext}`;
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
@@ -68,7 +88,8 @@ async function uploadBlob(fileBuffer, originalFilename, mimeType) {
 // ── Download a blob as a readable stream ──────────────────
 // Returns { readableStream, contentType, contentLength }
 async function downloadBlob(blobName) {
-  const containerClient = blobServiceClient.getContainerClient(containerName);
+  const client = getClient();
+  const containerClient = client.getContainerClient(containerName);
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
   const downloadResponse = await blockBlobClient.download(0);
 
@@ -82,7 +103,8 @@ async function downloadBlob(blobName) {
 // ── Delete a blob ─────────────────────────────────────────
 async function deleteBlob(blobName) {
   try {
-    const containerClient = blobServiceClient.getContainerClient(containerName);
+    const client = getClient();
+    const containerClient = client.getContainerClient(containerName);
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
     await blockBlobClient.deleteIfExists({ deleteSnapshots: 'include' });
     return true;
@@ -96,13 +118,16 @@ async function deleteBlob(blobName) {
 // Useful if container access is set to private instead of blob-level public.
 // Returns a URL valid for `expiresInMinutes` (default 60).
 function generateSasUrl(blobName, expiresInMinutes = 60) {
+  const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+  const accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY;
+
   if (!accountName || !accountKey) {
-    // If using connection string, fall back to public URL
-    const containerClient = blobServiceClient.getContainerClient(containerName);
+    // If using connection string only, fall back to public URL
+    const client = getClient();
+    const containerClient = client.getContainerClient(containerName);
     return containerClient.getBlockBlobClient(blobName).url;
   }
 
-  const { StorageSharedKeyCredential, BlobSASPermissions, generateBlobSASQueryParameters } = require('@azure/storage-blob');
   const credential = new StorageSharedKeyCredential(accountName, accountKey);
 
   const startsOn = new Date();
@@ -112,7 +137,7 @@ function generateSasUrl(blobName, expiresInMinutes = 60) {
     {
       containerName,
       blobName,
-      permissions: BlobSASPermissions.parse('r'), // Read only
+      permissions: BlobSASPermissions.parse('r'),
       startsOn,
       expiresOn,
     },

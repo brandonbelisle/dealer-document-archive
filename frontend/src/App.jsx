@@ -189,6 +189,7 @@ function AppInner() {
   const [viewingFileId, setViewingFileId] = useState(null);
   const [securityGroups, setSecurityGroups] = useState([]);
   const [adminUsers, setAdminUsers] = useState([]);
+  const [dashboardData, setDashboardData] = useState(null);
   const [editingGroupId, setEditingGroupId] = useState(null);
   const [addingGroup, setAddingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
@@ -766,7 +767,6 @@ function AppInner() {
   const adminActiveMenu = ADMIN_MENU.find(m => m.id === adminSection);
   const demoUsers = adminUsers;
   const demoGroups = securityGroups.map(g => ({ ...g, members: g.memberCount || 0, permCount: g.permissions ? Object.values(g.permissions).filter(Boolean).length : 0 }));
-  const [dashboardData, setDashboardData] = useState(null);
 
   // ── Load dashboard data from API ───────────────────────────
   useEffect(() => {

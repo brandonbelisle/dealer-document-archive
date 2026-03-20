@@ -3,8 +3,12 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    minify: false,  // Disable minification for readable error messages
+    sourcemap: true,
+  },
   server: {
-    host: true,  // Bind to 0.0.0.0 — accessible from other devices on the network
+    host: true,
     port: 5173,
     proxy: {
       '/api': {

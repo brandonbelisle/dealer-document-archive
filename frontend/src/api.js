@@ -23,12 +23,26 @@ async function request(path, options = {}) {
     headers['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  } catch (err) {
+    throw new Error(`Network error: ${err.message}`);
+  }
 
   if (res.status === 401) {
     setToken(null);
     window.location.reload();
     throw new Error('Session expired');
+  }
+
+  // Handle non-JSON responses (e.g. HTML from catch-all route)
+  const contentType = res.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    if (!res.ok) throw new Error(`Request failed (${res.status})`);
+    // Some endpoints return non-JSON on success (shouldn't happen, but be safe)
+    const text = await res.text();
+    try { return JSON.parse(text); } catch { throw new Error(`Unexpected response from server`); }
   }
 
   const data = await res.json();

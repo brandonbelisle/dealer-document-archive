@@ -188,6 +188,7 @@ function AppInner() {
   const [renamingFileName, setRenamingFileName] = useState("");
   const [viewingFileId, setViewingFileId] = useState(null);
   const [securityGroups, setSecurityGroups] = useState([]);
+  const [adminUsers, setAdminUsers] = useState([]);
   const [editingGroupId, setEditingGroupId] = useState(null);
   const [addingGroup, setAddingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
@@ -276,7 +277,7 @@ function AppInner() {
   useEffect(() => {
     if (!isLoggedIn || !activeDepartment) return;
     api.getFolders({ departmentId: activeDepartment }).then(rows => {
-      const norm = rows.map(f => ({ id: f.id, name: f.name, locationId: f.location_id || f.locationId, departmentId: f.department_id || f.departmentId, parentId: f.parent_id || f.parentId || null, createdAt: f.created_at, fileCount: f.fileCount, subfolderCount: f.subfolderCount }));
+      const norm = rows.map(f => ({ id: f.id, name: f.name, locationId: f.location_id || f.locationId, departmentId: f.department_id || f.departmentId, parentId: f.parent_id || f.parentId || null, createdAt: f.created_at, fileCount: Number(f.fileCount || 0), subfolderCount: Number(f.subfolderCount || 0) }));
       setFolders(prev => {
         // Merge: keep folders from other departments, replace this department's
         const otherDept = prev.filter(f => f.departmentId !== activeDepartment);
@@ -290,8 +291,8 @@ function AppInner() {
     if (!isLoggedIn || !activeFolderId) return;
     api.getFiles(activeFolderId).then(rows => {
       const norm = rows.map(f => ({
-        id: f.id, name: f.name, size: f.file_size_bytes, type: f.mime_type || "application/pdf",
-        pages: f.page_count, status: f.status, text: f.extracted_text,
+        id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf",
+        pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text,
         folderId: f.folder_id, fileStoragePath: f.file_storage_path,
         error: f.error_message, progress: f.status === "done" ? 100 : 0,
       }));
@@ -363,7 +364,7 @@ function AppInner() {
         // Upload directly to server
         try {
           const uploaded = await api.uploadFile(rawFile, folderId, r.text, r.pages);
-          const norm = { id: uploaded.id, name: uploaded.name, size: uploaded.file_size_bytes, type: uploaded.mime_type || "application/pdf", pages: uploaded.page_count, status: "done", text: uploaded.extracted_text, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, progress: 100 };
+          const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || "application/pdf", pages: Number(uploaded.page_count || 0), status: "done", text: uploaded.extracted_text, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, progress: 100 };
           setFiles(p => p.map(f => f.id === id ? norm : f));
         } catch (err) {
           setFiles(p => p.map(f => f.id === id ? { ...f, status: "error", error: err.message } : f));
@@ -400,7 +401,7 @@ function AppInner() {
     setTargetFolderId("");
     // Reload files for the target folder
     api.getFiles(targetFolderId).then(rows => {
-      const norm = rows.map(f => ({ id: f.id, name: f.name, size: f.file_size_bytes, type: f.mime_type || "application/pdf", pages: f.page_count, status: f.status, text: f.extracted_text, folderId: f.folder_id, fileStoragePath: f.file_storage_path, progress: 100 }));
+      const norm = rows.map(f => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: f.folder_id, fileStoragePath: f.file_storage_path, progress: 100 }));
       setFiles(prev => [...prev.filter(f => f.folderId !== targetFolderId), ...norm]);
     }).catch(console.error);
   };
@@ -621,14 +622,13 @@ function AppInner() {
   );
 
   /* Admin Set Password Modal */
-  const adminSetPasswordUser = adminSetPasswordUserId ? demoUsers.find(u => u.id === adminSetPasswordUserId) : null;
   const adminSetPasswordModalEl = adminSetPasswordUserId && (
     <div style={{ position: "fixed", inset: 0, zIndex: 260, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }} onClick={() => { setAdminSetPasswordUserId(null); setAdminSetPasswordError(""); setAdminSetPasswordSuccess(""); setAdminSetPasswordForm({ new: "", confirm: "" }); }} />
       <div style={{ position: "relative", width: "100%", maxWidth: 420, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 14, padding: "28px 24px", boxShadow: "0 20px 50px rgba(0,0,0,0.3)", animation: "modalIn 0.2s ease" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
           <div style={{ width: 38, height: 38, borderRadius: 10, background: darkMode ? "rgba(210,153,34,0.12)" : "rgba(180,83,9,0.08)", color: t.warn, display: "flex", alignItems: "center", justifyContent: "center" }}><ShieldIcon size={18} /></div>
-          <div><div style={{ fontSize: 17, fontWeight: 700 }}>Set Password</div><div style={{ fontSize: 12, color: t.textMuted }}>Set a new password for {adminSetPasswordUser?.name || "this user"}</div></div>
+          <div><div style={{ fontSize: 17, fontWeight: 700 }}>Set Password</div><div style={{ fontSize: 12, color: t.textMuted }}>Set a new password for {(adminUsers.find(u => u.id === adminSetPasswordUserId))?.name || "this user"}</div></div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
           <div><label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 4 }}>New Password</label><input type="password" value={adminSetPasswordForm.new} onChange={e => { setAdminSetPasswordForm(p => ({ ...p, new: e.target.value })); setAdminSetPasswordError(""); }} onKeyDown={e => e.key === "Enter" && handleAdminSetPassword()} autoFocus placeholder="At least 6 characters" style={{ width: "100%", padding: "10px 14px", fontSize: 13.5, fontFamily: "inherit", background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 8, color: t.text, outline: "none", boxSizing: "border-box" }} /></div>
@@ -764,7 +764,6 @@ function AppInner() {
   );
 
   const adminActiveMenu = ADMIN_MENU.find(m => m.id === adminSection);
-  const [adminUsers, setAdminUsers] = useState([]);
   const demoUsers = adminUsers;
   const demoGroups = securityGroups.map(g => ({ ...g, members: g.memberCount || 0, permCount: g.permissions ? Object.values(g.permissions).filter(Boolean).length : 0 }));
   const [dashboardData, setDashboardData] = useState(null);

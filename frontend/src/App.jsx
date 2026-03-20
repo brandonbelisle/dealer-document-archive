@@ -56,6 +56,7 @@ const GearIcon = ({ size = 15 }) => I(<><circle cx="12" cy="12" r="3" /><path d=
 const UserIcon = ({ size = 15 }) => I(<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></>, size);
 const ShieldIcon = ({ size = 15 }) => I(<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />, size);
 const LogOutIcon = ({ size = 15 }) => I(<><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></>, size);
+const InboxIcon = ({ size = 15 }) => I(<><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></>, size);
 const UsersIcon = ({ size = 16 }) => I(<><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>, size);
 const LayersIcon = ({ size = 16 }) => I(<><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /></>, size);
 const ClipboardIcon = ({ size = 16 }) => I(<><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /></>, size);
@@ -152,6 +153,7 @@ function AppInner() {
   const [departments, setDepartments] = useState(DEFAULT_DEPARTMENTS);
   const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
+  const [unsortedFiles, setUnsortedFiles] = useState([]);
   const [activeLocation, setActiveLocation] = useState(null);
   const [activeDepartment, setActiveDepartment] = useState(null);
   const [activeFolderId, setActiveFolderId] = useState(null);
@@ -166,6 +168,8 @@ function AppInner() {
   const [showFolderSelect, setShowFolderSelect] = useState(false);
   const [folderSelectSearch, setFolderSelectSearch] = useState("");
   const [folderSearch, setFolderSearch] = useState("");
+  const [globalSearch, setGlobalSearch] = useState("");
+  const [globalSearchFocused, setGlobalSearchFocused] = useState(false);
   const [addingLocation, setAddingLocation] = useState(false);
   const [newLocationName, setNewLocationName] = useState("");
   const [editingLocationId, setEditingLocationId] = useState(null);
@@ -225,6 +229,7 @@ function AppInner() {
   const renameFileRef = useRef(null);
 
   const fileInputRef = useRef(null);
+  const globalSearchRef = useRef(null);
   const folderDetailInputRef = useRef(null);
   const folderSelectInputRef = useRef(null);
   const editLocRef = useRef(null);
@@ -257,12 +262,18 @@ function AppInner() {
   // ── Load data from API when logged in ─────────────────────
   const loadCoreData = useCallback(async () => {
     try {
-      const [locs, depts] = await Promise.all([api.getLocations(), api.getDepartments()]);
+      const [locs, depts, unsorted] = await Promise.all([api.getLocations(), api.getDepartments(), api.getUnsortedFiles()]);
       // Normalize field names from DB (snake_case) to React (camelCase)
       const normLocs = locs.map(l => ({ id: l.id, name: l.name }));
       const normDepts = depts.map(d => ({ id: d.id, name: d.name, locationId: d.location_id || d.locationId }));
       setLocations(normLocs);
       setDepartments(normDepts);
+      setUnsortedFiles(unsorted.map(f => ({
+        id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf",
+        pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text,
+        folderId: null, fileStoragePath: f.file_storage_path,
+        error: f.error_message, progress: f.status === "done" ? 100 : 0,
+      })));
       if (normLocs.length > 0 && !activeLocation) {
         setActiveLocation(normLocs[0].id);
         setExpandedLocations({ [normLocs[0].id]: true });
@@ -303,6 +314,19 @@ function AppInner() {
       });
     }).catch(console.error);
   }, [isLoggedIn, activeFolderId]);
+
+  // ── Load unsorted files when Unsorted page opens ──────────
+  useEffect(() => {
+    if (!isLoggedIn || page !== "unsorted") return;
+    api.getUnsortedFiles().then(rows => {
+      setUnsortedFiles(rows.map(f => ({
+        id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf",
+        pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text,
+        folderId: null, fileStoragePath: f.file_storage_path,
+        error: f.error_message, progress: f.status === "done" ? 100 : 0,
+      })));
+    }).catch(console.error);
+  }, [isLoggedIn, page]);
 
   // ── Load security groups when admin section opens ──────────
   useEffect(() => {
@@ -1096,6 +1120,125 @@ function AppInner() {
     );
   })();
 
+  /* Move unsorted file to a folder */
+  const [movingFileId, setMovingFileId] = useState(null);
+  const [moveTargetFolderId, setMoveTargetFolderId] = useState("");
+  const [showMoveSelect, setShowMoveSelect] = useState(false);
+  const [moveSelectSearch, setMoveSelectSearch] = useState("");
+  const moveSelectRef = useRef(null);
+
+  const handleMoveFile = async (fileId, folderId) => {
+    try {
+      await api.moveFile(fileId, folderId);
+      setUnsortedFiles(p => p.filter(f => f.id !== fileId));
+      setMovingFileId(null);
+      setMoveTargetFolderId("");
+    } catch (err) { console.error("Move failed:", err); }
+  };
+
+  const unsortedPage = (
+    <div style={{ maxWidth: 900, margin: "0 auto", padding: "36px 28px", animation: "fadeIn 0.35s ease" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+        <div>
+          <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>Unsorted Files</h1>
+          <p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>{unsortedFiles.length} file{unsortedFiles.length !== 1 ? "s" : ""} not assigned to any folder</p>
+        </div>
+      </div>
+      {unsortedFiles.length > 0 ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {unsortedFiles.map((file, idx) => (
+            <div key={file.id} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "12px 16px", animation: `fadeIn 0.25s ease ${idx * 0.03}s both` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: t.accentSoft, color: t.accent }}><FileDocIcon size={18} /></div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{file.name}</div>
+                  <div style={{ fontSize: 10.5, color: t.textMuted, display: "flex", gap: 8 }}>
+                    <span>{fmtSize(file.size)}</span>
+                    {file.pages > 0 && <span>{file.pages} pg</span>}
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                  {movingFileId === file.id ? (
+                    <div style={{ position: "relative", minWidth: 220 }}>
+                      <div onClick={() => { setShowMoveSelect(!showMoveSelect); setMoveSelectSearch(""); }} style={{ border: `1px solid ${showMoveSelect ? t.accent : t.border}`, borderRadius: 8, padding: "6px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontSize: 12, background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)" }}>
+                        <FolderClosedIcon size={14} />
+                        <span style={{ flex: 1, color: moveTargetFolderId ? t.text : t.textDim }}>{moveTargetFolderId ? folders.find(f => f.id === moveTargetFolderId)?.name || "Select..." : "Choose folder..."}</span>
+                        <ChevronDown />
+                      </div>
+                      {showMoveSelect && (() => {
+                        const sq = moveSelectSearch.trim();
+                        const dff = sq ? folders.map(f => ({ folder: f, ...fuzzyMatch(sq, f.name) })).filter(r => r.match).sort((a, b) => b.score - a.score).map(r => r.folder) : folders;
+                        return (
+                          <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 100, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, boxShadow: "0 12px 36px rgba(0,0,0,0.2)", overflow: "hidden" }}>
+                            <div style={{ padding: "6px 8px", borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", gap: 6 }}>
+                              <SearchIcon size={13} />
+                              <input ref={moveSelectRef} value={moveSelectSearch} onChange={e => setMoveSelectSearch(e.target.value)} onClick={e => e.stopPropagation()} placeholder="Search folders..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 12, color: t.text, outline: "none", fontFamily: "inherit" }} />
+                            </div>
+                            <div style={{ maxHeight: 250, overflowY: "auto", padding: 4 }}>
+                              {locations.map(loc => {
+                                const li = dff.filter(f => f.locationId === loc.id);
+                                if (!li.length) return null;
+                                return (
+                                  <div key={loc.id}>
+                                    <div style={{ padding: "5px 8px 2px", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: t.textMuted }}>{loc.name}</div>
+                                    {deptsInLocation(loc.id).map(dept => {
+                                      const di = li.filter(f => f.departmentId === dept.id);
+                                      if (!di.length) return null;
+                                      return (
+                                        <div key={dept.id}>
+                                          <div style={{ padding: "3px 8px 2px 16px", fontSize: 9, fontWeight: 600, color: t.textDim }}>{dept.name}</div>
+                                          {di.map(folder => (
+                                            <div key={folder.id} onClick={() => { setMoveTargetFolderId(folder.id); setShowMoveSelect(false); setMoveSelectSearch(""); }} className="folder-select-item" style={{ padding: "6px 10px 6px 24px", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 8, background: moveTargetFolderId === folder.id ? t.accentSoft : "transparent", color: moveTargetFolderId === folder.id ? t.accent : t.text, fontWeight: 500 }}>
+                                              <FolderClosedIcon size={13} />
+                                              <span style={{ flex: 1 }}>{folder.name}</span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
+                      {moveTargetFolderId && (
+                        <Btn primary onClick={() => handleMoveFile(file.id, moveTargetFolderId)} style={{ marginTop: 6, fontSize: 11, padding: "5px 12px", width: "100%" }}>
+                          <CheckIcon /> Move to Folder
+                        </Btn>
+                      )}
+                      <button onClick={() => { setMovingFileId(null); setMoveTargetFolderId(""); setShowMoveSelect(false); }} style={{ marginTop: 4, background: "transparent", border: "none", cursor: "pointer", color: t.textDim, fontSize: 10.5, fontFamily: "inherit", width: "100%", textAlign: "center" }}>Cancel</button>
+                    </div>
+                  ) : (
+                    <>
+                      <Btn onClick={() => { setMovingFileId(file.id); setMoveTargetFolderId(""); setShowMoveSelect(false); }} style={{ fontSize: 11, padding: "5px 12px" }}>
+                        <FolderClosedIcon size={13} /> Move to Folder
+                      </Btn>
+                      <SmallBtn title="Delete" onClick={() => {
+                        setWarningModal({
+                          title: "Delete File",
+                          message: `Delete "${file.name}"? This cannot be undone.`,
+                          onConfirm: async () => { await removeFile(file.id); setUnsortedFiles(p => p.filter(f => f.id !== file.id)); setWarningModal(null); }
+                        });
+                      }}><TrashIcon size={12} /></SmallBtn>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "48px 20px", textAlign: "center", color: t.textDim }}>
+          <CheckIcon />
+          <div style={{ fontSize: 13, fontWeight: 500, marginTop: 12 }}>All files are sorted</div>
+          <div style={{ fontSize: 12, marginTop: 4 }}>No unsorted files at the moment</div>
+        </div>
+      )}
+    </div>
+  );
+
   const uploadPage = (() => { const allDone = stagedFiles.length > 0 && stagedFiles.every(f => f.status !== "processing"); return <div style={{ maxWidth: 720, margin: "0 auto", padding: "36px 28px", animation: "fadeIn 0.35s ease" }}><div style={{ marginBottom: 28 }}><h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>Upload</h1><p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>Upload PDF files, then choose a folder</p></div><div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: t.accent, marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 20, height: 20, borderRadius: "50%", background: t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>1</span> Select Files</div><div onDrop={handleDrop} onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={e => { e.preventDefault(); setDragOver(false); }} onClick={() => fileInputRef.current?.click()} style={{ border: `2px dashed ${dragOver ? t.accent : t.border}`, borderRadius: 14, padding: "44px 24px", textAlign: "center", cursor: "pointer", background: dragOver ? t.dropzoneActive : t.dropzone, marginBottom: 20, position: "relative" }}><div style={{ color: dragOver ? t.accent : t.textDim, marginBottom: 10 }}><UploadCloudIcon /></div><p style={{ fontSize: 16, fontWeight: 500, marginBottom: 4, color: t.text }}>{dragOver ? "Drop PDFs" : "Drag & drop PDF files"}</p><p style={{ fontSize: 12, color: t.textMuted, margin: 0 }}>or click · max 50 MB</p><input ref={fileInputRef} type="file" accept=".pdf" multiple onChange={e => { handleUploadFiles(e.target.files); e.target.value = ""; }} style={{ display: "none" }} /></div>{stagedFiles.length > 0 && <div style={{ marginBottom: 28 }}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}><span style={{ fontSize: 12, fontWeight: 600, color: t.textMuted }}>{stagedFiles.length} file{stagedFiles.length !== 1 ? "s" : ""}</span><button onClick={() => setStagedFiles([])} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.error, fontSize: 11, fontWeight: 500, fontFamily: "inherit" }}>Clear</button></div><div style={{ display: "flex", flexDirection: "column", gap: 6 }}>{stagedFiles.map((f, i) => <FileCard key={f.id} file={f} idx={i} staged />)}</div></div>}{stagedFiles.length > 0 && <div><div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: allDone ? t.accent : t.textDim, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, background: allDone ? t.accentSoft : "transparent", border: allDone ? "none" : `1px solid ${t.textDim}` }}>2</span> Choose Folder</div>{!allDone ? <div style={{ padding: "16px 20px", background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, color: t.textDim, fontSize: 13 }}>Processing...</div> : <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12 }}><div style={{ padding: "16px 20px" }}><label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 8 }}>Destination Folder</label><div style={{ position: "relative" }}><div onClick={() => { setShowFolderSelect(!showFolderSelect); setFolderSelectSearch(""); }} style={{ border: `1px solid ${showFolderSelect ? t.accent : t.border}`, borderRadius: 8, padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: showFolderSelect ? `0 0 0 3px ${t.accentSoft}` : "none" }}><div style={{ display: "flex", alignItems: "center", gap: 10 }}><FolderClosedIcon size={16} /><span style={{ fontSize: 13.5, fontWeight: 500, color: targetFolderId ? t.text : t.textDim }}>{targetFolderId ? (() => { const tf = folders.find(f => f.id === targetFolderId); if (!tf) return "Select..."; return `${locations.find(l => l.id === tf.locationId)?.name} / ${departments.find(d => d.id === tf.departmentId)?.name} / ${tf.name}`; })() : "Select a folder..."}</span></div><ChevronDown /></div>{showFolderSelect && (() => { const sq = folderSelectSearch.trim(), dff = sq ? folders.map(f => ({ folder: f, ...fuzzyMatch(sq, f.name) })).filter(r => r.match).sort((a, b) => b.score - a.score).map(r => r.folder) : folders; return <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 50, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, boxShadow: "0 12px 36px rgba(0,0,0,0.2)", overflow: "hidden" }}><div style={{ padding: "8px 10px", borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", gap: 8 }}><SearchIcon size={14} /><input ref={folderSelectInputRef} value={folderSelectSearch} onChange={e => setFolderSelectSearch(e.target.value)} onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === "Escape") { setShowFolderSelect(false); setFolderSelectSearch(""); } if (e.key === "Enter" && dff.length === 1) { setTargetFolderId(dff[0].id); setShowFolderSelect(false); setFolderSelectSearch(""); } }} placeholder="Search..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 12.5, color: t.text, outline: "none", fontFamily: "inherit" }} /></div><div style={{ padding: 4, maxHeight: 300, overflowY: "auto" }}>{dff.length > 0 ? locations.map(loc => { const li = dff.filter(f => f.locationId === loc.id); if (!li.length) return null; return <div key={loc.id}><div style={{ padding: "7px 10px 3px", fontSize: 10, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: t.textMuted, marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}><MapPinIcon size={11} /> {loc.name}</div>{deptsInLocation(loc.id).map(dept => { const di = li.filter(f => f.departmentId === dept.id); if (!di.length) return null; return <div key={dept.id}><div style={{ padding: "5px 12px 2px 22", fontSize: 9.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: t.textDim }}>{dept.name}</div>{di.map(folder => <div key={folder.id} onClick={() => { setTargetFolderId(folder.id); setShowFolderSelect(false); setFolderSelectSearch(""); }} className="folder-select-item" style={{ padding: "7px 12px 7px 32", borderRadius: 6, cursor: "pointer", fontSize: 12.5, display: "flex", alignItems: "center", gap: 9, background: targetFolderId === folder.id ? t.accentSoft : "transparent", color: targetFolderId === folder.id ? t.accent : t.text, fontWeight: 500 }}><FolderClosedIcon size={14} /><span style={{ flex: 1 }}><HighlightedName name={folder.name} query={sq} accentColor={t.accent} /></span><span style={{ fontSize: 10, color: t.textDim }}>{filesInFolder(folder.id).length}</span></div>)}</div>; })}</div>; }) : <div style={{ padding: "14px 12px", fontSize: 12, color: t.textDim, textAlign: "center" }}>{sq ? `No match` : "No folders"}</div>}</div></div>; })()}</div></div><div style={{ padding: "0 20px 18px", display: "flex", justifyContent: "flex-end" }}><Btn primary onClick={assignStagedToFolder} style={{ opacity: targetFolderId ? 1 : 0.4, pointerEvents: targetFolderId ? "auto" : "none", padding: "10px 24px", fontSize: 13 }}><CheckIcon /> Add {stagedFiles.filter(f => f.status !== "processing").length} File{stagedFiles.filter(f => f.status !== "processing").length !== 1 ? "s" : ""}</Btn></div></div>}</div>}</div>; })();
 
   const adminPage = <div style={{ display: "flex", flex: 1, minHeight: "calc(100vh - 55px)", animation: "fadeIn 0.3s ease" }}>
@@ -1406,7 +1549,7 @@ function AppInner() {
       <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} @keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}} .file-card:hover{transform:translateY(-1px);box-shadow:${t.cardShadow}} .folder-row:hover{transform:translateY(-1px);box-shadow:${t.cardShadow};border-color:${darkMode?'#3a3f47':t.accent}!important} .icon-btn:hover{color:${t.text}!important;background:${t.accentSoft}} .folder-select-item:hover{background:${t.accentSoft}!important} .nav-tab:hover{background:${t.navActive}} .admin-menu-item:hover{background:${t.accentSoft}} ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:${t.scrollThumb};border-radius:3px} input::placeholder{color:${t.textDim}}`}</style>
 
       <nav style={{ borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", height: 54, backdropFilter: "blur(12px)", background: darkMode ? "rgba(15,17,20,0.92)" : "rgba(240,237,232,0.88)", position: "sticky", top: 0, zIndex: 100 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 24, flexShrink: 0 }}>
           <div onClick={() => { setPage("dashboard"); setSelectedFile(null); }} style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer" }}><div style={{ width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${t.accent},${t.accentDark})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 9, fontWeight: 800, letterSpacing: "-0.02em" }}>DDA</div><span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.03em" }}>Dealer Document Archive</span></div>
           <div style={{ display: "flex", gap: 2, marginLeft: 8 }}>
             <button onClick={() => { setPage("dashboard"); setSelectedFile(null); }} className="nav-tab" style={{ background: page === "dashboard" ? t.navActive : "transparent", color: page === "dashboard" ? t.accent : t.textMuted, border: "none", borderRadius: 8, padding: "7px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 7, fontFamily: "inherit", borderBottom: page === "dashboard" ? `2px solid ${t.accent}` : "2px solid transparent" }}><DashboardIcon size={15} /> Dashboard</button>
@@ -1414,11 +1557,105 @@ function AppInner() {
               <button onClick={e => { e.stopPropagation(); setShowDeptDropdown(!showDeptDropdown); }} className="nav-tab" style={{ background: (page === "folders" || page === "folder-detail") ? t.navActive : "transparent", color: (page === "folders" || page === "folder-detail") ? t.accent : t.textMuted, border: "none", borderRadius: 8, padding: "7px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 7, fontFamily: "inherit", borderBottom: (page === "folders" || page === "folder-detail") ? `2px solid ${t.accent}` : "2px solid transparent" }}><FolderClosedIcon size={15} /> Folders <ChevronDown /></button>
               {showDeptDropdown && <div onClick={e => e.stopPropagation()} style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, zIndex: 200, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)", padding: 4, minWidth: 260, maxHeight: 420, overflowY: "auto", animation: "fadeIn 0.15s ease" }}>{locations.map(loc => { const le = expandedLocations[loc.id]; return <div key={loc.id}><div onClick={() => setExpandedLocations(p => ({ ...p, [loc.id]: !p[loc.id] }))} className="folder-select-item" style={{ padding: "8px 10px", borderRadius: 7, cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 8, color: activeLocation === loc.id ? t.accent : t.text }}><ChevronIcon open={le} /><MapPinIcon size={14} /><span style={{ flex: 1 }}>{loc.name}</span><span style={{ fontSize: 9.5, color: t.textDim }}>{foldersInLocation(loc.id).length} folders</span></div>{le && <div style={{ paddingLeft: 12, marginBottom: 4 }}>{deptsInLocation(loc.id).map(dept => { const df = foldersInDepartment(dept.id), isAct = activeLocation === loc.id && activeDepartment === dept.id && (page === "folders" || page === "folder-detail"); return <div key={dept.id} onClick={() => { setActiveLocation(loc.id); setActiveDepartment(dept.id); setPage("folders"); setActiveFolderId(null); setSelectedFile(null); setFolderSearch(""); setShowDeptDropdown(false); }} className="folder-select-item" style={{ padding: "7px 12px", borderRadius: 6, cursor: "pointer", fontSize: 12.5, display: "flex", alignItems: "center", gap: 9, background: isAct ? t.accentSoft : "transparent", color: isAct ? t.accent : t.textMuted, fontWeight: 500 }}><FolderClosedIcon size={14} /><span style={{ flex: 1 }}>{dept.name}</span><span style={{ fontSize: 9.5, color: t.textDim }}>{df.length} · {df.reduce((s, f) => s + filesInFolder(f.id).length, 0)} files</span></div>; })}</div>}</div>; })}</div>}
             </div>
+            <button onClick={() => setPage("unsorted")} className="nav-tab" style={{ background: page === "unsorted" ? t.navActive : "transparent", color: page === "unsorted" ? t.accent : t.textMuted, border: "none", borderRadius: 8, padding: "7px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 7, fontFamily: "inherit", borderBottom: page === "unsorted" ? `2px solid ${t.accent}` : "2px solid transparent", position: "relative" }}><InboxIcon size={15} /> Unsorted{unsortedFiles.length > 0 && <span style={{ fontSize: 10, fontWeight: 700, background: darkMode ? "rgba(210,153,34,0.15)" : "rgba(180,83,9,0.1)", color: darkMode ? "#d29922" : "#b45309", borderRadius: 10, padding: "1px 6px" }}>{unsortedFiles.length}</span>}</button>
             <button onClick={() => setPage("upload")} className="nav-tab" style={{ background: page === "upload" ? t.navActive : "transparent", color: page === "upload" ? t.accent : t.textMuted, border: "none", borderRadius: 8, padding: "7px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 7, fontFamily: "inherit", borderBottom: page === "upload" ? `2px solid ${t.accent}` : "2px solid transparent" }}><UploadCloudIcon size={15} /> Upload{stagedFiles.length > 0 && <span style={{ fontSize: 10, fontWeight: 700, background: t.accent, color: "#fff", borderRadius: 10, padding: "1px 6px" }}>{stagedFiles.length}</span>}</button>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {files.length > 0 && <span style={{ fontSize: 10.5, fontWeight: 600, color: t.textDim }}>{files.length} file{files.length !== 1 ? "s" : ""}</span>}
+
+        {/* ── Global Search Bar (centered) ──────────────────── */}
+        {isLoggedIn && (() => {
+          const q = globalSearch.trim();
+          const folderResults = q ? folders.map(f => ({ ...f, ...fuzzyMatch(q, f.name), _type: "folder" })).filter(r => r.match).sort((a, b) => b.score - a.score).slice(0, 8) : [];
+          const fileResults = q ? files.concat(unsortedFiles).map(f => ({ ...f, ...fuzzyMatch(q, f.name), _type: "file" })).filter(r => r.match).sort((a, b) => b.score - a.score).slice(0, 10) : [];
+          const hasResults = folderResults.length > 0 || fileResults.length > 0;
+          const showDropdown = globalSearchFocused && q.length > 0;
+          return (
+            <div style={{ flex: "0 1 360px", position: "relative", margin: "0 16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)", border: `1px solid ${showDropdown && hasResults ? t.accent : t.border}`, borderRadius: 9, padding: "6px 12px", transition: "border-color 0.2s" }}>
+                <SearchIcon size={15} />
+                <input
+                  ref={globalSearchRef}
+                  value={globalSearch}
+                  onChange={e => setGlobalSearch(e.target.value)}
+                  onFocus={() => setGlobalSearchFocused(true)}
+                  onBlur={() => setTimeout(() => setGlobalSearchFocused(false), 200)}
+                  onKeyDown={e => { if (e.key === "Escape") { setGlobalSearch(""); globalSearchRef.current?.blur(); } }}
+                  placeholder="Search folders & files..."
+                  style={{ flex: 1, background: "transparent", border: "none", fontSize: 13, color: t.text, outline: "none", fontFamily: "inherit" }}
+                />
+                {q && <button onClick={() => setGlobalSearch("")} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.textDim, display: "flex", padding: 2 }}><XIcon size={13} /></button>}
+              </div>
+              {showDropdown && (
+                <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, zIndex: 300, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, boxShadow: darkMode ? "0 12px 40px rgba(0,0,0,0.5)" : "0 12px 40px rgba(0,0,0,0.15)", overflow: "hidden", animation: "fadeIn 0.15s ease", maxHeight: 420, overflowY: "auto" }}>
+                  {!hasResults && (
+                    <div style={{ padding: "20px 16px", textAlign: "center", color: t.textDim, fontSize: 12.5 }}>No results for "{q}"</div>
+                  )}
+                  {folderResults.length > 0 && (
+                    <div>
+                      <div style={{ padding: "10px 14px 4px", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textDim }}>Folders</div>
+                      {folderResults.map(folder => {
+                        const loc = locations.find(l => l.id === folder.locationId);
+                        const dept = departments.find(d => d.id === folder.departmentId);
+                        return (
+                          <div key={folder.id} onMouseDown={e => e.preventDefault()} onClick={() => {
+                            if (folder.locationId) setActiveLocation(folder.locationId);
+                            if (folder.departmentId) setActiveDepartment(folder.departmentId);
+                            setActiveFolderId(folder.id);
+                            setPage("folder-detail");
+                            setGlobalSearch("");
+                            setGlobalSearchFocused(false);
+                          }} className="folder-select-item" style={{ padding: "8px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, fontSize: 13 }}>
+                            <div style={{ color: t.accent, flexShrink: 0 }}><FolderClosedIcon size={16} /></div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontWeight: 600 }}><HighlightedName name={folder.name} query={q} accentColor={t.accent} /></div>
+                              <div style={{ fontSize: 10.5, color: t.textDim }}>{loc?.name || ""}{dept ? ` / ${dept.name}` : ""}</div>
+                            </div>
+                            <span style={{ fontSize: 10, color: t.textDim, flexShrink: 0 }}>{Number(folder.fileCount || 0)} files</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {folderResults.length > 0 && fileResults.length > 0 && (
+                    <div style={{ borderTop: `1px solid ${t.border}` }} />
+                  )}
+                  {fileResults.length > 0 && (
+                    <div>
+                      <div style={{ padding: "10px 14px 4px", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textDim }}>Files</div>
+                      {fileResults.map(file => {
+                        const folder = file.folderId ? folders.find(f => f.id === file.folderId) : null;
+                        const loc = folder ? locations.find(l => l.id === folder.locationId) : null;
+                        const dept = folder ? departments.find(d => d.id === folder.departmentId) : null;
+                        return (
+                          <div key={file.id} onMouseDown={e => e.preventDefault()} onClick={() => {
+                            if (file.folderId) {
+                              if (folder?.locationId) setActiveLocation(folder.locationId);
+                              if (folder?.departmentId) setActiveDepartment(folder.departmentId);
+                              setActiveFolderId(file.folderId);
+                            }
+                            setViewingFileId(file.id);
+                            setPage("file-detail");
+                            setGlobalSearch("");
+                            setGlobalSearchFocused(false);
+                          }} className="folder-select-item" style={{ padding: "8px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, fontSize: 13 }}>
+                            <div style={{ color: t.success, flexShrink: 0 }}><FileDocIcon size={16} /></div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontWeight: 600 }}><HighlightedName name={file.name} query={q} accentColor={t.accent} /></div>
+                              <div style={{ fontSize: 10.5, color: t.textDim }}>{file.folderId ? `${loc?.name || ""}${dept ? ` / ${dept.name}` : ""}${folder ? ` / ${folder.name}` : ""}` : "Unsorted"}</div>
+                            </div>
+                            <span style={{ fontSize: 10, color: t.textDim, flexShrink: 0 }}>{fmtSize(file.size)}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
           {loggedInUser && <div style={{ position: "relative" }}><div onClick={e => { e.stopPropagation(); setShowProfileMenu(!showProfileMenu); }} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", padding: "4px 8px", borderRadius: 8, background: showProfileMenu ? t.navActive : "transparent" }}><div style={{ width: 28, height: 28, borderRadius: "50%", background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, textTransform: "uppercase" }}>{loggedInUser.name.charAt(0)}</div><span style={{ fontSize: 12, fontWeight: 500, color: t.textMuted }}>{loggedInUser.name}</span><ChevronDown /></div>{showProfileMenu && <div onClick={e => e.stopPropagation()} style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 200, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)", padding: 4, minWidth: 200, animation: "fadeIn 0.15s ease" }}><div style={{ padding: "10px 12px 8px", borderBottom: `1px solid ${t.border}`, marginBottom: 4 }}><div style={{ fontSize: 13, fontWeight: 600 }}>{loggedInUser.name}</div><div style={{ fontSize: 10.5, color: t.textDim, marginTop: 2 }}>{loggedInUser.groups?.join(", ")}</div></div>{[{ l: "My Account", i: <UserIcon /> }, { l: "Change Password", i: <ShieldIcon /> }, { l: "Settings", i: <GearIcon /> }].map(item => <div key={item.l} onClick={() => { setShowProfileMenu(false); if (item.l === "Change Password") { setShowChangePassword(true); setChangePasswordForm({ current: "", new: "", confirm: "" }); setChangePasswordError(""); setChangePasswordSuccess(""); } }} className="folder-select-item" style={{ padding: "8px 12px", borderRadius: 7, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 10, color: t.text, fontWeight: 500 }}><span style={{ color: t.textMuted }}>{item.i}</span> {item.l}</div>)}{loggedInUser.groups?.includes("Administrator") && <div onClick={() => { setShowProfileMenu(false); setPage("admin"); setAdminSection("users"); }} className="folder-select-item" style={{ padding: "8px 12px", borderRadius: 7, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 10, color: t.text, fontWeight: 500 }}><span style={{ color: t.textMuted }}><WrenchIcon /></span> Administration</div>}<div style={{ borderTop: `1px solid ${t.border}`, marginTop: 4, paddingTop: 4 }}><div onClick={() => { setShowProfileMenu(false); handleLogout(); }} className="folder-select-item" style={{ padding: "8px 12px", borderRadius: 7, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 10, color: t.error, fontWeight: 500 }}><LogOutIcon /> Sign Out</div></div></div>}</div>}
           <button onClick={() => setDarkMode(!darkMode)} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 7, padding: 6, cursor: "pointer", color: t.textMuted, display: "flex", alignItems: "center" }}>{darkMode ? <SunIcon /> : <MoonIcon />}</button>
         </div>
@@ -1428,6 +1665,7 @@ function AppInner() {
       {page === "folders" && foldersPage}
       {page === "folder-detail" && folderDetail}
       {page === "file-detail" && fileDetailPage}
+      {page === "unsorted" && unsortedPage}
       {page === "upload" && uploadPage}
       {page === "admin" && adminPage}
       {renameModalEl}

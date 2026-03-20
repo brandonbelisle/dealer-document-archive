@@ -24,7 +24,7 @@ const upload = multer({
 });
 
 // ── GET /api/files ────────────────────────────────────────
-// Query: ?folderId=xxx
+// Query: ?folderId=xxx  OR  ?unsorted=true
 router.get('/', requireAuth, async (req, res) => {
   try {
     let sql = `SELECT id, name, original_name, folder_id, mime_type, file_size_bytes,
@@ -32,13 +32,42 @@ router.get('/', requireAuth, async (req, res) => {
                       uploaded_at, updated_at, uploaded_by
                FROM files`;
     const params = [];
-    if (req.query.folderId) {
+    if (req.query.unsorted === 'true') {
+      sql += ' WHERE folder_id IS NULL';
+    } else if (req.query.folderId) {
       sql += ' WHERE folder_id = ?';
       params.push(req.query.folderId);
     }
     sql += ' ORDER BY uploaded_at DESC';
     const [rows] = await db.execute(sql, params);
     res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── PUT /api/files/:id/move ──────────────────────────────
+// Move a file to a different folder (or set folderId to null for unsorted)
+router.put('/:id/move', requireAuth, requirePermission('uploadFiles'), async (req, res) => {
+  try {
+    const { folderId } = req.body;
+
+    const [existing] = await db.execute('SELECT id, name, folder_id FROM files WHERE id = ?', [req.params.id]);
+    if (existing.length === 0) return res.status(404).json({ error: 'File not found' });
+
+    if (folderId) {
+      const [folder] = await db.execute('SELECT id, name FROM folders WHERE id = ?', [folderId]);
+      if (folder.length === 0) return res.status(404).json({ error: 'Folder not found' });
+      await db.execute('UPDATE files SET folder_id = ? WHERE id = ?', [folderId, req.params.id]);
+      await logAudit('File Moved', `"${existing[0].name}" → "${folder[0].name}"`, req.user, req.ip);
+    } else {
+      await db.execute('UPDATE files SET folder_id = NULL WHERE id = ?', [req.params.id]);
+      await logAudit('File Moved', `"${existing[0].name}" → Unsorted`, req.user, req.ip);
+    }
+
+    const [updated] = await db.execute('SELECT * FROM files WHERE id = ?', [req.params.id]);
+    res.json(updated[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
@@ -89,12 +118,15 @@ router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.sin
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     const { folderId, extractedText, pageCount } = req.body;
-    if (!folderId) return res.status(400).json({ error: 'folderId required' });
 
-    // Verify folder exists
-    const [folder] = await db.execute('SELECT id, name FROM folders WHERE id = ?', [folderId]);
-    if (folder.length === 0) {
-      return res.status(404).json({ error: 'Folder not found' });
+    // folderId is optional — if not provided, file goes to "unsorted"
+    let folderName = 'Unsorted';
+    if (folderId) {
+      const [folder] = await db.execute('SELECT id, name FROM folders WHERE id = ?', [folderId]);
+      if (folder.length === 0) {
+        return res.status(404).json({ error: 'Folder not found' });
+      }
+      folderName = folder[0].name;
     }
 
     // Upload to Azure Blob Storage
@@ -116,7 +148,7 @@ router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.sin
         id,
         req.file.originalname,
         req.file.originalname,
-        folderId,
+        folderId || null,
         req.file.mimetype || 'application/pdf',
         req.file.size,
         parseInt(pageCount || '0', 10),
@@ -129,7 +161,7 @@ router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.sin
 
     await logAudit(
       'File Uploaded',
-      `"${req.file.originalname}" (${pageCount || '?'} pages, ${formatSize(req.file.size)}) → "${folder[0].name}"`,
+      `"${req.file.originalname}" (${pageCount || '?'} pages, ${formatSize(req.file.size)}) → "${folderName}"`,
       req.user,
       req.ip
     );

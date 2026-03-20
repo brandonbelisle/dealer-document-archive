@@ -205,7 +205,7 @@ CREATE TABLE files (
     id                  CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name                VARCHAR(500) NOT NULL,             -- display name (can be renamed)
     original_name       VARCHAR(500) NOT NULL,             -- original upload filename
-    folder_id           CHAR(36) NOT NULL,
+    folder_id           CHAR(36) DEFAULT NULL,             -- NULL = unsorted/unassigned file
     mime_type           VARCHAR(100) DEFAULT 'application/pdf',
     file_size_bytes     BIGINT NOT NULL DEFAULT 0,
     page_count          INT DEFAULT 0,

@@ -156,17 +156,26 @@ export async function getFiles(folderId) {
   const q = folderId ? `?folderId=${folderId}` : '';
   return request(`/files${q}`);
 }
+export async function getUnsortedFiles() {
+  return request('/files?unsorted=true');
+}
 export async function getFile(id) {
   return request(`/files/${id}`);
 }
 export async function uploadFile(file, folderId, extractedText, pageCount) {
   const form = new FormData();
   form.append('file', file);
-  form.append('folderId', folderId);
+  if (folderId) form.append('folderId', folderId);
   if (extractedText) form.append('extractedText', extractedText);
   if (pageCount) form.append('pageCount', String(pageCount));
 
   return request('/files/upload', { method: 'POST', body: form });
+}
+export async function moveFile(id, folderId) {
+  return request(`/files/${id}/move`, {
+    method: 'PUT',
+    body: JSON.stringify({ folderId: folderId || null }),
+  });
 }
 export async function updateFileText(id, extractedText, pageCount) {
   return request(`/files/${id}/text`, {

@@ -49,7 +49,7 @@ if (fs.existsSync(FRONTEND_DIST)) {
   app.use(express.static(FRONTEND_DIST));
   // Any request that doesn't match an API route or a static file
   // gets the React app's index.html (client-side routing)
-  app.get('*', (req, res) => {
+  app.get('{*path}', (req, res) => {
     res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
   });
   console.log('✓ Serving frontend from', FRONTEND_DIST);

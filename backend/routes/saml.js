@@ -122,6 +122,14 @@ function parseMetadataXml(xml) {
 async function initializeSamlStrategy() {
   const settings = await getSamlSettings();
   
+  console.log('SAML Settings loaded:', {
+    enabled: settings.enabled,
+    sp_acs_url: settings.sp_acs_url,
+    idp_metadata_url: settings.idp_metadata_url,
+    idp_sso_url: settings.idp_sso_url,
+    hasCert: !!settings.idp_x509_cert,
+  });
+  
   if (!settings.enabled || !settings.sp_acs_url) {
     samlStrategy = null;
     lastSamlSettings = null;
@@ -194,6 +202,20 @@ async function initializeSamlStrategy() {
 
   if (sloUrl) {
     strategyConfig.logoutUrl = sloUrl;
+  }
+
+  console.log('SAML Strategy Config:', {
+    entryPoint: strategyConfig.entryPoint,
+    callbackUrl: strategyConfig.callbackUrl,
+    hasCert: !!strategyConfig.cert,
+    certLength: strategyConfig.cert ? strategyConfig.cert.length : 0,
+  });
+
+  if (!strategyConfig.cert) {
+    console.error('ERROR: No certificate available for SAML strategy');
+    samlStrategy = null;
+    lastSamlSettings = null;
+    return null;
   }
 
   const strategy = new SamlStrategy(strategyConfig, (profile, done) => {

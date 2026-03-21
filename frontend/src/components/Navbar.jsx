@@ -515,7 +515,6 @@ export default function Navbar({
             )}
           </button>
         </div>
-          </div>
         )}
         {/* Mobile menu dropdown */}
         {isMobile && showMobileMenu && (

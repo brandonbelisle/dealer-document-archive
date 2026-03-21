@@ -5,7 +5,6 @@ import PermToggle from "../components/ui/PermToggle";
 import GroupAccessEditor from "../components/GroupAccessEditor";
 import { ADMIN_MENU, PERMISSION_LABELS, PERMISSION_CATEGORIES } from "../constants";
 import {
-  ArrowLeftIcon,
   PlusIcon,
   XIcon,
   EditIcon,
@@ -227,13 +226,21 @@ export default function AdminPage({
     <div style={{ display: "flex", flex: 1, minHeight: "calc(100vh - 55px)", paddingTop: 55, animation: "fadeIn 0.3s ease" }}>
       {/* Sidebar */}
       <div style={{ width: 260, minWidth: 260, borderRight: `1px solid ${t.border}`, background: darkMode ? "rgba(15,17,20,0.5)" : "rgba(246,244,240,0.6)", padding: "20px 10px", display: "flex", flexDirection: "column" }}>
-        <button onClick={() => setPage("folders")} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 12, fontWeight: 500, display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", fontFamily: "inherit", marginBottom: 16, borderRadius: 6 }}><ArrowLeftIcon /> Back to Documents</button>
         <div style={{ padding: "0 10px 12px", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: t.textDim }}>Administration</div>
-        {ADMIN_MENU.map((item) => (
-          <div key={item.id} onClick={() => setAdminSection(item.id)} className="admin-menu-item" style={{ padding: "9px 12px", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 10, background: adminSection === item.id ? t.accentSoft : "transparent", color: adminSection === item.id ? t.accent : t.text, fontWeight: adminSection === item.id ? 600 : 500, fontSize: 13, borderLeft: adminSection === item.id ? `2px solid ${t.accent}` : "2px solid transparent", marginBottom: 2 }}>
-            <span style={{ color: adminSection === item.id ? t.accent : t.textDim, display: "flex" }}>{item.icon}</span> {item.label}
-          </div>
-        ))}
+        {ADMIN_MENU.map((item) => {
+          if (item.isCategory) {
+            return (
+              <div key={item.id} style={{ padding: "12px 12px 6px", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textDim, marginTop: 8 }}>
+                {item.label}
+              </div>
+            );
+          }
+          return (
+            <div key={item.id} onClick={() => setAdminSection(item.id)} className="admin-menu-item" style={{ padding: "9px 12px", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 10, background: adminSection === item.id ? t.accentSoft : "transparent", color: adminSection === item.id ? t.accent : t.text, fontWeight: adminSection === item.id ? 600 : 500, fontSize: 13, borderLeft: adminSection === item.id ? `2px solid ${t.accent}` : "2px solid transparent", marginBottom: 2, marginLeft: item.category ? 12 : 0 }}>
+              <span style={{ color: adminSection === item.id ? t.accent : t.textDim, display: "flex" }}>{item.icon}</span> {item.label}
+            </div>
+          );
+        })}
       </div>
       {/* Content */}
       <div style={{ flex: 1, padding: "32px 36px", overflowY: "auto" }}>

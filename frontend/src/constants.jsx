@@ -24,16 +24,25 @@ export const ADMIN_MENU = [
     desc: "Manage security groups and permissions",
   },
   {
+    id: "dda",
+    label: "DDA",
+    icon: null,
+    desc: "Dealer Document Archive settings",
+    isCategory: true,
+  },
+  {
     id: "locations",
     label: "Locations",
     icon: <MapPinIcon size={17} />,
     desc: "Manage dealer locations",
+    category: "dda",
   },
   {
     id: "departments",
     label: "Departments",
     icon: <LayersIcon size={17} />,
     desc: "Manage departments per location",
+    category: "dda",
   },
   {
     id: "audit",

@@ -86,6 +86,9 @@ export default function AdminPage({
   t,
   darkMode,
 }) {
+  const [auditPage, setAuditPage] = useState(1);
+  const [auditPageSize, setAuditPageSize] = useState(25);
+
   const editLocRef = useRef(null);
   const addLocRef = useRef(null);
   const editDeptRef = useRef(null);
@@ -170,7 +173,21 @@ export default function AdminPage({
   // Audit
   const allActions = [...new Set(auditLog.map((e) => e.action))];
   const allUsers = [...new Set(auditLog.map((e) => e.user))];
-  const filtered = auditLog;
+  const filtered = auditLog.filter((e) => {
+    if (auditFilterAction && e.action !== auditFilterAction) return false;
+    if (auditFilterUser && e.user !== auditFilterUser) return false;
+    if (auditFilterDate) {
+      const entryDate = new Date(e.timestamp).toISOString().split("T")[0];
+      if (entryDate !== auditFilterDate) return false;
+    }
+    return true;
+  });
+  const auditTotalPages = Math.max(1, Math.ceil(filtered.length / auditPageSize));
+  const auditPageSafe = Math.min(auditPage, auditTotalPages);
+  const auditPageStart = (auditPageSafe - 1) * auditPageSize;
+  const auditPageEnd = auditPageStart + auditPageSize;
+  const auditPageEntries = filtered.slice(auditPageStart, auditPageEnd);
+  const handleAuditFilterChange = (setter) => (e) => { setter(e.target.value); setAuditPage(1); };
   const exportCSV = () => {
     const header = "Action,Detail,User,Date,Time";
     const rows = filtered.map((e) => {
@@ -498,11 +515,11 @@ export default function AdminPage({
           {adminSection === "audit" && (
             <div style={{ animation: "fadeIn 0.25s ease" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-                <select value={auditFilterAction} onChange={(e) => setAuditFilterAction(e.target.value)} style={selectStyle}><option value="">All Actions</option>{allActions.map((a) => <option key={a} value={a}>{a}</option>)}</select>
-                <select value={auditFilterUser} onChange={(e) => setAuditFilterUser(e.target.value)} style={selectStyle}><option value="">All Users</option>{allUsers.map((u) => <option key={u} value={u}>{u}</option>)}</select>
-                <input type="date" value={auditFilterDate} onChange={(e) => setAuditFilterDate(e.target.value)} style={{ ...selectStyle, minWidth: 150 }} />
+                <select value={auditFilterAction} onChange={handleAuditFilterChange(setAuditFilterAction)} style={selectStyle}><option value="">All Actions</option>{allActions.map((a) => <option key={a} value={a}>{a}</option>)}</select>
+                <select value={auditFilterUser} onChange={handleAuditFilterChange(setAuditFilterUser)} style={selectStyle}><option value="">All Users</option>{allUsers.map((u) => <option key={u} value={u}>{u}</option>)}</select>
+                <input type="date" value={auditFilterDate} onChange={handleAuditFilterChange(setAuditFilterDate)} style={{ ...selectStyle, minWidth: 150 }} />
                 {(auditFilterUser || auditFilterAction || auditFilterDate) && (
-                  <button onClick={() => { setAuditFilterUser(""); setAuditFilterAction(""); setAuditFilterDate(""); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 12, fontWeight: 500, fontFamily: "inherit", padding: "7px 4px" }}>Clear Filters</button>
+                  <button onClick={() => { setAuditFilterUser(""); setAuditFilterAction(""); setAuditFilterDate(""); setAuditPage(1); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 12, fontWeight: 500, fontFamily: "inherit", padding: "7px 4px" }}>Clear Filters</button>
                 )}
                 <div style={{ flex: 1 }} />
                 <span style={{ fontSize: 11, color: t.textDim }}>{filtered.length} of {auditLog.length} entries</span>
@@ -512,22 +529,128 @@ export default function AdminPage({
                 <div style={{ width: 130 }}>Action</div><div style={{ flex: 1 }}>Detail</div><div style={{ width: 100, textAlign: "right" }}>User</div><div style={{ width: 150, textAlign: "right" }}>Date & Time</div>
               </div>
               {filtered.length > 0 ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                  {filtered.map((entry, idx) => {
-                    const date = new Date(entry.timestamp);
-                    const timeStr = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-                    const dateStr = date.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
-                    const ac = actionColors[entry.action] || { bg: t.accentSoft, color: t.accent };
-                    return (
-                      <div key={entry.id} style={{ display: "flex", alignItems: "center", gap: 12, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 9, padding: "10px 14px", animation: `fadeIn 0.15s ease ${Math.min(idx, 20) * 0.02}s both` }}>
-                        <div style={{ width: 130, flexShrink: 0 }}><span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: ac.bg, color: ac.color, whiteSpace: "nowrap" }}>{entry.action}</span></div>
-                        <div style={{ flex: 1, fontSize: 12.5, color: t.text, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={entry.detail}>{entry.detail}</div>
-                        <div style={{ width: 100, fontSize: 11, color: t.textMuted, textAlign: "right", flexShrink: 0 }}>{entry.user}</div>
-                        <div style={{ width: 150, fontSize: 10.5, color: t.textDim, textAlign: "right", flexShrink: 0 }}>{dateStr} {timeStr}</div>
-                      </div>
-                    );
-                  })}
-                </div>
+                <>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    {auditPageEntries.map((entry, idx) => {
+                      const date = new Date(entry.timestamp);
+                      const timeStr = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+                      const dateStr = date.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+                      const ac = actionColors[entry.action] || { bg: t.accentSoft, color: t.accent };
+                      return (
+                        <div key={entry.id} style={{ display: "flex", alignItems: "center", gap: 12, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 9, padding: "10px 14px", animation: `fadeIn 0.15s ease ${Math.min(idx, 20) * 0.02}s both` }}>
+                          <div style={{ width: 130, flexShrink: 0 }}><span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: ac.bg, color: ac.color, whiteSpace: "nowrap" }}>{entry.action}</span></div>
+                          <div style={{ flex: 1, fontSize: 12.5, color: t.text, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={entry.detail}>{entry.detail}</div>
+                          <div style={{ width: 100, fontSize: 11, color: t.textMuted, textAlign: "right", flexShrink: 0 }}>{entry.user}</div>
+                          <div style={{ width: 150, fontSize: 10.5, color: t.textDim, textAlign: "right", flexShrink: 0 }}>{dateStr} {timeStr}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {/* Pagination Bar */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16, flexWrap: "wrap", gap: 10 }}>
+                    {/* Per-page selector */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 11.5, color: t.textDim }}>Rows per page:</span>
+                      {[25, 50, 100].map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => { setAuditPageSize(size); setAuditPage(1); }}
+                          style={{
+                            background: auditPageSize === size ? t.accent : "transparent",
+                            color: auditPageSize === size ? "#fff" : t.textMuted,
+                            border: `1px solid ${auditPageSize === size ? t.accent : t.border}`,
+                            borderRadius: 6,
+                            padding: "4px 10px",
+                            fontSize: 11.5,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            fontFamily: "inherit",
+                            transition: "all 0.15s ease",
+                          }}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                    {/* Page info + prev/next */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 11.5, color: t.textDim }}>
+                        {auditPageStart + 1}–{Math.min(auditPageEnd, filtered.length)} of {filtered.length}
+                      </span>
+                      <button
+                        onClick={() => setAuditPage((p) => Math.max(1, p - 1))}
+                        disabled={auditPageSafe <= 1}
+                        style={{
+                          background: "transparent",
+                          border: `1px solid ${t.border}`,
+                          borderRadius: 6,
+                          padding: "4px 12px",
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: auditPageSafe <= 1 ? "not-allowed" : "pointer",
+                          color: auditPageSafe <= 1 ? t.textDim : t.text,
+                          fontFamily: "inherit",
+                          opacity: auditPageSafe <= 1 ? 0.45 : 1,
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        ← Prev
+                      </button>
+                      {/* Page number pills */}
+                      {Array.from({ length: auditTotalPages }, (_, i) => i + 1)
+                        .filter((p) => p === 1 || p === auditTotalPages || Math.abs(p - auditPageSafe) <= 1)
+                        .reduce((acc, p, i, arr) => {
+                          if (i > 0 && p - arr[i - 1] > 1) acc.push("...");
+                          acc.push(p);
+                          return acc;
+                        }, [])
+                        .map((p, i) =>
+                          p === "..." ? (
+                            <span key={`ellipsis-${i}`} style={{ fontSize: 12, color: t.textDim, padding: "0 2px" }}>…</span>
+                          ) : (
+                            <button
+                              key={p}
+                              onClick={() => setAuditPage(p)}
+                              style={{
+                                background: auditPageSafe === p ? t.accent : "transparent",
+                                color: auditPageSafe === p ? "#fff" : t.textMuted,
+                                border: `1px solid ${auditPageSafe === p ? t.accent : t.border}`,
+                                borderRadius: 6,
+                                minWidth: 30,
+                                padding: "4px 8px",
+                                fontSize: 12,
+                                fontWeight: 600,
+                                cursor: "pointer",
+                                fontFamily: "inherit",
+                                transition: "all 0.15s ease",
+                              }}
+                            >
+                              {p}
+                            </button>
+                          )
+                        )}
+                      <button
+                        onClick={() => setAuditPage((p) => Math.min(auditTotalPages, p + 1))}
+                        disabled={auditPageSafe >= auditTotalPages}
+                        style={{
+                          background: "transparent",
+                          border: `1px solid ${t.border}`,
+                          borderRadius: 6,
+                          padding: "4px 12px",
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: auditPageSafe >= auditTotalPages ? "not-allowed" : "pointer",
+                          color: auditPageSafe >= auditTotalPages ? t.textDim : t.text,
+                          fontFamily: "inherit",
+                          opacity: auditPageSafe >= auditTotalPages ? 0.45 : 1,
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        Next →
+                      </button>
+                    </div>
+                  </div>
+                </>
               ) : auditLog.length > 0 ? (
                 <div style={{ textAlign: "center", padding: "48px 0", color: t.textDim }}>
                   <SearchIcon size={32} />

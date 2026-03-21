@@ -431,8 +431,8 @@ async function runDmsTask(taskType, queryConfig) {
         // Create the folder
         const folderId = uuidv4();
         await db.execute(
-          'INSERT INTO folders (id, name, department_id, created_at) VALUES (?, ?, ?, NOW())',
-          [folderId, slsId, deptId]
+          'INSERT INTO folders (id, name, location_id, department_id, created_at) VALUES (?, ?, ?, ?, NOW())',
+          [folderId, slsId, locationId, deptId]
         );
         
         existingFolderNames.add(folderKey);

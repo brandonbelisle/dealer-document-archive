@@ -252,4 +252,40 @@ router.get('/:id', requireAuth, requirePermission('manageUsers'), async (req, re
   }
 });
 
+// ── DELETE /api/users/:id ──────────────────────────────────
+router.delete('/:id', requireAuth, requirePermission('manageUsers'), async (req, res) => {
+  try {
+    // Prevent self-deletion
+    if (req.params.id === req.user.id) {
+      return res.status(400).json({ error: 'Cannot delete yourself' });
+    }
+
+    const [users] = await db.execute(
+      'SELECT id, display_name, username FROM users WHERE id = ?',
+      [req.params.id]
+    );
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Remove group memberships
+    await db.execute('DELETE FROM user_group_memberships WHERE user_id = ?', [req.params.id]);
+    
+    // Remove subscriptions
+    await db.execute('DELETE FROM subscriptions WHERE user_id = ?', [req.params.id]);
+    
+    // Remove notifications
+    await db.execute('DELETE FROM notifications WHERE user_id = ?', [req.params.id]);
+    
+    // Delete user
+    await db.execute('DELETE FROM users WHERE id = ?', [req.params.id]);
+
+    await logAudit('User Deleted', `"${users[0].display_name}" (${users[0].username})`, req.user, req.ip);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

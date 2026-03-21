@@ -43,6 +43,8 @@ export default function AdminPage({
   newGroupDesc,
   setNewGroupDesc,
   setWarningModal,
+  // Current user
+  loggedInUser,
   // Locations
   locations,
   setLocations,
@@ -97,11 +99,28 @@ export default function AdminPage({
   const [showAddUser, setShowAddUser] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [showEditUser, setShowEditUser] = useState(false);
-  
+
   const editLocRef = useRef(null);
   const addLocRef = useRef(null);
   const editDeptRef = useRef(null);
   const addDeptRef = useRef(null);
+
+  const handleDeleteUser = (user) => {
+    if (user.id === loggedInUser?.id) return;
+    setWarningModal({
+      title: "Delete User",
+      message: `Are you sure you want to delete "${user.name}"? This action cannot be undone.`,
+      onConfirm: async () => {
+        try {
+          await api.deleteUser(user.id);
+          setAdminUsers((prev) => prev.filter((u) => u.id !== user.id));
+        } catch (err) {
+          console.error("Failed to delete user:", err);
+        }
+        setWarningModal(null);
+      },
+    });
+  };
 
   const handleSubscribe = (newSub) => {
     setSubscriptions((prev) => [...prev, newSub]);
@@ -287,7 +306,9 @@ export default function AdminPage({
                   <div style={{ width: 90, display: "flex", justifyContent: "flex-end", gap: 2 }}>
                     <SmallBtn t={t} title="Set Password" onClick={() => { setAdminSetPasswordUserId(u.id); setAdminSetPasswordForm({ new: "", confirm: "" }); setAdminSetPasswordError(""); setAdminSetPasswordSuccess(""); }}><ShieldIcon size={12} /></SmallBtn>
                     <SmallBtn t={t} title="Edit" onClick={() => { setEditingUser(u); setShowEditUser(true); }}><EditIcon /></SmallBtn>
-                    <SmallBtn t={t} title="Remove"><TrashIcon size={12} /></SmallBtn>
+                    {u.id !== loggedInUser?.id && (
+                      <SmallBtn t={t} title="Remove" onClick={() => handleDeleteUser(u)}><TrashIcon size={12} /></SmallBtn>
+                    )}
                   </div>
                 </div>
               ))}

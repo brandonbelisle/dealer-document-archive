@@ -245,6 +245,9 @@ export async function updateUserGroups(id, groupIds) {
 export async function updateUserStatus(id, status) {
   return request(`/users/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
 }
+export async function deleteUser(id) {
+  return request(`/users/${id}`, { method: 'DELETE' });
+}
 
 // ── Audit Log ─────────────────────────────────────────────
 export async function getAuditLog(filters = {}) {

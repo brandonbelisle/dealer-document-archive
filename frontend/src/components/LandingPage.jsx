@@ -60,8 +60,8 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser }) {
           alt="Logo"
           onError={() => setLogoUrl(null)}
           style={{
-            height: 120,
-            maxWidth: 560,
+            height: 240,
+            maxWidth: 1120,
             objectFit: "contain",
             marginBottom: 24,
           }}

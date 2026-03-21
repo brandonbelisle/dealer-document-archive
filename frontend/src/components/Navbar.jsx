@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
-import { fuzzyMatch, fmtSize } from "../utils/helpers";
+import { useState, useRef, useEffect } from "react";
+import { fmtSize } from "../utils/helpers";
+import * as api from "../api";
 import HighlightedName from "./HighlightedName";
 import {
   DashboardIcon,
@@ -63,23 +64,32 @@ export default function Navbar({
   const [globalSearch, setGlobalSearch] = useState("");
   const [globalSearchFocused, setGlobalSearchFocused] = useState(false);
   const globalSearchRef = useRef(null);
+  const [searchResults, setSearchResults] = useState({ folders: [], files: [] });
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchTimer = useRef(null);
 
   const q = globalSearch.trim();
-  const folderResults = q
-    ? folders
-        .map((f) => ({ ...f, ...fuzzyMatch(q, f.name), _type: "folder" }))
-        .filter((r) => r.match)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 8)
-    : [];
-  const fileResults = q
-    ? files
-        .concat(unsortedFiles)
-        .map((f) => ({ ...f, ...fuzzyMatch(q, f.name), _type: "file" }))
-        .filter((r) => r.match)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 10)
-    : [];
+
+  // Debounced API search
+  useEffect(() => {
+    if (!q) {
+      setSearchResults({ folders: [], files: [] });
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => {
+      api.globalSearch(q)
+        .then((data) => setSearchResults(data))
+        .catch(() => setSearchResults({ folders: [], files: [] }))
+        .finally(() => setSearchLoading(false));
+    }, 250);
+    return () => clearTimeout(searchTimer.current);
+  }, [q]);
+
+  const folderResults = searchResults.folders || [];
+  const fileResults = searchResults.files || [];
   const hasResults = folderResults.length > 0 || fileResults.length > 0;
   const showDropdown = globalSearchFocused && q.length > 0;
 
@@ -545,7 +555,7 @@ export default function Navbar({
                       fontSize: 12.5,
                     }}
                   >
-                    No results for "{q}"
+                    {searchLoading ? "Searching..." : `No results for "${q}"`}
                   </div>
                 )}
                 {folderResults.length > 0 && (
@@ -562,14 +572,7 @@ export default function Navbar({
                     >
                       Folders
                     </div>
-                    {folderResults.map((folder) => {
-                      const loc = locations.find(
-                        (l) => l.id === folder.locationId
-                      );
-                      const dept = departments.find(
-                        (d) => d.id === folder.departmentId
-                      );
-                      return (
+                    {folderResults.map((folder) => (
                         <div
                           key={folder.id}
                           onMouseDown={(e) => e.preventDefault()}
@@ -615,8 +618,8 @@ export default function Navbar({
                                 color: t.textDim,
                               }}
                             >
-                              {loc?.name || ""}
-                              {dept ? ` / ${dept.name}` : ""}
+                              {folder.locationName || ""}
+                              {folder.departmentName ? ` / ${folder.departmentName}` : ""}
                             </div>
                           </div>
                           <span
@@ -626,11 +629,10 @@ export default function Navbar({
                               flexShrink: 0,
                             }}
                           >
-                            {Number(folder.fileCount || 0)} files
+                            {folder.fileCount} files
                           </span>
                         </div>
-                      );
-                    })}
+                    ))}
                   </div>
                 )}
                 {folderResults.length > 0 && fileResults.length > 0 && (
@@ -652,32 +654,16 @@ export default function Navbar({
                     >
                       Files
                     </div>
-                    {fileResults.map((file) => {
-                      const folder = file.folderId
-                        ? folders.find((f) => f.id === file.folderId)
-                        : null;
-                      const loc = folder
-                        ? locations.find(
-                            (l) => l.id === folder.locationId
-                          )
-                        : null;
-                      const dept = folder
-                        ? departments.find(
-                            (d) => d.id === folder.departmentId
-                          )
-                        : null;
-                      return (
+                    {fileResults.map((file) => (
                         <div
                           key={file.id}
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => {
                             if (file.folderId) {
-                              if (folder?.locationId)
-                                setActiveLocation(folder.locationId);
-                              if (folder?.departmentId)
-                                setActiveDepartment(
-                                  folder.departmentId
-                                );
+                              if (file.locationId)
+                                setActiveLocation(file.locationId);
+                              if (file.departmentId)
+                                setActiveDepartment(file.departmentId);
                               setActiveFolderId(file.folderId);
                             }
                             setViewingFileId(file.id);
@@ -718,7 +704,7 @@ export default function Navbar({
                               }}
                             >
                               {file.folderId
-                                ? `${loc?.name || ""}${dept ? ` / ${dept.name}` : ""}${folder ? ` / ${folder.name}` : ""}`
+                                ? `${file.locationName || ""}${file.departmentName ? ` / ${file.departmentName}` : ""}${file.folderName ? ` / ${file.folderName}` : ""}`
                                 : "Unsorted"}
                             </div>
                           </div>
@@ -732,8 +718,7 @@ export default function Navbar({
                             {fmtSize(file.size)}
                           </span>
                         </div>
-                      );
-                    })}
+                    ))}
                   </div>
                 )}
               </div>

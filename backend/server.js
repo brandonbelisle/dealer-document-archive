@@ -78,6 +78,7 @@ app.use('/api/groups', require('./routes/groups'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/audit', require('./routes/audit'));
 app.use('/api/access', require('./routes/access'));
+app.use('/api/search', require('./routes/search'));
 
 // ── Health check ──────────────────────────────────────────
 app.get('/api/health', (req, res) => {

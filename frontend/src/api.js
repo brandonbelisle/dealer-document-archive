@@ -270,3 +270,8 @@ export async function updateDepartmentAccess(departmentId, groupIds) {
     body: JSON.stringify({ groupIds }),
   });
 }
+
+// ── Global Search ────────────────────────────────────────
+export async function globalSearch(query) {
+  return request(`/search?q=${encodeURIComponent(query)}`);
+}

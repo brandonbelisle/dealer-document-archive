@@ -54,11 +54,11 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser }) {
       icon: (
         <div style={{
           width: 56, height: 56, borderRadius: 14,
-          background: "linear-gradient(135deg,#88c0d0,#5b9bd5)",
+          background: "linear-gradient(135deg, #88c0d0, #5b9bd5)",
           display: "flex", alignItems: "center", justifyContent: "center",
           color: "white", fontSize: 16, fontWeight: 800,
         }}>
-          {app.name.substring(0, 2).toUpperCase()}
+          {app.abbreviation || app.name.substring(0, 2).toUpperCase()}
         </div>
       ),
       onClick: () => { window.open(app.link, "_blank"); },

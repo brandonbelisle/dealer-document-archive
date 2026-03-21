@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS custom_apps (
     id              CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name            VARCHAR(100) NOT NULL,
+    abbreviation    VARCHAR(4) NOT NULL,
     link            VARCHAR(500) NOT NULL,
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

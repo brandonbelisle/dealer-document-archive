@@ -1179,9 +1179,11 @@ function AppCenterSection({ t, darkMode, addToast }) {
   const [loading, setLoading] = useState(true);
   const [addingApp, setAddingApp] = useState(false);
   const [newAppName, setNewAppName] = useState("");
+  const [newAppAbbr, setNewAppAbbr] = useState("");
   const [newAppLink, setNewAppLink] = useState("");
   const [editingAppId, setEditingAppId] = useState(null);
   const [editingAppName, setEditingAppName] = useState("");
+  const [editingAppAbbr, setEditingAppAbbr] = useState("");
   const [editingAppLink, setEditingAppLink] = useState("");
 
   useEffect(() => {
@@ -1202,12 +1204,15 @@ function AppCenterSection({ t, darkMode, addToast }) {
 
   const handleAddApp = async () => {
     const name = newAppName.trim();
+    const abbr = newAppAbbr.trim().toUpperCase();
     const link = newAppLink.trim();
-    if (!name || !link) return;
+    if (!name || !abbr || !link) return;
+    if (abbr.length > 4) { addToast("Error", "Abbreviation must be 4 characters or less", 4000, "error"); return; }
     try {
-      const created = await api.createCustomApp(name, link);
+      const created = await api.createCustomApp(name, abbr, link);
       setCustomApps((prev) => [...prev, created]);
       setNewAppName("");
+      setNewAppAbbr("");
       setNewAppLink("");
       setAddingApp(false);
       addToast("App created", `"${name}" has been created`, 4000, "create");
@@ -1219,10 +1224,12 @@ function AppCenterSection({ t, darkMode, addToast }) {
 
   const handleUpdateApp = async (id) => {
     const name = editingAppName.trim();
+    const abbr = editingAppAbbr.trim().toUpperCase();
     const link = editingAppLink.trim();
-    if (!name || !link) return;
+    if (!name || !abbr || !link) return;
+    if (abbr.length > 4) { addToast("Error", "Abbreviation must be 4 characters or less", 4000, "error"); return; }
     try {
-      const updated = await api.updateCustomApp(id, name, link);
+      const updated = await api.updateCustomApp(id, name, abbr, link);
       setCustomApps((prev) => prev.map((a) => (a.id === id ? updated : a)));
       setEditingAppId(null);
       addToast("App updated", `"${name}" has been updated`, 4000, "create");
@@ -1294,6 +1301,17 @@ function AppCenterSection({ t, darkMode, addToast }) {
             </div>
             <div>
               <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 6 }}>
+                Abbreviation (max 4 characters)
+              </label>
+              <input
+                value={newAppAbbr}
+                onChange={(e) => setNewAppAbbr(e.target.value.slice(0, 4))}
+                placeholder="e.g., TIME, INV"
+                style={{ ...inputStyle, maxWidth: 150, textTransform: "uppercase" }}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 6 }}>
                 Link (URL)
               </label>
               <input
@@ -1306,7 +1324,7 @@ function AppCenterSection({ t, darkMode, addToast }) {
           </div>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
             <button
-              onClick={() => { setAddingApp(false); setNewAppName(""); setNewAppLink(""); }}
+              onClick={() => { setAddingApp(false); setNewAppName(""); setNewAppAbbr(""); setNewAppLink(""); }}
               style={{
                 background: t.surface,
                 border: `1px solid ${t.border}`,
@@ -1321,7 +1339,7 @@ function AppCenterSection({ t, darkMode, addToast }) {
             >
               Cancel
             </button>
-            <Btn primary darkMode={darkMode} t={t} onClick={handleAddApp} style={{ fontSize: 13, opacity: newAppName.trim() && newAppLink.trim() ? 1 : 0.4 }}>
+            <Btn primary darkMode={darkMode} t={t} onClick={handleAddApp} style={{ fontSize: 13, opacity: newAppName.trim() && newAppAbbr.trim() && newAppLink.trim() ? 1 : 0.4 }}>
               Create App
             </Btn>
           </div>
@@ -1343,7 +1361,7 @@ function AppCenterSection({ t, darkMode, addToast }) {
           <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 20 }}>
             Create custom app shortcuts to display on the landing page.
           </div>
-          <Btn primary darkMode={darkMode} t={t} onClick={() => { setAddingApp(true); setNewAppName(""); setNewAppLink(""); }} style={{ fontSize: 13 }}>
+          <Btn primary darkMode={darkMode} t={t} onClick={() => { setAddingApp(true); setNewAppName(""); setNewAppAbbr(""); setNewAppLink(""); }} style={{ fontSize: 13 }}>
             <PlusIcon size={14} /> Add Custom App
           </Btn>
         </div>
@@ -1351,6 +1369,7 @@ function AppCenterSection({ t, darkMode, addToast }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {customApps.map((app, idx) => {
             const isEditing = editingAppId === app.id;
+            const abbr = app.abbreviation || app.name.substring(0, 2).toUpperCase();
             return (
               <div
                 key={app.id}
@@ -1367,7 +1386,7 @@ function AppCenterSection({ t, darkMode, addToast }) {
                 }}
               >
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg, #88c0d0, #5b9bd5)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: 12, flexShrink: 0 }}>
-                  {app.name.substring(0, 2).toUpperCase()}
+                  {abbr}
                 </div>
                 <div style={{ flex: 1, marginLeft: 12, minWidth: 0 }}>
                   {isEditing ? (
@@ -1379,12 +1398,21 @@ function AppCenterSection({ t, darkMode, addToast }) {
                         autoFocus
                         style={{ ...inputStyle, fontSize: 13, padding: "6px 10px" }}
                       />
-                      <input
-                        value={editingAppLink}
-                        onChange={(e) => setEditingAppLink(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter") handleUpdateApp(app.id); if (e.key === "Escape") setEditingAppId(null); }}
-                        style={{ ...inputStyle, fontSize: 12, padding: "6px 10px" }}
-                      />
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <input
+                          value={editingAppAbbr}
+                          onChange={(e) => setEditingAppAbbr(e.target.value.slice(0, 4))}
+                          onKeyDown={(e) => { if (e.key === "Enter") handleUpdateApp(app.id); if (e.key === "Escape") setEditingAppId(null); }}
+                          placeholder="ABBR"
+                          style={{ ...inputStyle, fontSize: 12, padding: "6px 10px", maxWidth: 100, textTransform: "uppercase" }}
+                        />
+                        <input
+                          value={editingAppLink}
+                          onChange={(e) => setEditingAppLink(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === "Enter") handleUpdateApp(app.id); if (e.key === "Escape") setEditingAppId(null); }}
+                          style={{ ...inputStyle, fontSize: 12, padding: "6px 10px", flex: 1 }}
+                        />
+                      </div>
                     </div>
                   ) : (
                     <>
@@ -1407,7 +1435,7 @@ function AppCenterSection({ t, darkMode, addToast }) {
                     </>
                   ) : (
                     <>
-                      <SmallBtn t={t} title="Edit" onClick={() => { setEditingAppId(app.id); setEditingAppName(app.name); setEditingAppLink(app.link); }}>
+                      <SmallBtn t={t} title="Edit" onClick={() => { setEditingAppId(app.id); setEditingAppName(app.name); setEditingAppAbbr(app.abbreviation || ""); setEditingAppLink(app.link); }}>
                         <EditIcon />
                       </SmallBtn>
                       <SmallBtn t={t} title="Delete" onClick={() => handleDeleteApp(app)}>

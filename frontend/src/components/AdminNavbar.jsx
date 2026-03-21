@@ -29,7 +29,11 @@ export default function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page,
     ...customApps.map((app) => ({
       id: app.id,
       name: app.name,
-      icon: <LinkIcon size={16} />,
+      icon: (
+        <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg, #88c0d0, #5b9bd5)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>
+          {app.abbreviation || app.name.substring(0, 2).toUpperCase()}
+        </div>
+      ),
       onClick: () => { window.open(app.link, "_blank"); setShowAppsDropdown(false); },
     })),
     { id: "admin", name: "Admin Center", icon: <GearIcon size={20} />, onClick: () => { setPage("admin"); setAdminSection?.("users"); setShowAppsDropdown(false); } },

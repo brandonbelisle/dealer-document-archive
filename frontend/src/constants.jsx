@@ -8,6 +8,7 @@ import {
   LockIcon,
   AppsIcon,
   TicketIcon,
+  WrenchIcon,
 } from "./components/Icons";
 
 export const DEFAULT_LOCATIONS = [];
@@ -64,6 +65,12 @@ export const ADMIN_MENU = [
     label: "Authentication",
     icon: <LockIcon size={17} />,
     desc: "Configure SSO and SAML settings",
+  },
+  {
+    id: "dms",
+    label: "DMS Connection",
+    icon: <WrenchIcon size={17} />,
+    desc: "Connect to Microsoft SQL Server",
   },
   {
     id: "settings",

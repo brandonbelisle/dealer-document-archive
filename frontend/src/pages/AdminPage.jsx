@@ -1481,6 +1481,287 @@ function SettingsSection({ t, darkMode }) {
   );
 }
 
+function DmsSection({ t, darkMode, addToast }) {
+  const [settings, setSettings] = useState({
+    server: '',
+    port: 1433,
+    database: '',
+    username: '',
+    password: '',
+    trustCertificate: false,
+    encryptConnection: true,
+    queryIntervalMinutes: 5,
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState(null);
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    setLoading(true);
+    try {
+      const data = await api.getDmsSettings();
+      setSettings({
+        server: data.server || '',
+        port: data.port || 1433,
+        database: data.database || '',
+        username: data.username || '',
+        password: data.password || '',
+        trustCertificate: data.trustCertificate || false,
+        encryptConnection: data.encryptConnection !== false,
+        queryIntervalMinutes: data.queryIntervalMinutes || 5,
+      });
+    } catch (err) {
+      console.error('Failed to load DMS settings:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await api.saveDmsSettings(settings);
+      addToast('Settings saved', 'DMS connection settings saved successfully', 4000, 'create');
+    } catch (err) {
+      addToast('Save failed', err.message || 'Failed to save settings', 5000, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleTest = async () => {
+    if (!settings.server.trim()) {
+      addToast('Server required', 'Please enter a server address', 4000, 'error');
+      return;
+    }
+    
+    setTesting(true);
+    setTestResult(null);
+    try {
+      const result = await api.testDmsConnection(settings);
+      setTestResult({ success: true, message: result.message || 'Connection successful!' });
+      addToast('Connection successful', 'Successfully connected to the SQL Server', 4000, 'create');
+    } catch (err) {
+      setTestResult({ success: false, message: err.message || 'Connection failed' });
+      addToast('Connection failed', err.message || 'Failed to connect to the SQL Server', 5000, 'error');
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '10px 12px',
+    fontSize: 14,
+    border: `1px solid ${t.border}`,
+    borderRadius: 8,
+    background: darkMode ? '#1a1a1a' : '#fff',
+    color: t.text,
+    fontFamily: 'inherit',
+    boxSizing: 'border-box',
+  };
+
+  const labelStyle = {
+    fontSize: 13,
+    fontWeight: 600,
+    color: t.text,
+    display: 'block',
+    marginBottom: 8,
+  };
+
+  if (loading) {
+    return (
+      <div style={{ padding: 40, textAlign: 'center', color: t.textMuted }}>
+        Loading...
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }}>DMS Connection</h2>
+        <p style={{ fontSize: 13, color: t.textMuted, margin: 0 }}>
+          Connect to a Microsoft SQL Server to query documents from your Document Management System.
+        </p>
+      </div>
+
+      <div style={{
+        background: t.surface,
+        border: `1px solid ${t.border}`,
+        borderRadius: 12,
+        padding: 24,
+        marginBottom: 24,
+      }}>
+        {/* Connection Status */}
+        {testResult && (
+          <div style={{
+            marginBottom: 24,
+            padding: '12px 16px',
+            borderRadius: 8,
+            background: testResult.success 
+              ? (darkMode ? 'rgba(34,197,94,0.15)' : 'rgba(34,197,94,0.1)')
+              : (darkMode ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.1)'),
+            border: `1px solid ${testResult.success ? t.success : t.error}`,
+            color: testResult.success ? t.success : t.error,
+          }}>
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>
+              {testResult.success ? 'Connection Successful' : 'Connection Failed'}
+            </div>
+            <div style={{ fontSize: 12, opacity: 0.9 }}>{testResult.message}</div>
+          </div>
+        )}
+
+        {/* Server Configuration */}
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 16 }}>
+          <div>
+            <label style={labelStyle}>Server Address</label>
+            <input
+              type="text"
+              value={settings.server}
+              onChange={(e) => setSettings({ ...settings, server: e.target.value })}
+              placeholder="e.g., 192.168.1.100 or sqlserver.example.com"
+              style={inputStyle}
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>Port</label>
+            <input
+              type="number"
+              value={settings.port}
+              onChange={(e) => setSettings({ ...settings, port: parseInt(e.target.value) || 1433 })}
+              style={inputStyle}
+            />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <label style={labelStyle}>Database Name</label>
+          <input
+            type="text"
+            value={settings.database}
+            onChange={(e) => setSettings({ ...settings, database: e.target.value })}
+            placeholder="Database name"
+            style={inputStyle}
+          />
+        </div>
+
+        {/* Authentication */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+          <div>
+            <label style={labelStyle}>Username</label>
+            <input
+              type="text"
+              value={settings.username}
+              onChange={(e) => setSettings({ ...settings, username: e.target.value })}
+              placeholder="SQL Server username"
+              style={inputStyle}
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>Password</label>
+            <input
+              type="password"
+              value={settings.password}
+              onChange={(e) => setSettings({ ...settings, password: e.target.value })}
+              placeholder="••••••••••••"
+              style={inputStyle}
+            />
+          </div>
+        </div>
+
+        {/* Connection Options */}
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={settings.encryptConnection}
+              onChange={(e) => setSettings({ ...settings, encryptConnection: e.target.checked })}
+              style={{ width: 16, height: 16, cursor: 'pointer' }}
+            />
+            <span style={{ fontSize: 13, color: t.text }}>Encrypt connection (recommended)</span>
+          </label>
+        </div>
+
+        <div style={{ marginBottom: 24 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={settings.trustCertificate}
+              onChange={(e) => setSettings({ ...settings, trustCertificate: e.target.checked })}
+              style={{ width: 16, height: 16, cursor: 'pointer' }}
+            />
+            <span style={{ fontSize: 13, color: t.text }}>Trust server certificate</span>
+          </label>
+          <p style={{ fontSize: 11, color: t.textMuted, marginTop: 4, marginLeft: 24 }}>
+            Enable if your SQL Server uses a self-signed certificate
+          </p>
+        </div>
+
+        {/* Query Interval */}
+        <div style={{ marginBottom: 24 }}>
+          <label style={labelStyle}>Query Interval (minutes)</label>
+          <input
+            type="number"
+            value={settings.queryIntervalMinutes}
+            onChange={(e) => setSettings({ ...settings, queryIntervalMinutes: parseInt(e.target.value) || 5 })}
+            min={1}
+            max={60}
+            style={{ ...inputStyle, maxWidth: 200 }}
+          />
+          <p style={{ fontSize: 11, color: t.textMuted, marginTop: 4 }}>
+            How often to query the DMS for new documents
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <Btn
+            primary
+            t={t}
+            darkMode={darkMode}
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? 'Saving...' : 'Save Settings'}
+          </Btn>
+          <Btn
+            t={t}
+            darkMode={darkMode}
+            onClick={handleTest}
+            disabled={testing || !settings.server.trim()}
+          >
+            {testing ? 'Testing...' : 'Test Connection'}
+          </Btn>
+        </div>
+      </div>
+
+      {/* Help Text */}
+      <div style={{
+        background: darkMode ? 'rgba(59,130,246,0.1)' : 'rgba(59,130,246,0.05)',
+        border: `1px solid ${darkMode ? 'rgba(59,130,246,0.3)' : 'rgba(59,130,246,0.2)'}`,
+        borderRadius: 8,
+        padding: 16,
+      }}>
+        <h3 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 8px', color: '#3b82f6' }}>
+          Connection Requirements
+        </h3>
+        <ul style={{ fontSize: 12, color: t.textMuted, margin: 0, paddingLeft: 20 }}>
+          <li style={{ marginBottom: 4 }}>The SQL Server must be accessible from this server</li>
+          <li style={{ marginBottom: 4 }}>SQL Server Authentication must be enabled (Windows Authentication not supported)</li>
+          <li style={{ marginBottom: 4 }}>Default port is 1433 - change if your server uses a different port</li>
+          <li>For Azure SQL Database, use the full server name (e.g., myserver.database.windows.net)</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 function AppCenterSection({ t, darkMode, addToast }) {
   const [customApps, setCustomApps] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -2588,6 +2869,13 @@ export default function AdminPage({
           {adminSection === "settings" && (
             <div style={{ animation: "fadeIn 0.25s ease" }}>
               <SettingsSection t={t} darkMode={darkMode} />
+            </div>
+          )}
+
+          {/* DMS CONNECTION */}
+          {adminSection === "dms" && (
+            <div style={{ animation: "fadeIn 0.25s ease" }}>
+              <DmsSection t={t} darkMode={darkMode} addToast={addToast} />
             </div>
           )}
 

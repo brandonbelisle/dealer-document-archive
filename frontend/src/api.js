@@ -422,3 +422,14 @@ export async function getCustomAppPermissions() {
 export async function setCustomAppPermission(appId, groupId, canView) {
   return request(`/custom-apps/permissions/${appId}/${groupId}`, { method: 'PUT', body: JSON.stringify({ canView }) });
 }
+
+// DMS Connection Settings (Microsoft SQL Server)
+export async function getDmsSettings() {
+  return request('/dms-settings');
+}
+export async function saveDmsSettings(settings) {
+  return request('/dms-settings', { method: 'POST', body: JSON.stringify(settings) });
+}
+export async function testDmsConnection(settings) {
+  return request('/dms-settings/test', { method: 'POST', body: JSON.stringify(settings) });
+}

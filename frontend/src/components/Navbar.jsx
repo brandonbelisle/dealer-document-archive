@@ -229,12 +229,17 @@ export default function Navbar({
             </button>
             {showDeptDropdown && (
               <div
-                onClick={(e) => e.stopPropagation()}
                 style={{
                   position: "absolute",
-                  top: "calc(100% + 6px)",
+                  top: "100%",
                   left: 0,
+                  paddingTop: 6,
                   zIndex: 200,
+                }}
+              >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
                   background: t.surface,
                   border: `1px solid ${t.border}`,
                   borderRadius: 10,
@@ -351,6 +356,7 @@ export default function Navbar({
                     </div>
                   );
                 })}
+              </div>
               </div>
             )}
           </div>

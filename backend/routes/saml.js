@@ -628,11 +628,13 @@ router.post('/callback', async (req, res) => {
         }
         
         // Extract X509Certificate from SAML response (handles line breaks)
-        const certFromResponse = samlResponse.match(/<ds:X509Certificate[^>]*>([\s\S]+?)<\/ds:X509Certificate>/i);
+        const certFromResponse = samlResponse.match(/<ds:X509Certificate[^>]*>([\s\S]+?)<\/ds:X509Certificate>/i) || 
+                                  samlResponse.match(/<X509Certificate[^>]*>([\s\S]+?)<\/X509Certificate>/i);
         if (certFromResponse) {
           const certBase64 = certFromResponse[1].replace(/\s/g, '');
           console.log('Certificate in SAML response (first 50 chars):', certBase64.substring(0, 50));
-          console.log('Certificate in SAML response (last 50 chars):', certBase64.substring(certBase64.length - 50));
+          console.log('Certificate in SAML response (full, use this for Azure):', 
+            '-----BEGIN CERTIFICATE-----\n' + certBase64 + '\n-----END CERTIFICATE-----');
         } else {
           console.log('No X509Certificate found in SAML response - using pre-shared certificate');
         }
@@ -676,6 +678,7 @@ router.post('/callback', async (req, res) => {
 
     // Generate JWT token
     const token = signToken(user);
+    console.log('SAML authentication successful for user:', user.email, 'token generated:', token ? 'yes' : 'no');
 
     // Log audit
     logAudit('SSO Login', `"${user.displayName}" logged in via SSO`, user, req.ip);
@@ -683,9 +686,11 @@ router.post('/callback', async (req, res) => {
     // Get frontend URL for redirect
     const frontendUrl = process.env.FRONTEND_URL || '';
     const loginUrl = frontendUrl ? `${frontendUrl}/login` : '/login';
+    const redirectUrl = `${loginUrl}?token=${token}`;
+    console.log('Redirecting to:', redirectUrl);
     
     // Redirect to frontend with token
-    res.redirect(`${loginUrl}?token=${token}`);
+    res.redirect(redirectUrl);
   } catch (err) {
     console.error('SAML callback error:', err);
     const frontendUrl = process.env.FRONTEND_URL || '';
@@ -760,14 +765,22 @@ async function parseSamlResponseManually(samlResponseBase64) {
   const settings = await getSamlSettings();
   
   // Process user using existing logic
-  return processSamlUser({
+  const profile = {
     nameID: nameId,
     email: email,
     displayName: name,
-    [settings.attribute_email || emailAttr]: email,
-    [settings.attribute_name || nameAttr]: name,
-    [settings.attribute_username || upnAttr]: upn || email,
-  }, settings);
+    [settings.attribute_email || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']: email,
+    [settings.attribute_name || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']: name,
+    [settings.attribute_username || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn']: upn || email,
+  };
+  
+  console.log('Processing SAML user with profile:', {
+    nameID: profile.nameID,
+    email: profile.email,
+    displayName: profile.displayName
+  });
+  
+  return processSamlUser(profile, settings);
 }
 
 // ── GET /api/saml/logout ────────────────────────────────────

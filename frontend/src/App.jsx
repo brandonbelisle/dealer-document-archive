@@ -174,6 +174,10 @@ function AppInner() {
   const [moveTargetFolderId, setMoveTargetFolderId] = useState("");
   const [showMoveSelect, setShowMoveSelect] = useState(false);
   const [moveSelectSearch, setMoveSelectSearch] = useState("");
+  const [stagedFolderAssignments, setStagedFolderAssignments] = useState({});
+  const [stagedSuggestions, setStagedSuggestions] = useState({});
+  const [openStagedDropdown, setOpenStagedDropdown] = useState(null);
+  const [stagedDropdownSearch, setStagedDropdownSearch] = useState("");
   const [addingLocation, setAddingLocation] = useState(false);
   const [newLocationName, setNewLocationName] = useState("");
   const [editingLocationId, setEditingLocationId] = useState(null);
@@ -311,6 +315,7 @@ function AppInner() {
         id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf",
         pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text,
         folderId: f.folder_id, fileStoragePath: f.file_storage_path,
+        uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null,
         error: f.error_message, progress: f.status === "done" ? 100 : 0,
       }));
       setFiles(prev => {
@@ -368,6 +373,27 @@ function AppInner() {
     api.getDashboard().then(setDashboardData).catch(console.error);
   }, [isLoggedIn, page]);
 
+  // ── Auto-suggest folders for staged files based on RO numbers ──
+  useEffect(() => {
+    const newSuggestions = {};
+    const newAssignments = {};
+    for (const sf of stagedFiles) {
+      if (sf.status === "done" && !stagedSuggestions[sf.id]) {
+        const suggestion = suggestFolderForFile(sf);
+        if (suggestion) {
+          newSuggestions[sf.id] = suggestion;
+          if (suggestion.folder && suggestion.confidence === "exact") {
+            newAssignments[sf.id] = suggestion.folder.id;
+          }
+        }
+      }
+    }
+    if (Object.keys(newSuggestions).length > 0) {
+      setStagedSuggestions(p => ({ ...p, ...newSuggestions }));
+      setStagedFolderAssignments(p => ({ ...p, ...newAssignments }));
+    }
+  }, [stagedFiles.map(f => f.status).join(",")]);
+
   const handleLogin = async () => {
     setLoginError("");
     if (!loginForm.username.trim() || !loginForm.password.trim()) { setLoginError("Please enter both fields."); return; }
@@ -400,7 +426,7 @@ function AppInner() {
         // Upload directly to server
         try {
           const uploaded = await api.uploadFile(rawFile, folderId, r.text, r.pages);
-          const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || "application/pdf", pages: Number(uploaded.page_count || 0), status: "done", text: uploaded.extracted_text, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, progress: 100 };
+          const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || "application/pdf", pages: Number(uploaded.page_count || 0), status: "done", text: uploaded.extracted_text, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, uploadedAt: uploaded.uploaded_at || new Date().toISOString(), uploadedBy: uploaded.uploaded_by_name || loggedInUser?.name || null, progress: 100 };
           setFiles(p => p.map(f => f.id === id ? norm : f));
         } catch (err) {
           setFiles(p => p.map(f => f.id === id ? { ...f, status: "error", error: err.message } : f));
@@ -437,7 +463,7 @@ function AppInner() {
     setTargetFolderId("");
     // Reload files for the target folder
     api.getFiles(targetFolderId).then(rows => {
-      const norm = rows.map(f => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: f.folder_id, fileStoragePath: f.file_storage_path, progress: 100 }));
+      const norm = rows.map(f => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: f.folder_id, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, progress: 100 }));
       setFiles(prev => [...prev.filter(f => f.folderId !== targetFolderId), ...norm]);
     }).catch(console.error);
   };
@@ -1111,8 +1137,46 @@ function AppInner() {
         </div>
         {ff.length > 0 ? (
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textDim, marginBottom: 8, paddingLeft: 4 }}>Files</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>{ff.map((f, i) => <FileCard key={f.id} file={f} idx={i} />)}</div>
+            <div style={{ border: `1px solid ${t.border}`, borderRadius: 10, overflow: "hidden" }}>
+              <div style={{ display: "flex", alignItems: "center", padding: "8px 16px", background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)", borderBottom: `1px solid ${t.border}`, fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: t.textDim }}>
+                <div style={{ flex: 1, minWidth: 0 }}>Name</div>
+                <div style={{ width: 70, textAlign: "right", flexShrink: 0 }}>Size</div>
+                <div style={{ width: 50, textAlign: "right", flexShrink: 0 }}>Pages</div>
+                <div style={{ width: 140, textAlign: "right", flexShrink: 0 }}>Uploaded</div>
+                <div style={{ width: 100, textAlign: "right", flexShrink: 0 }}>By</div>
+                <div style={{ width: 80, flexShrink: 0 }}></div>
+              </div>
+              {ff.map((file, idx) => {
+                const uploadDate = file.uploadedAt ? new Date(file.uploadedAt) : null;
+                const dateStr = uploadDate ? uploadDate.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" }) : "";
+                const timeStr = uploadDate ? uploadDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+                return (
+                  <div key={file.id} onClick={() => { if (file.status === "done") { setViewingFileId(file.id); setPage("file-detail"); } }} className="folder-row" style={{ display: "flex", alignItems: "center", padding: "10px 16px", cursor: file.status === "done" ? "pointer" : "default", borderBottom: idx < ff.length - 1 ? `1px solid ${t.border}` : "none", animation: `fadeIn 0.2s ease ${idx * 0.03}s both`, position: "relative", overflow: "hidden" }}>
+                    {file.status === "processing" && <div style={{ position: "absolute", left: 0, bottom: 0, height: 2, width: "100%", background: t.progressBg }}><div style={{ height: "100%", width: `${file.progress}%`, background: `linear-gradient(90deg,${t.accent},${t.accentDark})`, transition: "width 0.3s" }} /></div>}
+                    <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                      <div style={{ width: 30, height: 30, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: file.status === "error" ? t.errorSoft : file.status === "done" ? t.successSoft : t.accentSoft, color: file.status === "error" ? t.error : file.status === "done" ? t.success : t.accent }}><FileDocIcon size={15} /></div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{file.name}</div>
+                        {file.status === "processing" && <div style={{ fontSize: 10, color: t.accent }}>Processing {file.progress}%</div>}
+                        {file.status === "error" && <div style={{ fontSize: 10, color: t.error }}>{file.error}</div>}
+                      </div>
+                    </div>
+                    <div style={{ width: 70, textAlign: "right", fontSize: 11.5, color: t.textMuted, flexShrink: 0 }}>{fmtSize(file.size)}</div>
+                    <div style={{ width: 50, textAlign: "right", fontSize: 11.5, color: t.textMuted, flexShrink: 0 }}>{file.pages || "—"}</div>
+                    <div style={{ width: 140, textAlign: "right", flexShrink: 0 }}>
+                      <div style={{ fontSize: 11, color: t.textMuted }}>{dateStr}</div>
+                      <div style={{ fontSize: 10, color: t.textDim }}>{timeStr}</div>
+                    </div>
+                    <div style={{ width: 100, textAlign: "right", fontSize: 11, color: t.textMuted, flexShrink: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={file.uploadedBy || ""}>{file.uploadedBy || "—"}</div>
+                    <div style={{ width: 80, display: "flex", justifyContent: "flex-end", gap: 2, flexShrink: 0 }}>
+                      {file.status === "done" && <SmallBtn title="Rename" onClick={e => { e.stopPropagation(); setRenamingFileId(file.id); setRenamingFileName(file.name); }}><EditIcon /></SmallBtn>}
+                      {file.status === "done" && <SmallBtn title="Copy text" onClick={e => { e.stopPropagation(); copyText(file.text); }}><CopyIcon /></SmallBtn>}
+                      <SmallBtn title="Remove" onClick={e => { e.stopPropagation(); removeFile(file.id); }}><TrashIcon size={12} /></SmallBtn>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         ) : subs.length === 0 && (
           <div style={{ textAlign: "center", padding: "40px 0", color: t.textDim }}>
@@ -1238,7 +1302,218 @@ function AppInner() {
     </div>
   );
 
-  const uploadPage = (() => { const allDone = stagedFiles.length > 0 && stagedFiles.every(f => f.status !== "processing"); return <div style={{ maxWidth: 720, margin: "0 auto", padding: "36px 28px", animation: "fadeIn 0.35s ease" }}><div style={{ marginBottom: 28 }}><h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>Upload</h1><p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>Upload PDF files, then choose a folder</p></div><div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: t.accent, marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 20, height: 20, borderRadius: "50%", background: t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>1</span> Select Files</div><div onDrop={handleDrop} onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={e => { e.preventDefault(); setDragOver(false); }} onClick={() => fileInputRef.current?.click()} style={{ border: `2px dashed ${dragOver ? t.accent : t.border}`, borderRadius: 14, padding: "44px 24px", textAlign: "center", cursor: "pointer", background: dragOver ? t.dropzoneActive : t.dropzone, marginBottom: 20, position: "relative" }}><div style={{ color: dragOver ? t.accent : t.textDim, marginBottom: 10 }}><UploadCloudIcon /></div><p style={{ fontSize: 16, fontWeight: 500, marginBottom: 4, color: t.text }}>{dragOver ? "Drop PDFs" : "Drag & drop PDF files"}</p><p style={{ fontSize: 12, color: t.textMuted, margin: 0 }}>or click · max 50 MB</p><input ref={fileInputRef} type="file" accept=".pdf" multiple onChange={e => { handleUploadFiles(e.target.files); e.target.value = ""; }} style={{ display: "none" }} /></div>{stagedFiles.length > 0 && <div style={{ marginBottom: 28 }}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}><span style={{ fontSize: 12, fontWeight: 600, color: t.textMuted }}>{stagedFiles.length} file{stagedFiles.length !== 1 ? "s" : ""}</span><button onClick={() => setStagedFiles([])} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.error, fontSize: 11, fontWeight: 500, fontFamily: "inherit" }}>Clear</button></div><div style={{ display: "flex", flexDirection: "column", gap: 6 }}>{stagedFiles.map((f, i) => <FileCard key={f.id} file={f} idx={i} staged />)}</div></div>}{stagedFiles.length > 0 && <div><div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: allDone ? t.accent : t.textDim, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, background: allDone ? t.accentSoft : "transparent", border: allDone ? "none" : `1px solid ${t.textDim}` }}>2</span> Choose Folder</div>{!allDone ? <div style={{ padding: "16px 20px", background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, color: t.textDim, fontSize: 13 }}>Processing...</div> : <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12 }}><div style={{ padding: "16px 20px" }}><label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 8 }}>Destination Folder</label><div style={{ position: "relative" }}><div onClick={() => { setShowFolderSelect(!showFolderSelect); setFolderSelectSearch(""); }} style={{ border: `1px solid ${showFolderSelect ? t.accent : t.border}`, borderRadius: 8, padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: showFolderSelect ? `0 0 0 3px ${t.accentSoft}` : "none" }}><div style={{ display: "flex", alignItems: "center", gap: 10 }}><FolderClosedIcon size={16} /><span style={{ fontSize: 13.5, fontWeight: 500, color: targetFolderId ? t.text : t.textDim }}>{targetFolderId ? (() => { const tf = folders.find(f => f.id === targetFolderId); if (!tf) return "Select..."; return `${locations.find(l => l.id === tf.locationId)?.name} / ${departments.find(d => d.id === tf.departmentId)?.name} / ${tf.name}`; })() : "Select a folder..."}</span></div><ChevronDown /></div>{showFolderSelect && (() => { const sq = folderSelectSearch.trim(), dff = sq ? folders.map(f => ({ folder: f, ...fuzzyMatch(sq, f.name) })).filter(r => r.match).sort((a, b) => b.score - a.score).map(r => r.folder) : folders; return <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 50, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, boxShadow: "0 12px 36px rgba(0,0,0,0.2)", overflow: "hidden" }}><div style={{ padding: "8px 10px", borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", gap: 8 }}><SearchIcon size={14} /><input ref={folderSelectInputRef} value={folderSelectSearch} onChange={e => setFolderSelectSearch(e.target.value)} onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === "Escape") { setShowFolderSelect(false); setFolderSelectSearch(""); } if (e.key === "Enter" && dff.length === 1) { setTargetFolderId(dff[0].id); setShowFolderSelect(false); setFolderSelectSearch(""); } }} placeholder="Search..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 12.5, color: t.text, outline: "none", fontFamily: "inherit" }} /></div><div style={{ padding: 4, maxHeight: 300, overflowY: "auto" }}>{dff.length > 0 ? locations.map(loc => { const li = dff.filter(f => f.locationId === loc.id); if (!li.length) return null; return <div key={loc.id}><div style={{ padding: "7px 10px 3px", fontSize: 10, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: t.textMuted, marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}><MapPinIcon size={11} /> {loc.name}</div>{deptsInLocation(loc.id).map(dept => { const di = li.filter(f => f.departmentId === dept.id); if (!di.length) return null; return <div key={dept.id}><div style={{ padding: "5px 12px 2px 22", fontSize: 9.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: t.textDim }}>{dept.name}</div>{di.map(folder => <div key={folder.id} onClick={() => { setTargetFolderId(folder.id); setShowFolderSelect(false); setFolderSelectSearch(""); }} className="folder-select-item" style={{ padding: "7px 12px 7px 32", borderRadius: 6, cursor: "pointer", fontSize: 12.5, display: "flex", alignItems: "center", gap: 9, background: targetFolderId === folder.id ? t.accentSoft : "transparent", color: targetFolderId === folder.id ? t.accent : t.text, fontWeight: 500 }}><FolderClosedIcon size={14} /><span style={{ flex: 1 }}><HighlightedName name={folder.name} query={sq} accentColor={t.accent} /></span><span style={{ fontSize: 10, color: t.textDim }}>{filesInFolder(folder.id).length}</span></div>)}</div>; })}</div>; }) : <div style={{ padding: "14px 12px", fontSize: 12, color: t.textDim, textAlign: "center" }}>{sq ? `No match` : "No folders"}</div>}</div></div>; })()}</div></div><div style={{ padding: "0 20px 18px", display: "flex", justifyContent: "flex-end" }}><Btn primary onClick={assignStagedToFolder} style={{ opacity: targetFolderId ? 1 : 0.4, pointerEvents: targetFolderId ? "auto" : "none", padding: "10px 24px", fontSize: 13 }}><CheckIcon /> Add {stagedFiles.filter(f => f.status !== "processing").length} File{stagedFiles.filter(f => f.status !== "processing").length !== 1 ? "s" : ""}</Btn></div></div>}</div>}</div>; })();
+  /* ── RO Number extraction from PDF text ─────────────────── */
+  /* Looks for patterns like RO#12345, RO 12345, RO-12345, R.O. 12345, etc. */
+  const extractRO = (text) => {
+    if (!text) return null;
+    const patterns = [
+      /R\.?O\.?\s*#?\s*(\d[\d\-]{2,})/i,
+      /Repair\s*Order\s*#?\s*(\d[\d\-]{2,})/i,
+      /RO\s*Number\s*:?\s*(\d[\d\-]{2,})/i,
+    ];
+    for (const pat of patterns) {
+      const m = text.match(pat);
+      if (m) return m[1].replace(/-+$/, "");
+    }
+    return null;
+  };
+
+  /* Try to match an RO number to an existing folder name */
+  const suggestFolderForFile = (file) => {
+    const ro = extractRO(file.text);
+    if (!ro) return null;
+    // Exact match first
+    const exact = folders.find(f => f.name === ro || f.name === `RO ${ro}` || f.name === `RO#${ro}` || f.name === `RO-${ro}`);
+    if (exact) return { folder: exact, ro, confidence: "exact" };
+    // Fuzzy: folder name contains the RO number
+    const partial = folders.find(f => f.name.includes(ro));
+    if (partial) return { folder: partial, ro, confidence: "partial" };
+    return { folder: null, ro, confidence: "none" };
+  };
+
+  /* Upload all staged files (each to its assigned folder or unsorted) */
+  const uploadAllStaged = async () => {
+    const ready = stagedFiles.filter(f => f.status === "done");
+    if (ready.length === 0) return;
+    for (const sf of ready) {
+      const folderId = stagedFolderAssignments[sf.id] || null;
+      try {
+        await api.uploadFile(sf._rawFile || new Blob(), folderId, sf.text, sf.pages);
+      } catch (err) { console.error("Upload failed:", sf.name, err); }
+    }
+    setStagedFiles(p => p.filter(f => f.status === "processing"));
+    setStagedFolderAssignments({});
+    setStagedSuggestions({});
+    // Refresh unsorted count
+    api.getUnsortedFiles().then(rows => {
+      setUnsortedFiles(rows.map(f => ({
+        id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf",
+        pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text,
+        folderId: null, fileStoragePath: f.file_storage_path,
+        error: f.error_message, progress: f.status === "done" ? 100 : 0,
+      })));
+    }).catch(console.error);
+  };
+
+  const removeStagedFile = (id) => {
+    setStagedFiles(p => p.filter(f => f.id !== id));
+    setStagedFolderAssignments(p => { const n = { ...p }; delete n[id]; return n; });
+    setStagedSuggestions(p => { const n = { ...p }; delete n[id]; return n; });
+  };
+
+  const uploadPage = (() => {
+    const allDone = stagedFiles.length > 0 && stagedFiles.every(f => f.status !== "processing");
+    const readyCount = stagedFiles.filter(f => f.status === "done").length;
+    const assignedCount = stagedFiles.filter(f => f.status === "done" && stagedFolderAssignments[f.id]).length;
+    const unsortedCount = readyCount - assignedCount;
+
+    return (
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "36px 28px", animation: "fadeIn 0.35s ease" }}>
+        <div style={{ marginBottom: 28 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>Upload</h1>
+          <p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>Upload PDF files. Optionally assign each to a folder, or leave unassigned to go to Unsorted.</p>
+        </div>
+
+        {/* Drop zone */}
+        <div onDrop={handleDrop} onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={e => { e.preventDefault(); setDragOver(false); }} onClick={() => fileInputRef.current?.click()} style={{ border: `2px dashed ${dragOver ? t.accent : t.border}`, borderRadius: 14, padding: "44px 24px", textAlign: "center", cursor: "pointer", background: dragOver ? t.dropzoneActive : t.dropzone, marginBottom: 24, position: "relative" }}>
+          <div style={{ color: dragOver ? t.accent : t.textDim, marginBottom: 10 }}><UploadCloudIcon /></div>
+          <p style={{ fontSize: 16, fontWeight: 500, marginBottom: 4, color: t.text }}>{dragOver ? "Drop PDFs" : "Drag & drop PDF files"}</p>
+          <p style={{ fontSize: 12, color: t.textMuted, margin: 0 }}>or click to browse · max 50 MB per file</p>
+          <input ref={fileInputRef} type="file" accept=".pdf" multiple onChange={e => { handleUploadFiles(e.target.files); e.target.value = ""; }} style={{ display: "none" }} />
+        </div>
+
+        {/* Staged files table */}
+        {stagedFiles.length > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: t.text }}>{stagedFiles.length} file{stagedFiles.length !== 1 ? "s" : ""} selected</span>
+              <button onClick={() => { setStagedFiles([]); setStagedFolderAssignments({}); setStagedSuggestions({}); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.error, fontSize: 11, fontWeight: 600, fontFamily: "inherit" }}>Clear All</button>
+            </div>
+            <div style={{ border: `1px solid ${t.border}`, borderRadius: 10, overflow: "hidden" }}>
+              {/* Column headers */}
+              <div style={{ display: "flex", alignItems: "center", padding: "8px 14px", background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)", borderBottom: `1px solid ${t.border}`, fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: t.textDim }}>
+                <div style={{ flex: 1, minWidth: 0 }}>File</div>
+                <div style={{ width: 60, textAlign: "right", flexShrink: 0 }}>Size</div>
+                <div style={{ width: 45, textAlign: "right", flexShrink: 0 }}>Pages</div>
+                <div style={{ width: 260, textAlign: "left", flexShrink: 0, paddingLeft: 12 }}>Assign to Folder</div>
+                <div style={{ width: 30, flexShrink: 0 }}></div>
+              </div>
+
+              {stagedFiles.map((sf, idx) => {
+                const suggestion = stagedSuggestions[sf.id];
+                const assignedFolderId = stagedFolderAssignments[sf.id] || null;
+                const assignedFolder = assignedFolderId ? folders.find(f => f.id === assignedFolderId) : null;
+                const isOpen = openStagedDropdown === sf.id;
+                const hasSuggestion = suggestion?.folder && !assignedFolderId && suggestion.confidence !== "none";
+
+                return (
+                  <div key={sf.id} style={{ display: "flex", alignItems: "center", padding: "10px 14px", borderBottom: idx < stagedFiles.length - 1 ? `1px solid ${t.border}` : "none", animation: `fadeIn 0.2s ease ${idx * 0.03}s both`, position: "relative" }}>
+                    {sf.status === "processing" && <div style={{ position: "absolute", left: 0, bottom: 0, height: 2, width: "100%", background: t.progressBg }}><div style={{ height: "100%", width: `${sf.progress}%`, background: `linear-gradient(90deg,${t.accent},${t.accentDark})`, transition: "width 0.3s" }} /></div>}
+
+                    {/* File info */}
+                    <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                      <div style={{ width: 28, height: 28, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: sf.status === "error" ? t.errorSoft : sf.status === "done" ? t.successSoft : t.accentSoft, color: sf.status === "error" ? t.error : sf.status === "done" ? t.success : t.accent }}>{sf.status === "done" ? <CheckIcon /> : <FileDocIcon size={14} />}</div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sf.name}</div>
+                        {sf.status === "processing" && <div style={{ fontSize: 10, color: t.accent }}>Processing {sf.progress}%</div>}
+                        {sf.status === "error" && <div style={{ fontSize: 10, color: t.error }}>{sf.error}</div>}
+                        {suggestion?.ro && sf.status === "done" && <div style={{ fontSize: 10, color: t.textDim }}>RO# {suggestion.ro}</div>}
+                      </div>
+                    </div>
+
+                    <div style={{ width: 60, textAlign: "right", fontSize: 11, color: t.textMuted, flexShrink: 0 }}>{fmtSize(sf.size)}</div>
+                    <div style={{ width: 45, textAlign: "right", fontSize: 11, color: t.textMuted, flexShrink: 0 }}>{sf.pages || "—"}</div>
+
+                    {/* Per-file folder dropdown */}
+                    <div style={{ width: 260, flexShrink: 0, paddingLeft: 12, position: "relative" }}>
+                      {sf.status === "done" ? (
+                        <>
+                          {/* Suggestion banner */}
+                          {hasSuggestion && (
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4, padding: "3px 8px", borderRadius: 6, background: darkMode ? "rgba(210,153,34,0.1)" : "rgba(180,83,9,0.06)", fontSize: 10, color: darkMode ? "#d29922" : "#b45309" }}>
+                              <span>Suggested: <b>{suggestion.folder.name}</b></span>
+                              <button onClick={() => setStagedFolderAssignments(p => ({ ...p, [sf.id]: suggestion.folder.id }))} style={{ background: t.successSoft, color: t.success, border: "none", borderRadius: 4, padding: "1px 6px", fontSize: 9.5, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>Accept</button>
+                              <button onClick={() => setStagedSuggestions(p => { const n = { ...p }; n[sf.id] = { ...n[sf.id], confidence: "none" }; return n; })} style={{ background: "transparent", color: t.textDim, border: "none", padding: "1px 4px", fontSize: 9.5, cursor: "pointer", fontFamily: "inherit" }}>Dismiss</button>
+                            </div>
+                          )}
+                          <div onClick={() => { setOpenStagedDropdown(isOpen ? null : sf.id); setStagedDropdownSearch(""); }} style={{ border: `1px solid ${isOpen ? t.accent : t.border}`, borderRadius: 7, padding: "5px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 12, background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)" }}>
+                            <FolderClosedIcon size={13} />
+                            <span style={{ flex: 1, color: assignedFolder ? t.text : t.textDim, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{assignedFolder ? assignedFolder.name : "Unsorted (optional)"}</span>
+                            {assignedFolder && <button onClick={e => { e.stopPropagation(); setStagedFolderAssignments(p => { const n = { ...p }; delete n[sf.id]; return n; }); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.textDim, padding: 0, display: "flex" }}><XIcon size={12} /></button>}
+                            <ChevronDown />
+                          </div>
+                          {isOpen && (() => {
+                            const sq = stagedDropdownSearch.trim();
+                            const dff = sq ? folders.map(f => ({ ...f, ...fuzzyMatch(sq, f.name) })).filter(r => r.match).sort((a, b) => b.score - a.score) : folders;
+                            return (
+                              <div style={{ position: "absolute", top: "100%", left: 12, right: 0, zIndex: 60, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, boxShadow: "0 12px 36px rgba(0,0,0,0.2)", overflow: "hidden", marginTop: 4 }}>
+                                <div style={{ padding: "6px 8px", borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", gap: 6 }}>
+                                  <SearchIcon size={13} />
+                                  <input autoFocus value={stagedDropdownSearch} onChange={e => setStagedDropdownSearch(e.target.value)} onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === "Escape") setOpenStagedDropdown(null); }} placeholder="Search folders..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 12, color: t.text, outline: "none", fontFamily: "inherit" }} />
+                                </div>
+                                <div style={{ maxHeight: 220, overflowY: "auto", padding: 3 }}>
+                                  {locations.map(loc => {
+                                    const li = dff.filter(f => f.locationId === loc.id);
+                                    if (!li.length) return null;
+                                    return (
+                                      <div key={loc.id}>
+                                        <div style={{ padding: "4px 8px 2px", fontSize: 9, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: t.textMuted }}>{loc.name}</div>
+                                        {deptsInLocation(loc.id).map(dept => {
+                                          const di = li.filter(f => f.departmentId === dept.id);
+                                          if (!di.length) return null;
+                                          return (
+                                            <div key={dept.id}>
+                                              <div style={{ padding: "2px 8px 2px 14px", fontSize: 8.5, fontWeight: 600, color: t.textDim }}>{dept.name}</div>
+                                              {di.map(folder => (
+                                                <div key={folder.id} onClick={() => { setStagedFolderAssignments(p => ({ ...p, [sf.id]: folder.id })); setOpenStagedDropdown(null); setStagedDropdownSearch(""); }} className="folder-select-item" style={{ padding: "5px 8px 5px 22px", borderRadius: 5, cursor: "pointer", fontSize: 11.5, display: "flex", alignItems: "center", gap: 7, background: assignedFolderId === folder.id ? t.accentSoft : "transparent", color: assignedFolderId === folder.id ? t.accent : t.text, fontWeight: 500 }}>
+                                                  <FolderClosedIcon size={12} />
+                                                  <span style={{ flex: 1 }}>{folder.name}</span>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    );
+                                  })}
+                                  {dff.length === 0 && <div style={{ padding: "10px", fontSize: 11, color: t.textDim, textAlign: "center" }}>No folders found</div>}
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </>
+                      ) : (
+                        <span style={{ fontSize: 11, color: t.textDim }}>—</span>
+                      )}
+                    </div>
+
+                    {/* Remove button */}
+                    <div style={{ width: 30, display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
+                      <SmallBtn title="Remove" onClick={() => removeStagedFile(sf.id)}><TrashIcon size={12} /></SmallBtn>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Upload button */}
+            {allDone && readyCount > 0 && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
+                <div style={{ fontSize: 12, color: t.textMuted }}>
+                  {assignedCount > 0 && <span>{assignedCount} to folder{assignedCount !== 1 ? "s" : ""}</span>}
+                  {assignedCount > 0 && unsortedCount > 0 && <span> · </span>}
+                  {unsortedCount > 0 && <span style={{ color: darkMode ? "#d29922" : "#b45309" }}>{unsortedCount} to Unsorted</span>}
+                </div>
+                <Btn primary onClick={uploadAllStaged} style={{ padding: "10px 28px", fontSize: 13.5 }}>
+                  <UploadCloudIcon size={16} /> Upload {readyCount} File{readyCount !== 1 ? "s" : ""}
+                </Btn>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  })();
 
   const adminPage = <div style={{ display: "flex", flex: 1, minHeight: "calc(100vh - 55px)", animation: "fadeIn 0.3s ease" }}>
     <div style={{ width: 260, minWidth: 260, borderRight: `1px solid ${t.border}`, background: darkMode ? "rgba(15,17,20,0.5)" : "rgba(246,244,240,0.6)", padding: "20px 10px", display: "flex", flexDirection: "column" }}>
@@ -1569,7 +1844,7 @@ function AppInner() {
           const hasResults = folderResults.length > 0 || fileResults.length > 0;
           const showDropdown = globalSearchFocused && q.length > 0;
           return (
-            <div style={{ flex: "0 1 360px", position: "relative", margin: "0 16px" }}>
+            <div style={{ flex: 1, position: "relative", maxWidth: 560, margin: "0 24px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)", border: `1px solid ${showDropdown && hasResults ? t.accent : t.border}`, borderRadius: 9, padding: "6px 12px", transition: "border-color 0.2s" }}>
                 <SearchIcon size={15} />
                 <input

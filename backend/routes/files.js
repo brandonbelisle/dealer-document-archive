@@ -27,18 +27,20 @@ const upload = multer({
 // Query: ?folderId=xxx  OR  ?unsorted=true
 router.get('/', requireAuth, async (req, res) => {
   try {
-    let sql = `SELECT id, name, original_name, folder_id, mime_type, file_size_bytes,
-                      page_count, status, error_message, file_storage_path,
-                      uploaded_at, updated_at, uploaded_by
-               FROM files`;
+    let sql = `SELECT f.id, f.name, f.original_name, f.folder_id, f.mime_type, f.file_size_bytes,
+                      f.page_count, f.status, f.error_message, f.file_storage_path,
+                      f.uploaded_at, f.updated_at, f.uploaded_by,
+                      u.display_name AS uploaded_by_name
+               FROM files f
+               LEFT JOIN users u ON f.uploaded_by = u.id`;
     const params = [];
     if (req.query.unsorted === 'true') {
-      sql += ' WHERE folder_id IS NULL';
+      sql += ' WHERE f.folder_id IS NULL';
     } else if (req.query.folderId) {
-      sql += ' WHERE folder_id = ?';
+      sql += ' WHERE f.folder_id = ?';
       params.push(req.query.folderId);
     }
-    sql += ' ORDER BY uploaded_at DESC';
+    sql += ' ORDER BY f.uploaded_at DESC';
     const [rows] = await db.execute(sql, params);
     res.json(rows);
   } catch (err) {

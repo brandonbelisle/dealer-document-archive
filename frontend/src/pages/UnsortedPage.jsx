@@ -47,8 +47,47 @@ export default function UnsortedPage({
   const [selectedFileId, setSelectedFileId] = useState(null);
   const [previewDataUrl, setPreviewDataUrl] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [sortCol, setSortCol] = useState("uploadedAt");
+  const [sortDir, setSortDir] = useState("desc");
 
   const selectedFile = unsortedFiles.find((f) => f.id === selectedFileId);
+
+  const toggleSort = (col) => {
+    if (sortCol === col) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortCol(col);
+      setSortDir("asc");
+    }
+  };
+
+  const sortedFiles = [...unsortedFiles].sort((a, b) => {
+    let cmp = 0;
+    switch (sortCol) {
+      case "name":
+        cmp = (a.name || "").localeCompare(b.name || "", undefined, {
+          sensitivity: "base",
+        });
+        break;
+      case "size":
+        cmp = (a.size || 0) - (b.size || 0);
+        break;
+      case "uploadedAt": {
+        const da = a.uploadedAt ? new Date(a.uploadedAt).getTime() : 0;
+        const db = b.uploadedAt ? new Date(b.uploadedAt).getTime() : 0;
+        cmp = da - db;
+        break;
+      }
+      case "uploadedBy":
+        cmp = (a.uploadedBy || "").localeCompare(b.uploadedBy || "", undefined, {
+          sensitivity: "base",
+        });
+        break;
+      default:
+        cmp = 0;
+    }
+    return sortDir === "asc" ? cmp : -cmp;
+  });
 
   // Auto-select first file when list changes
   useEffect(() => {
@@ -56,11 +95,11 @@ export default function UnsortedPage({
       unsortedFiles.length > 0 &&
       !unsortedFiles.find((f) => f.id === selectedFileId)
     ) {
-      setSelectedFileId(unsortedFiles[0].id);
+      setSelectedFileId(sortedFiles[0]?.id ?? null);
     } else if (unsortedFiles.length === 0) {
       setSelectedFileId(null);
     }
-  }, [unsortedFiles, selectedFileId]);
+  }, [unsortedFiles, selectedFileId, sortedFiles]);
 
   // Load preview data when selected file changes
   useEffect(() => {
@@ -189,6 +228,20 @@ export default function UnsortedPage({
     background: darkMode ? "rgba(15,17,20,0.95)" : "rgba(246,244,240,0.95)",
     backdropFilter: "blur(6px)",
     zIndex: 2,
+    cursor: "pointer",
+    transition: "color 0.15s",
+  };
+
+  const SortArrow = ({ col }) => {
+    if (sortCol !== col)
+      return (
+        <span style={{ opacity: 0.25, marginLeft: 3, fontSize: 9 }}>↕</span>
+      );
+    return (
+      <span style={{ marginLeft: 3, fontSize: 9, color: t.accent }}>
+        {sortDir === "asc" ? "▲" : "▼"}
+      </span>
+    );
   };
 
   // ── Move-to-folder dropdown (rendered under a row) ──
@@ -454,17 +507,37 @@ export default function UnsortedPage({
           >
             <thead>
               <tr>
-                <th style={{ ...colHeaderStyle, paddingLeft: 16 }}>Name</th>
-                <th style={colHeaderStyle}>Size</th>
-                <th style={colHeaderStyle}>Uploaded</th>
-                <th style={colHeaderStyle}>By</th>
-                <th style={{ ...colHeaderStyle, width: 60, textAlign: "center" }}>
+                <th
+                  style={{ ...colHeaderStyle, paddingLeft: 16, color: sortCol === "name" ? t.accent : t.textDim }}
+                  onClick={() => toggleSort("name")}
+                >
+                  Name <SortArrow col="name" />
+                </th>
+                <th
+                  style={{ ...colHeaderStyle, color: sortCol === "size" ? t.accent : t.textDim }}
+                  onClick={() => toggleSort("size")}
+                >
+                  Size <SortArrow col="size" />
+                </th>
+                <th
+                  style={{ ...colHeaderStyle, color: sortCol === "uploadedAt" ? t.accent : t.textDim }}
+                  onClick={() => toggleSort("uploadedAt")}
+                >
+                  Uploaded <SortArrow col="uploadedAt" />
+                </th>
+                <th
+                  style={{ ...colHeaderStyle, color: sortCol === "uploadedBy" ? t.accent : t.textDim }}
+                  onClick={() => toggleSort("uploadedBy")}
+                >
+                  By <SortArrow col="uploadedBy" />
+                </th>
+                <th style={{ ...colHeaderStyle, width: 60, textAlign: "center", cursor: "default" }}>
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody>
-              {unsortedFiles.map((file, idx) => {
+              {sortedFiles.map((file, idx) => {
                 const isSelected = selectedFileId === file.id;
                 const isMoving = movingFileId === file.id;
                 const rowBg = isSelected

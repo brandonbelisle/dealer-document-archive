@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { fuzzyMatch } from "../utils/helpers";
 import { Btn } from "../components/ui/Btn";
 import { SmallBtn } from "../components/ui/Btn";
@@ -11,6 +11,20 @@ import {
   ChevronRightIcon,
   TrashIcon,
 } from "../components/Icons";
+
+function fmtDate(d) {
+  if (!d) return "—";
+  const dt = new Date(d);
+  if (isNaN(dt)) return "—";
+  const mon = dt.toLocaleString("en-US", { month: "short" });
+  const day = dt.getDate();
+  const yr = dt.getFullYear();
+  const h = dt.getHours();
+  const m = dt.getMinutes().toString().padStart(2, "0");
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 || 12;
+  return `${mon} ${day}, ${yr} ${h12}:${m} ${ampm}`;
+}
 
 export default function FoldersPage({
   currentLocation,
@@ -33,11 +47,22 @@ export default function FoldersPage({
   darkMode,
 }) {
   const newDeptFolderRef = useRef(null);
+  const [sortCol, setSortCol] = useState("createdAt");
+  const [sortDir, setSortDir] = useState("desc");
 
   useEffect(() => {
     if (creatingDeptFolder && newDeptFolderRef.current)
       newDeptFolderRef.current.focus();
   }, [creatingDeptFolder]);
+
+  const toggleSort = (col) => {
+    if (sortCol === col) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortCol(col);
+      setSortDir("asc");
+    }
+  };
 
   const q = folderSearch.trim();
   const df = currentDeptFolders.filter((f) => !f.parentId);
@@ -48,7 +73,67 @@ export default function FoldersPage({
         .sort((a, b) => b.score - a.score)
         .map((r) => r.folder)
     : df;
-  const fc = df.reduce((s, f) => s + allFilesInFolderRecursive(f.id), 0);
+
+  // Build sortable list with computed counts
+  const withCounts = filtered.map((folder) => ({
+    ...folder,
+    _fileCount: allFilesInFolderRecursive(folder.id),
+    _subCount: subfoldersOf(folder.id).length,
+  }));
+
+  const sorted = [...withCounts].sort((a, b) => {
+    let cmp = 0;
+    switch (sortCol) {
+      case "name":
+        cmp = (a.name || "").localeCompare(b.name || "", undefined, {
+          sensitivity: "base",
+        });
+        break;
+      case "createdAt": {
+        const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        cmp = da - db;
+        break;
+      }
+      case "files":
+        cmp = a._fileCount - b._fileCount;
+        break;
+      default:
+        cmp = 0;
+    }
+    return sortDir === "asc" ? cmp : -cmp;
+  });
+
+  const totalFiles = df.reduce(
+    (s, f) => s + allFilesInFolderRecursive(f.id),
+    0
+  );
+
+  const colHeaderStyle = {
+    fontSize: 9.5,
+    fontWeight: 700,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+    padding: "10px 14px",
+    whiteSpace: "nowrap",
+    userSelect: "none",
+    borderBottom: `1px solid ${t.border}`,
+    cursor: "pointer",
+    transition: "color 0.15s",
+    textAlign: "left",
+  };
+
+  const SortArrow = ({ col }) => {
+    if (sortCol !== col)
+      return (
+        <span style={{ opacity: 0.25, marginLeft: 3, fontSize: 9 }}>↕</span>
+      );
+    return (
+      <span style={{ marginLeft: 3, fontSize: 9, color: t.accent }}>
+        {sortDir === "asc" ? "▲" : "▼"}
+      </span>
+    );
+  };
 
   return (
     <div
@@ -74,8 +159,9 @@ export default function FoldersPage({
           <p
             style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}
           >
-            {df.length} folder{df.length !== 1 ? "s" : ""} · {fc} file
-            {fc !== 1 ? "s" : ""}
+            {df.length} folder{df.length !== 1 ? "s" : ""} · {totalFiles}{" "}
+            file
+            {totalFiles !== 1 ? "s" : ""}
           </p>
         </div>
         {!creatingDeptFolder && (
@@ -204,102 +290,207 @@ export default function FoldersPage({
           </button>
         </div>
       )}
-      {filtered.length > 0 ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          {filtered.map((folder, idx) => {
-            const c = allFilesInFolderRecursive(folder.id);
-            const sc = subfoldersOf(folder.id).length;
-            return (
-              <div
-                key={folder.id}
-                className="folder-row"
-                onClick={() => {
-                  setActiveFolderId(folder.id);
-                  setPage("folder-detail");
-                  setCreatingSubfolder(false);
-                }}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  background: t.surface,
-                  border: `1px solid ${t.border}`,
-                  borderRadius: 10,
-                  padding: "12px 18px",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  animation: `fadeIn 0.25s ease ${idx * 0.03}s both`,
-                }}
-              >
-                <div
+      {sorted.length > 0 ? (
+        <div
+          style={{
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 12,
+            overflow: "hidden",
+          }}
+        >
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              fontSize: 13,
+            }}
+          >
+            <thead>
+              <tr>
+                <th
                   style={{
-                    flex: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
+                    ...colHeaderStyle,
+                    color: sortCol === "name" ? t.accent : t.textDim,
+                  }}
+                  onClick={() => toggleSort("name")}
+                >
+                  Name <SortArrow col="name" />
+                </th>
+                <th
+                  style={{
+                    ...colHeaderStyle,
+                    color: sortCol === "files" ? t.accent : t.textDim,
+                    width: 90,
+                    textAlign: "center",
+                  }}
+                  onClick={() => toggleSort("files")}
+                >
+                  Files <SortArrow col="files" />
+                </th>
+                <th
+                  style={{
+                    ...colHeaderStyle,
+                    color:
+                      sortCol === "createdAt" ? t.accent : t.textDim,
+                    width: 180,
+                  }}
+                  onClick={() => toggleSort("createdAt")}
+                >
+                  Created <SortArrow col="createdAt" />
+                </th>
+                <th
+                  style={{
+                    ...colHeaderStyle,
+                    width: 60,
+                    cursor: "default",
+                    textAlign: "center",
                   }}
                 >
-                  <div style={{ color: t.accent, opacity: 0.75 }}>
-                    <FolderClosedIcon size={22} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13.5, fontWeight: 600 }}>
-                      <HighlightedName
-                        name={folder.name}
-                        query={folderSearch.trim()}
-                        accentColor={t.accent}
-                      />
-                    </div>
-                    {sc > 0 && (
-                      <div style={{ fontSize: 10.5, color: t.textDim }}>
-                        {sc} subfolder{sc !== 1 ? "s" : ""}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <span
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((folder, idx) => (
+                <tr
+                  key={folder.id}
+                  className="folder-row"
+                  onClick={() => {
+                    setActiveFolderId(folder.id);
+                    setPage("folder-detail");
+                    setCreatingSubfolder(false);
+                  }}
                   style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    color: c > 0 ? t.accent : t.textDim,
-                    background: c > 0 ? t.accentSoft : "transparent",
-                    padding: "2px 9px",
-                    borderRadius: 12,
+                    cursor: "pointer",
+                    transition: "background 0.15s",
+                    animation: `fadeIn 0.25s ease ${idx * 0.03}s both`,
                   }}
                 >
-                  {c}
-                </span>
-                <div
-                  style={{
-                    width: 30,
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    marginLeft: 6,
-                  }}
-                >
-                  <SmallBtn
-                    t={t}
-                    title="Delete folder"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteFolder(folder);
+                  <td
+                    style={{
+                      padding: "12px 14px",
+                      borderBottom:
+                        idx < sorted.length - 1
+                          ? `1px solid ${t.border}`
+                          : "none",
                     }}
                   >
-                    <TrashIcon size={12} />
-                  </SmallBtn>
-                </div>
-                <div
-                  style={{
-                    width: 24,
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    color: t.textDim,
-                  }}
-                >
-                  <ChevronRightIcon />
-                </div>
-              </div>
-            );
-          })}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 8,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                          background: t.accentSoft,
+                          color: t.accent,
+                          opacity: 0.75,
+                        }}
+                      >
+                        <FolderClosedIcon size={16} />
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 600 }}>
+                          <HighlightedName
+                            name={folder.name}
+                            query={folderSearch.trim()}
+                            accentColor={t.accent}
+                          />
+                        </div>
+                        {folder._subCount > 0 && (
+                          <div
+                            style={{
+                              fontSize: 10.5,
+                              color: t.textDim,
+                              marginTop: 1,
+                            }}
+                          >
+                            {folder._subCount} subfolder
+                            {folder._subCount !== 1 ? "s" : ""}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td
+                    style={{
+                      padding: "12px 14px",
+                      borderBottom:
+                        idx < sorted.length - 1
+                          ? `1px solid ${t.border}`
+                          : "none",
+                      textAlign: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 11.5,
+                        fontWeight: 600,
+                        color:
+                          folder._fileCount > 0
+                            ? t.accent
+                            : t.textDim,
+                        background:
+                          folder._fileCount > 0
+                            ? t.accentSoft
+                            : "transparent",
+                        padding: "2px 9px",
+                        borderRadius: 12,
+                      }}
+                    >
+                      {folder._fileCount}
+                    </span>
+                  </td>
+                  <td
+                    style={{
+                      padding: "12px 14px",
+                      borderBottom:
+                        idx < sorted.length - 1
+                          ? `1px solid ${t.border}`
+                          : "none",
+                      fontSize: 11.5,
+                      color: t.textMuted,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {fmtDate(folder.createdAt)}
+                  </td>
+                  <td
+                    style={{
+                      padding: "12px 8px",
+                      borderBottom:
+                        idx < sorted.length - 1
+                          ? `1px solid ${t.border}`
+                          : "none",
+                      textAlign: "center",
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <SmallBtn
+                      t={t}
+                      title="Delete folder"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteFolder(folder);
+                      }}
+                    >
+                      <TrashIcon size={12} />
+                    </SmallBtn>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : (
         !creatingDeptFolder && (

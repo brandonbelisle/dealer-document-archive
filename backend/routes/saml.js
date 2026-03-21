@@ -105,13 +105,22 @@ async function fetchSamlMetadata(metadataUrl) {
 
 // Parse SAML metadata XML to extract IdP info
 function parseMetadataXml(xml) {
-  const certMatch = xml.match(/<ds:X509Certificate[^>]*>([^<]+)<\/ds:X509Certificate>/i);
+  // Extract all X509 certificates (there may be multiple for key rotation)
+  const certMatches = xml.match(/<ds:X509Certificate[^>]*>([^<]+)<\/ds:X509Certificate>/gi);
+  const certs = certMatches 
+    ? certMatches.map(match => {
+        const content = match.replace(/<\/?ds:X509Certificate[^>]*>/gi, '').trim();
+        return content;
+      })
+    : [];
+  
   const ssoUrlMatch = xml.match(/<md:SingleSignOnService[^>]*Location="([^"]+)"/i) || xml.match(/<SingleSignOnService[^>]*Location="([^"]+)"/i);
   const sloUrlMatch = xml.match(/<md:SingleLogoutService[^>]*Location="([^"]+)"/i) || xml.match(/<SingleLogoutService[^>]*Location="([^"]+)"/i);
   const entityIdMatch = xml.match(/entityID="([^"]+)"/i);
   
   return {
-    cert: certMatch ? certMatch[1].trim() : null,
+    certs: certs, // Array of certificates
+    cert: certs.length > 0 ? (certs.length === 1 ? certs[0] : certs) : null, // Backward compat
     ssoUrl: ssoUrlMatch ? ssoUrlMatch[1] : null,
     sloUrl: sloUrlMatch ? sloUrlMatch[1] : null,
     entityId: entityIdMatch ? entityIdMatch[1] : null,
@@ -157,7 +166,7 @@ async function initializeSamlStrategy() {
   }
 
   let ssoUrl = settings.idp_sso_url;
-  let cert = settings.idp_x509_cert;
+  let certs = settings.idp_x509_cert ? [settings.idp_x509_cert] : [];
   let entityId = settings.idp_entity_id;
   let sloUrl = settings.idp_slo_url;
 
@@ -167,16 +176,16 @@ async function initializeSamlStrategy() {
       console.log('Fetching SAML metadata from:', settings.idp_metadata_url);
       const metadata = await fetchSamlMetadata(settings.idp_metadata_url);
       
-      if (metadata.cert) cert = metadata.cert;
+      if (metadata.certs && metadata.certs.length > 0) certs = metadata.certs;
       if (metadata.ssoUrl) ssoUrl = metadata.ssoUrl;
       if (metadata.sloUrl) sloUrl = metadata.sloUrl;
       if (metadata.entityId) entityId = metadata.entityId;
       
-      console.log('SAML metadata fetched successfully:', { ssoUrl, entityId, hasCert: !!cert });
+      console.log('SAML metadata fetched successfully:', { ssoUrl, entityId, certCount: certs.length });
     } catch (err) {
       console.error('Failed to fetch SAML metadata:', err.message);
       // Fall back to manual config if metadata fetch fails
-      if (!cert) {
+      if (certs.length === 0) {
         samlStrategy = null;
         lastSamlSettings = null;
         return null;
@@ -184,7 +193,7 @@ async function initializeSamlStrategy() {
     }
   }
 
-  if (!ssoUrl || !cert) {
+  if (!ssoUrl || certs.length === 0) {
     samlStrategy = null;
     lastSamlSettings = null;
     return null;
@@ -194,7 +203,7 @@ async function initializeSamlStrategy() {
     entryPoint: ssoUrl,
     issuer: settings.sp_entity_id || 'dda-saml',
     callbackUrl: settings.sp_acs_url,
-    idpCert: cert,
+    idpCert: certs.length === 1 ? certs[0] : certs,
     identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
     wantAssertionsSigned: true,
     acceptedClockSkewMs: -1,
@@ -207,16 +216,8 @@ async function initializeSamlStrategy() {
   console.log('SAML Strategy Config:', {
     entryPoint: strategyConfig.entryPoint,
     callbackUrl: strategyConfig.callbackUrl,
-    hasIdpCert: !!strategyConfig.idpCert,
-    idpCertLength: strategyConfig.idpCert ? strategyConfig.idpCert.length : 0,
+    certCount: certs.length,
   });
-
-  if (!strategyConfig.idpCert) {
-    console.error('ERROR: No certificate available for SAML strategy');
-    samlStrategy = null;
-    lastSamlSettings = null;
-    return null;
-  }
 
   const strategy = new SamlStrategy(strategyConfig, (profile, done) => {
     processSamlUser(profile, settings)

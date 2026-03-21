@@ -20,6 +20,7 @@ import {
   GearIcon,
   WrenchIcon,
   LogOutIcon,
+  AppsIcon,
 } from "./Icons";
 
 export default function Navbar({
@@ -161,6 +162,26 @@ export default function Navbar({
             Dealer Document Archive
           </span>
         </div>
+        <button
+          onClick={() => setPage("landing")}
+          style={{
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            padding: "6px 10px",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            borderRadius: 8,
+            color: t.textMuted,
+            fontSize: 13,
+            fontWeight: 600,
+            fontFamily: "inherit",
+          }}
+          title="Back to Apps"
+        >
+          <AppsIcon size={15} /> Apps
+        </button>
         <div style={{ display: "flex", gap: 2, marginLeft: 8 }}>
           {/* Dashboard tab */}
           <button

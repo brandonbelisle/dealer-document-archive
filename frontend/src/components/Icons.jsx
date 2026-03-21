@@ -1,4 +1,4 @@
-const I = (d, size = 16, sw = 2) => (
+const I = (d, size = 16, sw = 2, spin = false) => (
   <svg
     width={size}
     height={size}
@@ -8,10 +8,24 @@ const I = (d, size = 16, sw = 2) => (
     strokeWidth={sw}
     strokeLinecap="round"
     strokeLinejoin="round"
+    style={spin ? { animation: 'spin 1s linear infinite' } : undefined}
   >
     {d}
   </svg>
 );
+
+const styleSheet = typeof document !== 'undefined' ? `
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+` : '';
+if (typeof document !== 'undefined' && !document.getElementById('icon-spin-style')) {
+  const style = document.createElement('style');
+  style.id = 'icon-spin-style';
+  style.textContent = styleSheet;
+  document.head.appendChild(style);
+}
 
 export const FolderClosedIcon = ({ size = 24 }) =>
   I(
@@ -378,7 +392,7 @@ export const EyeOffIcon = ({ size = 16 }) =>
     1.8
   );
 
-export const RefreshIcon = ({ size = 16 }) =>
+export const RefreshIcon = ({ size = 16, spin = false }) =>
   I(
     <>
       <path d="M21 2v6h-6" />
@@ -387,7 +401,8 @@ export const RefreshIcon = ({ size = 16 }) =>
       <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
     </>,
     size,
-    1.8
+    1.8,
+    spin
   );
 
 export const MenuIcon = ({ size = 20 }) =>

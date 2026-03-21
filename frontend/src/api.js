@@ -186,6 +186,11 @@ export async function updateFileText(id, extractedText, pageCount) {
     body: JSON.stringify({ extractedText, pageCount }),
   });
 }
+export async function extractFileText(id) {
+  return request(`/files/${id}/extract`, {
+    method: 'POST',
+  });
+}
 export async function renameFile(id, name) {
   return request(`/files/${id}/rename`, { method: 'PUT', body: JSON.stringify({ name }) });
 }

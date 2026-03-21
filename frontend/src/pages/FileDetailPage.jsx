@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { fmtSize, copyText } from "../utils/helpers";
 import { Btn } from "../components/ui/Btn";
 import {
@@ -9,6 +10,7 @@ import {
   TrashIcon,
   MapPinIcon,
   LayersIcon,
+  RefreshIcon,
 } from "../components/Icons";
 import PdfCanvasPreview from "../components/PdfCanvasPreview";
 import * as api from "../api";
@@ -31,7 +33,9 @@ export default function FileDetailPage({
   darkMode,
 }) {
   const canDeleteFiles = loggedInUser?.permissions?.includes("deleteFiles");
-  const vf = files.find((f) => f.id === viewingFileId);
+  const [extracting, setExtracting] = useState(false);
+  const [vf, setVf] = useState(files.find((f) => f.id === viewingFileId));
+  
   if (!vf) return null;
 
   const folder = folders.find((f) => f.id === vf.folderId);
@@ -49,6 +53,25 @@ export default function FileDetailPage({
   const FileTypeIcon = isImage ? ImageIcon : FileDocIcon;
   const fileIconBg = isImage ? "rgba(234,179,8,0.15)" : t.successSoft;
   const fileIconColor = isImage ? "#eab308" : t.success;
+
+  const handleExtractText = async () => {
+    setExtracting(true);
+    try {
+      const result = await api.extractFileText(vf.id);
+      if (result.success) {
+        setVf({
+          ...vf,
+          text: result.extracted_text,
+          pages: result.page_count,
+          status: "done",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to extract text:", err);
+    } finally {
+      setExtracting(false);
+    }
+  };
 
   return (
     <div
@@ -321,6 +344,17 @@ export default function FileDetailPage({
             >
               <CopyIcon /> Copy Text
             </Btn>
+            {isPdf && (
+              <Btn
+                darkMode={darkMode}
+                t={t}
+                onClick={handleExtractText}
+                disabled={extracting}
+                style={{ fontSize: 11.5, padding: "6px 12px" }}
+              >
+                <RefreshIcon spin={extracting} /> {extracting ? "Extracting..." : "Re-extract Text"}
+              </Btn>
+            )}
             {canDeleteFiles && (
               <button
                 onClick={() => removeFile(vf.id)}

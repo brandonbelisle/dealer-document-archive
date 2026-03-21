@@ -111,6 +111,21 @@ async function downloadBlob(blobName) {
   };
 }
 
+// ── Download a blob as a Buffer ───────────────────────────
+// Returns { buffer, contentType, contentLength }
+async function downloadBlobBuffer(blobName) {
+  const client = getClient();
+  const containerClient = client.getContainerClient(containerName);
+  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+  const downloadResponse = await blockBlobClient.downloadToBuffer();
+
+  return {
+    buffer: downloadResponse,
+    contentType: downloadResponse.contentType,
+    contentLength: downloadResponse.contentLength,
+  };
+}
+
 // ── Delete a blob ─────────────────────────────────────────
 async function deleteBlob(blobName) {
   try {
@@ -162,6 +177,7 @@ module.exports = {
   ensureContainer,
   uploadBlob,
   downloadBlob,
+  downloadBlobBuffer,
   deleteBlob,
   generateSasUrl,
 };

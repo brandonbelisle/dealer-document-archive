@@ -4,10 +4,11 @@ const express = require('express');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../config/db');
-const { uploadBlob, downloadBlob, deleteBlob } = require('../config/azure-storage');
+const { uploadBlob, downloadBlob, downloadBlobBuffer, deleteBlob } = require('../config/azure-storage');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
 const { createNotificationsForUpload, createNotificationsForUnsortedUpload } = require('./notifications');
+const { extractPdfText } = require('../utils/pdfExtract');
 
 const router = express.Router();
 
@@ -127,7 +128,7 @@ router.get('/:id/download', requireAuth, async (req, res) => {
 });
 
 // ── POST /api/files/upload ────────────────────────────────
-// Multipart: file (PDF), folderId, extractedText (optional), pageCount (optional)
+// Multipart: file (PDF/image), folderId, extractedText (optional), pageCount (optional)
 router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
@@ -151,8 +152,26 @@ router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.sin
     );
 
     const id = uuidv4();
+    const isPdf = req.file.mimetype === 'application/pdf' || req.file.originalname.toLowerCase().endsWith('.pdf');
     const isImage = req.file.mimetype?.startsWith('image/');
-    const status = (isImage || extractedText) ? 'done' : 'processing';
+    
+    let finalExtractedText = extractedText || null;
+    let finalPageCount = parseInt(pageCount || '0', 10);
+
+    // Extract text server-side for PDFs if not provided by client
+    if (isPdf && !finalExtractedText) {
+      try {
+        const extracted = await extractPdfText(req.file.buffer);
+        if (extracted.text) {
+          finalExtractedText = extracted.text;
+          finalPageCount = extracted.pageCount;
+        }
+      } catch (extractErr) {
+        console.error('Server-side PDF extraction failed:', extractErr.message);
+      }
+    }
+
+    const status = (isImage || finalExtractedText) ? 'done' : 'processing';
 
     // file_storage_path stores the full Azure blob URL for direct browser access
     await db.execute(
@@ -166,8 +185,8 @@ router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.sin
         folderId || null,
         req.file.mimetype || 'application/pdf',
         req.file.size,
-        parseInt(pageCount || '0', 10),
-        extractedText || null,
+        finalPageCount,
+        finalExtractedText,
         blobUrl,
         status,
         req.user.id,
@@ -176,7 +195,7 @@ router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.sin
 
     await logAudit(
       'File Uploaded',
-      `"${req.file.originalname}" (${pageCount || '?'} pages, ${formatSize(req.file.size)}) → "${folderName}"`,
+      `"${req.file.originalname}" (${finalPageCount || '?'} pages, ${formatSize(req.file.size)}) → "${folderName}"`,
       req.user,
       req.ip
     );
@@ -211,6 +230,48 @@ router.put('/:id/text', requireAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── POST /api/files/:id/extract ───────────────────────────
+// Re-extract text from an existing PDF file
+router.post('/:id/extract', requireAuth, async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM files WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'File not found' });
+    
+    const file = rows[0];
+    const isPdf = file.mime_type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (!isPdf) {
+      return res.status(400).json({ error: 'Text extraction only supported for PDF files' });
+    }
+
+    if (!file.file_storage_path) {
+      return res.status(400).json({ error: 'File not stored in blob storage' });
+    }
+
+    const blobName = file.file_storage_path.includes('/') 
+      ? file.file_storage_path.split('/').pop().split('?')[0] 
+      : file.file_storage_path;
+
+    const { buffer } = await downloadBlobBuffer(blobName);
+    const extracted = await extractPdfText(buffer);
+    
+    await db.execute(
+      'UPDATE files SET extracted_text = ?, page_count = ?, status = ? WHERE id = ?',
+      [extracted.text, extracted.pageCount, 'done', req.params.id]
+    );
+
+    const [updated] = await db.execute('SELECT * FROM files WHERE id = ?', [req.params.id]);
+    res.json({ 
+      success: true, 
+      extracted_text: extracted.text, 
+      page_count: extracted.pageCount,
+      file: updated[0]
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to extract text from file' });
   }
 });
 

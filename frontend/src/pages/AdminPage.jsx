@@ -304,7 +304,7 @@ function AuthenticationSection({ t, darkMode }) {
                 placeholder="Paste the Base64-encoded certificate from Azure Entra..."
                 style={textareaStyle}
               />
-              <p style={hintStyle}>Copy the certificate from Azure Entra > App registrations > Your app > Endpoints</p>
+              <p style={hintStyle}>Copy the certificate from Azure Entra &gt; App registrations &gt; Your app &gt; Endpoints</p>
             </div>
           </div>
 

@@ -770,14 +770,14 @@ export default function Navbar({
       </div>
 
       {/* Center: Global search */}
-      {isLoggedIn && (
+      {isLoggedIn && !isMobile && (
         <div
           style={{
             position: "absolute",
             left: "50%",
             transform: "translateX(-50%)",
-            width: isMobile ? "calc(100% - 180px)" : "100%",
-            maxWidth: isMobile ? 300 : 520,
+            width: "100%",
+            maxWidth: 520,
             zIndex: 1,
             pointerEvents: "none",
           }}
@@ -1041,16 +1041,17 @@ export default function Navbar({
       )}
 
       {/* Right: profile + dark mode */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          flexShrink: 0,
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
+      {!isMobile && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexShrink: 0,
+            position: "relative",
+            zIndex: 2,
+          }}
+        >
         {loggedInUser && (
           <div style={{ position: "relative" }}>
             <div
@@ -1310,6 +1311,7 @@ export default function Navbar({
           {darkMode ? <SunIcon /> : <MoonIcon />}
         </button>
       </div>
+      )}
     </nav>
   );
 }

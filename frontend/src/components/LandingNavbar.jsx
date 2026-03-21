@@ -1,7 +1,12 @@
-import { SunIcon, MoonIcon, UserIcon, ArrowLeftIcon } from "./Icons";
+import { useState } from "react";
+import { SunIcon, MoonIcon, UserIcon, ArrowLeftIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown } from "./Icons";
 
-export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage }) {
+export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout }) {
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const showBackButton = page === "admin";
+
+  const navActiveBg = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)";
+  const surfaceBg = darkMode ? "rgba(15,17,20,0.98)" : "#fff";
 
   return (
     <div style={{
@@ -46,7 +51,129 @@ export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, pag
           </button>
         )}
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative" }}>
+        {loggedInUser && (
+          <div style={{ position: "relative" }}>
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowProfileMenu(!showProfileMenu);
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                cursor: "pointer",
+                padding: "4px 8px",
+                borderRadius: 8,
+                background: showProfileMenu ? navActiveBg : "transparent",
+              }}
+            >
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  background: darkMode ? "rgba(136,192,208,0.15)" : "rgba(6,78,59,0.08)",
+                  color: darkMode ? "#88c0d0" : "#064e3b",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                }}
+              >
+                {loggedInUser.name?.charAt(0) || "U"}
+              </div>
+              <span style={{ fontSize: 12, fontWeight: 500, color: darkMode ? "#94a3b8" : "#57606a" }}>
+                {loggedInUser.name || "User"}
+              </span>
+              <ChevronDown />
+            </div>
+            {showProfileMenu && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 6px)",
+                  right: 0,
+                  zIndex: 200,
+                  background: surfaceBg,
+                  border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+                  borderRadius: 10,
+                  boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
+                  padding: 4,
+                  minWidth: 200,
+                  animation: "fadeIn 0.15s ease",
+                }}
+              >
+                <div style={{ padding: "10px 12px 8px", borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`, marginBottom: 4 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: darkMode ? "#e5e7eb" : "#1f2937" }}>
+                    {loggedInUser.name}
+                  </div>
+                  <div style={{ fontSize: 10.5, color: darkMode ? "#6b7280" : "#9ca3af", marginTop: 2 }}>
+                    {loggedInUser.groups?.join(", ")}
+                  </div>
+                </div>
+                {[
+                  { l: "My Account", i: <UserIcon /> },
+                  { l: "Change Password", i: <ShieldIcon /> },
+                  { l: "Settings", i: <GearIcon /> },
+                ].map((item) => (
+                  <div
+                    key={item.l}
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      if (item.l === "Change Password") {
+                        setShowChangePassword(true);
+                        setChangePasswordForm({ current: "", new: "", confirm: "" });
+                        setChangePasswordError("");
+                        setChangePasswordSuccess("");
+                      }
+                    }}
+                    className="folder-select-item"
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: 7,
+                      cursor: "pointer",
+                      fontSize: 13,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      color: darkMode ? "#e5e7eb" : "#1f2937",
+                      fontWeight: 500,
+                    }}
+                  >
+                    <span style={{ color: darkMode ? "#6b7280" : "#9ca3af" }}>{item.i}</span> {item.l}
+                  </div>
+                ))}
+                <div style={{ borderTop: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`, marginTop: 4, paddingTop: 4 }}>
+                  <div
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      handleLogout();
+                    }}
+                    className="folder-select-item"
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: 7,
+                      cursor: "pointer",
+                      fontSize: 13,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      color: darkMode ? "#f87171" : "#ef4444",
+                      fontWeight: 500,
+                    }}
+                  >
+                    <LogOutIcon /> Sign Out
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         <button
           onClick={() => setDarkMode(!darkMode)}
           style={{
@@ -66,20 +193,6 @@ export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, pag
         >
           {darkMode ? <SunIcon /> : <MoonIcon />}
         </button>
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "8px 14px",
-          borderRadius: 8,
-          background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
-          color: darkMode ? "#c9d1d9" : "#57606a",
-          fontSize: 13,
-          fontWeight: 500,
-        }}>
-          <UserIcon size={15} />
-          <span>{loggedInUser?.name || "User"}</span>
-        </div>
       </div>
     </div>
   );

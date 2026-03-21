@@ -224,7 +224,7 @@ export default function AdminPage({
   };
 
   return (
-    <div style={{ display: "flex", flex: 1, minHeight: "calc(100vh - 55px)", animation: "fadeIn 0.3s ease" }}>
+    <div style={{ display: "flex", flex: 1, minHeight: "calc(100vh - 55px)", paddingTop: 55, animation: "fadeIn 0.3s ease" }}>
       {/* Sidebar */}
       <div style={{ width: 260, minWidth: 260, borderRight: `1px solid ${t.border}`, background: darkMode ? "rgba(15,17,20,0.5)" : "rgba(246,244,240,0.6)", padding: "20px 10px", display: "flex", flexDirection: "column" }}>
         <button onClick={() => setPage("folders")} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 12, fontWeight: 500, display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", fontFamily: "inherit", marginBottom: 16, borderRadius: 6 }}><ArrowLeftIcon /> Back to Documents</button>

@@ -206,7 +206,7 @@ const t = getTheme(darkMode);
   useEffect(() => {
     if (api.isAuthenticated()) {
       api.getMe().then((user) => {
-        setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl });
+        setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl, customAppIds: user.customAppIds || [] });
         setIsLoggedIn(true);
       }).catch(() => { api.logout(); });
     }
@@ -367,7 +367,7 @@ const t = getTheme(darkMode);
   };
 
   // ── Handlers ────────────────────────────────────────────
-  const handleLogin = async () => { setLoginError(""); if (!loginForm.username.trim() || !loginForm.password.trim()) { setLoginError("Please enter both fields."); return; } setLoginLoading(true); try { const user = await api.login(loginForm.username.trim(), loginForm.password.trim()); setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl }); setIsLoggedIn(true); setPage("landing"); setLoginForm({ username: "", password: "" }); } catch (err) { setLoginError(err.message || "Login failed"); } finally { setLoginLoading(false); } };
+  const handleLogin = async () => { setLoginError(""); if (!loginForm.username.trim() || !loginForm.password.trim()) { setLoginError("Please enter both fields."); return; } setLoginLoading(true); try { const user = await api.login(loginForm.username.trim(), loginForm.password.trim()); setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl, customAppIds: user.customAppIds || [] }); setIsLoggedIn(true); setPage("landing"); setLoginForm({ username: "", password: "" }); } catch (err) { setLoginError(err.message || "Login failed"); } finally { setLoginLoading(false); } };
   const handleLogout = () => { api.logout(); setIsLoggedIn(false); setLoggedInUser(null); setPage("dashboard"); setSelectedFile(null); setLocations([]); setDepartments([]); setFolders([]); setFiles([]); setActiveLocation(null); setActiveDepartment(null); };
 
   const validateFile = (file) => { 

@@ -54,6 +54,14 @@ router.post('/login', async (req, res) => {
       [user.id]
     );
 
+    // Get custom app IDs the user can view
+    const [customApps] = await db.execute(
+      `SELECT DISTINCT cap.app_id FROM custom_app_permissions cap
+       JOIN user_group_memberships ugm ON cap.group_id = ugm.group_id
+       WHERE ugm.user_id = ? AND cap.can_view = 1`,
+      [user.id]
+    );
+
     const token = signToken(user);
 
     await logAudit('User Login', `"${user.display_name}" logged in`, user, req.ip);
@@ -67,6 +75,7 @@ router.post('/login', async (req, res) => {
         displayName: user.display_name,
         groups: groups.map(g => g.name),
         permissions: perms.map(p => p.perm_key),
+        customAppIds: customApps.map(a => a.app_id),
       },
     });
   } catch (err) {
@@ -127,6 +136,12 @@ router.post('/register', async (req, res) => {
        WHERE ugm.user_id = ?`,
       [id]
     );
+    const [customApps] = await db.execute(
+      `SELECT DISTINCT cap.app_id FROM custom_app_permissions cap
+       JOIN user_group_memberships ugm ON cap.group_id = ugm.group_id
+       WHERE ugm.user_id = ? AND cap.can_view = 1`,
+      [id]
+    );
 
     await logAudit('User Created', `"${displayName}" (${username})`, { id, display_name: displayName }, req.ip);
 
@@ -139,6 +154,7 @@ router.post('/register', async (req, res) => {
         displayName,
         groups: groups.map(g => g.name),
         permissions: perms.map(p => p.perm_key),
+        customAppIds: customApps.map(a => a.app_id),
       },
     });
   } catch (err) {
@@ -158,6 +174,7 @@ router.get('/me', requireAuth, (req, res) => {
       avatarUrl: req.user.avatar_url,
       groups: req.user.groups,
       permissions: req.user.permissions,
+      customAppIds: req.user.customAppIds,
     },
   });
 });

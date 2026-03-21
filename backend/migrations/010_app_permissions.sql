@@ -5,16 +5,16 @@
 -- We'll use a naming convention: view_app_<appid>
 
 -- For DDA (default app)
-INSERT IGNORE INTO permissions (name, description) VALUES 
-('view_dda', 'Access Dealer Document Archive');
+INSERT IGNORE INTO permissions (id, perm_key, label, category, description, sort_order) VALUES 
+(UUID(), 'view_dda', 'Access DDA', 'Apps', 'Access Dealer Document Archive', 200);
 
 -- For CHT
-INSERT IGNORE INTO permissions (name, description) VALUES 
-('view_cht', 'Access Credit Hold Tracker');
+INSERT IGNORE INTO permissions (id, perm_key, label, category, description, sort_order) VALUES 
+(UUID(), 'view_cht', 'Access CHT', 'Apps', 'Access Credit Hold Tracker', 210);
 
 -- For Help Desk (built-in)
-INSERT IGNORE INTO permissions (name, description) VALUES 
-('view_help', 'Access Help Desk');
+INSERT IGNORE INTO permissions (id, perm_key, label, category, description, sort_order) VALUES 
+(UUID(), 'view_help', 'Access Help Desk', 'Apps', 'Access Help Desk', 220);
 
 -- For Global Admin permissions (these stay as-is since they're cross-app)
 -- manageUsers, manageGroups, manageLocations, manageDepartments, 

@@ -21,6 +21,7 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
     {
       id: "dda",
       name: "Dealer Document Archive",
+      permission: "view_dda",
       icon: (
         <div style={{
           width: 56, height: 56, borderRadius: 14,
@@ -36,6 +37,7 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
     {
       id: "cht",
       name: "Credit Hold Tracker",
+      permission: "view_cht",
       icon: (
         <div style={{
           width: 56, height: 56, borderRadius: 14,
@@ -51,6 +53,7 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
     {
       id: "help",
       name: "Submit Help Ticket",
+      permission: "view_help",
       icon: (
         <div style={{
           width: 56, height: 56, borderRadius: 14,
@@ -63,21 +66,23 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
       ),
       onClick: () => { if (onOpenHelpTicket) onOpenHelpTicket(); },
     },
-    ...customApps.map((app) => ({
-      id: app.id,
-      name: app.name,
-      icon: (
-        <div style={{
-          width: 56, height: 56, borderRadius: 14,
-          background: "linear-gradient(135deg, #88c0d0, #5b9bd5)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          color: "white", fontSize: 16, fontWeight: 800,
-        }}>
-          {app.abbreviation || app.name.substring(0, 2).toUpperCase()}
-        </div>
-      ),
-      onClick: () => { window.open(app.link, "_blank"); },
-    })),
+    ...customApps
+      .filter((app) => loggedInUser?.customAppIds?.includes(app.id))
+      .map((app) => ({
+        id: app.id,
+        name: app.name,
+        icon: (
+          <div style={{
+            width: 56, height: 56, borderRadius: 14,
+            background: "linear-gradient(135deg, #88c0d0, #5b9bd5)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "white", fontSize: 16, fontWeight: 800,
+          }}>
+            {app.abbreviation || app.name.substring(0, 2).toUpperCase()}
+          </div>
+        ),
+        onClick: () => { window.open(app.link, "_blank"); },
+      })),
     ...(isAdmin ? [{
       id: "admin",
       name: "Admin Center",
@@ -93,7 +98,7 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
       ),
       onClick: () => setPage("admin"),
     }] : []),
-  ];
+  ].filter(app => !app.permission || loggedInUser?.permissions?.includes(app.permission));
 
   return (
     <div style={{

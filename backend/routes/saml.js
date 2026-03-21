@@ -363,6 +363,13 @@ async function processSamlUser(profile, settings) {
       [user.id]
     );
 
+    const [customApps] = await db.execute(
+      `SELECT DISTINCT cap.app_id FROM custom_app_permissions cap
+       JOIN user_group_memberships ugm ON cap.group_id = ugm.group_id
+       WHERE ugm.user_id = ? AND cap.can_view = 1`,
+      [user.id]
+    );
+
     return {
       id: user.id,
       username: user.username,
@@ -371,6 +378,7 @@ async function processSamlUser(profile, settings) {
       avatarUrl: avatarUrl || user.avatar_url,
       groups: groups.map(g => g.name),
       permissions: perms.map(p => p.perm_key),
+      customAppIds: customApps.map(a => a.app_id),
       authProvider: 'saml',
     };
   }
@@ -418,6 +426,13 @@ async function processSamlUser(profile, settings) {
       [id]
     );
 
+    const [customApps] = await db.execute(
+      `SELECT DISTINCT cap.app_id FROM custom_app_permissions cap
+       JOIN user_group_memberships ugm ON cap.group_id = ugm.group_id
+       WHERE ugm.user_id = ? AND cap.can_view = 1`,
+      [id]
+    );
+
     return {
       id,
       username,
@@ -426,6 +441,7 @@ async function processSamlUser(profile, settings) {
       avatarUrl: avatarUrl,
       groups: groups.map(g => g.name),
       permissions: perms.map(p => p.perm_key),
+      customAppIds: customApps.map(a => a.app_id),
       authProvider: 'saml',
     };
   }
@@ -458,6 +474,12 @@ passport.deserializeUser(async (id, done) => {
        WHERE ugm.user_id = ?`,
       [user.id]
     );
+    const [customApps] = await db.execute(
+      `SELECT DISTINCT cap.app_id FROM custom_app_permissions cap
+       JOIN user_group_memberships ugm ON cap.group_id = ugm.group_id
+       WHERE ugm.user_id = ? AND cap.can_view = 1`,
+      [user.id]
+    );
     done(null, {
       id: user.id,
       username: user.username,
@@ -465,6 +487,7 @@ passport.deserializeUser(async (id, done) => {
       displayName: user.display_name,
       groups: groups.map(g => g.name),
       permissions: perms.map(p => p.perm_key),
+      customAppIds: customApps.map(a => a.app_id),
     });
   } catch (err) {
     done(err);

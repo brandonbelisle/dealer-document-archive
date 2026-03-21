@@ -100,29 +100,31 @@ export default function Navbar({
 
 const apps = [
     { id: "home", name: "Home", icon: <HomeIcon size={20} />, onClick: () => { setPage("landing"); setSelectedFile(null); setShowAppsDropdown(false); } },
-    { id: "dda", name: "Dealer Document Archive", icon: (
+    { id: "dda", name: "Dealer Document Archive", permission: "view_dda", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${t.accent},${t.accentDark || t.accent})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>DDA</div>
     ), onClick: () => { setPage("dashboard"); setSelectedFile(null); setShowAppsDropdown(false); } },
-    { id: "cht", name: "Credit Hold Tracker", icon: (
+    { id: "cht", name: "Credit Hold Tracker", permission: "view_cht", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
     ), onClick: () => { setPage("cht-dashboard"); setShowAppsDropdown(false); } },
-    { id: "help", name: "Submit Help Ticket", icon: (
+    { id: "help", name: "Submit Help Ticket", permission: "view_help", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
         <TicketIcon size={14} />
       </div>
     ), onClick: () => { setShowAppsDropdown(false); onOpenHelpTicket?.(); } },
-    ...customApps.map((app) => ({
-      id: app.id,
-      name: app.name,
-      icon: (
-        <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg, #88c0d0, #5b9bd5)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>
-          {app.abbreviation || app.name.substring(0, 2).toUpperCase()}
-        </div>
-      ),
-      onClick: () => { window.open(app.link, "_blank"); setShowAppsDropdown(false); },
-    })),
+    ...customApps
+      .filter((app) => loggedInUser?.customAppIds?.includes(app.id))
+      .map((app) => ({
+        id: app.id,
+        name: app.name,
+        icon: (
+          <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg, #88c0d0, #5b9bd5)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>
+            {app.abbreviation || app.name.substring(0, 2).toUpperCase()}
+          </div>
+        ),
+        onClick: () => { window.open(app.link, "_blank"); setShowAppsDropdown(false); },
+      })),
     ...(isAdmin ? [{ id: "admin", name: "Admin Center", icon: <GearIcon size={20} />, onClick: () => { setPage("admin"); setAdminSection("users"); setShowAppsDropdown(false); } }] : []),
-  ];
+  ].filter(app => !app.permission || loggedInUser?.permissions?.includes(app.permission));
 
   // Close dropdown when clicking outside
   useEffect(() => {

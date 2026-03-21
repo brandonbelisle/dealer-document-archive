@@ -56,6 +56,15 @@ async function requireAuth(req, res, next) {
     );
     user.permissions = perms.map(p => p.perm_key);
 
+    // Get custom app IDs the user can view
+    const [customApps] = await db.execute(
+      `SELECT DISTINCT cap.app_id FROM custom_app_permissions cap
+       JOIN user_group_memberships ugm ON cap.group_id = ugm.group_id
+       WHERE ugm.user_id = ? AND cap.can_view = 1`,
+      [user.id]
+    );
+    user.customAppIds = customApps.map(a => a.app_id);
+
     req.user = user;
     next();
   } catch (err) {

@@ -252,6 +252,7 @@ export default function AdminPage({
   setSubscriptions,
   t,
   darkMode,
+  addToast,
 }) {
   const [auditPage, setAuditPage] = useState(1);
   const [auditPageSize, setAuditPageSize] = useState(25);
@@ -273,6 +274,7 @@ export default function AdminPage({
         try {
           await api.deleteUser(user.id);
           setAdminUsers((prev) => prev.filter((u) => u.id !== user.id));
+          addToast("User deleted", `"${user.name}" has been deleted`, 4000, "delete");
         } catch (err) {
           console.error("Failed to delete user:", err);
         }
@@ -328,7 +330,10 @@ export default function AdminPage({
       title: `Delete "${group.name}"?`,
       message: `This will permanently remove the "${group.name}" security group. Users assigned to this group will lose these permissions.`,
       onConfirm: async () => {
-        try { await api.deleteGroup(group.id); } catch (err) { console.error(err); }
+        try { 
+          await api.deleteGroup(group.id);
+          addToast("Group deleted", `"${group.name}" has been deleted`, 4000, "delete");
+        } catch (err) { console.error(err); }
         setSecurityGroups((p) => p.filter((g) => g.id !== group.id));
         if (editingGroupId === group.id) setEditingGroupId(null);
       },
@@ -343,6 +348,7 @@ export default function AdminPage({
       const newG = { id: created.id, name: created.name, desc: created.description, permissions: created.permissions || defaultPerms, memberCount: 0 };
       setSecurityGroups((p) => [...p, newG]);
       setEditingGroupId(newG.id);
+      addToast("Group created", `"${n}" has been created`, 4000, "create");
     } catch (err) { console.error(err); }
     setAddingGroup(false);
     setNewGroupName("");
@@ -604,8 +610,8 @@ export default function AdminPage({
               {addingLocation && (
                 <div style={{ background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 10, padding: "14px 16px", marginBottom: 12, display: "flex", alignItems: "center", gap: 12, boxShadow: `0 0 0 3px ${t.accentSoft}` }}>
                   <span style={{ color: t.accent }}><MapPinIcon size={18} /></span>
-                  <input ref={addLocRef} value={newLocationName} onChange={(e) => setNewLocationName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { const n = newLocationName.trim(); if (n) { api.createLocation(n).then((created) => { setLocations((p) => [...p, { id: created.id, name: created.name }]); setNewLocationName(""); setAddingLocation(false); }).catch(console.error); } } if (e.key === "Escape") { setAddingLocation(false); setNewLocationName(""); } }} placeholder="Location name..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 14, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 500 }} />
-                  <Btn primary darkMode={darkMode} t={t} onClick={() => { const n = newLocationName.trim(); if (n) { api.createLocation(n).then((created) => { setLocations((p) => [...p, { id: created.id, name: created.name }]); setNewLocationName(""); setAddingLocation(false); }).catch(console.error); } }} style={{ padding: "6px 14px", fontSize: 12 }}>Add</Btn>
+                  <input ref={addLocRef} value={newLocationName} onChange={(e) => setNewLocationName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { const n = newLocationName.trim(); if (n) { api.createLocation(n).then((created) => { setLocations((p) => [...p, { id: created.id, name: created.name }]); setNewLocationName(""); setAddingLocation(false); addToast("Location created", `"${n}" has been created`, 4000, "create"); }).catch(console.error); } } if (e.key === "Escape") { setAddingLocation(false); setNewLocationName(""); } }} placeholder="Location name..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 14, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 500 }} />
+                  <Btn primary darkMode={darkMode} t={t} onClick={() => { const n = newLocationName.trim(); if (n) { api.createLocation(n).then((created) => { setLocations((p) => [...p, { id: created.id, name: created.name }]); setNewLocationName(""); setAddingLocation(false); addToast("Location created", `"${n}" has been created`, 4000, "create"); }).catch(console.error); } }} style={{ padding: "6px 14px", fontSize: 12 }}>Add</Btn>
                   <button onClick={() => { setAddingLocation(false); setNewLocationName(""); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.textDim, display: "flex", padding: 4 }}><XIcon size={16} /></button>
                 </div>
               )}
@@ -683,8 +689,8 @@ export default function AdminPage({
                     {isAddHere && (
                       <div style={{ background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 10, padding: "12px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 10, boxShadow: `0 0 0 3px ${t.accentSoft}` }}>
                         <span style={{ color: t.accent }}><LayersIcon size={16} /></span>
-                        <input ref={addDeptRef} value={newDeptName} onChange={(e) => setNewDeptName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { const n = newDeptName.trim(); if (n) { api.createDepartment(n, loc.id).then((created) => { setDepartments((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || loc.id }]); setNewDeptName(""); setAddingDept(false); setAddingDeptLocId(null); }).catch(console.error); } } if (e.key === "Escape") { setAddingDept(false); setAddingDeptLocId(null); } }} placeholder="Department name..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 13, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 500 }} />
-                        <Btn primary darkMode={darkMode} t={t} onClick={() => { const n = newDeptName.trim(); if (n) { api.createDepartment(n, loc.id).then((created) => { setDepartments((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || loc.id }]); setNewDeptName(""); setAddingDept(false); setAddingDeptLocId(null); }).catch(console.error); } }} style={{ padding: "5px 12px", fontSize: 11.5 }}>Add</Btn>
+                        <input ref={addDeptRef} value={newDeptName} onChange={(e) => setNewDeptName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { const n = newDeptName.trim(); if (n) { api.createDepartment(n, loc.id).then((created) => { setDepartments((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || loc.id }]); setNewDeptName(""); setAddingDept(false); setAddingDeptLocId(null); addToast("Department created", `"${n}" has been created`, 4000, "create"); }).catch(console.error); } } if (e.key === "Escape") { setAddingDept(false); setAddingDeptLocId(null); } }} placeholder="Department name..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 13, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 500 }} />
+                        <Btn primary darkMode={darkMode} t={t} onClick={() => { const n = newDeptName.trim(); if (n) { api.createDepartment(n, loc.id).then((created) => { setDepartments((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || loc.id }]); setNewDeptName(""); setAddingDept(false); setAddingDeptLocId(null); addToast("Department created", `"${n}" has been created`, 4000, "create"); }).catch(console.error); } }} style={{ padding: "5px 12px", fontSize: 11.5 }}>Add</Btn>
                         <button onClick={() => { setAddingDept(false); setAddingDeptLocId(null); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.textDim, display: "flex", padding: 3 }}><XIcon size={14} /></button>
                       </div>
                     )}
@@ -925,6 +931,7 @@ export default function AdminPage({
             id: u.id,
             groupIds: u.groups || [],
           })));
+          addToast("User created", "New user has been created successfully", 4000, "create");
         }}
         t={t}
         darkMode={darkMode}

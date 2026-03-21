@@ -81,6 +81,17 @@ function ToastItem({ toast, onClose, darkMode }) {
     setTimeout(onClose, 200);
   };
 
+  const typeColors = {
+    delete: { border: "#ef4444", bg: darkMode ? "rgba(239, 68, 68, 0.1)" : "rgba(239, 68, 68, 0.05)" },
+    create: { border: "#22c55e", bg: darkMode ? "rgba(34, 197, 94, 0.1)" : "rgba(34, 197, 94, 0.05)" },
+    upload: { border: "#3b82f6", bg: darkMode ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.05)" },
+    error: { border: "#ef4444", bg: darkMode ? "rgba(239, 68, 68, 0.1)" : "rgba(239, 68, 68, 0.05)" },
+    success: { border: "#22c55e", bg: darkMode ? "rgba(34, 197, 94, 0.1)" : "rgba(34, 197, 94, 0.05)" },
+    info: { border: "#3b82f6", bg: darkMode ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.05)" },
+  };
+
+  const typeStyle = typeColors[toast.type] || { border: darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)", bg: "transparent" };
+
   return (
     <div
       onMouseEnter={() => setIsPaused(true)}
@@ -100,9 +111,21 @@ function ToastItem({ toast, onClose, darkMode }) {
           ? "toastOut 0.2s ease forwards"
           : "toastIn 0.3s ease",
         cursor: "pointer",
+        position: "relative",
+        overflow: "hidden",
       }}
       onClick={handleClose}
     >
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: 4,
+          background: typeStyle.border,
+        }}
+      />
       <div
         style={{
           display: "flex",
@@ -110,7 +133,7 @@ function ToastItem({ toast, onClose, darkMode }) {
           gap: 10,
         }}
       >
-        <div style={{ flex: 1}}>
+        <div style={{ flex: 1 }}>
           <div
             style={{
               fontSize: 13,

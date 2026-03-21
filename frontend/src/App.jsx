@@ -114,9 +114,9 @@ const [showSubscriptionsModal, setShowSubscriptionsModal] = useState(false);
 const [toasts, setToasts] = useState([]);
 const toastIdCounter = useRef(0);
 
-const addToast = useCallback((title, message, duration) => {
+const addToast = useCallback((title, message, duration, type) => {
   const id = ++toastIdCounter.current;
-  setToasts((prev) => [...prev, { id, title, message, duration: duration || 5000 }]);
+  setToasts((prev) => [...prev, { id, title, message, duration: duration || 5000, type }]);
 }, []);
 
 const removeToast = useCallback((id) => {
@@ -216,7 +216,8 @@ const t = getTheme(darkMode);
             addToast(
               `New file uploaded`,
               `${n.file_name} was uploaded by ${n.created_by_name} to ${n.item_name || 'a subscribed location'}`,
-              7000
+              7000,
+              "upload"
             );
             api.markNotificationRead(n.id).catch(console.error);
           });
@@ -289,24 +290,108 @@ const t = getTheme(darkMode);
   const handleFolderDetailDrop = useCallback((e) => { e.preventDefault(); setFolderDetailDragOver(false); if (!pdfjsLoaded || !activeFolderId) return; Array.from(e.dataTransfer.files).forEach((f) => processFile(f, activeFolderId)); }, [processFile, pdfjsLoaded, activeFolderId]);
   const handleFolderDetailFiles = useCallback((fl) => { if (!pdfjsLoaded || !activeFolderId) return; Array.from(fl).forEach((f) => processFile(f, activeFolderId)); }, [processFile, pdfjsLoaded, activeFolderId]);
 
-  const removeFile = async (id) => { try { await api.deleteFile(id); } catch (err) { console.error(err); } setFiles((p) => p.filter((f) => f.id !== id)); if (selectedFile?.id === id) setSelectedFile(null); if (viewingFileId === id) { setViewingFileId(null); setPage("folder-detail"); } };
+  const removeFile = async (id) => { 
+    const file = files.find((f) => f.id === id);
+    try { await api.deleteFile(id); } catch (err) { console.error(err); } 
+    setFiles((p) => p.filter((f) => f.id !== id)); 
+    if (selectedFile?.id === id) setSelectedFile(null); 
+    if (viewingFileId === id) { setViewingFileId(null); setPage("folder-detail"); }
+    if (file) addToast("File deleted", `"${file.name}" has been deleted`, 4000, "delete");
+  };
   const renameFile = async (id, newName) => { const n = newName.trim(); if (n) { try { await api.renameFile(id, n); setFiles((p) => p.map((f) => f.id === id ? { ...f, name: n } : f)); } catch (err) { console.error(err); } } setRenamingFileId(null); };
   const handleMoveFile = async (fileId, folderId) => { try { await api.moveFile(fileId, folderId); setUnsortedFiles((p) => p.filter((f) => f.id !== fileId)); } catch (err) { console.error("Move failed:", err); } };
 
-  const createSubfolder = async () => { const name = newSubfolderName.trim(); if (!name || !activeFolderId) { setCreatingSubfolder(false); return; } const parent = folders.find((f) => f.id === activeFolderId); if (!parent) return; try { const created = await api.createFolder(name, parent.locationId, parent.departmentId, activeFolderId); setFolders((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: created.parent_id || created.parentId || null, createdAt: created.created_at }]); } catch (err) { console.error(err); } setNewSubfolderName(""); setCreatingSubfolder(false); };
-  const createDeptFolder = async () => { const name = newDeptFolderName.trim(); if (!name) { setCreatingDeptFolder(false); return; } try { const created = await api.createFolder(name, activeLocation, activeDepartment, null); setFolders((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: null, createdAt: created.created_at }]); } catch (err) { console.error(err); } setNewDeptFolderName(""); setCreatingDeptFolder(false); };
+  const createSubfolder = async () => { 
+    const name = newSubfolderName.trim(); 
+    if (!name || !activeFolderId) { setCreatingSubfolder(false); return; } 
+    const parent = folders.find((f) => f.id === activeFolderId); 
+    if (!parent) return; 
+    try { 
+      const created = await api.createFolder(name, parent.locationId, parent.departmentId, activeFolderId); 
+      setFolders((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: created.parent_id || created.parentId || null, createdAt: created.created_at }]);
+      addToast("Folder created", `"${name}" has been created`, 4000, "create");
+    } catch (err) { console.error(err); } 
+    setNewSubfolderName(""); setCreatingSubfolder(false); 
+  };
+  const createDeptFolder = async () => { 
+    const name = newDeptFolderName.trim(); 
+    if (!name) { setCreatingDeptFolder(false); return; } 
+    try { 
+      const created = await api.createFolder(name, activeLocation, activeDepartment, null); 
+      setFolders((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: null, createdAt: created.created_at }]);
+      addToast("Folder created", `"${name}" has been created`, 4000, "create");
+    } catch (err) { console.error(err); } 
+    setNewDeptFolderName(""); setCreatingDeptFolder(false); 
+  };
 
   const handleDeleteFolder = (folder) => {
     const childFolders = subfoldersOf(folder.id); const fileCount = allFilesInFolderRecursive(folder.id);
     const message = (childFolders.length > 0 || fileCount > 0) ? `Delete "${folder.name}" and everything inside it? This includes ${childFolders.length} subfolder${childFolders.length !== 1 ? "s" : ""} and ${fileCount} file${fileCount !== 1 ? "s" : ""}. This cannot be undone.` : `Delete the folder "${folder.name}"? This cannot be undone.`;
-    const doDelete = async () => { try { const getAllDescendants = (pid) => { const ch = subfoldersOf(pid); let all = []; for (const c of ch) { all = [...all, ...getAllDescendants(c.id), c]; } return all; }; const descendants = getAllDescendants(folder.id); const allIds = new Set([folder.id, ...descendants.map((d) => d.id)]); setFiles((p) => p.filter((f) => !allIds.has(f.folderId))); for (const desc of descendants) { await api.deleteFolder(desc.id).catch(console.error); } await api.deleteFolder(folder.id); setFolders((p) => p.filter((f) => !allIds.has(f.id))); if (activeFolderId === folder.id || allIds.has(activeFolderId)) { if (folder.parentId) setActiveFolderId(folder.parentId); else { setActiveFolderId(null); setPage("folders"); } } } catch (err) { console.error(err); } setWarningModal(null); };
+    const doDelete = async () => { 
+      try { 
+        const getAllDescendants = (pid) => { const ch = subfoldersOf(pid); let all = []; for (const c of ch) { all = [...all, ...getAllDescendants(c.id), c]; } return all; }; 
+        const descendants = getAllDescendants(folder.id); 
+        const allIds = new Set([folder.id, ...descendants.map((d) => d.id)]); 
+        setFiles((p) => p.filter((f) => !allIds.has(f.folderId))); 
+        for (const desc of descendants) { await api.deleteFolder(desc.id).catch(console.error); } 
+        await api.deleteFolder(folder.id); 
+        setFolders((p) => p.filter((f) => !allIds.has(f.id))); 
+        if (activeFolderId === folder.id || allIds.has(activeFolderId)) { if (folder.parentId) setActiveFolderId(folder.parentId); else { setActiveFolderId(null); setPage("folders"); } }
+        addToast("Folder deleted", `"${folder.name}" has been deleted`, 4000, "delete");
+      } catch (err) { console.error(err); } 
+      setWarningModal(null); 
+    };
     setWarningModal({ title: "Delete Folder", message, onConfirm: doDelete });
   };
 
-  const handleDeleteLocation = (loc) => { const lf = foldersInLocation(loc.id), lFiles = lf.reduce((s, f) => s + filesInFolder(f.id).length, 0); const doDelete = async () => { try { await api.deleteLocation(loc.id); setFiles((p) => p.filter((f) => !new Set(lf.map((ff) => ff.id)).has(f.folderId))); setFolders((p) => p.filter((f) => f.locationId !== loc.id)); setDepartments((p) => p.filter((d) => d.locationId !== loc.id)); setLocations((p) => p.filter((l) => l.id !== loc.id)); if (activeLocation === loc.id) { const rem = locations.filter((l) => l.id !== loc.id); if (rem.length) setActiveLocation(rem[0].id); } } catch (err) { console.error(err); } }; if (lf.length > 0 || lFiles > 0) setWarningModal({ title: `Remove "${loc.name}"?`, message: `This location has ${lf.length} folder(s) and ${lFiles} file(s). Are you sure?`, onConfirm: doDelete }); else doDelete(); };
-  const handleDeleteDept = (dept, locName) => { const df = foldersInDepartment(dept.id), dFiles = df.reduce((s, f) => s + filesInFolder(f.id).length, 0); const doDelete = async () => { try { await api.deleteDepartment(dept.id); setFiles((p) => p.filter((f) => !new Set(df.map((ff) => ff.id)).has(f.folderId))); setFolders((p) => p.filter((f) => f.departmentId !== dept.id)); setDepartments((p) => p.filter((d) => d.id !== dept.id)); if (activeDepartment === dept.id) { const rem = deptsInLocation(dept.locationId).filter((d) => d.id !== dept.id); if (rem.length) setActiveDepartment(rem[0].id); } } catch (err) { console.error(err); } }; if (df.length > 0 || dFiles > 0) setWarningModal({ title: `Remove "${dept.name}" from ${locName}?`, message: `This department has ${df.length} folder(s) and ${dFiles} file(s). Are you sure?`, onConfirm: doDelete }); else doDelete(); };
+  const handleDeleteLocation = (loc) => { 
+    const lf = foldersInLocation(loc.id), lFiles = lf.reduce((s, f) => s + filesInFolder(f.id).length, 0); 
+    const doDelete = async () => { 
+      try { 
+        await api.deleteLocation(loc.id); 
+        setFiles((p) => p.filter((f) => !new Set(lf.map((ff) => ff.id)).has(f.folderId))); 
+        setFolders((p) => p.filter((f) => f.locationId !== loc.id)); 
+        setDepartments((p) => p.filter((d) => d.locationId !== loc.id)); 
+        setLocations((p) => p.filter((l) => l.id !== loc.id)); 
+        if (activeLocation === loc.id) { const rem = locations.filter((l) => l.id !== loc.id); if (rem.length) setActiveLocation(rem[0].id); }
+        addToast("Location deleted", `"${loc.name}" has been deleted`, 4000, "delete");
+      } catch (err) { console.error(err); } 
+    }; 
+    if (lf.length > 0 || lFiles > 0) setWarningModal({ title: `Remove "${loc.name}"?`, message: `This location has ${lf.length} folder(s) and ${lFiles} file(s). Are you sure?`, onConfirm: doDelete }); else doDelete(); 
+  };
+  const handleDeleteDept = (dept, locName) => { 
+    const df = foldersInDepartment(dept.id), dFiles = df.reduce((s, f) => s + filesInFolder(f.id).length, 0); 
+    const doDelete = async () => { 
+      try { 
+        await api.deleteDepartment(dept.id); 
+        setFiles((p) => p.filter((f) => !new Set(df.map((ff) => ff.id)).has(f.folderId))); 
+        setFolders((p) => p.filter((f) => f.departmentId !== dept.id)); 
+        setDepartments((p) => p.filter((d) => d.id !== dept.id)); 
+        if (activeDepartment === dept.id) { const rem = deptsInLocation(dept.locationId).filter((d) => d.id !== dept.id); if (rem.length) setActiveDepartment(rem[0].id); }
+        addToast("Department deleted", `"${dept.name}" has been deleted`, 4000, "delete");
+      } catch (err) { console.error(err); } 
+    }; 
+    if (df.length > 0 || dFiles > 0) setWarningModal({ title: `Remove "${dept.name}" from ${locName}?`, message: `This department has ${df.length} folder(s) and ${dFiles} file(s). Are you sure?`, onConfirm: doDelete }); else doDelete(); 
+  };
 
-  const uploadAllStaged = async () => { const ready = stagedFiles.filter((f) => f.status === "done"); if (ready.length === 0) return; for (const sf of ready) { try { await api.uploadFile(sf._rawFile || new Blob(), stagedFolderAssignments[sf.id] || null, sf.text, sf.pages); } catch (err) { console.error(err); } } setStagedFiles((p) => p.filter((f) => f.status === "processing")); setStagedFolderAssignments({}); setStagedSuggestions({}); api.getUnsortedFiles().then((rows) => { setUnsortedFiles(rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: null, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 }))); }).catch(console.error); };
+  const uploadAllStaged = async () => { 
+    const ready = stagedFiles.filter((f) => f.status === "done"); 
+    if (ready.length === 0) return; 
+    let successCount = 0;
+    for (const sf of ready) { 
+      try { 
+        await api.uploadFile(sf._rawFile || new Blob(), stagedFolderAssignments[sf.id] || null, sf.text, sf.pages);
+        successCount++;
+      } catch (err) { console.error(err); } 
+    }
+    if (successCount > 0) {
+      addToast("Files uploaded", `${successCount} file${successCount !== 1 ? "s" : ""} uploaded successfully`, 5000, "upload");
+    }
+    setStagedFiles((p) => p.filter((f) => f.status === "processing")); 
+    setStagedFolderAssignments({}); 
+    setStagedSuggestions({}); 
+    api.getUnsortedFiles().then((rows) => { setUnsortedFiles(rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: null, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 }))); }).catch(console.error); 
+  };
   const removeStagedFile = (id) => { setStagedFiles((p) => p.filter((f) => f.id !== id)); setStagedFolderAssignments((p) => { const n = { ...p }; delete n[id]; return n; }); setStagedSuggestions((p) => { const n = { ...p }; delete n[id]; return n; }); };
 
   const handleChangePassword = async () => { setChangePasswordError(""); setChangePasswordSuccess(""); if (!changePasswordForm.current || !changePasswordForm.new || !changePasswordForm.confirm) { setChangePasswordError("All fields are required."); return; } if (changePasswordForm.new.length < 6) { setChangePasswordError("New password must be at least 6 characters."); return; } if (changePasswordForm.new !== changePasswordForm.confirm) { setChangePasswordError("New passwords do not match."); return; } setChangePasswordLoading(true); try { await api.changePassword(changePasswordForm.current, changePasswordForm.new); setChangePasswordSuccess("Password changed successfully."); setChangePasswordForm({ current: "", new: "", confirm: "" }); setTimeout(() => { setShowChangePassword(false); setChangePasswordSuccess(""); }, 1500); } catch (err) { setChangePasswordError(err.message || "Failed."); } finally { setChangePasswordLoading(false); } };
@@ -335,7 +420,7 @@ const t = getTheme(darkMode);
       {page === "file-detail" && <FileDetailPage viewingFileId={viewingFileId} files={files} folders={folders} locations={locations} departments={departments} getBreadcrumb={getBreadcrumb} setViewingFileId={setViewingFileId} setActiveFolderId={setActiveFolderId} setPage={setPage} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} removeFile={removeFile} t={t} darkMode={darkMode} />}
       {page === "unsorted" && <UnsortedPage unsortedFiles={unsortedFiles} folders={folders} locations={locations} departments={departments} deptsInLocation={deptsInLocation} handleMoveFile={handleMoveFile} removeFile={removeFile} setUnsortedFiles={setUnsortedFiles} setWarningModal={setWarningModal} t={t} darkMode={darkMode} />}
       {page === "upload" && <UploadPage stagedFiles={stagedFiles} setStagedFiles={setStagedFiles} stagedFolderAssignments={stagedFolderAssignments} setStagedFolderAssignments={setStagedFolderAssignments} stagedSuggestions={stagedSuggestions} setStagedSuggestions={setStagedSuggestions} folders={folders} locations={locations} departments={departments} deptsInLocation={deptsInLocation} handleDrop={handleDrop} handleUploadFiles={handleUploadFiles} dragOver={dragOver} setDragOver={setDragOver} uploadAllStaged={uploadAllStaged} removeStagedFile={removeStagedFile} t={t} darkMode={darkMode} />}
-      {page === "admin" && <AdminPage adminSection={adminSection} setAdminSection={setAdminSection} setPage={setPage} adminUsers={adminUsers} setAdminUsers={setAdminUsers} setAdminSetPasswordUserId={setAdminSetPasswordUserId} setAdminSetPasswordForm={setAdminSetPasswordForm} setAdminSetPasswordError={setAdminSetPasswordError} setAdminSetPasswordSuccess={setAdminSetPasswordSuccess} securityGroups={securityGroups} setSecurityGroups={setSecurityGroups} editingGroupId={editingGroupId} setEditingGroupId={setEditingGroupId} addingGroup={addingGroup} setAddingGroup={setAddingGroup} newGroupName={newGroupName} setNewGroupName={setNewGroupName} newGroupDesc={newGroupDesc} setNewGroupDesc={setNewGroupDesc} setWarningModal={setWarningModal} loggedInUser={loggedInUser} locations={locations} setLocations={setLocations} addingLocation={addingLocation} setAddingLocation={setAddingLocation} newLocationName={newLocationName} setNewLocationName={setNewLocationName} editingLocationId={editingLocationId} setEditingLocationId={setEditingLocationId} editingLocationName={editingLocationName} setEditingLocationName={setEditingLocationName} foldersInLocation={foldersInLocation} filesInFolder={filesInFolder} handleDeleteLocation={handleDeleteLocation} departments={departments} setDepartments={setDepartments} deptsInLocation={deptsInLocation} foldersInDepartment={foldersInDepartment} addingDept={addingDept} setAddingDept={setAddingDept} addingDeptLocId={addingDeptLocId} setAddingDeptLocId={setAddingDeptLocId} newDeptName={newDeptName} setNewDeptName={setNewDeptName} editingDeptId={editingDeptId} setEditingDeptId={setEditingDeptId} editingDeptName={editingDeptName} setEditingDeptName={setEditingDeptName} handleDeleteDept={handleDeleteDept} auditLog={auditLog} auditFilterUser={auditFilterUser} setAuditFilterUser={setAuditFilterUser} auditFilterAction={auditFilterAction} setAuditFilterAction={setAuditFilterAction} auditFilterDate={auditFilterDate} setAuditFilterDate={setAuditFilterDate} locationAccess={locationAccess} setLocationAccess={setLocationAccess} departmentAccess={departmentAccess} setDepartmentAccess={setDepartmentAccess} subscriptions={subscriptions} setSubscriptions={setSubscriptions} t={t} darkMode={darkMode} />}
+      {page === "admin" && <AdminPage adminSection={adminSection} setAdminSection={setAdminSection} setPage={setPage} adminUsers={adminUsers} setAdminUsers={setAdminUsers} setAdminSetPasswordUserId={setAdminSetPasswordUserId} setAdminSetPasswordForm={setAdminSetPasswordForm} setAdminSetPasswordError={setAdminSetPasswordError} setAdminSetPasswordSuccess={setAdminSetPasswordSuccess} securityGroups={securityGroups} setSecurityGroups={setSecurityGroups} editingGroupId={editingGroupId} setEditingGroupId={setEditingGroupId} addingGroup={addingGroup} setAddingGroup={setAddingGroup} newGroupName={newGroupName} setNewGroupName={setNewGroupName} newGroupDesc={newGroupDesc} setNewGroupDesc={setNewGroupDesc} setWarningModal={setWarningModal} loggedInUser={loggedInUser} locations={locations} setLocations={setLocations} addingLocation={addingLocation} setAddingLocation={setAddingLocation} newLocationName={newLocationName} setNewLocationName={setNewLocationName} editingLocationId={editingLocationId} setEditingLocationId={setEditingLocationId} editingLocationName={editingLocationName} setEditingLocationName={setEditingLocationName} foldersInLocation={foldersInLocation} filesInFolder={filesInFolder} handleDeleteLocation={handleDeleteLocation} departments={departments} setDepartments={setDepartments} deptsInLocation={deptsInLocation} foldersInDepartment={foldersInDepartment} addingDept={addingDept} setAddingDept={setAddingDept} addingDeptLocId={addingDeptLocId} setAddingDeptLocId={setAddingDeptLocId} newDeptName={newDeptName} setNewDeptName={setNewDeptName} editingDeptId={editingDeptId} setEditingDeptId={setEditingDeptId} editingDeptName={editingDeptName} setEditingDeptName={setEditingDeptName} handleDeleteDept={handleDeleteDept} auditLog={auditLog} auditFilterUser={auditFilterUser} setAuditFilterUser={setAuditFilterUser} auditFilterAction={auditFilterAction} setAuditFilterAction={setAuditFilterAction} auditFilterDate={auditFilterDate} setAuditFilterDate={setAuditFilterDate} locationAccess={locationAccess} setLocationAccess={setLocationAccess} departmentAccess={departmentAccess} setDepartmentAccess={setDepartmentAccess} subscriptions={subscriptions} setSubscriptions={setSubscriptions} t={t} darkMode={darkMode} addToast={addToast} />}
 
       <RenameModal renamingFileId={renamingFileId} renamingFileName={renamingFileName} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} renameFile={renameFile} t={t} darkMode={darkMode} />
       <WarningModal warningModal={warningModal} setWarningModal={setWarningModal} t={t} darkMode={darkMode} />

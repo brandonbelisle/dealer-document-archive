@@ -78,10 +78,10 @@ function AuthenticationSection({ t, darkMode }) {
     }
   };
 
-  const loadSecurityGroups = async () => {
+const loadSecurityGroups = async () => {
     try {
-      const groups = await api.getGroups();
-      setSecurityGroups(groups);
+      const data = await api.getGroups();
+      setSecurityGroups(data.groups || data);
     } catch (err) {
       console.error('Failed to load security groups:', err);
     }
@@ -1838,6 +1838,8 @@ export default function AdminPage({
 // Subscriptions
   subscriptions,
   setSubscriptions,
+  totalPermissionCount,
+  setTotalPermissionCount,
   t,
   darkMode,
   addToast,
@@ -2157,7 +2159,7 @@ export default function AdminPage({
                           </div>
                         </div>
                         {!editingGroupId && <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span title="Permissions enabled" style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: t.successSoft, color: t.success }}>{g.permCount}/{Object.keys(PERMISSION_LABELS).length}</span>
+                          <span title="Permissions enabled" style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: t.successSoft, color: t.success }}>{g.permCount}/{totalPermissionCount}</span>
                           <span style={{ fontSize: 11, fontWeight: 600, color: g.members > 0 ? t.accent : t.textDim, background: g.members > 0 ? t.accentSoft : "transparent", padding: "2px 9px", borderRadius: 12 }}>{g.members} member{g.members !== 1 ? "s" : ""}</span>
                         </div>}
                         {editingGroupId && <span style={{ fontSize: 9.5, fontWeight: 600, padding: "2px 7px", borderRadius: 8, background: t.successSoft, color: t.success }}>{g.permCount}</span>}
@@ -2189,7 +2191,7 @@ export default function AdminPage({
                     <div style={{ padding: "12px 20px", borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <span style={{ fontSize: 12, fontWeight: 600, color: t.text }}>Permissions</span>
-                          <span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: t.successSoft, color: t.success }}>{Object.values(editingGroup.permissions).filter(Boolean).length} of {Object.keys(PERMISSION_LABELS).length} enabled</span>
+                          <span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: t.successSoft, color: t.success }}>{Object.values(editingGroup.permissions).filter(Boolean).length} of {totalPermissionCount} enabled</span>
                         </div>
                         <div style={{ display: "flex", gap: 6 }}>
                           <button onClick={() => { const allTrue = Object.fromEntries(Object.keys(editingGroup.permissions).map((k) => [k, true])); setSecurityGroups((p) => p.map((g) => g.id === editingGroupId ? { ...g, permissions: allTrue } : g)); api.updateGroupPermissions(editingGroupId, allTrue).catch(console.error); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 11, fontWeight: 600, fontFamily: "inherit", padding: "4px 6px" }}>Enable All</button>

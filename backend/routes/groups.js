@@ -37,7 +37,7 @@ router.get('/', requireAuth, async (req, res) => {
       group.memberCount = Number(mc[0].cnt || 0);
     }
 
-    res.json(groups);
+    res.json({ groups, totalPermissionCount: allPerms.length });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });

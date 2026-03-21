@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import * as api from "../api";
-import { XIcon, BellIcon, MapPinIcon, LayersIcon, FolderClosedIcon } from "./Icons";
+import * as api from "../../api";
+import { XIcon, BellIcon, MapPinIcon, LayersIcon, FolderClosedIcon } from "../Icons";
 
 export default function SubscriptionsModal({ show, onClose, subscriptions, setSubscriptions, t, darkMode }) {
   const [loading, setLoading] = useState(true);

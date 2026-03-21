@@ -27,6 +27,21 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser }) {
       ),
       onClick: () => setPage("dashboard"),
     },
+    {
+      id: "cht",
+      name: "Credit Hold Tracker",
+      icon: (
+        <div style={{
+          width: 56, height: 56, borderRadius: 14,
+          background: "linear-gradient(135deg,#f59e0b,#d97706)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          color: "white", fontSize: 16, fontWeight: 800,
+        }}>
+          CHT
+        </div>
+      ),
+      onClick: () => setPage("cht-dashboard"),
+    },
     ...(isAdmin ? [{
       id: "admin",
       name: "Admin Center",

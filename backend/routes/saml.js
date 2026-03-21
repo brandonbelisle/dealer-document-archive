@@ -110,6 +110,10 @@ function parseMetadataXml(xml) {
   const certs = certMatches 
     ? certMatches.map(match => {
         const content = match.replace(/<\/?ds:X509Certificate[^>]*>/gi, '').trim();
+        // Wrap in PEM format if not already wrapped
+        if (content && !content.includes('-----BEGIN CERTIFICATE-----')) {
+          return `-----BEGIN CERTIFICATE-----\n${content}\n-----END CERTIFICATE-----`;
+        }
         return content;
       })
     : [];
@@ -119,8 +123,8 @@ function parseMetadataXml(xml) {
   const entityIdMatch = xml.match(/entityID="([^"]+)"/i);
   
   return {
-    certs: certs, // Array of certificates
-    cert: certs.length > 0 ? (certs.length === 1 ? certs[0] : certs) : null, // Backward compat
+    certs: certs,
+    cert: certs.length > 0 ? (certs.length === 1 ? certs[0] : certs) : null,
     ssoUrl: ssoUrlMatch ? ssoUrlMatch[1] : null,
     sloUrl: sloUrlMatch ? sloUrlMatch[1] : null,
     entityId: entityIdMatch ? entityIdMatch[1] : null,
@@ -166,9 +170,22 @@ async function initializeSamlStrategy() {
   }
 
   let ssoUrl = settings.idp_sso_url;
-  let certs = settings.idp_x509_cert ? [settings.idp_x509_cert] : [];
+  let certs = [];
   let entityId = settings.idp_entity_id;
   let sloUrl = settings.idp_slo_url;
+
+  // Helper to ensure PEM format
+  const ensurePemFormat = (cert) => {
+    if (!cert) return null;
+    const clean = cert.trim();
+    if (clean.includes('-----BEGIN CERTIFICATE-----')) return clean;
+    return `-----BEGIN CERTIFICATE-----\n${clean}\n-----END CERTIFICATE-----`;
+  };
+
+  // Use manual certificate if provided
+  if (settings.idp_x509_cert) {
+    certs = [ensurePemFormat(settings.idp_x509_cert)];
+  }
 
   // Fetch metadata from URL if available
   if (settings.idp_metadata_url) {

@@ -262,7 +262,7 @@ async function initializeSamlStrategy() {
     digestAlgorithm: 'sha256',
     relaxDestinationStrictly: true,
   };
-
+  
   if (sloUrl) {
     strategyConfig.logoutUrl = sloUrl;
   }
@@ -629,10 +629,14 @@ router.post('/callback', async (req, res) => {
           console.log('Digest algorithm found:', digestMatch[1]);
         }
         
-        // Extract X509Certificate from SAML response to compare
-        const certFromResponse = samlResponse.match(/<ds:X509Certificate[^>]*>([^<]+)<\/ds:X509Certificate>/i);
+        // Extract X509Certificate from SAML response (handles line breaks)
+        const certFromResponse = samlResponse.match(/<ds:X509Certificate[^>]*>([\s\S]+?)<\/ds:X509Certificate>/i);
         if (certFromResponse) {
-          console.log('Certificate in SAML response (first 50 chars):', certFromResponse[1].substring(0, 50));
+          const certBase64 = certFromResponse[1].replace(/\s/g, '');
+          console.log('Certificate in SAML response (first 50 chars):', certBase64.substring(0, 50));
+          console.log('Certificate in SAML response (last 50 chars):', certBase64.substring(certBase64.length - 50));
+        } else {
+          console.log('No X509Certificate found in SAML response - using pre-shared certificate');
         }
       }
     }

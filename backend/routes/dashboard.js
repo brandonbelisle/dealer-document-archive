@@ -21,25 +21,13 @@ router.get('/', requireAuth, async (req, res) => {
     const [filesToday] = await db.execute("SELECT COUNT(*) AS cnt FROM files WHERE status = 'done' AND uploaded_at >= CURDATE()");
     const [foldersToday] = await db.execute('SELECT COUNT(*) AS cnt FROM folders WHERE created_at >= CURDATE()');
 
-    // Per-location stats
-    const [locationStats] = await db.execute(
-      `SELECT l.id, l.name,
-              COUNT(DISTINCT fld.id) AS folder_count,
-              COUNT(DISTINCT f.id) AS file_count
-       FROM locations l
-       LEFT JOIN folders fld ON fld.location_id = l.id
-       LEFT JOIN files f ON f.folder_id = fld.id AND f.status = 'done'
-       GROUP BY l.id
-       ORDER BY l.name`
+    // This year's counts
+    const [filesThisYear] = await db.execute(
+      "SELECT COUNT(*) AS cnt FROM files WHERE status = 'done' AND YEAR(uploaded_at) = YEAR(CURDATE())"
     );
-
-    // Convert BigInt values in locationStats
-    const normalizedStats = locationStats.map(l => ({
-      id: l.id,
-      name: l.name,
-      folder_count: num(l.folder_count),
-      file_count: num(l.file_count),
-    }));
+    const [foldersThisYear] = await db.execute(
+      'SELECT COUNT(*) AS cnt FROM folders WHERE YEAR(created_at) = YEAR(CURDATE())'
+    );
 
     // Recent uploads (last 10)
     const [recentFiles] = await db.execute(
@@ -77,7 +65,8 @@ router.get('/', requireAuth, async (req, res) => {
       totalDepartments: num(deptCount[0].cnt),
       filesToday: num(filesToday[0].cnt),
       foldersToday: num(foldersToday[0].cnt),
-      locationStats: normalizedStats,
+      filesThisYear: num(filesThisYear[0].cnt),
+      foldersThisYear: num(foldersThisYear[0].cnt),
       recentFiles: normalizedFiles,
     });
   } catch (err) {

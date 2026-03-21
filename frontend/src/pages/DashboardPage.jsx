@@ -8,6 +8,7 @@ import {
   UploadCloudIcon,
   ChevronRightIcon,
   ImageIcon,
+  CalendarIcon,
 } from "../components/Icons";
 
 function getFileTypeInfo(mimeType, fileName) {
@@ -105,11 +106,6 @@ export default function DashboardPage({
   darkMode,
 }) {
   const dd = dashboardData || {};
-  const totalByLocation = (dd.locationStats || []).map((l) => ({
-    name: l.name,
-    folders: l.folder_count,
-    files: l.file_count,
-  }));
   const recentFiles = (dd.recentFiles || []).map((f) => ({
     id: f.id,
     name: f.name,
@@ -190,81 +186,28 @@ export default function DashboardPage({
           }
         />
       </div>
-      <div style={{ marginBottom: 28 }}>
-        <h2
-          style={{
-            fontSize: 15,
-            fontWeight: 700,
-            margin: "0 0 12px",
-            letterSpacing: "-0.01em",
-          }}
-        >
-          Files by Location
-        </h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {totalByLocation.map((loc, i) => {
-            const maxFiles = Math.max(
-              ...totalByLocation.map((l) => l.files),
-              1
-            );
-            return (
-              <div
-                key={i}
-                style={{
-                  background: t.surface,
-                  border: `1px solid ${t.border}`,
-                  borderRadius: 10,
-                  padding: "14px 16px",
-                  animation: `fadeIn 0.25s ease ${i * 0.05}s both`,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: 8,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <MapPinIcon size={14} />
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>
-                      {loc.name}
-                    </span>
-                  </div>
-                  <span style={{ fontSize: 12, color: t.textMuted }}>
-                    {loc.files} file{loc.files !== 1 ? "s" : ""} ·{" "}
-                    {loc.folders} folder{loc.folders !== 1 ? "s" : ""}
-                  </span>
-                </div>
-                <div
-                  style={{
-                    height: 6,
-                    borderRadius: 3,
-                    background: t.progressBg,
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    style={{
-                      height: "100%",
-                      width: `${(loc.files / maxFiles) * 100}%`,
-                      background: `linear-gradient(90deg, ${t.accent}, ${t.accentDark})`,
-                      borderRadius: 3,
-                      transition: "width 0.5s ease",
-                    }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, 1fr)",
+          gap: 12,
+          marginBottom: 28,
+        }}
+      >
+        <StatCard
+          t={t}
+          icon={<CalendarIcon size={20} />}
+          label="Files This Year"
+          value={dd.filesThisYear ?? 0}
+          color={darkMode ? "rgba(59,130,246,0.12)" : "rgba(59,130,246,0.08)"}
+        />
+        <StatCard
+          t={t}
+          icon={<CalendarIcon size={20} />}
+          label="Folders This Year"
+          value={dd.foldersThisYear ?? 0}
+          color={darkMode ? "rgba(34,197,94,0.12)" : "rgba(34,197,94,0.08)"}
+        />
       </div>
       <div>
         <h2

@@ -327,43 +327,40 @@ router.post('/schedules/:id/run', requireAuth, requirePermission('manageSettings
 // ── DMS Task Execution ────────────────────────────────────────
 async function runDmsTask(taskType, queryConfig) {
   const result = { success: false, message: '', count: 0 };
+  let pool = null;
   
   try {
-    // Get DMS connection config
     const config = await getDmsConfig();
     if (!config || !config.server) {
       result.message = 'DMS connection not configured';
       return result;
     }
 
-    const pool = new sql.ConnectionPool(config);
+    pool = new sql.ConnectionPool(config);
     await pool.connect();
 
     if (taskType === 'DMS_TO_DDA') {
-      const config = typeof queryConfig === 'string' ? JSON.parse(queryConfig) : queryConfig;
-      const table = config.table || 'SVSLS';
-      const dateColumn = config.dateColumn || 'DateOpen';
-      const lookbackHours = config.lookbackHours || 48;
+      const cfg = typeof queryConfig === 'string' ? JSON.parse(queryConfig) : queryConfig;
+      const table = cfg.table || 'SVSLS';
+      const dateColumn = cfg.dateColumn || 'DateOpen';
+      const lookbackHours = cfg.lookbackHours || 48;
 
       const query = `SELECT SlsId, ${dateColumn} FROM dbo.${table} WHERE ${dateColumn} >= DATEADD(hour, -${lookbackHours}, GETDATE())`;
       const dmsResult = await pool.request().query(query);
       const records = dmsResult.recordset;
 
-      // Get locations with their codes
       const [locations] = await db.execute('SELECT id, name, location_code FROM locations WHERE location_code IS NOT NULL');
       const locationMap = {};
       for (const loc of locations) {
         locationMap[loc.location_code] = loc.id;
       }
 
-      // Get "Service" department for each location
       const [departments] = await db.execute('SELECT id, name, location_id FROM departments WHERE name = ?', ['Service']);
       const serviceDeptMap = {};
       for (const dept of departments) {
         serviceDeptMap[dept.location_id] = dept.id;
       }
 
-      // Get existing folders under Service departments
       const [existingFolders] = await db.execute(`
         SELECT f.name, f.department_id FROM folders f
         JOIN departments d ON f.department_id = d.id
@@ -390,33 +387,30 @@ async function runDmsTask(taskType, queryConfig) {
           continue;
         }
 
-        const serviceDeptId = serviceDeptMap[locationId];
-        if (!serviceDeptId) {
-          // Create Service department if it doesn't exist
-          const [deptResult] = await db.execute(
+        let deptId = serviceDeptMap[locationId];
+        if (!deptId) {
+          await db.execute(
             'INSERT INTO departments (id, name, location_id, created_by) VALUES (UUID(), ?, ?, ?)',
             ['Service', locationId, null]
           );
           const [newDept] = await db.execute('SELECT id FROM departments WHERE name = ? AND location_id = ?', ['Service', locationId]);
           if (newDept.length > 0) {
-            serviceDeptMap[locationId] = newDept[0].id;
+            deptId = newDept[0].id;
+            serviceDeptMap[locationId] = deptId;
           }
         }
 
-        const deptId = serviceDeptMap[locationId];
         if (!deptId) {
           errors.push(`No Service department for location ${locationCode}`);
           continue;
         }
 
-        // Check if folder already exists
         const folderKey = `${deptId}:${slsId}`;
         if (existingFolderNames.has(folderKey)) {
           skippedCount++;
           continue;
         }
 
-        // Check database for existing folder
         const [existing] = await db.execute(
           'SELECT id FROM folders WHERE department_id = ? AND name = ?',
           [deptId, slsId]
@@ -428,7 +422,6 @@ async function runDmsTask(taskType, queryConfig) {
           continue;
         }
 
-        // Create the folder
         const folderId = uuidv4();
         await db.execute(
           'INSERT INTO folders (id, name, location_id, department_id, created_at) VALUES (?, ?, ?, ?, NOW())',
@@ -448,11 +441,17 @@ async function runDmsTask(taskType, queryConfig) {
     } else {
       result.message = `Unknown task type: ${taskType}`;
     }
-
-    await pool.close();
   } catch (err) {
     console.error('DMS task execution failed:', err);
     result.message = err.message;
+  } finally {
+    if (pool) {
+      try {
+        await pool.close();
+      } catch (e) {
+        console.error('Failed to close MSSQL pool:', e.message);
+      }
+    }
   }
 
   return result;

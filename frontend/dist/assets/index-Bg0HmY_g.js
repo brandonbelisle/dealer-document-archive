@@ -22386,6 +22386,7 @@ function AuthenticationSection({ t, darkMode }) {
     idp_sso_url: "",
     idp_slo_url: "",
     idp_x509_cert: "",
+    idp_metadata_url: "",
     sp_entity_id: "",
     sp_acs_url: "",
     sp_slo_url: "",
@@ -22414,6 +22415,7 @@ function AuthenticationSection({ t, darkMode }) {
         idp_sso_url: settings.idp_sso_url || "",
         idp_slo_url: settings.idp_slo_url || "",
         idp_x509_cert: settings.idp_x509_cert || "",
+        idp_metadata_url: settings.idp_metadata_url || "",
         sp_entity_id: settings.sp_entity_id || "",
         sp_acs_url: settings.sp_acs_url || "",
         sp_slo_url: settings.sp_slo_url || "",
@@ -22611,6 +22613,20 @@ function AuthenticationSection({ t, darkMode }) {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: labelStyle, children: "App Federation Metadata URL (Recommended)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: samlSettings.idp_metadata_url || "",
+              onChange: (e) => setSamlSettings({ ...samlSettings, idp_metadata_url: e.target.value }),
+              placeholder: "https://login.microsoftonline.com/{tenant-id}/federationmetadata/2007-06/federationmetadata.xml",
+              style: inputStyle
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: hintStyle, children: "If provided, certificate and URLs will be auto-fetched from Azure. Find this in Azure Entra > App registrations > Your app > Endpoints > Federation Metadata URL" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: labelStyle, children: "SSO URL (Login URL)" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
@@ -22621,7 +22637,8 @@ function AuthenticationSection({ t, darkMode }) {
               placeholder: "https://login.microsoftonline.com/{tenant-id}/saml2",
               style: inputStyle
             }
-          )
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: hintStyle, children: "Only needed if not using Metadata URL" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: labelStyle, children: "Logout URL (Optional)" }),
@@ -22637,7 +22654,10 @@ function AuthenticationSection({ t, darkMode }) {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: labelStyle, children: "X.509 Certificate (Base64)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: labelStyle, children: [
+            "X.509 Certificate (Base64) ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: t.textMuted }, children: "- Only needed if not using Metadata URL" })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "textarea",
             {
@@ -22646,8 +22666,7 @@ function AuthenticationSection({ t, darkMode }) {
               placeholder: "Paste the Base64-encoded certificate from Azure Entra...",
               style: textareaStyle
             }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: hintStyle, children: "Copy the certificate from Azure Entra > App registrations > Your app > Endpoints" })
+          )
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
@@ -25941,4 +25960,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-D1NqaAXC.js.map
+//# sourceMappingURL=index-Bg0HmY_g.js.map

@@ -29,6 +29,7 @@ function AuthenticationSection({ t, darkMode }) {
     idp_sso_url: '',
     idp_slo_url: '',
     idp_x509_cert: '',
+    idp_metadata_url: '',
     sp_entity_id: '',
     sp_acs_url: '',
     sp_slo_url: '',
@@ -59,6 +60,7 @@ function AuthenticationSection({ t, darkMode }) {
         idp_sso_url: settings.idp_sso_url || '',
         idp_slo_url: settings.idp_slo_url || '',
         idp_x509_cert: settings.idp_x509_cert || '',
+        idp_metadata_url: settings.idp_metadata_url || '',
         sp_entity_id: settings.sp_entity_id || '',
         sp_acs_url: settings.sp_acs_url || '',
         sp_slo_url: settings.sp_slo_url || '',
@@ -275,6 +277,18 @@ function AuthenticationSection({ t, darkMode }) {
             </div>
 
             <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>App Federation Metadata URL (Recommended)</label>
+              <input
+                type="text"
+                value={samlSettings.idp_metadata_url || ''}
+                onChange={(e) => setSamlSettings({ ...samlSettings, idp_metadata_url: e.target.value })}
+                placeholder="https://login.microsoftonline.com/{tenant-id}/federationmetadata/2007-06/federationmetadata.xml"
+                style={inputStyle}
+              />
+              <p style={hintStyle}>If provided, certificate and URLs will be auto-fetched from Azure. Find this in Azure Entra &gt; App registrations &gt; Your app &gt; Endpoints &gt; Federation Metadata URL</p>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
               <label style={labelStyle}>SSO URL (Login URL)</label>
               <input
                 type="text"
@@ -283,6 +297,7 @@ function AuthenticationSection({ t, darkMode }) {
                 placeholder="https://login.microsoftonline.com/{tenant-id}/saml2"
                 style={inputStyle}
               />
+              <p style={hintStyle}>Only needed if not using Metadata URL</p>
             </div>
 
             <div style={{ marginBottom: 16 }}>
@@ -297,14 +312,13 @@ function AuthenticationSection({ t, darkMode }) {
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <label style={labelStyle}>X.509 Certificate (Base64)</label>
+              <label style={labelStyle}>X.509 Certificate (Base64) <span style={{ color: t.textMuted }}>- Only needed if not using Metadata URL</span></label>
               <textarea
                 value={samlSettings.idp_x509_cert}
                 onChange={(e) => setSamlSettings({ ...samlSettings, idp_x509_cert: e.target.value })}
                 placeholder="Paste the Base64-encoded certificate from Azure Entra..."
                 style={textareaStyle}
               />
-              <p style={hintStyle}>Copy the certificate from Azure Entra &gt; App registrations &gt; Your app &gt; Endpoints</p>
             </div>
           </div>
 

@@ -56,6 +56,7 @@ async function getSamlSettings() {
       idp_sso_url: '',
       idp_slo_url: '',
       idp_x509_cert: '',
+      idp_metadata_url: '',
       sp_entity_id: '',
       sp_acs_url: '',
       sp_slo_url: '',
@@ -69,14 +70,23 @@ async function getSamlSettings() {
   const row = rows[0];
   return {
     ...row,
-    idp_x509_cert: row.idp_x509_cert_encrypted ? decrypt(row.idp_x509_cert_encrypted) : '',};
+    idp_x509_cert: row.idp_x509_cert_encrypted ? decrypt(row.idp_x509_cert_encrypted) : '',
+    idp_metadata_url: row.idp_metadata_url || '',
+  };
 }
 
 // Initialize or update SAML strategy
 async function initializeSamlStrategy() {
   const settings = await getSamlSettings();
   
-  if (!settings.enabled || !settings.idp_sso_url || !settings.idp_x509_cert || !settings.sp_acs_url) {
+  if (!settings.enabled || !settings.sp_acs_url) {
+    samlStrategy = null;
+    lastSamlSettings = null;
+    return null;
+  }
+  
+  // Require either metadata URL or manual certificate configuration
+  if (!settings.idp_metadata_url && (!settings.idp_sso_url || !settings.idp_x509_cert)) {
     samlStrategy = null;
     lastSamlSettings = null;
     return null;
@@ -88,27 +98,35 @@ async function initializeSamlStrategy() {
     idp_sso_url: settings.idp_sso_url,
     sp_entity_id: settings.sp_entity_id,
     sp_acs_url: settings.sp_acs_url,
+    idp_metadata_url: settings.idp_metadata_url,
   });
   
   if (samlStrategy && lastSamlSettings === settingsKey) {
     return samlStrategy;
   }
 
-  const strategy = new SamlStrategy({
-    entryPoint: settings.idp_sso_url,
+  const strategyConfig = {
     issuer: settings.sp_entity_id || 'dda-saml',
     callbackUrl: settings.sp_acs_url,
-    cert: settings.idp_x509_cert,
-    // Optional: Logout URL
-    logoutUrl: settings.idp_slo_url || undefined,
-    // Azure Entra specific settings
     identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
-    // Want assertions signed
     wantAssertionsSigned: true,
-    // Accept the clock skew
     acceptedClockSkewMs: -1,
-  },(profile, done) => {
-    // This callback is called after successful SAML authentication
+  };
+
+  // Use metadata URL if available (preferred for auto certificate rotation)
+  if (settings.idp_metadata_url) {
+    strategyConfig.metadataUrl = settings.idp_metadata_url;
+    strategyConfig.autoUpdateMetadata = true;
+  } else {
+    // Fall back to manual configuration
+    strategyConfig.entryPoint = settings.idp_sso_url;
+    strategyConfig.cert = settings.idp_x509_cert;
+    if (settings.idp_slo_url) {
+      strategyConfig.logoutUrl = settings.idp_slo_url;
+    }
+  }
+
+  const strategy = new SamlStrategy(strategyConfig, (profile, done) => {
     processSamlUser(profile, settings)
       .then(user => done(null, user))
       .catch(err => done(err));
@@ -291,6 +309,7 @@ router.post('/settings', requireAuth, requirePermission('manageSettings'), async
       idp_sso_url,
       idp_slo_url,
       idp_x509_cert,
+      idp_metadata_url,
       sp_entity_id,
       sp_acs_url,
       sp_slo_url,
@@ -314,16 +333,17 @@ router.post('/settings', requireAuth, requirePermission('manageSettings'), async
 
     await db.execute(`
       INSERT INTO saml_settings (
-        id, enabled, idp_entity_id, idp_sso_url, idp_slo_url, idp_x509_cert_encrypted,
+        id, enabled, idp_entity_id, idp_sso_url, idp_slo_url, idp_x509_cert_encrypted, idp_metadata_url,
         sp_entity_id, sp_acs_url, sp_slo_url, attribute_email, attribute_name,
         attribute_username, auto_provision, default_group_id, allow_local_login
-      ) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE
         enabled = VALUES(enabled),
         idp_entity_id = VALUES(idp_entity_id),
         idp_sso_url = VALUES(idp_sso_url),
         idp_slo_url = VALUES(idp_slo_url),
         idp_x509_cert_encrypted = VALUES(idp_x509_cert_encrypted),
+        idp_metadata_url = VALUES(idp_metadata_url),
         sp_entity_id = VALUES(sp_entity_id),
         sp_acs_url = VALUES(sp_acs_url),
         sp_slo_url = VALUES(sp_slo_url),
@@ -335,7 +355,7 @@ router.post('/settings', requireAuth, requirePermission('manageSettings'), async
         allow_local_login = VALUES(allow_local_login)
     `, [
       enabled ? 1 : 0,
-      idp_entity_id || '', idp_sso_url || '', idp_slo_url || '', certEncrypted,
+      idp_entity_id || '', idp_sso_url || '', idp_slo_url || '', certEncrypted, idp_metadata_url || '',
       sp_entity_id || '', sp_acs_url || '', sp_slo_url || '',
       attribute_email || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
       attribute_name || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',

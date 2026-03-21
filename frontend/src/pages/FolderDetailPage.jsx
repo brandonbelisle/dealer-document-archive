@@ -131,7 +131,7 @@ export default function FolderDetailPage({
       <input
         ref={folderDetailInputRef}
         type="file"
-        accept=".pdf"
+        accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,image/*"
         multiple
         onChange={(e) => {
           handleFolderDetailFiles(e.target.files);
@@ -489,7 +489,7 @@ export default function FolderDetailPage({
             Drag & drop files here or click to browse
           </div>
           <div style={{ fontSize: 11, color: t.textDim }}>
-            PDFs added directly to this folder
+            PDFs and images added directly to this folder
           </div>
         </div>
       </div>

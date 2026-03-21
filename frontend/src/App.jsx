@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import * as api from "./api";
 import { getTheme } from "./theme";
-import { loadPDFJS, extractTextFromPDF, uid, extractRO, copyText, ACCEPTED_TYPE, MAX_FILE_SIZE } from "./utils/helpers";
+import { loadPDFJS, extractTextFromPDF, uid, extractRO, copyText, ACCEPTED_TYPE, ACCEPTED_IMAGE_TYPES, ACCEPTED_EXTENSIONS, isImageFile, isPdfFile, isValidFileType, MAX_FILE_SIZE } from "./utils/helpers";
 import { DEFAULT_LOCATIONS, DEFAULT_DEPARTMENTS } from "./constants";
 import ErrorBoundary from "./components/ErrorBoundary";
 import LoginScreen from "./components/LoginScreen";
@@ -312,7 +312,11 @@ const t = getTheme(darkMode);
   const handleLogin = async () => { setLoginError(""); if (!loginForm.username.trim() || !loginForm.password.trim()) { setLoginError("Please enter both fields."); return; } setLoginLoading(true); try { const user = await api.login(loginForm.username.trim(), loginForm.password.trim()); setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions }); setIsLoggedIn(true); setPage("landing"); setLoginForm({ username: "", password: "" }); } catch (err) { setLoginError(err.message || "Login failed"); } finally { setLoginLoading(false); } };
   const handleLogout = () => { api.logout(); setIsLoggedIn(false); setLoggedInUser(null); setPage("dashboard"); setSelectedFile(null); setLocations([]); setDepartments([]); setFolders([]); setFiles([]); setActiveLocation(null); setActiveDepartment(null); };
 
-  const validateFile = (file) => { if (file.type !== ACCEPTED_TYPE && !file.name.toLowerCase().endsWith(".pdf")) return { valid: false, error: "Only PDFs" }; if (file.size > MAX_FILE_SIZE) return { valid: false, error: "Too large" }; return { valid: true }; };
+  const validateFile = (file) => { 
+    if (!isValidFileType(file)) return { valid: false, error: "Only PDFs and images allowed" }; 
+    if (file.size > MAX_FILE_SIZE) return { valid: false, error: "Too large" }; 
+    return { valid: true }; 
+  };
 
   const processFile = useCallback(async (rawFile, folderId) => {
     const id = uid(), v = validateFile(rawFile);
@@ -322,16 +326,33 @@ const t = getTheme(darkMode);
     if (folderId) setFiles((p) => [...p, entry]); else setStagedFiles((p) => [...p, entry]);
     if (!v.valid) return;
     try {
-      const r = await extractTextFromPDF(rawFile, (prog) => { const up = (p) => p.map((f) => f.id === id ? { ...f, progress: prog } : f); if (folderId) setFiles(up); else setStagedFiles(up); });
-      if (folderId) { try { const uploaded = await api.uploadFile(rawFile, folderId, r.text, r.pages); const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || "application/pdf", pages: Number(uploaded.page_count || 0), status: "done", text: uploaded.extracted_text, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, uploadedAt: uploaded.uploaded_at || new Date().toISOString(), uploadedBy: uploaded.uploaded_by_name || loggedInUser?.name || null, progress: 100 }; setFiles((p) => p.map((f) => f.id === id ? norm : f)); } catch (err) { setFiles((p) => p.map((f) => f.id === id ? { ...f, status: "error", error: err.message } : f)); } }
-      else { setStagedFiles((p) => p.map((f) => f.id === id ? { ...f, status: "done", text: r.text, pages: r.pages, progress: 100 } : f)); }
+      if (isPdfFile(rawFile)) {
+        const r = await extractTextFromPDF(rawFile, (prog) => { const up = (p) => p.map((f) => f.id === id ? { ...f, progress: prog } : f); if (folderId) setFiles(up); else setStagedFiles(up); });
+        if (folderId) { try { const uploaded = await api.uploadFile(rawFile, folderId, r.text, r.pages); const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || "application/pdf", pages: Number(uploaded.page_count || 0), status: "done", text: uploaded.extracted_text, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, uploadedAt: uploaded.uploaded_at || new Date().toISOString(), uploadedBy: uploaded.uploaded_by_name || loggedInUser?.name || null, progress: 100 }; setFiles((p) => p.map((f) => f.id === id ? norm : f)); } catch (err) { setFiles((p) => p.map((f) => f.id === id ? { ...f, status: "error", error: err.message } : f)); } }
+        else { setStagedFiles((p) => p.map((f) => f.id === id ? { ...f, status: "done", text: r.text, pages: r.pages, progress: 100 } : f)); }
+      } else {
+        if (folderId) {
+          try {
+            const uploaded = await api.uploadFile(rawFile, folderId, null, 0);
+            const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || rawFile.type, pages: 0, status: "done", text: null, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, uploadedAt: uploaded.uploaded_at || new Date().toISOString(), uploadedBy: uploaded.uploaded_by_name || loggedInUser?.name || null, progress: 100 };
+            setFiles((p) => p.map((f) => f.id === id ? norm : f));
+          } catch (err) { setFiles((p) => p.map((f) => f.id === id ? { ...f, status: "error", error: err.message } : f)); }
+        } else {
+          setStagedFiles((p) => p.map((f) => f.id === id ? { ...f, status: "done", text: null, pages: 0, progress: 100 } : f));
+        }
+      }
     } catch { const up = (p) => p.map((f) => f.id === id ? { ...f, status: "error", error: "Failed" } : f); if (folderId) setFiles(up); else setStagedFiles(up); }
   }, []);
 
-  const handleUploadFiles = useCallback((fl) => { if (!pdfjsLoaded) return; Array.from(fl).forEach((f) => processFile(f, null)); }, [processFile, pdfjsLoaded]);
+  const handleUploadFiles = useCallback((fl) => { 
+    const files = Array.from(fl);
+    const hasPdf = files.some(f => isPdfFile(f));
+    if (hasPdf && !pdfjsLoaded) return;
+    files.forEach((f) => processFile(f, null)); 
+  }, [processFile, pdfjsLoaded]);
   const handleDrop = useCallback((e) => { e.preventDefault(); setDragOver(false); handleUploadFiles(e.dataTransfer.files); }, [handleUploadFiles]);
-  const handleFolderDetailDrop = useCallback((e) => { e.preventDefault(); setFolderDetailDragOver(false); if (!pdfjsLoaded || !activeFolderId) return; Array.from(e.dataTransfer.files).forEach((f) => processFile(f, activeFolderId)); }, [processFile, pdfjsLoaded, activeFolderId]);
-  const handleFolderDetailFiles = useCallback((fl) => { if (!pdfjsLoaded || !activeFolderId) return; Array.from(fl).forEach((f) => processFile(f, activeFolderId)); }, [processFile, pdfjsLoaded, activeFolderId]);
+  const handleFolderDetailDrop = useCallback((e) => { e.preventDefault(); setFolderDetailDragOver(false); if (!activeFolderId) return; Array.from(e.dataTransfer.files).forEach((f) => processFile(f, activeFolderId)); }, [processFile, activeFolderId]);
+  const handleFolderDetailFiles = useCallback((fl) => { if (!activeFolderId) return; Array.from(fl).forEach((f) => processFile(f, activeFolderId)); }, [processFile, activeFolderId]);
 
   const removeFile = async (id) => { 
     const file = files.find((f) => f.id === id);

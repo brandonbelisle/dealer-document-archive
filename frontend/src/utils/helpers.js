@@ -1,5 +1,22 @@
 export const MAX_FILE_SIZE = 50 * 1024 * 1024;
 export const ACCEPTED_TYPE = "application/pdf";
+export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp", "image/svg+xml"];
+export const ACCEPTED_EXTENSIONS = [".pdf", ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"];
+
+export const isImageFile = (file) => {
+  const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
+  return ACCEPTED_IMAGE_TYPES.includes(file.type) || [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"].includes(ext);
+};
+
+export const isPdfFile = (file) => {
+  const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
+  return file.type === "application/pdf" || ext === ".pdf";
+};
+
+export const isValidFileType = (file) => {
+  const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
+  return isPdfFile(file) || isImageFile(file);
+};
 
 export const extractTextFromPDF = async (file, onProgress) => {
   const pdfjsLib = window.pdfjsLib;

@@ -59,7 +59,7 @@ export default function UploadPage({
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>Upload</h1>
         <p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>
-          Upload PDF files. Optionally assign each to a folder, or leave
+          Upload PDF and image files. Optionally assign each to a folder, or leave
           unassigned to go to Unsorted.
         </p>
       </div>
@@ -103,7 +103,7 @@ export default function UploadPage({
             color: t.text,
           }}
         >
-          {dragOver ? "Drop PDFs" : "Drag & drop PDF files"}
+          {dragOver ? "Drop files" : "Drag & drop PDF and image files"}
         </p>
         <p style={{ fontSize: 12, color: t.textMuted, margin: 0 }}>
           or click to browse · max 50 MB per file
@@ -111,7 +111,7 @@ export default function UploadPage({
         <input
           ref={fileInputRef}
           type="file"
-          accept=".pdf"
+          accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,image/*"
           multiple
           onChange={(e) => {
             handleUploadFiles(e.target.files);

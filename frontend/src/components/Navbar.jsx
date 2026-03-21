@@ -181,21 +181,30 @@ export default function Navbar({
           >
             <DashboardIcon size={15} /> Dashboard
           </button>
-          {/* Folders tab with dept dropdown */}
-          <div style={{ position: "relative" }}>
+          {/* Folders tab with dept dropdown on hover */}
+          <div
+            style={{ position: "relative" }}
+            onMouseEnter={() => setShowDeptDropdown(true)}
+            onMouseLeave={() => setShowDeptDropdown(false)}
+          >
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowDeptDropdown(!showDeptDropdown);
+              onClick={() => {
+                setShowDeptDropdown(false);
+                setPage("folders-browse");
+                setSelectedFile(null);
               }}
               className="nav-tab"
               style={{
                 background:
-                  page === "folders" || page === "folder-detail"
+                  page === "folders-browse" ||
+                  page === "folders" ||
+                  page === "folder-detail"
                     ? t.navActive
                     : "transparent",
                 color:
-                  page === "folders" || page === "folder-detail"
+                  page === "folders-browse" ||
+                  page === "folders" ||
+                  page === "folder-detail"
                     ? t.accent
                     : t.textMuted,
                 border: "none",
@@ -209,7 +218,9 @@ export default function Navbar({
                 gap: 7,
                 fontFamily: "inherit",
                 borderBottom:
-                  page === "folders" || page === "folder-detail"
+                  page === "folders-browse" ||
+                  page === "folders" ||
+                  page === "folder-detail"
                     ? `2px solid ${t.accent}`
                     : "2px solid transparent",
               }}

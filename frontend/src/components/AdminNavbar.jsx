@@ -73,23 +73,34 @@ export default function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page,
                 background: showProfileMenu ? navActiveBg : "transparent",
               }}
             >
-              <div
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: "50%",
-                  background: darkMode ? "rgba(136,192,208,0.15)" : "rgba(6,78,59,0.08)",
-                  color: darkMode ? "#88c0d0" : "#064e3b",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                }}
-              >
-                {loggedInUser.name?.charAt(0) || "U"}
-              </div>
+<div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: "50%",
+                    background: loggedInUser.avatarUrl ? "transparent" : (darkMode ? "rgba(136,192,208,0.15)" : "rgba(6,78,59,0.08)"),
+                    color: darkMode ? "#88c0d0" : "#064e3b",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    overflow: "hidden",
+                  }}
+                >
+                  {loggedInUser.avatarUrl ? (
+                    <img 
+                      src={loggedInUser.avatarUrl} 
+                      alt={loggedInUser.name || "User"} 
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+                    />
+                  ) : null}
+                  <span style={{ display: loggedInUser.avatarUrl ? "none" : "flex" }}>
+                    {loggedInUser.name?.charAt(0) || "U"}
+                  </span>
+                </div>
               <span style={{ fontSize: 12, fontWeight: 500, color: darkMode ? "#94a3b8" : "#57606a" }}>
                 {loggedInUser.name || "User"}
               </span>

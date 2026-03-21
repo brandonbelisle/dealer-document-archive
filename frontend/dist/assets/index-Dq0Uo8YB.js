@@ -15224,23 +15224,38 @@ function Navbar({
                       background: showProfileMenu ? t.navActive : "transparent"
                     },
                     children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
                         "div",
                         {
                           style: {
                             width: 28,
                             height: 28,
                             borderRadius: "50%",
-                            background: t.accentSoft,
+                            background: loggedInUser.avatarUrl ? "transparent" : t.accentSoft,
                             color: t.accent,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             fontSize: 11,
                             fontWeight: 700,
-                            textTransform: "uppercase"
+                            textTransform: "uppercase",
+                            overflow: "hidden"
                           },
-                          children: loggedInUser.name.charAt(0)
+                          children: [
+                            loggedInUser.avatarUrl ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "img",
+                              {
+                                src: loggedInUser.avatarUrl,
+                                alt: loggedInUser.name,
+                                style: { width: "100%", height: "100%", objectFit: "cover" },
+                                onError: (e) => {
+                                  e.target.style.display = "none";
+                                  e.target.nextSibling.style.display = "flex";
+                                }
+                              }
+                            ) : null,
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: loggedInUser.avatarUrl ? "none" : "flex" }, children: loggedInUser.name.charAt(0) })
+                          ]
                         }
                       ),
                       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -24595,23 +24610,38 @@ function LandingNavbar({ darkMode, setDarkMode, loggedInUser, setPage, setShowCh
               background: showProfileMenu ? navActiveBg : "transparent"
             },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "div",
                 {
                   style: {
                     width: 28,
                     height: 28,
                     borderRadius: "50%",
-                    background: darkMode ? "rgba(136,192,208,0.15)" : "rgba(6,78,59,0.08)",
+                    background: loggedInUser.avatarUrl ? "transparent" : darkMode ? "rgba(136,192,208,0.15)" : "rgba(6,78,59,0.08)",
                     color: darkMode ? "#88c0d0" : "#064e3b",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: 11,
                     fontWeight: 700,
-                    textTransform: "uppercase"
+                    textTransform: "uppercase",
+                    overflow: "hidden"
                   },
-                  children: ((_a = loggedInUser.name) == null ? void 0 : _a.charAt(0)) || "U"
+                  children: [
+                    loggedInUser.avatarUrl ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "img",
+                      {
+                        src: loggedInUser.avatarUrl,
+                        alt: loggedInUser.name || "User",
+                        style: { width: "100%", height: "100%", objectFit: "cover" },
+                        onError: (e) => {
+                          e.target.style.display = "none";
+                          e.target.nextSibling.style.display = "flex";
+                        }
+                      }
+                    ) : null,
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: loggedInUser.avatarUrl ? "none" : "flex" }, children: ((_a = loggedInUser.name) == null ? void 0 : _a.charAt(0)) || "U" })
+                  ]
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 500, color: darkMode ? "#94a3b8" : "#57606a" }, children: loggedInUser.name || "User" }),
@@ -24816,23 +24846,38 @@ function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setSh
               background: showProfileMenu ? navActiveBg : "transparent"
             },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "div",
                 {
                   style: {
                     width: 28,
                     height: 28,
                     borderRadius: "50%",
-                    background: darkMode ? "rgba(136,192,208,0.15)" : "rgba(6,78,59,0.08)",
+                    background: loggedInUser.avatarUrl ? "transparent" : darkMode ? "rgba(136,192,208,0.15)" : "rgba(6,78,59,0.08)",
                     color: darkMode ? "#88c0d0" : "#064e3b",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: 11,
                     fontWeight: 700,
-                    textTransform: "uppercase"
+                    textTransform: "uppercase",
+                    overflow: "hidden"
                   },
-                  children: ((_a = loggedInUser.name) == null ? void 0 : _a.charAt(0)) || "U"
+                  children: [
+                    loggedInUser.avatarUrl ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "img",
+                      {
+                        src: loggedInUser.avatarUrl,
+                        alt: loggedInUser.name || "User",
+                        style: { width: "100%", height: "100%", objectFit: "cover" },
+                        onError: (e) => {
+                          e.target.style.display = "none";
+                          e.target.nextSibling.style.display = "flex";
+                        }
+                      }
+                    ) : null,
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: loggedInUser.avatarUrl ? "none" : "flex" }, children: ((_a = loggedInUser.name) == null ? void 0 : _a.charAt(0)) || "U" })
+                  ]
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 500, color: darkMode ? "#94a3b8" : "#57606a" }, children: loggedInUser.name || "User" }),
@@ -25353,7 +25398,7 @@ function AppInner() {
   reactExports.useEffect(() => {
     if (isAuthenticated()) {
       getMe().then((user) => {
-        setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions });
+        setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl });
         setIsLoggedIn(true);
       }).catch(() => {
         logout();
@@ -25581,7 +25626,7 @@ function AppInner() {
     setLoginLoading(true);
     try {
       const user = await login(loginForm.username.trim(), loginForm.password.trim());
-      setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions });
+      setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl });
       setIsLoggedIn(true);
       setPage("landing");
       setLoginForm({ username: "", password: "" });
@@ -25961,4 +26006,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-CsVBIJFa.js.map
+//# sourceMappingURL=index-Dq0Uo8YB.js.map

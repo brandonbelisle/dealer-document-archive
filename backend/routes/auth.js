@@ -155,6 +155,7 @@ router.get('/me', requireAuth, (req, res) => {
       username: req.user.username,
       email: req.user.email,
       displayName: req.user.display_name,
+      avatarUrl: req.user.avatar_url,
       groups: req.user.groups,
       permissions: req.user.permissions,
     },

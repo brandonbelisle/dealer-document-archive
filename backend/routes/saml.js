@@ -290,9 +290,27 @@ async function initializeSamlStrategy() {
 // Process SAML user - find or create
 async function processSamlUser(profile, settings) {
   const email = profile[settings.attribute_email] || profile.email || profile['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'];
-  const name = profile[settings.attribute_name] || profile.name || profile['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || email?.split('@')[0];
+  const name = profile[settings.attribute_name] || profile.name || profile['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || profile.displayName || email?.split('@')[0];
   const username = profile[settings.attribute_username] || profile.username || profile['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn'] || email?.split('@')[0];
   const nameId = profile.nameID || profile['nameID'];
+  
+  // For SSO users, construct avatar URL using Microsoft 365 photo service or Gravatar
+  // Microsoft 365 profile photos can be accessed via:
+  // - https://outlook.office365.com/owa/service.svc/s/GetPersonaPhoto?email=${email}&size=HR96x96 (may require auth)
+  // - Microsoft Graph API (requires OAuth token)
+  // For now, use Gravatar as a fallback for all users
+  let avatarUrl = profile['http://schemas.microsoft.com/identity/claims/thumbnailphoto'] ||
+                    profile.thumbnailPhoto ||
+                    null;
+  
+  // If no explicit avatar, construct a Gravatar URL for SSO users
+  // The frontend can also try Microsoft 365 photo service as an alternative
+  if (!avatarUrl && email) {
+    // Use Gravatar with email hash as fallback
+    const crypto = require('crypto');
+    const emailHash = crypto.createHash('md5').update(email.toLowerCase().trim()).digest('hex');
+    avatarUrl = `https://www.gravatar.com/avatar/${emailHash}?d=mp&s=96`;
+  }
 
   if (!email) {
     throw new Error('Email not provided in SAML response');
@@ -307,11 +325,18 @@ async function processSamlUser(profile, settings) {
   if (existingUsers.length > 0) {
     const user = existingUsers[0];
     
-    // Update last login and external_id if needed
-    await db.execute(
-      'UPDATE users SET last_login_at = NOW(), external_id = ? WHERE id = ?',
-      [nameId || email, user.id]
-    );
+    // Update last login, external_id, and avatar if provided
+    if (avatarUrl) {
+      await db.execute(
+        'UPDATE users SET last_login_at = NOW(), external_id = ?, avatar_url = ? WHERE id = ?',
+        [nameId || email, avatarUrl, user.id]
+      );
+    } else {
+      await db.execute(
+        'UPDATE users SET last_login_at = NOW(), external_id = ? WHERE id = ?',
+        [nameId || email, user.id]
+      );
+    }
     
     // Get user groups and permissions
     const [groups] = await db.execute(
@@ -334,6 +359,7 @@ async function processSamlUser(profile, settings) {
       username: user.username,
       email: user.email,
       displayName: user.display_name,
+      avatarUrl: avatarUrl || user.avatar_url,
       groups: groups.map(g => g.name),
       permissions: perms.map(p => p.perm_key),
       authProvider: 'saml',
@@ -344,8 +370,8 @@ async function processSamlUser(profile, settings) {
   if (settings.auto_provision) {
     const id = uuidv4();
     await db.execute(
-      'INSERT INTO users (id, username, email, password_hash, display_name, auth_provider, external_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [id, username, email, '', name || username, 'saml', nameId || email, 'active']
+      'INSERT INTO users (id, username, email, password_hash, display_name, avatar_url, auth_provider, external_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [id, username, email, '', name || username, avatarUrl, 'saml', nameId || email, 'active']
     );
 
     // Assign default group if configured
@@ -388,6 +414,7 @@ async function processSamlUser(profile, settings) {
       username,
       email,
       displayName: name || username,
+      avatarUrl: avatarUrl,
       groups: groups.map(g => g.name),
       permissions: perms.map(p => p.perm_key),
       authProvider: 'saml',
@@ -789,12 +816,18 @@ async function parseSamlResponseManually(samlResponseBase64) {
   // Get settings for user provisioning
   const settings = await getSamlSettings();
   
+  // For Microsoft 365/Azure AD users, we can use the Microsoft Graph photo endpoint
+  // Note: This requires authentication, so we'll use the OWA endpoint which may work for internal users
+  // Alternatively, we can store a placeholder and fetch the photo later via Graph API
+  const avatarUrl = null; // Will be handled by frontend construction for Microsoft 365 users
+  
 // Process user using existing logic
   const profile = {
     nameID: nameId,
     email: email,
     displayName: displayName,
     name: displayName,
+    avatarUrl: avatarUrl,
     [settings.attribute_email || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']: email,
     [settings.attribute_name || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']: displayName,
     [settings.attribute_username || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn']: upn || email,

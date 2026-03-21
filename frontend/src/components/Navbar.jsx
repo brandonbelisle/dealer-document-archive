@@ -1075,7 +1075,7 @@ export default function Navbar({
                   width: 28,
                   height: 28,
                   borderRadius: "50%",
-                  background: t.accentSoft,
+                  background: loggedInUser.avatarUrl ? "transparent" : t.accentSoft,
                   color: t.accent,
                   display: "flex",
                   alignItems: "center",
@@ -1083,9 +1083,20 @@ export default function Navbar({
                   fontSize: 11,
                   fontWeight: 700,
                   textTransform: "uppercase",
+                  overflow: "hidden",
                 }}
               >
-                {loggedInUser.name.charAt(0)}
+                {loggedInUser.avatarUrl ? (
+                  <img 
+                    src={loggedInUser.avatarUrl} 
+                    alt={loggedInUser.name} 
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+                  />
+                ) : null}
+                <span style={{ display: loggedInUser.avatarUrl ? "none" : "flex" }}>
+                  {loggedInUser.name.charAt(0)}
+                </span>
               </div>
               <span
                 style={{

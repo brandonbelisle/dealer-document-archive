@@ -54,8 +54,6 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ── HTTP → HTTPS redirect (optional) ─────────────────────
-// When SSL is enabled and running on port 443, optionally start
-// an HTTP server on port 80 that redirects all traffic to HTTPS.
 const HTTP_REDIRECT = SSL_ENABLED && (process.env.HTTP_REDIRECT === 'true');
 
 // ── Azure Blob Storage (non-blocking) ─────────────────────
@@ -79,6 +77,7 @@ app.use('/api/files', require('./routes/files'));
 app.use('/api/groups', require('./routes/groups'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/audit', require('./routes/audit'));
+app.use('/api/access', require('./routes/access'));
 
 // ── Health check ──────────────────────────────────────────
 app.get('/api/health', (req, res) => {

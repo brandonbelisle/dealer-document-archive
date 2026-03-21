@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import * as api from "../api";
 import { Btn, SmallBtn } from "../components/ui/Btn";
 import PermToggle from "../components/ui/PermToggle";
+import GroupAccessEditor from "../components/GroupAccessEditor";
 import { ADMIN_MENU, PERMISSION_LABELS, PERMISSION_CATEGORIES } from "../constants";
 import {
   ArrowLeftIcon,
@@ -77,6 +78,11 @@ export default function AdminPage({
   setAuditFilterAction,
   auditFilterDate,
   setAuditFilterDate,
+  // Access control
+  locationAccess,
+  setLocationAccess,
+  departmentAccess,
+  setDepartmentAccess,
   t,
   darkMode,
 }) {
@@ -97,6 +103,9 @@ export default function AdminPage({
     members: g.memberCount || 0,
     permCount: g.permissions ? Object.values(g.permissions).filter(Boolean).length : 0,
   }));
+
+  // All groups for the access editor (simple id/name list)
+  const allGroupsSimple = securityGroups.map((g) => ({ id: g.id, name: g.name }));
 
   // Group permission helpers
   const togglePerm = (groupId, perm) => {
@@ -144,6 +153,20 @@ export default function AdminPage({
 
   const editingGroup = editingGroupId ? securityGroups.find((g) => g.id === editingGroupId) : null;
 
+  // Access control handlers
+  const handleSaveLocationAccess = async (locationId, groupIds) => {
+    await api.updateLocationAccess(locationId, groupIds);
+    // Refresh access data
+    const data = await api.getLocationAccess();
+    setLocationAccess(data);
+  };
+
+  const handleSaveDepartmentAccess = async (departmentId, groupIds) => {
+    await api.updateDepartmentAccess(departmentId, groupIds);
+    const data = await api.getDepartmentAccess();
+    setDepartmentAccess(data);
+  };
+
   // Audit
   const allActions = [...new Set(auditLog.map((e) => e.action))];
   const allUsers = [...new Set(auditLog.map((e) => e.user))];
@@ -179,6 +202,8 @@ export default function AdminPage({
     "Department Created": { bg: t.successSoft, color: t.success },
     "Department Renamed": { bg: t.accentSoft, color: t.accent },
     "Department Deleted": { bg: t.errorSoft, color: t.error },
+    "Location Access Updated": { bg: t.accentSoft, color: t.accent },
+    "Department Access Updated": { bg: t.accentSoft, color: t.accent },
   };
 
   return (
@@ -335,6 +360,25 @@ export default function AdminPage({
           {/* LOCATIONS */}
           {adminSection === "locations" && (
             <div>
+              {/* Info banner */}
+              <div style={{
+                padding: "12px 16px",
+                borderRadius: 10,
+                marginBottom: 16,
+                background: darkMode ? "rgba(88,166,255,0.05)" : "rgba(79,70,229,0.04)",
+                border: `1px solid ${darkMode ? "rgba(88,166,255,0.12)" : "rgba(79,70,229,0.1)"}`,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                fontSize: 12,
+                color: t.textMuted,
+              }}>
+                <ShieldIcon size={16} />
+                <span>
+                  Use the <strong style={{ color: t.text }}>Group Access</strong> column to restrict locations to specific security groups. Locations set to "All Groups" are visible to everyone.
+                </span>
+              </div>
+
               {addingLocation && (
                 <div style={{ background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 10, padding: "14px 16px", marginBottom: 12, display: "flex", alignItems: "center", gap: 12, boxShadow: `0 0 0 3px ${t.accentSoft}` }}>
                   <span style={{ color: t.accent }}><MapPinIcon size={18} /></span>
@@ -346,14 +390,26 @@ export default function AdminPage({
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {locations.map((loc, idx) => {
                   const lf = foldersInLocation(loc.id), lFiles = lf.reduce((s, f) => s + filesInFolder(f.id).length, 0), isEd = editingLocationId === loc.id;
+                  const locGroups = locationAccess[loc.id] || [];
                   return (
                     <div key={loc.id} className="folder-row" style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${isEd ? t.accent : t.border}`, borderRadius: 10, padding: "12px 16px", boxShadow: isEd ? `0 0 0 3px ${t.accentSoft}` : "none", animation: `fadeIn 0.25s ease ${idx * 0.04}s both` }}>
                       <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10 }}>
                         <div style={{ width: 34, height: 34, borderRadius: 8, background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center" }}><MapPinIcon size={16} /></div>
                         {isEd ? <input ref={editLocRef} value={editingLocationName} onChange={(e) => setEditingLocationName(e.target.value)} onBlur={() => { const n = editingLocationName.trim(); if (n && n !== loc.name) { api.updateLocation(loc.id, n).then(() => setLocations((p) => p.map((l) => l.id === loc.id ? { ...l, name: n } : l))).catch(console.error); } setEditingLocationId(null); }} onKeyDown={(e) => { if (e.key === "Enter") { const n = editingLocationName.trim(); if (n && n !== loc.name) { api.updateLocation(loc.id, n).then(() => setLocations((p) => p.map((l) => l.id === loc.id ? { ...l, name: n } : l))).catch(console.error); } setEditingLocationId(null); } if (e.key === "Escape") setEditingLocationId(null); }} style={{ flex: 1, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.accent}`, borderRadius: 6, padding: "5px 10px", fontSize: 13.5, fontWeight: 600, color: t.text, outline: "none", fontFamily: "inherit" }} /> : <div style={{ fontSize: 13.5, fontWeight: 600 }}>{loc.name}</div>}
                       </div>
-                      <div style={{ width: 100, textAlign: "center" }}><span style={{ fontSize: 11, fontWeight: 600, color: lf.length > 0 ? t.accent : t.textDim, background: lf.length > 0 ? t.accentSoft : "transparent", padding: "2px 9px", borderRadius: 12 }}>{lf.length}</span></div>
-                      <div style={{ width: 80, textAlign: "center", fontSize: 11, color: t.textDim }}>{lFiles} files</div>
+                      <div style={{ width: 80, textAlign: "center" }}><span style={{ fontSize: 11, fontWeight: 600, color: lf.length > 0 ? t.accent : t.textDim, background: lf.length > 0 ? t.accentSoft : "transparent", padding: "2px 9px", borderRadius: 12 }}>{lf.length}</span></div>
+                      <div style={{ width: 70, textAlign: "center", fontSize: 11, color: t.textDim }}>{lFiles} files</div>
+                      {/* Group Access Editor */}
+                      <div style={{ width: 180, display: "flex", justifyContent: "center" }}>
+                        <GroupAccessEditor
+                          entityId={loc.id}
+                          assignedGroups={locGroups}
+                          allGroups={allGroupsSimple}
+                          onSave={handleSaveLocationAccess}
+                          t={t}
+                          darkMode={darkMode}
+                        />
+                      </div>
                       {!isEd && <div style={{ width: 70, display: "flex", justifyContent: "flex-end", gap: 2 }}><SmallBtn t={t} title="Edit" onClick={() => { setEditingLocationId(loc.id); setEditingLocationName(loc.name); }}><EditIcon /></SmallBtn><SmallBtn t={t} title="Remove" onClick={() => handleDeleteLocation(loc)}><TrashIcon size={12} /></SmallBtn></div>}
                     </div>
                   );
@@ -365,6 +421,25 @@ export default function AdminPage({
           {/* DEPARTMENTS */}
           {adminSection === "departments" && (
             <div>
+              {/* Info banner */}
+              <div style={{
+                padding: "12px 16px",
+                borderRadius: 10,
+                marginBottom: 16,
+                background: darkMode ? "rgba(88,166,255,0.05)" : "rgba(79,70,229,0.04)",
+                border: `1px solid ${darkMode ? "rgba(88,166,255,0.12)" : "rgba(79,70,229,0.1)"}`,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                fontSize: 12,
+                color: t.textMuted,
+              }}>
+                <ShieldIcon size={16} />
+                <span>
+                  Restrict individual departments to specific security groups. Departments set to "All Groups" are visible to all users who can access the parent location.
+                </span>
+              </div>
+
               {locations.map((loc, li) => {
                 const ld = deptsInLocation(loc.id), isAddHere = addingDept && addingDeptLocId === loc.id;
                 return (
@@ -385,14 +460,26 @@ export default function AdminPage({
                       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
                         {ld.map((dept, di) => {
                           const df = foldersInDepartment(dept.id), dFiles = df.reduce((s, f) => s + filesInFolder(f.id).length, 0), isEd = editingDeptId === dept.id;
+                          const deptGroups = departmentAccess[dept.id] || [];
                           return (
                             <div key={dept.id} className="folder-row" style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${isEd ? t.accent : t.border}`, borderRadius: 9, padding: "10px 14px", boxShadow: isEd ? `0 0 0 3px ${t.accentSoft}` : "none", animation: `fadeIn 0.2s ease ${di * 0.03}s both` }}>
                               <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 9 }}>
                                 <div style={{ width: 30, height: 30, borderRadius: 7, background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center" }}><LayersIcon size={14} /></div>
                                 {isEd ? <input ref={editDeptRef} value={editingDeptName} onChange={(e) => setEditingDeptName(e.target.value)} onBlur={() => { const n = editingDeptName.trim(); if (n && n !== dept.name) { api.updateDepartment(dept.id, n).then(() => setDepartments((p) => p.map((d) => d.id === dept.id ? { ...d, name: n } : d))).catch(console.error); } setEditingDeptId(null); }} onKeyDown={(e) => { if (e.key === "Enter") { const n = editingDeptName.trim(); if (n && n !== dept.name) { api.updateDepartment(dept.id, n).then(() => setDepartments((p) => p.map((d) => d.id === dept.id ? { ...d, name: n } : d))).catch(console.error); } setEditingDeptId(null); } if (e.key === "Escape") setEditingDeptId(null); }} style={{ flex: 1, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.accent}`, borderRadius: 6, padding: "4px 9px", fontSize: 13, fontWeight: 600, color: t.text, outline: "none", fontFamily: "inherit" }} /> : <div style={{ fontSize: 13, fontWeight: 600 }}>{dept.name}</div>}
                               </div>
-                              <span style={{ fontSize: 10.5, color: t.textDim, width: 70, textAlign: "center" }}>{df.length} folders</span>
-                              <span style={{ fontSize: 10.5, color: t.textDim, width: 60, textAlign: "center" }}>{dFiles} files</span>
+                              <span style={{ fontSize: 10.5, color: t.textDim, width: 60, textAlign: "center" }}>{df.length} folders</span>
+                              <span style={{ fontSize: 10.5, color: t.textDim, width: 50, textAlign: "center" }}>{dFiles} files</span>
+                              {/* Group Access Editor */}
+                              <div style={{ width: 180, display: "flex", justifyContent: "center" }}>
+                                <GroupAccessEditor
+                                  entityId={dept.id}
+                                  assignedGroups={deptGroups}
+                                  allGroups={allGroupsSimple}
+                                  onSave={handleSaveDepartmentAccess}
+                                  t={t}
+                                  darkMode={darkMode}
+                                />
+                              </div>
                               {!isEd && <div style={{ width: 60, display: "flex", justifyContent: "flex-end", gap: 2 }}><SmallBtn t={t} title="Edit" onClick={() => { setEditingDeptId(dept.id); setEditingDeptName(dept.name); }}><EditIcon /></SmallBtn><SmallBtn t={t} title="Remove" onClick={() => handleDeleteDept(dept, loc.name)}><TrashIcon size={12} /></SmallBtn></div>}
                             </div>
                           );

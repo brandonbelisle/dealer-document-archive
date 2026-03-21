@@ -193,8 +193,6 @@ export function getFileDownloadUrl(id) {
   return `${API_BASE}/files/${id}/download`;
 }
 export function getFilePreviewUrl(storagePath) {
-  // file_storage_path now stores the full Azure Blob URL
-  // e.g. https://account.blob.core.windows.net/documents/uuid.pdf
   if (!storagePath) return null;
   return storagePath;
 }
@@ -248,4 +246,24 @@ export async function getAuditLog(filters = {}) {
 }
 export async function getAuditFilters() {
   return request('/audit/filters');
+}
+
+// ── Access Control (Location/Department Group Locks) ──────
+export async function getLocationAccess() {
+  return request('/access/locations');
+}
+export async function updateLocationAccess(locationId, groupIds) {
+  return request(`/access/locations/${locationId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ groupIds }),
+  });
+}
+export async function getDepartmentAccess() {
+  return request('/access/departments');
+}
+export async function updateDepartmentAccess(departmentId, groupIds) {
+  return request(`/access/departments/${departmentId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ groupIds }),
+  });
 }

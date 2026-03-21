@@ -86,6 +86,10 @@ function AppInner() {
   const [auditFilterAction, setAuditFilterAction] = useState("");
   const [auditFilterDate, setAuditFilterDate] = useState("");
 
+  // ── Access control state ────────────────────────────────
+  const [locationAccess, setLocationAccess] = useState({});
+  const [departmentAccess, setDepartmentAccess] = useState({});
+
   // ── Password modals state ───────────────────────────────
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [changePasswordForm, setChangePasswordForm] = useState({ current: "", new: "", confirm: "" });
@@ -141,6 +145,22 @@ function AppInner() {
   useEffect(() => { if (!isLoggedIn || page !== "admin" || adminSection !== "users") return; api.getUsers().then((users) => { setAdminUsers(users.map((u) => ({ name: u.display_name, email: u.email, groups: u.groups || [], status: u.status === "active" ? "Active" : "Inactive", id: u.id }))); }).catch(console.error); }, [isLoggedIn, page, adminSection]);
   useEffect(() => { if (!isLoggedIn || page !== "admin" || adminSection !== "audit") return; api.getAuditLog({ action: auditFilterAction || undefined, user: auditFilterUser || undefined, date: auditFilterDate || undefined }).then((data) => { setAuditLog((data.entries || []).map((e) => ({ id: e.id, action: e.action, detail: e.detail, user: e.user_name, timestamp: new Date(e.timestamp).getTime() }))); }).catch(console.error); }, [isLoggedIn, page, adminSection, auditFilterAction, auditFilterUser, auditFilterDate]);
   useEffect(() => { if (!isLoggedIn || page !== "dashboard") return; api.getDashboard().then(setDashboardData).catch(console.error); }, [isLoggedIn, page]);
+
+  // Load access control data when viewing locations or departments in admin
+  useEffect(() => {
+    if (!isLoggedIn || page !== "admin") return;
+    if (adminSection === "locations" || adminSection === "departments") {
+      // Load groups if not already loaded (needed for the access editor)
+      if (securityGroups.length === 0) {
+        api.getGroups().then((groups) => {
+          setSecurityGroups(groups.map((g) => ({ id: g.id, name: g.name, desc: g.description, permissions: g.permissions, memberCount: g.memberCount })));
+        }).catch(console.error);
+      }
+      // Load access data
+      api.getLocationAccess().then(setLocationAccess).catch(console.error);
+      api.getDepartmentAccess().then(setDepartmentAccess).catch(console.error);
+    }
+  }, [isLoggedIn, page, adminSection]);
 
   // Auto-suggest folders for staged files
   useEffect(() => {
@@ -240,7 +260,7 @@ function AppInner() {
       {page === "file-detail" && <FileDetailPage viewingFileId={viewingFileId} files={files} folders={folders} locations={locations} departments={departments} getBreadcrumb={getBreadcrumb} setViewingFileId={setViewingFileId} setActiveFolderId={setActiveFolderId} setPage={setPage} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} removeFile={removeFile} t={t} darkMode={darkMode} />}
       {page === "unsorted" && <UnsortedPage unsortedFiles={unsortedFiles} folders={folders} locations={locations} departments={departments} deptsInLocation={deptsInLocation} handleMoveFile={handleMoveFile} removeFile={removeFile} setUnsortedFiles={setUnsortedFiles} setWarningModal={setWarningModal} t={t} darkMode={darkMode} />}
       {page === "upload" && <UploadPage stagedFiles={stagedFiles} setStagedFiles={setStagedFiles} stagedFolderAssignments={stagedFolderAssignments} setStagedFolderAssignments={setStagedFolderAssignments} stagedSuggestions={stagedSuggestions} setStagedSuggestions={setStagedSuggestions} folders={folders} locations={locations} departments={departments} deptsInLocation={deptsInLocation} handleDrop={handleDrop} handleUploadFiles={handleUploadFiles} dragOver={dragOver} setDragOver={setDragOver} uploadAllStaged={uploadAllStaged} removeStagedFile={removeStagedFile} t={t} darkMode={darkMode} />}
-      {page === "admin" && <AdminPage adminSection={adminSection} setAdminSection={setAdminSection} setPage={setPage} adminUsers={adminUsers} setAdminSetPasswordUserId={setAdminSetPasswordUserId} setAdminSetPasswordForm={setAdminSetPasswordForm} setAdminSetPasswordError={setAdminSetPasswordError} setAdminSetPasswordSuccess={setAdminSetPasswordSuccess} securityGroups={securityGroups} setSecurityGroups={setSecurityGroups} editingGroupId={editingGroupId} setEditingGroupId={setEditingGroupId} addingGroup={addingGroup} setAddingGroup={setAddingGroup} newGroupName={newGroupName} setNewGroupName={setNewGroupName} newGroupDesc={newGroupDesc} setNewGroupDesc={setNewGroupDesc} setWarningModal={setWarningModal} locations={locations} setLocations={setLocations} addingLocation={addingLocation} setAddingLocation={setAddingLocation} newLocationName={newLocationName} setNewLocationName={setNewLocationName} editingLocationId={editingLocationId} setEditingLocationId={setEditingLocationId} editingLocationName={editingLocationName} setEditingLocationName={setEditingLocationName} foldersInLocation={foldersInLocation} filesInFolder={filesInFolder} handleDeleteLocation={handleDeleteLocation} departments={departments} setDepartments={setDepartments} deptsInLocation={deptsInLocation} foldersInDepartment={foldersInDepartment} addingDept={addingDept} setAddingDept={setAddingDept} addingDeptLocId={addingDeptLocId} setAddingDeptLocId={setAddingDeptLocId} newDeptName={newDeptName} setNewDeptName={setNewDeptName} editingDeptId={editingDeptId} setEditingDeptId={setEditingDeptId} editingDeptName={editingDeptName} setEditingDeptName={setEditingDeptName} handleDeleteDept={handleDeleteDept} auditLog={auditLog} auditFilterUser={auditFilterUser} setAuditFilterUser={setAuditFilterUser} auditFilterAction={auditFilterAction} setAuditFilterAction={setAuditFilterAction} auditFilterDate={auditFilterDate} setAuditFilterDate={setAuditFilterDate} t={t} darkMode={darkMode} />}
+      {page === "admin" && <AdminPage adminSection={adminSection} setAdminSection={setAdminSection} setPage={setPage} adminUsers={adminUsers} setAdminSetPasswordUserId={setAdminSetPasswordUserId} setAdminSetPasswordForm={setAdminSetPasswordForm} setAdminSetPasswordError={setAdminSetPasswordError} setAdminSetPasswordSuccess={setAdminSetPasswordSuccess} securityGroups={securityGroups} setSecurityGroups={setSecurityGroups} editingGroupId={editingGroupId} setEditingGroupId={setEditingGroupId} addingGroup={addingGroup} setAddingGroup={setAddingGroup} newGroupName={newGroupName} setNewGroupName={setNewGroupName} newGroupDesc={newGroupDesc} setNewGroupDesc={setNewGroupDesc} setWarningModal={setWarningModal} locations={locations} setLocations={setLocations} addingLocation={addingLocation} setAddingLocation={setAddingLocation} newLocationName={newLocationName} setNewLocationName={setNewLocationName} editingLocationId={editingLocationId} setEditingLocationId={setEditingLocationId} editingLocationName={editingLocationName} setEditingLocationName={setEditingLocationName} foldersInLocation={foldersInLocation} filesInFolder={filesInFolder} handleDeleteLocation={handleDeleteLocation} departments={departments} setDepartments={setDepartments} deptsInLocation={deptsInLocation} foldersInDepartment={foldersInDepartment} addingDept={addingDept} setAddingDept={setAddingDept} addingDeptLocId={addingDeptLocId} setAddingDeptLocId={setAddingDeptLocId} newDeptName={newDeptName} setNewDeptName={setNewDeptName} editingDeptId={editingDeptId} setEditingDeptId={setEditingDeptId} editingDeptName={editingDeptName} setEditingDeptName={setEditingDeptName} handleDeleteDept={handleDeleteDept} auditLog={auditLog} auditFilterUser={auditFilterUser} setAuditFilterUser={setAuditFilterUser} auditFilterAction={auditFilterAction} setAuditFilterAction={setAuditFilterAction} auditFilterDate={auditFilterDate} setAuditFilterDate={setAuditFilterDate} locationAccess={locationAccess} setLocationAccess={setLocationAccess} departmentAccess={departmentAccess} setDepartmentAccess={setDepartmentAccess} t={t} darkMode={darkMode} />}
 
       <RenameModal renamingFileId={renamingFileId} renamingFileName={renamingFileName} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} renameFile={renameFile} t={t} darkMode={darkMode} />
       <WarningModal warningModal={warningModal} setWarningModal={setWarningModal} t={t} darkMode={darkMode} />

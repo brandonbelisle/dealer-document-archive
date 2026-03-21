@@ -250,7 +250,7 @@ async function initializeSamlStrategy() {
     idpCert: certs.length === 1 ? certs[0] : certs,
     identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
     wantAssertionsSigned: false,
-    wantResponseSigned: true,
+    wantResponseSigned: false,
     acceptedClockSkewMs: -1,
     disableRequestedAuthnContext: true,
     signatureAlgorithm: 'sha256',

@@ -72,6 +72,7 @@ export default function DashboardPage({
   loggedInUser,
   setPage,
   setActiveFolderId,
+  setViewingFileId,
   t,
   darkMode,
 }) {
@@ -249,16 +250,14 @@ export default function DashboardPage({
         {recentFiles.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             {recentFiles.map((file, idx) => (
-              <div
-                key={file.id}
-                className="folder-row"
-                onClick={() => {
-                  if (file.folderId) {
-                    setActiveFolderId(file.folderId);
-                    setPage("folder-detail");
-                  }
-                }}
-                style={{
+<div
+                  key={file.id}
+                  className="folder-row"
+                  onClick={() => {
+                    setViewingFileId(file.id);
+                    setPage("file-detail");
+                  }}
+                  style={{
                   display: "flex",
                   alignItems: "center",
                   background: t.surface,

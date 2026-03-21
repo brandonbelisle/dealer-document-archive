@@ -337,3 +337,20 @@ export async function uploadLogo(type, file) {
     body: formData,
   });
 }
+
+// ── SMTP Settings ────────────────────────────────────────
+export async function getSmtpSettings() {
+  return request('/smtp/settings');
+}
+export async function saveSmtpSettings(settings) {
+  return request('/smtp/settings', {
+    method: 'POST',
+    body: JSON.stringify(settings),
+  });
+}
+export async function testSmtpEmail(to_email) {
+  return request('/smtp/test', {
+    method: 'POST',
+    body: JSON.stringify({ to_email }),
+  });
+}

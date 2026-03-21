@@ -28,8 +28,25 @@ function SettingsSection({ t, darkMode }) {
   const darkInputRef = useRef(null);
   const lightInputRef = useRef(null);
 
+  // SMTP settings
+  const [smtpSettings, setSmtpSettings] = useState({
+    host: '',
+    port: 587,
+    secure: false,
+    username: '',
+    password: '',
+    from_email: '',
+    from_name: '',
+  });
+  const [smtpLoading, setSmtpLoading] = useState(false);
+  const [smtpSaving, setSmtpSaving] = useState(false);
+  const [smtpTesting, setSmtpTesting] = useState(false);
+  const [testEmail, setTestEmail] = useState('');
+  const [smtpMessage, setSmtpMessage] = useState({ type: '', text: '' });
+
   useEffect(() => {
     loadLogos();
+    loadSmtpSettings();
   }, []);
 
   const loadLogos = async () => {
@@ -39,6 +56,26 @@ function SettingsSection({ t, darkMode }) {
       setLightLogo(logos.lightLogo);
     } catch (err) {
       console.error("Failed to load logos:", err);
+    }
+  };
+
+  const loadSmtpSettings = async () => {
+    setSmtpLoading(true);
+    try {
+      const settings = await api.getSmtpSettings();
+      setSmtpSettings({
+        host: settings.host || '',
+        port: settings.port || 587,
+        secure: settings.secure || false,
+        username: settings.username || '',
+        password: settings.password || '',
+        from_email: settings.from_email || '',
+        from_name: settings.from_name || '',
+      });
+    } catch (err) {
+      console.error("Failed to load SMTP settings:", err);
+    } finally {
+      setSmtpLoading(false);
     }
   };
 
@@ -56,8 +93,39 @@ function SettingsSection({ t, darkMode }) {
     }
   };
 
+  const handleSaveSmtp = async () => {
+    setSmtpSaving(true);
+    setSmtpMessage({ type: '', text: '' });
+    try {
+      await api.saveSmtpSettings(smtpSettings);
+      setSmtpMessage({ type: 'success', text: 'SMTP settings saved successfully!' });
+    } catch (err) {
+      setSmtpMessage({ type: 'error', text: 'Failed to save: ' + (err.message || 'Unknown error') });
+    } finally {
+      setSmtpSaving(false);
+    }
+  };
+
+  const handleTestSmtp = async () => {
+    if (!testEmail) {
+      setSmtpMessage({ type: 'error', text: 'Please enter a test email address' });
+      return;
+    }
+    setSmtpTesting(true);
+    setSmtpMessage({ type: '', text: '' });
+    try {
+      await api.testSmtpEmail(testEmail);
+      setSmtpMessage({ type: 'success', text: 'Test email sent successfully!' });
+    } catch (err) {
+      setSmtpMessage({ type: 'error', text: 'Failed to send: ' + (err.message || 'Unknown error') });
+    } finally {
+      setSmtpTesting(false);
+    }
+  };
+
   return (
     <div>
+      {/* Branding Section */}
       <div style={{ marginBottom: 24 }}>
         <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }}>Branding</h2>
         <p style={{ fontSize: 13, color: t.textMuted, margin: 0 }}>
@@ -65,7 +133,7 @@ function SettingsSection({ t, darkMode }) {
         </p>
       </div>
 
-      <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 24, flexWrap: "wrap", marginBottom: 40 }}>
         {/* Dark Mode Logo */}
         <div style={{ flex: 1, minWidth: 280, maxWidth: 400 }}>
           <div style={{
@@ -175,6 +243,247 @@ function SettingsSection({ t, darkMode }) {
           </div>
         </div>
       </div>
+
+      {/* SMTP Settings Section */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }}>Email Settings (SMTP)</h2>
+        <p style={{ fontSize: 13, color: t.textMuted, margin: 0 }}>
+          Configure SMTP settings for sending emails to users.
+        </p>
+      </div>
+
+      {smtpLoading ? (
+        <div style={{ padding: 40, textAlign: "center", color: t.textMuted }}>Loading...</div>
+      ) : (
+        <div style={{
+          background: t.surface,
+          border: `1px solid ${t.border}`,
+          borderRadius: 12,
+          padding: 24,
+          maxWidth: 600,
+        }}>
+          {/* Host */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+              SMTP Host
+            </label>
+            <input
+              type="text"
+              value={smtpSettings.host}
+              onChange={(e) => setSmtpSettings({ ...smtpSettings, host: e.target.value })}
+              placeholder="smtp.example.com"
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                fontSize: 14,
+                border: `1px solid ${t.border}`,
+                borderRadius: 8,
+                background: darkMode ? "#1a1a1a" : "#fff",
+                color: t.text,
+                fontFamily: "inherit",
+              }}
+            />
+          </div>
+
+          {/* Port and Secure */}
+          <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+                Port
+              </label>
+              <input
+                type="number"
+                value={smtpSettings.port}
+                onChange={(e) => setSmtpSettings({ ...smtpSettings, port: parseInt(e.target.value) || 587 })}
+                placeholder="587"
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  fontSize: 14,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 8,
+                  background: darkMode ? "#1a1a1a" : "#fff",
+                  color: t.text,
+                  fontFamily: "inherit",
+                }}
+              />
+            </div>
+            <div style={{ display: "flex", alignItems: "center", paddingTop: 32 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={smtpSettings.secure}
+                  onChange={(e) => setSmtpSettings({ ...smtpSettings, secure: e.target.checked })}
+                  style={{ width: 16, height: 16, cursor: "pointer" }}
+                />
+                <span style={{ fontSize: 13, color: t.text }}>Use SSL/TLS</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Username */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+              Username
+            </label>
+            <input
+              type="text"
+              value={smtpSettings.username}
+              onChange={(e) => setSmtpSettings({ ...smtpSettings, username: e.target.value })}
+              placeholder="your-email@example.com"
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                fontSize: 14,
+                border: `1px solid ${t.border}`,
+                borderRadius: 8,
+                background: darkMode ? "#1a1a1a" : "#fff",
+                color: t.text,
+                fontFamily: "inherit",
+              }}
+            />
+          </div>
+
+          {/* Password */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+              Password
+            </label>
+            <input
+              type="password"
+              value={smtpSettings.password}
+              onChange={(e) => setSmtpSettings({ ...smtpSettings, password: e.target.value })}
+              placeholder="••••••••"
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                fontSize: 14,
+                border: `1px solid ${t.border}`,
+                borderRadius: 8,
+                background: darkMode ? "#1a1a1a" : "#fff",
+                color: t.text,
+                fontFamily: "inherit",
+              }}
+            />
+            <p style={{ fontSize: 11, color: t.textDim, margin: "4px 0 0" }}>
+              Leave unchanged to keep existing password
+            </p>
+          </div>
+
+          {/* From Name */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+              From Name
+            </label>
+            <input
+              type="text"
+              value={smtpSettings.from_name}
+              onChange={(e) => setSmtpSettings({ ...smtpSettings, from_name: e.target.value })}
+              placeholder="Dealer Document Archive"
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                fontSize: 14,
+                border: `1px solid ${t.border}`,
+                borderRadius: 8,
+                background: darkMode ? "#1a1a1a" : "#fff",
+                color: t.text,
+                fontFamily: "inherit",
+              }}
+            />
+          </div>
+
+          {/* From Email */}
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+              From Email
+            </label>
+            <input
+              type="email"
+              value={smtpSettings.from_email}
+              onChange={(e) => setSmtpSettings({ ...smtpSettings, from_email: e.target.value })}
+              placeholder="noreply@example.com"
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                fontSize: 14,
+                border: `1px solid ${t.border}`,
+                borderRadius: 8,
+                background: darkMode ? "#1a1a1a" : "#fff",
+                color: t.text,
+                fontFamily: "inherit",
+              }}
+            />
+          </div>
+
+          {/* Message */}
+          {smtpMessage.text && (
+            <div style={{
+              padding: "12px 16px",
+              borderRadius: 8,
+              marginBottom: 16,
+              background: smtpMessage.type === 'success' 
+                ? (darkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)")
+                : (darkMode ? "rgba(239,68,68,0.15)" : "rgba(239,68,68,0.1)"),
+              color: smtpMessage.type === 'success' ? "#22c55e" : "#ef4444",
+              fontSize: 13,
+            }}>
+              {smtpMessage.text}
+            </div>
+          )}
+
+          {/* Save Button */}
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <Btn
+              primary
+              darkMode={darkMode}
+              t={t}
+              onClick={handleSaveSmtp}
+              loading={smtpSaving}
+              style={{ fontSize: 13 }}
+            >
+              Save Settings
+            </Btn>
+          </div>
+
+          {/* Test Email Section */}
+          <div style={{ marginTop: 24, paddingTop: 24, borderTop: `1px solid ${t.border}` }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 16px", color: t.text }}>
+              Test Email
+            </h3>
+            <p style={{ fontSize: 12, color: t.textMuted, margin: "0 0 12px" }}>
+              Send a test email to verify your SMTP settings are working correctly.
+            </p>
+            <div style={{ display: "flex", gap: 12 }}>
+              <input
+                type="email"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                placeholder="test@example.com"
+                style={{
+                  flex: 1,
+                  padding: "10px 12px",
+                  fontSize: 14,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 8,
+                  background: darkMode ? "#1a1a1a" : "#fff",
+                  color: t.text,
+                  fontFamily: "inherit",
+                }}
+              />
+              <Btn
+                darkMode={darkMode}
+                t={t}
+                onClick={handleTestSmtp}
+                loading={smtpTesting}
+                style={{ fontSize: 13 }}
+              >
+                Send Test
+              </Btn>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

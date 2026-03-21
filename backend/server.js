@@ -82,6 +82,7 @@ app.use('/api/search', require('./routes/search'));
 app.use('/api/subscriptions', require('./routes/subscriptions'));
 app.use('/api/notifications', require('./routes/notifications').router);
 app.use('/api/settings', require('./routes/settings'));
+app.use('/api/smtp', require('./routes/smtp').router);
 
 // ── Health check ──────────────────────────────────────────
 app.get('/api/health', (req, res) => {

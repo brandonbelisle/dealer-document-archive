@@ -772,8 +772,8 @@ export default function Navbar({
         <div
           style={{
             position: "absolute",
-            left: isMobile ? 50 : "50%",
-            right: isMobile ? 50 : "auto",
+            left: isMobile ? 60 : "50%",
+            right: isMobile ? 16 : "auto",
             transform: isMobile ? "none" : "translateX(-50%)",
             width: isMobile ? "auto" : "100%",
             maxWidth: isMobile ? "none" : 520,

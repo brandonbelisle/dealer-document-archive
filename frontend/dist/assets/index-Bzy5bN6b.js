@@ -23766,12 +23766,6 @@ function AdminPage({
       }
     });
   };
-  const handleSubscribe = (newSub) => {
-    setSubscriptions((prev) => [...prev, newSub]);
-  };
-  const handleUnsubscribe = (subId) => {
-    setSubscriptions((prev) => prev.filter((s) => s.id !== subId));
-  };
   reactExports.useEffect(() => {
     if (editingLocationId && editLocRef.current) editLocRef.current.focus();
   }, [editingLocationId]);
@@ -24206,17 +24200,6 @@ function AdminPage({
                 darkMode
               }
             ) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 120, display: "flex", justifyContent: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              SubscribeButton,
-              {
-                type: "location",
-                itemId: loc.id,
-                subscriptions: subscriptions || [],
-                onSubscribe: handleSubscribe,
-                onUnsubscribe: handleUnsubscribe,
-                t
-              }
-            ) }),
             !isEd && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { width: 70, display: "flex", justifyContent: "flex-end", gap: 2 }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { t, title: "Edit", onClick: () => {
                 setEditingLocationId(loc.id);
@@ -24342,17 +24325,6 @@ function AdminPage({
                     onSave: handleSaveDepartmentAccess,
                     t,
                     darkMode
-                  }
-                ) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 120, display: "flex", justifyContent: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  SubscribeButton,
-                  {
-                    type: "department",
-                    itemId: dept.id,
-                    subscriptions: subscriptions || [],
-                    onSubscribe: handleSubscribe,
-                    onUnsubscribe: handleUnsubscribe,
-                    t
                   }
                 ) }),
                 !isEd && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { width: 60, display: "flex", justifyContent: "flex-end", gap: 2 }, children: [
@@ -26150,4 +26122,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-DpH2jTly.js.map
+//# sourceMappingURL=index-Bzy5bN6b.js.map

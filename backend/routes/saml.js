@@ -628,6 +628,12 @@ router.post('/callback', async (req, res) => {
         if (digestMatch) {
           console.log('Digest algorithm found:', digestMatch[1]);
         }
+        
+        // Extract X509Certificate from SAML response to compare
+        const certFromResponse = samlResponse.match(/<ds:X509Certificate[^>]*>([^<]+)<\/ds:X509Certificate>/i);
+        if (certFromResponse) {
+          console.log('Certificate in SAML response (first 50 chars):', certFromResponse[1].substring(0, 50));
+        }
       }
     }
     

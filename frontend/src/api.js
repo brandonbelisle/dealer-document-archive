@@ -105,11 +105,11 @@ export async function getDashboard() {
 export async function getLocations() {
   return request('/locations');
 }
-export async function createLocation(name) {
-  return request('/locations', { method: 'POST', body: JSON.stringify({ name }) });
+export async function createLocation(name, locationCode) {
+  return request('/locations', { method: 'POST', body: JSON.stringify({ name, locationCode }) });
 }
-export async function updateLocation(id, name) {
-  return request(`/locations/${id}`, { method: 'PUT', body: JSON.stringify({ name }) });
+export async function updateLocation(id, name, locationCode) {
+  return request(`/locations/${id}`, { method: 'PUT', body: JSON.stringify({ name, locationCode }) });
 }
 export async function deleteLocation(id) {
   return request(`/locations/${id}`, { method: 'DELETE' });

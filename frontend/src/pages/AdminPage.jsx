@@ -2080,10 +2080,14 @@ export default function AdminPage({
   setAddingLocation,
   newLocationName,
   setNewLocationName,
+  newLocationCode,
+  setNewLocationCode,
   editingLocationId,
   setEditingLocationId,
   editingLocationName,
   setEditingLocationName,
+  editingLocationCode,
+  setEditingLocationCode,
   foldersInLocation,
   filesInFolder,
   handleDeleteLocation,
@@ -2377,7 +2381,7 @@ export default function AdminPage({
             </div>
             {adminSection === "users" && <Btn primary darkMode={darkMode} t={t} onClick={() => setShowAddUser(true)} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add User</Btn>}
             {adminSection === "groups" && !addingGroup && <Btn primary darkMode={darkMode} t={t} onClick={() => { setAddingGroup(true); setNewGroupName(""); setNewGroupDesc(""); }} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add Group</Btn>}
-            {adminSection === "locations" && !addingLocation && <Btn primary darkMode={darkMode} t={t} onClick={() => { setAddingLocation(true); setNewLocationName(""); }} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add Location</Btn>}
+            {adminSection === "locations" && !addingLocation && <Btn primary darkMode={darkMode} t={t} onClick={() => { setAddingLocation(true); setNewLocationName(""); setNewLocationCode(""); }} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add Location</Btn>}
             {adminSection === "app-center" && <Btn primary darkMode={darkMode} t={t} onClick={() => setPage("landing")} style={{ fontSize: 12 }}>View Landing Page</Btn>}
           </div>
 
@@ -2578,41 +2582,99 @@ export default function AdminPage({
               </div>
 
               {addingLocation && (
-                <div style={{ background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 10, padding: "14px 16px", marginBottom: 12, display: "flex", alignItems: "center", gap: 12, boxShadow: `0 0 0 3px ${t.accentSoft}` }}>
-                  <span style={{ color: t.accent }}><MapPinIcon size={18} /></span>
-                  <input ref={addLocRef} value={newLocationName} onChange={(e) => setNewLocationName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { const n = newLocationName.trim(); if (n) { api.createLocation(n).then((created) => { setLocations((p) => [...p, { id: created.id, name: created.name }]); setNewLocationName(""); setAddingLocation(false); addToast("Location created", `"${n}" has been created`, 4000, "create"); }).catch(console.error); } } if (e.key === "Escape") { setAddingLocation(false); setNewLocationName(""); } }} placeholder="Location name..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 14, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 500 }} />
-                  <Btn primary darkMode={darkMode} t={t} onClick={() => { const n = newLocationName.trim(); if (n) { api.createLocation(n).then((created) => { setLocations((p) => [...p, { id: created.id, name: created.name }]); setNewLocationName(""); setAddingLocation(false); addToast("Location created", `"${n}" has been created`, 4000, "create"); }).catch(console.error); } }} style={{ padding: "6px 14px", fontSize: 12 }}>Add</Btn>
-                  <button onClick={() => { setAddingLocation(false); setNewLocationName(""); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.textDim, display: "flex", padding: 4 }}><XIcon size={16} /></button>
+                <div style={{ background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 10, padding: "14px 16px", marginBottom: 12, boxShadow: `0 0 0 3px ${t.accentSoft}` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                    <span style={{ color: t.accent }}><MapPinIcon size={18} /></span>
+                    <input ref={addLocRef} value={newLocationName} onChange={(e) => setNewLocationName(e.target.value)} placeholder="Location name..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 14, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 500 }} />
+                    <input value={newLocationCode} onChange={(e) => setNewLocationCode(e.target.value.toUpperCase())} placeholder="R001" maxLength={4} style={{ width: 70, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 6, padding: "5px 8px", fontSize: 13, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 600, textAlign: "center" }} title="Location Code (e.g., R001)" />
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                    <Btn primary darkMode={darkMode} t={t} onClick={() => {
+                      const n = newLocationName.trim();
+                      const code = newLocationCode.trim();
+                      if (code && !/^R\d{3}$/.test(code)) {
+                        addToast("Invalid code", "Location code must be R followed by 3 digits", 4000, "error");
+                        return;
+                      }
+                      if (n) {
+                        api.createLocation(n, code || null).then((created) => {
+                          setLocations((p) => [...p, { id: created.id, name: created.name, locationCode: created.location_code }]);
+                          setNewLocationName("");
+                          setNewLocationCode("");
+                          setAddingLocation(false);
+                          addToast("Location created", `"${n}" has been created`, 4000, "create");
+                        }).catch((err) => {
+                          addToast("Error", err.message || "Failed to create location", 5000, "error");
+                        });
+                      }
+                    }} style={{ padding: "6px 14px", fontSize: 12 }}>Add Location</Btn>
+                    <button onClick={() => { setAddingLocation(false); setNewLocationName(""); setNewLocationCode(""); }} style={{ background: "transparent", border: `1px solid ${t.border}`, borderRadius: 8, padding: "6px 12px", cursor: "pointer", color: t.textDim, fontFamily: "inherit", fontSize: 12 }}>Cancel</button>
+                  </div>
                 </div>
               )}
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+<div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {locations.map((loc, idx) => {
-                  const lf = foldersInLocation(loc.id), lFiles = lf.reduce((s, f) => s + filesInFolder(f.id).length, 0), isEd = editingLocationId === loc.id;
-                  const locGroups = locationAccess[loc.id] || [];
-                  return (
-                    <div key={loc.id} className="folder-row" style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${isEd ? t.accent : t.border}`, borderRadius: 10, padding: "12px 16px", boxShadow: isEd ? `0 0 0 3px ${t.accentSoft}` : "none", animation: `fadeIn 0.25s ease ${idx * 0.04}s both` }}>
-                      <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 34, height: 34, borderRadius: 8, background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center" }}><MapPinIcon size={16} /></div>
-                        {isEd ? <input ref={editLocRef} value={editingLocationName} onChange={(e) => setEditingLocationName(e.target.value)} onBlur={() => { const n = editingLocationName.trim(); if (n && n !== loc.name) { api.updateLocation(loc.id, n).then(() => setLocations((p) => p.map((l) => l.id === loc.id ? { ...l, name: n } : l))).catch(console.error); } setEditingLocationId(null); }} onKeyDown={(e) => { if (e.key === "Enter") { const n = editingLocationName.trim(); if (n && n !== loc.name) { api.updateLocation(loc.id, n).then(() => setLocations((p) => p.map((l) => l.id === loc.id ? { ...l, name: n } : l))).catch(console.error); } setEditingLocationId(null); } if (e.key === "Escape") setEditingLocationId(null); }} style={{ flex: 1, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.accent}`, borderRadius: 6, padding: "5px 10px", fontSize: 13.5, fontWeight: 600, color: t.text, outline: "none", fontFamily: "inherit" }} /> : <div style={{ fontSize: 13.5, fontWeight: 600 }}>{loc.name}</div>}
-                      </div>
-                      <div style={{ width: 80, textAlign: "center" }}><span style={{ fontSize: 11, fontWeight: 600, color: lf.length > 0 ? t.accent : t.textDim, background: lf.length > 0 ? t.accentSoft : "transparent", padding: "2px 9px", borderRadius: 12 }}>{lf.length}</span></div>
-                      <div style={{ width: 70, textAlign: "center", fontSize: 11, color: t.textDim }}>{lFiles} files</div>
-                      {/* Group Access Editor */}
-                      <div style={{ width: 180, display: "flex", justifyContent: "center" }}>
-                        <GroupAccessEditor
-                          entityId={loc.id}
-                          assignedGroups={locGroups}
-                          allGroups={allGroupsSimple}
-                          onSave={handleSaveLocationAccess}
-                          t={t}
-                          darkMode={darkMode}
-                        />
-                      </div>
-{!isEd && <div style={{ width: 70, display: "flex", justifyContent: "flex-end", gap: 2 }}><SmallBtn t={t} title="Edit" onClick={() => { setEditingLocationId(loc.id); setEditingLocationName(loc.name); }}><EditIcon /></SmallBtn><SmallBtn t={t} title="Remove" onClick={() => handleDeleteLocation(loc)}><TrashIcon size={12} /></SmallBtn></div>}
-                    </div>
-                  );
-                })}
-              </div>
+                   const lf = foldersInLocation(loc.id), lFiles = lf.reduce((s, f) => s + filesInFolder(f.id).length, 0), isEd = editingLocationId === loc.id;
+                   const locGroups = locationAccess[loc.id] || [];
+                   return (
+                     <div key={loc.id} className="folder-row" style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${isEd ? t.accent : t.border}`, borderRadius: 10, padding: isEd ? "10px 16px" : "12px 16px", boxShadow: isEd ? `0 0 0 3px ${t.accentSoft}` : "none", animation: `fadeIn 0.25s ease ${idx * 0.04}s both` }}>
+                       <div style={{ width: 34, height: 34, borderRadius: 8, background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center" }}><MapPinIcon size={16} /></div>
+                       <div style={{ flex: 1, marginLeft: 10 }}>
+                         {isEd ? (
+                           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                             <input ref={editLocRef} value={editingLocationName} onChange={(e) => setEditingLocationName(e.target.value)} placeholder="Location name" style={{ flex: 1, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 6, padding: "5px 10px", fontSize: 13.5, fontWeight: 600, color: t.text, outline: "none", fontFamily: "inherit" }} />
+                             <input value={editingLocationCode || ""} onChange={(e) => setEditingLocationCode(e.target.value.toUpperCase())} placeholder="R001" maxLength={4} style={{ width: 70, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 6, padding: "5px 8px", fontSize: 13, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 600, textAlign: "center" }} title="Location Code" />
+                           </div>
+                         ) : (
+                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                             <div style={{ fontSize: 13.5, fontWeight: 600 }}>{loc.name}</div>
+                             {loc.locationCode && <div style={{ fontSize: 10.5, fontWeight: 700, color: t.accent, background: t.accentSoft, padding: "2px 8px", borderRadius: 10 }}>{loc.locationCode}</div>}
+                           </div>
+                         )}
+                       </div>
+                       <div style={{ width: 80, textAlign: "center" }}><span style={{ fontSize: 11, fontWeight: 600, color: lf.length > 0 ? t.accent : t.textDim, background: lf.length > 0 ? t.accentSoft : "transparent", padding: "2px 9px", borderRadius: 12 }}>{lf.length}</span></div>
+                       <div style={{ width: 70, textAlign: "center", fontSize: 11, color: t.textDim }}>{lFiles} files</div>
+                       {/* Group Access Editor */}
+                       <div style={{ width: 180, display: "flex", justifyContent: "center" }}>
+                         <GroupAccessEditor
+                           entityId={loc.id}
+                           assignedGroups={locGroups}
+                           allGroups={allGroupsSimple}
+                           onSave={handleSaveLocationAccess}
+                           t={t}
+                           darkMode={darkMode}
+                         />
+                       </div>
+                       {isEd ? (
+                         <div style={{ width: 120, display: "flex", justifyContent: "flex-end", gap: 6 }}>
+                           <Btn primary darkMode={darkMode} t={t} onClick={() => {
+                             const n = editingLocationName.trim();
+                             const code = editingLocationCode?.trim() || null;
+                             if (code && !/^R\d{3}$/.test(code)) {
+                               addToast("Invalid code", "Location code must be R followed by 3 digits", 4000, "error");
+                               return;
+                             }
+                             if (n) {
+                               api.updateLocation(loc.id, n, code).then((updated) => {
+                                 setLocations((p) => p.map((l) => l.id === loc.id ? { ...l, name: n, locationCode: updated.location_code } : l));
+                                 setEditingLocationId(null);
+                               }).catch((err) => {
+                                 addToast("Error", err.message || "Failed to update location", 5000, "error");
+                               });
+                             }
+                           }} style={{ padding: "5px 12px", fontSize: 11.5 }}>Save</Btn>
+                           <button onClick={() => setEditingLocationId(null)} style={{ background: "transparent", border: `1px solid ${t.border}`, borderRadius: 6, padding: "5px 10px", cursor: "pointer", color: t.textDim, fontFamily: "inherit", fontSize: 11.5 }}>Cancel</button>
+                         </div>
+                       ) : (
+                         <div style={{ width: 70, display: "flex", justifyContent: "flex-end", gap: 2 }}>
+                           <SmallBtn t={t} title="Edit" onClick={() => { setEditingLocationId(loc.id); setEditingLocationName(loc.name); setEditingLocationCode(loc.locationCode || ""); }}><EditIcon /></SmallBtn>
+                           <SmallBtn t={t} title="Remove" onClick={() => handleDeleteLocation(loc)}><TrashIcon size={12} /></SmallBtn>
+                         </div>
+                       )}
+                     </div>
+                   );
+                 })}
+               </div>
             </div>
           )}
 

@@ -266,7 +266,8 @@ async function initializeSamlStrategy() {
     entryPoint: strategyConfig.entryPoint,
     callbackUrl: strategyConfig.callbackUrl,
     certCount: certs.length,
-    firstCertPreview: certs[0] ? certs[0].substring(0, 50) + '...' : null,
+    firstCertPreview: certs[0] ? certs[0].substring(0, 100) + '...' : null,
+    certHasHeaders: certs[0] ? certs[0].includes('BEGIN CERTIFICATE') : false,
   });
 
   const strategy = new SamlStrategy(strategyConfig, (profile, done) => {
@@ -594,6 +595,12 @@ router.get('/login', async (req, res, next) => {
 // Handle SAML response from IdP
 router.post('/callback', async (req, res) => {
   try {
+    // Debug: log the SAML response
+    if (req.body && req.body.SAMLResponse) {
+      const samlResponse = Buffer.from(req.body.SAMLResponse, 'base64').toString('utf8');
+      console.log('SAML Response received (first 500 chars):', samlResponse.substring(0, 500));
+    }
+    
     const strategy = await initializeSamlStrategy();
     if (!strategy) {
       return res.status(400).json({ error: 'SAML is not configured or enabled' });

@@ -21,6 +21,7 @@ import {
   WrenchIcon,
   LogOutIcon,
   AppsIcon,
+  ArrowLeftIcon,
 } from "./Icons";
 
 export default function Navbar({
@@ -132,7 +133,7 @@ export default function Navbar({
             padding: "6px 10px",
             display: "flex",
             alignItems: "center",
-            gap: 6,
+            gap: 4,
             borderRadius: 8,
             color: t.textMuted,
             fontSize: 13,
@@ -141,7 +142,7 @@ export default function Navbar({
           }}
           title="Back to Apps"
         >
-          <AppsIcon size={15} /> Apps
+          <ArrowLeftIcon /> Back
         </button>
         <div
           onClick={() => {
@@ -940,6 +941,26 @@ export default function Navbar({
             )}
           </div>
         )}
+        <button
+          onClick={() => setPage("landing")}
+          style={{
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 7,
+            padding: "6px 10px",
+            cursor: "pointer",
+            color: t.textMuted,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 13,
+            fontWeight: 600,
+            fontFamily: "inherit",
+          }}
+          title="Back to Apps"
+        >
+          <AppsIcon size={14} /> Apps
+        </button>
         <button
           onClick={() => setDarkMode(!darkMode)}
           style={{

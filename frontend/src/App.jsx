@@ -1303,30 +1303,48 @@ function AppInner() {
 
   /* ── RO Number extraction from PDF text ─────────────────── */
   /* Looks for patterns like RO#12345, RO 12345, RO-12345, R.O. 12345, etc. */
-  const extractRO = (text) => {
-    if (!text) return null;
-    const patterns = [
-      /R\.?O\.?\s*#?\s*(\d[\d\-]{2,})/i,
-      /Repair\s*Order\s*#?\s*(\d[\d\-]{2,})/i,
-      /RO\s*Number\s*:?\s*(\d[\d\-]{2,})/i,
-    ];
-    for (const pat of patterns) {
-      const m = text.match(pat);
-      if (m) return m[1].replace(/-+$/, "");
+  /* ── Extract RO/Reference number from text or filename ──── */
+  /* Priority: R followed by exactly 9 digits (e.g. R101234567, R102345678) */
+  /* Also checks for traditional RO# patterns as fallback */
+  const extractRO = (text, filename) => {
+    // Check both text content and filename
+    const sources = [filename || "", text || ""];
+    for (const src of sources) {
+      // Primary pattern: R followed by exactly 9 digits (R101..., R102..., R103..., R104...)
+      const rMatch = src.match(/\b(R\d{9})\b/);
+      if (rMatch) return rMatch[1];
+    }
+    // Fallback: traditional RO patterns in text only
+    if (text) {
+      const patterns = [
+        /R\.?O\.?\s*#?\s*(\d[\d\-]{2,})/i,
+        /Repair\s*Order\s*#?\s*(\d[\d\-]{2,})/i,
+        /RO\s*Number\s*:?\s*(\d[\d\-]{2,})/i,
+      ];
+      for (const pat of patterns) {
+        const m = text.match(pat);
+        if (m) return m[1].replace(/-+$/, "");
+      }
     }
     return null;
   };
 
-  /* Try to match an RO number to an existing folder name */
+  /* Try to match an RO/reference number to an existing folder name */
   const suggestFolderForFile = (file) => {
-    const ro = extractRO(file.text);
+    const ro = extractRO(file.text, file.name);
     if (!ro) return null;
-    // Exact match first
-    const exact = folders.find(f => f.name === ro || f.name === `RO ${ro}` || f.name === `RO#${ro}` || f.name === `RO-${ro}`);
+    // Exact match: folder name IS the RO number
+    const exact = folders.find(f => f.name === ro || f.name.toUpperCase() === ro.toUpperCase());
     if (exact) return { folder: exact, ro, confidence: "exact" };
-    // Fuzzy: folder name contains the RO number
-    const partial = folders.find(f => f.name.includes(ro));
-    if (partial) return { folder: partial, ro, confidence: "partial" };
+    // Close match: folder name starts with or contains the RO number
+    const contains = folders.find(f => f.name.toUpperCase().includes(ro.toUpperCase()));
+    if (contains) return { folder: contains, ro, confidence: "partial" };
+    // Try without the R prefix for legacy RO folders (e.g. folder "101234567" matches R101234567)
+    if (/^R\d{9}$/.test(ro)) {
+      const numPart = ro.slice(1);
+      const numMatch = folders.find(f => f.name === numPart || f.name.includes(numPart));
+      if (numMatch) return { folder: numMatch, ro, confidence: "partial" };
+    }
     return { folder: null, ro, confidence: "none" };
   };
 
@@ -1388,8 +1406,7 @@ function AppInner() {
               <span style={{ fontSize: 13, fontWeight: 600, color: t.text }}>{stagedFiles.length} file{stagedFiles.length !== 1 ? "s" : ""} selected</span>
               <button onClick={() => { setStagedFiles([]); setStagedFolderAssignments({}); setStagedSuggestions({}); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.error, fontSize: 11, fontWeight: 600, fontFamily: "inherit" }}>Clear All</button>
             </div>
-            <div style={{ border: `1px solid ${t.border}`, borderRadius: 10, overflow: "hidden" }}>
-              {/* Column headers */}
+            <div style={{ border: `1px solid ${t.border}`, borderRadius: 10 }}>
               <div style={{ display: "flex", alignItems: "center", padding: "8px 14px", background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)", borderBottom: `1px solid ${t.border}`, fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: t.textDim }}>
                 <div style={{ flex: 1, minWidth: 0 }}>File</div>
                 <div style={{ width: 60, textAlign: "right", flexShrink: 0 }}>Size</div>
@@ -1445,7 +1462,9 @@ function AppInner() {
                             const sq = stagedDropdownSearch.trim();
                             const dff = sq ? folders.map(f => ({ ...f, ...fuzzyMatch(sq, f.name) })).filter(r => r.match).sort((a, b) => b.score - a.score) : folders;
                             return (
-                              <div style={{ position: "absolute", top: "100%", left: 12, right: 0, zIndex: 60, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, boxShadow: "0 12px 36px rgba(0,0,0,0.2)", overflow: "hidden", marginTop: 4 }}>
+                              <>
+                              <div onClick={e => { e.stopPropagation(); setOpenStagedDropdown(null); setStagedDropdownSearch(""); }} style={{ position: "fixed", inset: 0, zIndex: 499 }} />
+                              <div style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 500, background: darkMode ? "#1a1d23" : "#ffffff", border: `1px solid ${t.border}`, borderRadius: 10, boxShadow: darkMode ? "0 12px 40px rgba(0,0,0,0.6)" : "0 12px 40px rgba(0,0,0,0.2)", marginTop: 4 }}>
                                 <div style={{ padding: "6px 8px", borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", gap: 6 }}>
                                   <SearchIcon size={13} />
                                   <input autoFocus value={stagedDropdownSearch} onChange={e => setStagedDropdownSearch(e.target.value)} onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === "Escape") setOpenStagedDropdown(null); }} placeholder="Search folders..." style={{ flex: 1, background: "transparent", border: "none", fontSize: 12, color: t.text, outline: "none", fontFamily: "inherit" }} />
@@ -1478,6 +1497,7 @@ function AppInner() {
                                   {dff.length === 0 && <div style={{ padding: "10px", fontSize: 11, color: t.textDim, textAlign: "center" }}>No folders found</div>}
                                 </div>
                               </div>
+                              </>
                             );
                           })()}
                         </>
@@ -1821,8 +1841,8 @@ function AppInner() {
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" /><link href="https://cdn.jsdelivr.net/npm/geist@1.2.2/dist/fonts/geist-sans/style.min.css" rel="stylesheet" />
       <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} @keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}} .file-card:hover{transform:translateY(-1px);box-shadow:${t.cardShadow}} .folder-row:hover{transform:translateY(-1px);box-shadow:${t.cardShadow};border-color:${darkMode?'#3a3f47':t.accent}!important} .icon-btn:hover{color:${t.text}!important;background:${t.accentSoft}} .folder-select-item:hover{background:${t.accentSoft}!important} .nav-tab:hover{background:${t.navActive}} .admin-menu-item:hover{background:${t.accentSoft}} ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:${t.scrollThumb};border-radius:3px} input::placeholder{color:${t.textDim}}`}</style>
 
-      <nav style={{ borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", height: 54, backdropFilter: "blur(12px)", background: darkMode ? "rgba(15,17,20,0.92)" : "rgba(240,237,232,0.88)", position: "sticky", top: 0, zIndex: 100 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 24, flexShrink: 0 }}>
+      <nav style={{ borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", height: 54, backdropFilter: "blur(12px)", background: darkMode ? "rgba(15,17,20,0.92)" : "rgba(240,237,232,0.88)", position: "sticky", top: 0, zIndex: 100, position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 24, flexShrink: 0, position: "relative", zIndex: 2 }}>
           <div onClick={() => { setPage("dashboard"); setSelectedFile(null); }} style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer" }}><div style={{ width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${t.accent},${t.accentDark})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 9, fontWeight: 800, letterSpacing: "-0.02em" }}>DDA</div><span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.03em" }}>Dealer Document Archive</span></div>
           <div style={{ display: "flex", gap: 2, marginLeft: 8 }}>
             <button onClick={() => { setPage("dashboard"); setSelectedFile(null); }} className="nav-tab" style={{ background: page === "dashboard" ? t.navActive : "transparent", color: page === "dashboard" ? t.accent : t.textMuted, border: "none", borderRadius: 8, padding: "7px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 7, fontFamily: "inherit", borderBottom: page === "dashboard" ? `2px solid ${t.accent}` : "2px solid transparent" }}><DashboardIcon size={15} /> Dashboard</button>
@@ -1843,7 +1863,8 @@ function AppInner() {
           const hasResults = folderResults.length > 0 || fileResults.length > 0;
           const showDropdown = globalSearchFocused && q.length > 0;
           return (
-            <div style={{ flex: 1, position: "relative", maxWidth: 560, margin: "0 24px" }}>
+            <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 520, zIndex: 1, pointerEvents: "none" }}>
+              <div style={{ pointerEvents: "auto", position: "relative" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)", border: `1px solid ${showDropdown && hasResults ? t.accent : t.border}`, borderRadius: 9, padding: "6px 12px", transition: "border-color 0.2s" }}>
                 <SearchIcon size={15} />
                 <input
@@ -1925,10 +1946,11 @@ function AppInner() {
                 </div>
               )}
             </div>
+            </div>
           );
         })()}
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0, position: "relative", zIndex: 2 }}>
           {loggedInUser && <div style={{ position: "relative" }}><div onClick={e => { e.stopPropagation(); setShowProfileMenu(!showProfileMenu); }} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", padding: "4px 8px", borderRadius: 8, background: showProfileMenu ? t.navActive : "transparent" }}><div style={{ width: 28, height: 28, borderRadius: "50%", background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, textTransform: "uppercase" }}>{loggedInUser.name.charAt(0)}</div><span style={{ fontSize: 12, fontWeight: 500, color: t.textMuted }}>{loggedInUser.name}</span><ChevronDown /></div>{showProfileMenu && <div onClick={e => e.stopPropagation()} style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 200, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)", padding: 4, minWidth: 200, animation: "fadeIn 0.15s ease" }}><div style={{ padding: "10px 12px 8px", borderBottom: `1px solid ${t.border}`, marginBottom: 4 }}><div style={{ fontSize: 13, fontWeight: 600 }}>{loggedInUser.name}</div><div style={{ fontSize: 10.5, color: t.textDim, marginTop: 2 }}>{loggedInUser.groups?.join(", ")}</div></div>{[{ l: "My Account", i: <UserIcon /> }, { l: "Change Password", i: <ShieldIcon /> }, { l: "Settings", i: <GearIcon /> }].map(item => <div key={item.l} onClick={() => { setShowProfileMenu(false); if (item.l === "Change Password") { setShowChangePassword(true); setChangePasswordForm({ current: "", new: "", confirm: "" }); setChangePasswordError(""); setChangePasswordSuccess(""); } }} className="folder-select-item" style={{ padding: "8px 12px", borderRadius: 7, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 10, color: t.text, fontWeight: 500 }}><span style={{ color: t.textMuted }}>{item.i}</span> {item.l}</div>)}{loggedInUser.groups?.includes("Administrator") && <div onClick={() => { setShowProfileMenu(false); setPage("admin"); setAdminSection("users"); }} className="folder-select-item" style={{ padding: "8px 12px", borderRadius: 7, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 10, color: t.text, fontWeight: 500 }}><span style={{ color: t.textMuted }}><WrenchIcon /></span> Administration</div>}<div style={{ borderTop: `1px solid ${t.border}`, marginTop: 4, paddingTop: 4 }}><div onClick={() => { setShowProfileMenu(false); handleLogout(); }} className="folder-select-item" style={{ padding: "8px 12px", borderRadius: 7, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 10, color: t.error, fontWeight: 500 }}><LogOutIcon /> Sign Out</div></div></div>}</div>}
           <button onClick={() => setDarkMode(!darkMode)} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 7, padding: 6, cursor: "pointer", color: t.textMuted, display: "flex", alignItems: "center" }}>{darkMode ? <SunIcon /> : <MoonIcon />}</button>
         </div>

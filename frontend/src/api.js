@@ -230,8 +230,17 @@ export async function deleteGroup(id) {
 export async function getUsers() {
   return request('/users');
 }
+export async function getUser(id) {
+  return request(`/users/${id}`);
+}
 export async function createUser(data) {
   return request('/users', { method: 'POST', body: JSON.stringify(data) });
+}
+export async function updateUser(id, data) {
+  return request(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+}
+export async function updateUserGroups(id, groupIds) {
+  return request(`/users/${id}/groups`, { method: 'PUT', body: JSON.stringify({ groupIds }) });
 }
 export async function updateUserStatus(id, status) {
   return request(`/users/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });

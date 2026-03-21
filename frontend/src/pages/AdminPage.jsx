@@ -5,6 +5,7 @@ import PermToggle from "../components/ui/PermToggle";
 import GroupAccessEditor from "../components/GroupAccessEditor";
 import SubscribeButton from "../components/SubscribeButton";
 import AddUserModal from "../components/modals/AddUserModal";
+import EditUserModal from "../components/modals/EditUserModal";
 import { ADMIN_MENU, PERMISSION_LABELS, PERMISSION_CATEGORIES } from "../constants";
 import {
   PlusIcon,
@@ -94,6 +95,8 @@ export default function AdminPage({
   const [auditPage, setAuditPage] = useState(1);
   const [auditPageSize, setAuditPageSize] = useState(25);
   const [showAddUser, setShowAddUser] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [showEditUser, setShowEditUser] = useState(false);
   
   const editLocRef = useRef(null);
   const addLocRef = useRef(null);
@@ -283,7 +286,7 @@ export default function AdminPage({
                   <div style={{ width: 80, textAlign: "center" }}><span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: u.status === "Active" ? t.successSoft : t.errorSoft, color: u.status === "Active" ? t.success : t.error }}>{u.status}</span></div>
                   <div style={{ width: 90, display: "flex", justifyContent: "flex-end", gap: 2 }}>
                     <SmallBtn t={t} title="Set Password" onClick={() => { setAdminSetPasswordUserId(u.id); setAdminSetPasswordForm({ new: "", confirm: "" }); setAdminSetPasswordError(""); setAdminSetPasswordSuccess(""); }}><ShieldIcon size={12} /></SmallBtn>
-                    <SmallBtn t={t} title="Edit"><EditIcon /></SmallBtn>
+                    <SmallBtn t={t} title="Edit" onClick={() => { setEditingUser(u); setShowEditUser(true); }}><EditIcon /></SmallBtn>
                     <SmallBtn t={t} title="Remove"><TrashIcon size={12} /></SmallBtn>
                   </div>
                 </div>
@@ -733,6 +736,26 @@ export default function AdminPage({
             groups: u.groups || [],
             status: u.status === "active" ? "Active" : "Inactive",
             id: u.id,
+            groupIds: u.groups || [],
+          })));
+        }}
+        t={t}
+        darkMode={darkMode}
+      />
+      <EditUserModal
+        show={showEditUser}
+        onClose={() => { setShowEditUser(false); setEditingUser(null); }}
+        user={editingUser}
+        groups={securityGroups}
+        onUserUpdated={async () => {
+          const users = await api.getUsers();
+          setAdminUsers(users.map((u) => ({
+            name: u.display_name,
+            email: u.email,
+            groups: u.groups || [],
+            status: u.status === "active" ? "Active" : "Inactive",
+            id: u.id,
+            groupIds: u.groups || [],
           })));
         }}
         t={t}

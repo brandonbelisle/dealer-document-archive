@@ -23,6 +23,7 @@ import {
   AppsIcon,
   HomeIcon,
   BellIcon,
+  MenuIcon,
 } from "./Icons";
 import AlertsDropdown from "./AlertsDropdown";
 
@@ -74,6 +75,16 @@ export default function Navbar({
   const [searchLoading, setSearchLoading] = useState(false);
   const searchTimer = useRef(null);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1200);
+
+  const isMobile = windowWidth < 900;
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const q = globalSearch.trim();
 
@@ -144,12 +155,31 @@ export default function Navbar({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 24,
+          gap: isMobile ? 8 : 24,
           flexShrink: 0,
           position: "relative",
           zIndex: 2,
         }}
       >
+        {/* Mobile menu button */}
+        {isMobile && (
+          <button
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            style={{
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              padding: 8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: t.textMuted,
+              borderRadius: 8,
+            }}
+          >
+            <MenuIcon size={20} />
+          </button>
+        )}
         <div
           onClick={() => {
             setPage("dashboard");
@@ -179,17 +209,20 @@ export default function Navbar({
           >
             DDA
           </div>
-          <span
-            style={{
-              fontSize: 15,
-              fontWeight: 700,
-              letterSpacing: "-0.03em",
-            }}
-          >
-            Dealer Document Archive
-          </span>
+          {!isMobile && (
+            <span
+              style={{
+                fontSize: 15,
+                fontWeight: 700,
+                letterSpacing: "-0.03em",
+              }}
+            >
+              Dealer Document Archive
+            </span>
+          )}
         </div>
-        <div style={{ display: "flex", gap: 2, marginLeft: 8 }}>
+        {!isMobile && (
+          <div style={{ display: "flex", gap: 2, marginLeft: 8 }}>
           {/* Dashboard tab */}
           <button
             onClick={() => {
@@ -482,10 +515,109 @@ export default function Navbar({
             )}
           </button>
         </div>
+          </div>
+        )}
+        {/* Mobile menu dropdown */}
+        {isMobile && showMobileMenu && (
+          <div
+            style={{
+              position: "absolute",
+              top: 54,
+              left: 0,
+              right: 0,
+              background: darkMode ? "rgba(15,17,20,0.98)" : "rgba(255,255,255,0.98)",
+              borderBottom: `1px solid ${t.border}`,
+              boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
+              zIndex: 150,
+              padding: "8px 0",
+            }}
+          >
+            <button
+              onClick={() => { setPage("dashboard"); setSelectedFile(null); setShowMobileMenu(false); }}
+              style={{
+                width: "100%",
+                background: page === "dashboard" ? t.navActive : "transparent",
+                color: page === "dashboard" ? t.accent : t.textMuted,
+                border: "none",
+                padding: "12px 24px",
+                cursor: "pointer",
+                fontSize: 14,
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                fontFamily: "inherit",
+                textAlign: "left",
+              }}
+            >
+              <DashboardIcon size={16} /> Dashboard
+            </button>
+            <button
+              onClick={() => { setPage("folders-browse"); setSelectedFile(null); setShowMobileMenu(false); }}
+              style={{
+                width: "100%",
+                background: page === "folders-browse" || page === "folders" || page === "folder-detail" ? t.navActive : "transparent",
+                color: page === "folders-browse" || page === "folders" || page === "folder-detail" ? t.accent : t.textMuted,
+                border: "none",
+                padding: "12px 24px",
+                cursor: "pointer",
+                fontSize: 14,
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                fontFamily: "inherit",
+                textAlign: "left",
+              }}
+            >
+              <FolderClosedIcon size={16} /> Folders
+            </button>
+            <button
+              onClick={() => { setPage("unsorted"); setShowMobileMenu(false); }}
+              style={{
+                width: "100%",
+                background: page === "unsorted" ? t.navActive : "transparent",
+                color: page === "unsorted" ? t.accent : t.textMuted,
+                border: "none",
+                padding: "12px 24px",
+                cursor: "pointer",
+                fontSize: 14,
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                fontFamily: "inherit",
+                textAlign: "left",
+              }}
+            >
+              <InboxIcon size={16} /> Unsorted {unsortedFiles.length > 0 && <span style={{ fontSize: 10, background: darkMode ? "rgba(210,153,34,0.15)" : "rgba(180,83,9,0.1)", color: darkMode ? "#d29922" : "#b45309", borderRadius: 10, padding: "1px 6px" }}>{unsortedFiles.length}</span>}
+            </button>
+            <button
+              onClick={() => { setPage("upload"); setShowMobileMenu(false); }}
+              style={{
+                width: "100%",
+                background: page === "upload" ? t.navActive : "transparent",
+                color: page === "upload" ? t.accent : t.textMuted,
+                border: "none",
+                padding: "12px 24px",
+                cursor: "pointer",
+                fontSize: 14,
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                fontFamily: "inherit",
+                textAlign: "left",
+              }}
+            >
+              <UploadCloudIcon size={16} /> Upload {stagedFiles.length > 0 && <span style={{ fontSize: 10, background: t.accent, color: "#fff", borderRadius: 10, padding: "1px 6px" }}>{stagedFiles.length}</span>}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Center: Global search */}
-      {isLoggedIn && (
+      {isLoggedIn && !isMobile && (
         <div
           style={{
             position: "absolute",

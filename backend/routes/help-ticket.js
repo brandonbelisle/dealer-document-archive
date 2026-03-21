@@ -155,7 +155,7 @@ router.post('/submit', requireAuth, upload.array('attachments', 5), async (req, 
 
     const emailSubject = `[Help Ticket] ${subject.trim()}`;
 
-    const textBody = `Help Ticket Submission\n\nFrom: ${userDisplayName} <${userEmail}>\nSubject: ${subject.trim()}\n\nMessage:\n${message.trim()}\n\n---\nSubmitted via Dealer Document Archive${emailSignature ? '\n\n' + emailSignature : ''}`;
+    const textBody = `Help Ticket Submission\n\nFrom: ${userDisplayName} <${userEmail}>\nSubject: ${subject.trim()}\n\nMessage:\n${message.trim()}${emailSignature ? '\n\n' + emailSignature : ''}`;
 
     const signatureHtml = emailSignature 
       ? `<div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 13px; white-space: pre-wrap;">${emailSignature.replace(/\n/g, '<br>')}</div>`
@@ -172,7 +172,6 @@ router.post('/submit', requireAuth, upload.array('attachments', 5), async (req, 
         <div style="background: #f9fafb; padding: 16px; border-radius: 8px; color: #374151; font-size: 14px; white-space: pre-wrap;">${message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</div>
         ${files.length > 0 ? `<p style="color: #6b7280; margin-top: 16px; font-size: 13px;"><strong>Attachments:</strong> ${files.length} file(s)</p>` : ''}
         ${signatureHtml}
-        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb; color: #9ca3af; font-size: 12px;">Submitted via Dealer Document Archive</div>
       </div>
     `;
 

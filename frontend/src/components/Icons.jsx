@@ -115,6 +115,17 @@ export const LinkIcon = ({ size = 16 }) =>
     size
   );
 
+export const TicketIcon = ({ size = 16 }) =>
+  I(
+    <>
+      <path d="M2 9a3 3 0 0 0 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 0 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2z" />
+      <path d="M13 5v2" />
+      <path d="M13 17v2" />
+      <path d="M13 11v2" />
+    </>,
+    size
+  );
+
 export const CheckIcon = () => I(<polyline points="20 6 9 17 4 12" />, 14, 2.5);
 
 export const CopyIcon = () =>

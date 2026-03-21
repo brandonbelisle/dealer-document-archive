@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SunIcon, MoonIcon, UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon, LinkIcon } from "./Icons";
+import { SunIcon, MoonIcon, UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon, LinkIcon, TicketIcon } from "./Icons";
 import AlertsDropdown from "./AlertsDropdown";
 import * as api from "../api";
 
@@ -27,7 +27,9 @@ export default function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page,
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
     ), onClick: () => { setPage("cht-dashboard"); setShowAppsDropdown(false); } },
     { id: "help", name: "Submit Help Ticket", icon: (
-      <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>HELP</div>
+      <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
+        <TicketIcon size={14} />
+      </div>
     ), onClick: () => { setShowAppsDropdown(false); onOpenHelpTicket?.(); } },
     ...customApps.map((app) => ({
       id: app.id,

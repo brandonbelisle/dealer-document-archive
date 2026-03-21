@@ -1409,15 +1409,6 @@ function SettingsSection({ t, darkMode }) {
                 {emailSignature}
               </div>
             )}
-            <div style={{
-              marginTop: 24,
-              paddingTop: 16,
-              borderTop: "1px solid #e5e7eb",
-              color: "#9ca3af",
-              fontSize: 12,
-            }}>
-              Submitted via Dealer Document Archive
-            </div>
           </div>
         </div>
 

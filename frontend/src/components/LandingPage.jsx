@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { GearIcon } from "./Icons";
+import { GearIcon, TicketIcon } from "./Icons";
 import * as api from "../api";
 
 export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
@@ -56,9 +56,9 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
           width: 56, height: 56, borderRadius: 14,
           background: "linear-gradient(135deg,#10b981,#059669)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          color: "white", fontSize: 16, fontWeight: 800,
+          color: "white",
         }}>
-          HELP
+          <TicketIcon size={28} />
         </div>
       ),
       onClick: () => { if (onOpenHelpTicket) onOpenHelpTicket(); },

@@ -1,6 +1,8 @@
-import { FolderClosedIcon } from "./Icons";
+import { GearIcon } from "./Icons";
 
-export default function LandingPage({ setPage, t, darkMode }) {
+export default function LandingPage({ setPage, t, darkMode, loggedInUser }) {
+  const isAdmin = loggedInUser?.groups?.includes("Administrator");
+
   const apps = [
     {
       id: "dda",
@@ -17,6 +19,21 @@ export default function LandingPage({ setPage, t, darkMode }) {
       ),
       onClick: () => setPage("dashboard"),
     },
+    ...(isAdmin ? [{
+      id: "admin",
+      name: "Admin Center",
+      icon: (
+        <div style={{
+          width: 56, height: 56, borderRadius: 14,
+          background: `linear-gradient(135deg,${t.textMuted},${t.textDim})`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          color: "white",
+        }}>
+          <GearIcon size={28} />
+        </div>
+      ),
+      onClick: () => setPage("admin"),
+    }] : []),
   ];
 
   return (

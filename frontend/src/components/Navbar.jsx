@@ -516,7 +516,7 @@ export default function Navbar({
           </button>
         </div>
         )}
-        {/* Mobile menu dropdown */}
+{/* Mobile menu dropdown */}
         {isMobile && showMobileMenu && (
           <div
             style={{
@@ -524,12 +524,10 @@ export default function Navbar({
               top: 54,
               left: 0,
               right: 0,
+              bottom: 0,
               background: darkMode ? "#0d1117" : "#fff",
-              borderBottom: `1px solid ${t.border}`,
-              boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
-              zIndex: 150,
-              maxHeight: "calc(100vh - 54px)",
               overflowY: "auto",
+              zIndex: 150,
             }}
           >
             {/* Navigation items */}
@@ -770,14 +768,15 @@ export default function Navbar({
       </div>
 
       {/* Center: Global search */}
-      {isLoggedIn && !isMobile && (
+      {isLoggedIn && (
         <div
           style={{
             position: "absolute",
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "100%",
-            maxWidth: 520,
+            left: isMobile ? 50 : "50%",
+            right: isMobile ? 50 : "auto",
+            transform: isMobile ? "none" : "translateX(-50%)",
+            width: isMobile ? "auto" : "100%",
+            maxWidth: isMobile ? "none" : 520,
             zIndex: 1,
             pointerEvents: "none",
           }}

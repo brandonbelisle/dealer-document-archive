@@ -75,6 +75,49 @@ async function getSamlSettings() {
   };
 }
 
+// Fetch and parse SAML metadata from URL
+async function fetchSamlMetadata(metadataUrl) {
+  const https = require('https');
+  const http = require('http');
+  
+  return new Promise((resolve, reject) => {
+    const client = metadataUrl.startsWith('https') ? https : http;
+    const timeout = setTimeout(() => reject(new Error('Metadata fetch timeout')), 10000);
+    
+    client.get(metadataUrl, (res) => {
+      clearTimeout(timeout);
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const metadata = parseMetadataXml(data);
+          resolve(metadata);
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }).on('error', (err) => {
+      clearTimeout(timeout);
+      reject(err);
+    });
+  });
+}
+
+// Parse SAML metadata XML to extract IdP info
+function parseMetadataXml(xml) {
+  const certMatch = xml.match(/<ds:X509Certificate[^>]*>([^<]+)<\/ds:X509Certificate>/i);
+  const ssoUrlMatch = xml.match(/<md:SingleSignOnService[^>]*Location="([^"]+)"/i) || xml.match(/<SingleSignOnService[^>]*Location="([^"]+)"/i);
+  const sloUrlMatch = xml.match(/<md:SingleLogoutService[^>]*Location="([^"]+)"/i) || xml.match(/<SingleLogoutService[^>]*Location="([^"]+)"/i);
+  const entityIdMatch = xml.match(/entityID="([^"]+)"/i);
+  
+  return {
+    cert: certMatch ? certMatch[1].trim() : null,
+    ssoUrl: ssoUrlMatch ? ssoUrlMatch[1] : null,
+    sloUrl: sloUrlMatch ? sloUrlMatch[1] : null,
+    entityId: entityIdMatch ? entityIdMatch[1] : null,
+  };
+}
+
 // Initialize or update SAML strategy
 async function initializeSamlStrategy() {
   const settings = await getSamlSettings();
@@ -105,25 +148,52 @@ async function initializeSamlStrategy() {
     return samlStrategy;
   }
 
+  let ssoUrl = settings.idp_sso_url;
+  let cert = settings.idp_x509_cert;
+  let entityId = settings.idp_entity_id;
+  let sloUrl = settings.idp_slo_url;
+
+  // Fetch metadata from URL if available
+  if (settings.idp_metadata_url) {
+    try {
+      console.log('Fetching SAML metadata from:', settings.idp_metadata_url);
+      const metadata = await fetchSamlMetadata(settings.idp_metadata_url);
+      
+      if (metadata.cert) cert = metadata.cert;
+      if (metadata.ssoUrl) ssoUrl = metadata.ssoUrl;
+      if (metadata.sloUrl) sloUrl = metadata.sloUrl;
+      if (metadata.entityId) entityId = metadata.entityId;
+      
+      console.log('SAML metadata fetched successfully:', { ssoUrl, entityId, hasCert: !!cert });
+    } catch (err) {
+      console.error('Failed to fetch SAML metadata:', err.message);
+      // Fall back to manual config if metadata fetch fails
+      if (!cert) {
+        samlStrategy = null;
+        lastSamlSettings = null;
+        return null;
+      }
+    }
+  }
+
+  if (!ssoUrl || !cert) {
+    samlStrategy = null;
+    lastSamlSettings = null;
+    return null;
+  }
+
   const strategyConfig = {
+    entryPoint: ssoUrl,
     issuer: settings.sp_entity_id || 'dda-saml',
     callbackUrl: settings.sp_acs_url,
+    cert: cert,
     identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
     wantAssertionsSigned: true,
     acceptedClockSkewMs: -1,
   };
 
-  // Use metadata URL if available (preferred for auto certificate rotation)
-  if (settings.idp_metadata_url) {
-    strategyConfig.metadataUrl = settings.idp_metadata_url;
-    strategyConfig.autoUpdateMetadata = true;
-  } else {
-    // Fall back to manual configuration
-    strategyConfig.entryPoint = settings.idp_sso_url;
-    strategyConfig.cert = settings.idp_x509_cert;
-    if (settings.idp_slo_url) {
-      strategyConfig.logoutUrl = settings.idp_slo_url;
-    }
+  if (sloUrl) {
+    strategyConfig.logoutUrl = sloUrl;
   }
 
   const strategy = new SamlStrategy(strategyConfig, (profile, done) => {

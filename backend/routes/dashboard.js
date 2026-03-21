@@ -50,9 +50,10 @@ router.get('/', requireAuth, async (req, res) => {
        JOIN folders fld ON f.folder_id = fld.id
        JOIN locations l ON fld.location_id = l.id
        JOIN departments d ON fld.department_id = d.id
-       WHERE f.status = 'done'
+       WHERE f.status = 'done' AND f.uploaded_by = ?
        ORDER BY f.uploaded_at DESC
-       LIMIT 10`
+       LIMIT 10`,
+      [req.user.id]
     );
 
     // Normalize recentFiles too (file_size_bytes and page_count can be BigInt)

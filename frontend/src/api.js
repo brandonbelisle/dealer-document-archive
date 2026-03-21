@@ -416,3 +416,9 @@ export async function updateCustomApp(id, name, abbreviation, link) {
 export async function deleteCustomApp(id) {
   return request(`/custom-apps/${id}`, { method: 'DELETE' });
 }
+export async function getCustomAppPermissions() {
+  return request('/custom-apps/permissions');
+}
+export async function setCustomAppPermission(appId, groupId, canView) {
+  return request(`/custom-apps/permissions/${appId}/${groupId}`, { method: 'PUT', body: JSON.stringify({ canView }) });
+}

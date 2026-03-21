@@ -7,6 +7,8 @@ import {
   GearIcon,
   LockIcon,
   AppsIcon,
+  FolderIcon,
+  TicketIcon,
 } from "./components/Icons";
 
 export const DEFAULT_LOCATIONS = [];
@@ -72,70 +74,141 @@ export const ADMIN_MENU = [
   },
 ];
 
+// App definitions for permission tabs
+export const APP_PERMISSIONS = {
+  dda: {
+    id: "dda",
+    name: "Dealer Document Archive",
+    icon: "DDA",
+    color: "#0891b2",
+    permissions: [
+      { key: "view_dda", label: "View App", desc: "Access Dealer Document Archive" },
+      { key: "viewFiles", label: "View Files", desc: "Browse and preview uploaded documents" },
+      { key: "uploadFiles", label: "Upload Files", desc: "Upload new PDF files to folders" },
+      { key: "deleteFiles", label: "Delete Files", desc: "Remove uploaded files permanently" },
+      { key: "renameFiles", label: "Rename Files", desc: "Rename uploaded file display names" },
+      { key: "createFolders", label: "Create Folders", desc: "Create new folders and subfolders" },
+      { key: "deleteFolders", label: "Delete Folders", desc: "Remove folders and their contents" },
+    ],
+  },
+  cht: {
+    id: "cht",
+    name: "Credit Hold Tracker",
+    icon: "CHT",
+    color: "#f59e0b",
+    permissions: [
+      { key: "view_cht", label: "View App", desc: "Access Credit Hold Tracker" },
+    ],
+  },
+  help: {
+    id: "help",
+    name: "Help Desk",
+    icon: "HELP",
+    color: "#10b981",
+    permissions: [
+      { key: "view_help", label: "View App", desc: "Access Help Desk and submit tickets" },
+    ],
+  },
+  admin: {
+    id: "admin",
+    name: "Administration",
+    icon: "ADMIN",
+    color: "#6b7280",
+    permissions: [
+      { key: "manageUsers", label: "Manage Users", desc: "Create, edit, and deactivate user accounts" },
+      { key: "manageGroups", label: "Manage Groups", desc: "Edit security groups and permissions" },
+      { key: "manageLocations", label: "Manage Locations", desc: "Add, edit, and remove dealer locations" },
+      { key: "manageDepartments", label: "Manage Departments", desc: "Add, edit, and remove departments" },
+      { key: "manageSettings", label: "Manage Settings", desc: "Modify application configuration" },
+      { key: "viewAuditLog", label: "View Audit Log", desc: "View system activity and change history" },
+      { key: "exportAuditLog", label: "Export Audit Log", desc: "Download audit log data as CSV" },
+    ],
+  },
+};
+
+export const APP_PERMISSION_TABS = ["dda", "cht", "admin"];
+
+// Legacy permission labels (for backward compatibility)
 export const PERMISSION_LABELS = {
+  // DDA Documents
   viewFiles: {
     label: "View Files",
     category: "Documents",
+    app: "dda",
     desc: "Browse and preview uploaded documents",
   },
   uploadFiles: {
     label: "Upload Files",
     category: "Documents",
+    app: "dda",
     desc: "Upload new PDF files to folders",
   },
   deleteFiles: {
     label: "Delete Files",
     category: "Documents",
+    app: "dda",
     desc: "Remove uploaded files permanently",
   },
   renameFiles: {
     label: "Rename Files",
     category: "Documents",
+    app: "dda",
     desc: "Rename uploaded file display names",
   },
+  // DDA Folders
   createFolders: {
     label: "Create Folders",
     category: "Folders",
+    app: "dda",
     desc: "Create new folders and subfolders",
   },
   deleteFolders: {
     label: "Delete Folders",
     category: "Folders",
+    app: "dda",
     desc: "Remove folders and their contents",
   },
+  // Admin
   manageLocations: {
     label: "Manage Locations",
     category: "Administration",
+    app: "admin",
     desc: "Add, edit, and remove dealer locations",
   },
   manageDepartments: {
     label: "Manage Departments",
     category: "Administration",
+    app: "admin",
     desc: "Add, edit, and remove departments",
   },
   manageUsers: {
     label: "Manage Users",
     category: "Administration",
+    app: "admin",
     desc: "Create, edit, and deactivate user accounts",
   },
   manageGroups: {
     label: "Manage Groups",
     category: "Administration",
+    app: "admin",
     desc: "Edit security groups and permissions",
   },
   viewAuditLog: {
     label: "View Audit Log",
     category: "Audit",
+    app: "admin",
     desc: "View system activity and change history",
   },
   exportAuditLog: {
     label: "Export Audit Log",
     category: "Audit",
+    app: "admin",
     desc: "Download audit log data as CSV",
   },
   manageSettings: {
     label: "Manage Settings",
     category: "Administration",
+    app: "admin",
     desc: "Modify application configuration",
   },
 };

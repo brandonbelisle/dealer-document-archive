@@ -18,6 +18,48 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
+router.get('/permissions', requireAuth, async (req, res) => {
+  try {
+    const [apps] = await db.execute(
+      'SELECT id, name, abbreviation FROM custom_apps ORDER BY name'
+    );
+    const [groups] = await db.execute(
+      'SELECT id, name FROM security_groups ORDER BY name'
+    );
+    const [permissions] = await db.execute(
+      'SELECT app_id, group_id, can_view FROM custom_app_permissions'
+    );
+    
+    const permMap = {};
+    for (const p of permissions) {
+      permMap[`${p.app_id}:${p.group_id}`] = p.can_view;
+    }
+    
+    res.json({ apps, groups, permissions: permMap });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.put('/permissions/:appId/:groupId', requireAuth, requirePermission('manageGroups'), async (req, res) => {
+  try {
+    const { canView } = req.body;
+    
+    await db.execute(
+      `INSERT INTO custom_app_permissions (app_id, group_id, can_view)
+       VALUES (?, ?, ?)
+       ON DUPLICATE KEY UPDATE can_view = VALUES(can_view)`,
+      [req.params.appId, req.params.groupId, canView ? 1 : 0]
+    );
+    
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.post('/', requireAuth, requirePermission('manageSettings'), async (req, res) => {
   try {
     const { name, abbreviation, link } = req.body;
@@ -31,6 +73,15 @@ router.post('/', requireAuth, requirePermission('manageSettings'), async (req, r
       'INSERT INTO custom_apps (id, name, abbreviation, link, created_by) VALUES (?, ?, ?, ?, ?)',
       [id, name.trim(), abbreviation.trim().toUpperCase(), link.trim(), req.user.id]
     );
+    
+    const [groups] = await db.execute('SELECT id FROM security_groups');
+    for (const group of groups) {
+      await db.execute(
+        'INSERT IGNORE INTO custom_app_permissions (app_id, group_id, can_view) VALUES (?, ?, FALSE)',
+        [id, group.id]
+      );
+    }
+    
     await logAudit('Custom App Created', `"${name.trim()}"`, req.user, req.ip);
 
     const [rows] = await db.execute('SELECT * FROM custom_apps WHERE id = ?', [id]);

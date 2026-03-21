@@ -12821,6 +12821,47 @@ async function getSamlStatus() {
 function getSamlLoginUrl() {
   return `${API_BASE}/saml/login`;
 }
+async function getSupportEmail() {
+  return request("/help-ticket/support-email");
+}
+async function setSupportEmail(email) {
+  return request("/help-ticket/support-email", { method: "POST", body: JSON.stringify({ email }) });
+}
+async function getEmailSettings() {
+  return request("/help-ticket/email-settings");
+}
+async function setEmailSettings(signature, brandColor, subjectPrefix) {
+  return request("/help-ticket/email-settings", { method: "POST", body: JSON.stringify({ signature, brandColor, subjectPrefix }) });
+}
+async function submitHelpTicket(subject, message, attachments) {
+  const formData = new FormData();
+  formData.append("subject", subject);
+  formData.append("message", message);
+  if (attachments && attachments.length > 0) {
+    attachments.forEach((file) => {
+      formData.append("attachments", file);
+    });
+  }
+  return request("/help-ticket/submit", { method: "POST", body: formData });
+}
+async function getCustomApps() {
+  return request("/custom-apps");
+}
+async function createCustomApp(name, abbreviation, link) {
+  return request("/custom-apps", { method: "POST", body: JSON.stringify({ name, abbreviation, link }) });
+}
+async function updateCustomApp(id, name, abbreviation, link) {
+  return request(`/custom-apps/${id}`, { method: "PUT", body: JSON.stringify({ name, abbreviation, link }) });
+}
+async function deleteCustomApp(id) {
+  return request(`/custom-apps/${id}`, { method: "DELETE" });
+}
+async function getCustomAppPermissions() {
+  return request("/custom-apps/permissions");
+}
+async function setCustomAppPermission(appId, groupId, canView) {
+  return request(`/custom-apps/permissions/${appId}/${groupId}`, { method: "PUT", body: JSON.stringify({ canView }) });
+}
 const darkTheme = {
   bg: "#0f1114",
   pageBg: "#131619",
@@ -13040,6 +13081,22 @@ const XIcon = ({ size = 16 }) => I(
   /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
+  ] }),
+  size
+);
+const LinkIcon = ({ size = 16 }) => I(
+  /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" })
+  ] }),
+  size
+);
+const TicketIcon = ({ size = 16 }) => I(
+  /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M2 9a3 3 0 0 0 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 0 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2z" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M13 5v2" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M13 17v2" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M13 11v2" })
   ] }),
   size
 );
@@ -13283,6 +13340,12 @@ const ADMIN_MENU = [
     desc: "Manage security groups and permissions"
   },
   {
+    id: "app-center",
+    label: "App Center",
+    icon: /* @__PURE__ */ jsxRuntimeExports.jsx(AppsIcon, { size: 17 }),
+    desc: "Manage custom apps on the landing page"
+  },
+  {
     id: "dda",
     label: "DDA - Dealer Document Archive",
     icon: null,
@@ -13322,79 +13385,139 @@ const ADMIN_MENU = [
     desc: "Application configuration"
   }
 ];
+const APP_PERMISSIONS = {
+  dda: {
+    id: "dda",
+    name: "Dealer Document Archive",
+    icon: "DDA",
+    color: "#0891b2",
+    permissions: [
+      { key: "view_dda", label: "View App", desc: "Access Dealer Document Archive" },
+      { key: "viewFiles", label: "View Files", desc: "Browse and preview uploaded documents" },
+      { key: "uploadFiles", label: "Upload Files", desc: "Upload new PDF files to folders" },
+      { key: "deleteFiles", label: "Delete Files", desc: "Remove uploaded files permanently" },
+      { key: "renameFiles", label: "Rename Files", desc: "Rename uploaded file display names" },
+      { key: "createFolders", label: "Create Folders", desc: "Create new folders and subfolders" },
+      { key: "deleteFolders", label: "Delete Folders", desc: "Remove folders and their contents" }
+    ]
+  },
+  cht: {
+    id: "cht",
+    name: "Credit Hold Tracker",
+    icon: "CHT",
+    color: "#f59e0b",
+    permissions: [
+      { key: "view_cht", label: "View App", desc: "Access Credit Hold Tracker" }
+    ]
+  },
+  help: {
+    id: "help",
+    name: "Help Desk",
+    icon: "HELP",
+    color: "#10b981",
+    permissions: [
+      { key: "view_help", label: "View App", desc: "Access Help Desk and submit tickets" }
+    ]
+  },
+  admin: {
+    id: "admin",
+    name: "Administration",
+    icon: "ADMIN",
+    color: "#6b7280",
+    permissions: [
+      { key: "manageUsers", label: "Manage Users", desc: "Create, edit, and deactivate user accounts" },
+      { key: "manageGroups", label: "Manage Groups", desc: "Edit security groups and permissions" },
+      { key: "manageLocations", label: "Manage Locations", desc: "Add, edit, and remove dealer locations" },
+      { key: "manageDepartments", label: "Manage Departments", desc: "Add, edit, and remove departments" },
+      { key: "manageSettings", label: "Manage Settings", desc: "Modify application configuration" },
+      { key: "viewAuditLog", label: "View Audit Log", desc: "View system activity and change history" },
+      { key: "exportAuditLog", label: "Export Audit Log", desc: "Download audit log data as CSV" }
+    ]
+  }
+};
 const PERMISSION_LABELS = {
+  // DDA Documents
   viewFiles: {
     label: "View Files",
     category: "Documents",
+    app: "dda",
     desc: "Browse and preview uploaded documents"
   },
   uploadFiles: {
     label: "Upload Files",
     category: "Documents",
+    app: "dda",
     desc: "Upload new PDF files to folders"
   },
   deleteFiles: {
     label: "Delete Files",
     category: "Documents",
+    app: "dda",
     desc: "Remove uploaded files permanently"
   },
   renameFiles: {
     label: "Rename Files",
     category: "Documents",
+    app: "dda",
     desc: "Rename uploaded file display names"
   },
+  // DDA Folders
   createFolders: {
     label: "Create Folders",
     category: "Folders",
+    app: "dda",
     desc: "Create new folders and subfolders"
   },
   deleteFolders: {
     label: "Delete Folders",
     category: "Folders",
+    app: "dda",
     desc: "Remove folders and their contents"
   },
+  // Admin
   manageLocations: {
     label: "Manage Locations",
     category: "Administration",
+    app: "admin",
     desc: "Add, edit, and remove dealer locations"
   },
   manageDepartments: {
     label: "Manage Departments",
     category: "Administration",
+    app: "admin",
     desc: "Add, edit, and remove departments"
   },
   manageUsers: {
     label: "Manage Users",
     category: "Administration",
+    app: "admin",
     desc: "Create, edit, and deactivate user accounts"
   },
   manageGroups: {
     label: "Manage Groups",
     category: "Administration",
+    app: "admin",
     desc: "Edit security groups and permissions"
   },
   viewAuditLog: {
     label: "View Audit Log",
     category: "Audit",
+    app: "admin",
     desc: "View system activity and change history"
   },
   exportAuditLog: {
     label: "Export Audit Log",
     category: "Audit",
+    app: "admin",
     desc: "Download audit log data as CSV"
   },
   manageSettings: {
     label: "Manage Settings",
     category: "Administration",
+    app: "admin",
     desc: "Modify application configuration"
   }
 };
-const PERMISSION_CATEGORIES = [
-  "Documents",
-  "Folders",
-  "Administration",
-  "Audit"
-];
 class ErrorBoundary extends reactExports.Component {
   constructor(props) {
     super(props);
@@ -14160,6 +14283,7 @@ function Navbar({
   filesInFolder,
   setShowSubscriptionsModal,
   setViewingFileIdFromAlert,
+  onOpenHelpTicket,
   t
 }) {
   var _a, _b;
@@ -14172,17 +14296,23 @@ function Navbar({
   const [showAppsDropdown, setShowAppsDropdown] = reactExports.useState(false);
   const [showMobileMenu, setShowMobileMenu] = reactExports.useState(false);
   const [windowWidth, setWindowWidth] = reactExports.useState(typeof window !== "undefined" ? window.innerWidth : 1200);
+  const [customApps, setCustomApps] = reactExports.useState([]);
   const isMobile = windowWidth < 1100;
   reactExports.useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+  reactExports.useEffect(() => {
+    getCustomApps().then(setCustomApps).catch(() => {
+    });
+  }, []);
   const q = globalSearch$1.trim();
-  const isAdmin = (_a = loggedInUser == null ? void 0 : loggedInUser.groups) == null ? void 0 : _a.includes("Administrator");
+  const isAdmin2 = (_a = loggedInUser == null ? void 0 : loggedInUser.groups) == null ? void 0 : _a.includes("Administrator");
   const apps = [
     { id: "home", name: "Home", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(HomeIcon, { size: 20 }), onClick: () => {
       setPage("landing");
+      setSelectedFile(null);
       setShowAppsDropdown(false);
     } },
     { id: "dda", name: "Dealer Document Archive", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${t.accent},${t.accentDark || t.accent})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "DDA" }), onClick: () => {
@@ -14190,7 +14320,24 @@ function Navbar({
       setSelectedFile(null);
       setShowAppsDropdown(false);
     } },
-    ...isAdmin ? [{ id: "admin", name: "Admin Center", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, { size: 20 }), onClick: () => {
+    { id: "cht", name: "Credit Hold Tracker", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "CHT" }), onClick: () => {
+      setPage("cht-dashboard");
+      setShowAppsDropdown(false);
+    } },
+    { id: "help", name: "Submit Help Ticket", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TicketIcon, { size: 14 }) }), onClick: () => {
+      setShowAppsDropdown(false);
+      onOpenHelpTicket == null ? void 0 : onOpenHelpTicket();
+    } },
+    ...customApps.map((app) => ({
+      id: app.id,
+      name: app.name,
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg, #88c0d0, #5b9bd5)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: app.abbreviation || app.name.substring(0, 2).toUpperCase() }),
+      onClick: () => {
+        window.open(app.link, "_blank");
+        setShowAppsDropdown(false);
+      }
+    })),
+    ...isAdmin2 ? [{ id: "admin", name: "Admin Center", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, { size: 20 }), onClick: () => {
       setPage("admin");
       setAdminSection("users");
       setShowAppsDropdown(false);
@@ -16541,6 +16688,323 @@ function SubscriptionsModal({ show, onClose, subscriptions, setSubscriptions, t,
       )
     }
   );
+}
+function HelpTicketModal({ show, onClose, darkMode, loggedInUser }) {
+  const [subject, setSubject] = reactExports.useState("");
+  const [message, setMessage] = reactExports.useState("");
+  const [attachments, setAttachments] = reactExports.useState([]);
+  const [submitting, setSubmitting] = reactExports.useState(false);
+  const [error, setError] = reactExports.useState("");
+  const [success, setSuccess] = reactExports.useState(false);
+  const fileInputRef = reactExports.useRef(null);
+  if (!show) return null;
+  const t = {
+    text: darkMode ? "#e5e7eb" : "#1f2937",
+    textMuted: darkMode ? "#94a3b8" : "#6b7280",
+    surface: darkMode ? "#1c1f26" : "#fff",
+    border: darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+    accent: darkMode ? "#88c0d0" : "#0891b2"
+  };
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files);
+    const validFiles = files.filter((file) => file.size <= 25 * 1024 * 1024);
+    if (validFiles.length !== files.length) {
+      setError("Some files were too large (max 25MB each)");
+    }
+    setAttachments((prev) => [...prev, ...validFiles]);
+    e.target.value = "";
+  };
+  const removeAttachment = (index) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+  const handleSubmit = async () => {
+    if (!subject.trim()) {
+      setError("Please enter a subject");
+      return;
+    }
+    if (!message.trim()) {
+      setError("Please describe your issue");
+      return;
+    }
+    setSubmitting(true);
+    setError("");
+    try {
+      await submitHelpTicket(subject.trim(), message.trim(), attachments);
+      setSuccess(true);
+      setSubject("");
+      setMessage("");
+      setAttachments([]);
+      setTimeout(() => {
+        onClose();
+        setSuccess(false);
+      }, 2e3);
+    } catch (err) {
+      setError(err.message || "Failed to submit help ticket. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  const handleClose = () => {
+    if (!submitting) {
+      setSubject("");
+      setMessage("");
+      setAttachments([]);
+      setError("");
+      setSuccess(false);
+      onClose();
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.5)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1e3,
+    padding: 20
+  }, onClick: handleClose, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      style: {
+        background: t.surface,
+        borderRadius: 16,
+        width: "100%",
+        maxWidth: 560,
+        maxHeight: "90vh",
+        overflow: "auto",
+        boxShadow: darkMode ? "0 20px 60px rgba(0,0,0,0.5)" : "0 20px 60px rgba(0,0,0,0.2)"
+      },
+      onClick: (e) => e.stopPropagation(),
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          padding: "20px 24px",
+          borderBottom: `1px solid ${t.border}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { fontSize: 18, fontWeight: 700, margin: 0, color: t.text }, children: "Submit Help Ticket" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: handleClose,
+              disabled: submitting,
+              style: {
+                background: "transparent",
+                border: "none",
+                cursor: submitting ? "not-allowed" : "pointer",
+                padding: 4,
+                display: "flex",
+                color: t.textMuted
+              },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { size: 20 })
+            }
+          )
+        ] }),
+        success ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 60, textAlign: "center" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            background: darkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)",
+            margin: "0 auto 16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { width: "32", height: "32", viewBox: "0 0 24 24", fill: "none", stroke: "#22c55e", strokeWidth: "2.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "20 6 9 17 4 12" }) }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 16, fontWeight: 600, color: t.text, marginBottom: 8 }, children: "Ticket Submitted" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, color: t.textMuted }, children: "We'll get back to you as soon as possible." })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+            borderRadius: 8,
+            padding: "12px 16px",
+            marginBottom: 20
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, color: t.textMuted, marginBottom: 4 }, children: "Submitting as" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 600, color: t.text }, children: (loggedInUser == null ? void 0 : loggedInUser.name) || "Unknown User" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, color: t.textMuted }, children: (loggedInUser == null ? void 0 : loggedInUser.email) || "" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }, children: "Subject" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: subject,
+                onChange: (e) => setSubject(e.target.value),
+                placeholder: "Brief summary of your issue",
+                style: {
+                  width: "100%",
+                  padding: "12px 14px",
+                  fontSize: 14,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 8,
+                  background: darkMode ? "#1a1a1a" : "#fff",
+                  color: t.text,
+                  fontFamily: "inherit"
+                }
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }, children: "Please describe the issue you are having" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "textarea",
+              {
+                value: message,
+                onChange: (e) => setMessage(e.target.value),
+                placeholder: "Describe your issue in detail...",
+                rows: 6,
+                style: {
+                  width: "100%",
+                  padding: "12px 14px",
+                  fontSize: 14,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 8,
+                  background: darkMode ? "#1a1a1a" : "#fff",
+                  color: t.text,
+                  fontFamily: "inherit",
+                  resize: "vertical",
+                  minHeight: 120
+                }
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }, children: "Attachments (optional)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                ref: fileInputRef,
+                type: "file",
+                multiple: true,
+                onChange: handleFileSelect,
+                style: { display: "none" }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: () => {
+                  var _a;
+                  return (_a = fileInputRef.current) == null ? void 0 : _a.click();
+                },
+                style: {
+                  width: "100%",
+                  padding: "24px",
+                  border: `2px dashed ${t.border}`,
+                  borderRadius: 8,
+                  background: "transparent",
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 8,
+                  color: t.textMuted
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(UploadCloudIcon, { size: 24 }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13 }, children: "Click to upload files (max 25MB each)" })
+                ]
+              }
+            ),
+            attachments.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }, children: attachments.map((file, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                style: {
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "10px 12px",
+                  background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                  borderRadius: 8
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 500, color: t.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, children: file.name }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, color: t.textMuted }, children: formatFileSize(file.size) })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: () => removeAttachment(index),
+                      style: {
+                        background: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: 4,
+                        display: "flex",
+                        color: t.textMuted
+                      },
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { size: 16 })
+                    }
+                  )
+                ]
+              },
+              index
+            )) })
+          ] }),
+          error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            padding: "12px 16px",
+            borderRadius: 8,
+            marginBottom: 16,
+            background: darkMode ? "rgba(239,68,68,0.15)" : "rgba(239,68,68,0.1)",
+            color: "#ef4444",
+            fontSize: 13
+          }, children: error }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 12, justifyContent: "flex-end" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: handleClose,
+                disabled: submitting,
+                style: {
+                  background: "transparent",
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 8,
+                  padding: "10px 20px",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: submitting ? "not-allowed" : "pointer",
+                  color: t.text,
+                  fontFamily: "inherit",
+                  opacity: submitting ? 0.5 : 1
+                },
+                children: "Cancel"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: handleSubmit,
+                disabled: submitting || !subject.trim() || !message.trim(),
+                style: {
+                  background: t.accent,
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "10px 20px",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: submitting ? "not-allowed" : "pointer",
+                  color: "#fff",
+                  fontFamily: "inherit",
+                  opacity: submitting || !subject.trim() || !message.trim() ? 0.5 : 1
+                },
+                children: submitting ? "Submitting..." : "Submit"
+              }
+            )
+          ] })
+        ] })
+      ]
+    }
+  ) });
 }
 function getFileTypeInfo(mimeType, fileName) {
   if (mimeType == null ? void 0 : mimeType.startsWith("image/")) {
@@ -23259,9 +23723,19 @@ function SettingsSection({ t, darkMode }) {
   const [smtpTesting, setSmtpTesting] = reactExports.useState(false);
   const [testEmail, setTestEmail] = reactExports.useState("");
   const [smtpMessage, setSmtpMessage] = reactExports.useState({ type: "", text: "" });
+  const [supportEmail, setSupportEmail$1] = reactExports.useState("");
+  const [supportEmailSaving, setSupportEmailSaving] = reactExports.useState(false);
+  const [supportEmailMessage, setSupportEmailMessage] = reactExports.useState({ type: "", text: "" });
+  const [emailSignature, setEmailSignature] = reactExports.useState("");
+  const [emailBrandColor, setEmailBrandColor] = reactExports.useState("#0891b2");
+  const [emailSubjectPrefix, setEmailSubjectPrefix] = reactExports.useState("[Help Ticket]");
+  const [emailSettingsSaving, setEmailSettingsSaving] = reactExports.useState(false);
+  const [emailSettingsMessage, setEmailSettingsMessage] = reactExports.useState({ type: "", text: "" });
   reactExports.useEffect(() => {
     loadLogos();
     loadSmtpSettings();
+    loadSupportEmail();
+    loadEmailSettings();
   }, []);
   const loadLogos = async () => {
     try {
@@ -23289,6 +23763,24 @@ function SettingsSection({ t, darkMode }) {
       console.error("Failed to load SMTP settings:", err);
     } finally {
       setSmtpLoading(false);
+    }
+  };
+  const loadSupportEmail = async () => {
+    try {
+      const data = await getSupportEmail();
+      setSupportEmail$1(data.email || "");
+    } catch (err) {
+      console.error("Failed to load support email:", err);
+    }
+  };
+  const loadEmailSettings = async () => {
+    try {
+      const data = await getEmailSettings();
+      setEmailSignature(data.signature || "");
+      setEmailBrandColor(data.brandColor || "#0891b2");
+      setEmailSubjectPrefix(data.subjectPrefix || "[Help Ticket]");
+    } catch (err) {
+      console.error("Failed to load email settings:", err);
     }
   };
   const handleUpload = async (type, file) => {
@@ -23662,6 +24154,535 @@ function SettingsSection({ t, darkMode }) {
           )
         ] })
       ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 24 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }, children: "Support Email" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 13, color: t.textMuted, margin: 0 }, children: "Set the email address where help ticket submissions will be sent." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+      background: t.surface,
+      border: `1px solid ${t.border}`,
+      borderRadius: 12,
+      padding: 24,
+      maxWidth: 600
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }, children: "Support Email Address" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "email",
+            value: supportEmail,
+            onChange: (e) => setSupportEmail$1(e.target.value),
+            placeholder: "support@yourcompany.com",
+            style: {
+              width: "100%",
+              padding: "10px 12px",
+              fontSize: 14,
+              border: `1px solid ${t.border}`,
+              borderRadius: 8,
+              background: darkMode ? "#1a1a1a" : "#fff",
+              color: t.text,
+              fontFamily: "inherit"
+            }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 11, color: t.textDim, margin: "4px 0 0" }, children: "Help tickets submitted by users will be sent to this email address." })
+      ] }),
+      supportEmailMessage.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        padding: "12px 16px",
+        borderRadius: 8,
+        marginBottom: 16,
+        background: supportEmailMessage.type === "success" ? darkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)" : darkMode ? "rgba(239,68,68,0.15)" : "rgba(239,68,68,0.1)",
+        color: supportEmailMessage.type === "success" ? "#22c55e" : "#ef4444",
+        fontSize: 13
+      }, children: supportEmailMessage.text }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Btn,
+        {
+          primary: true,
+          darkMode,
+          t,
+          onClick: async () => {
+            setSupportEmailSaving(true);
+            setSupportEmailMessage({ type: "", text: "" });
+            try {
+              await setSupportEmail(supportEmail);
+              setSupportEmailMessage({ type: "success", text: "Support email saved successfully!" });
+            } catch (err) {
+              setSupportEmailMessage({ type: "error", text: "Failed to save: " + (err.message || "Unknown error") });
+            } finally {
+              setSupportEmailSaving(false);
+            }
+          },
+          loading: supportEmailSaving,
+          style: { fontSize: 13 },
+          children: "Save Support Email"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: 40, marginBottom: 24 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }, children: "Email Signature & Branding" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 13, color: t.textMuted, margin: 0 }, children: "Customize the appearance and signature of emails sent from the application." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+      background: t.surface,
+      border: `1px solid ${t.border}`,
+      borderRadius: 12,
+      padding: 24,
+      maxWidth: 700
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }, children: "Brand Color" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "color",
+              value: emailBrandColor,
+              onChange: (e) => setEmailBrandColor(e.target.value),
+              style: {
+                width: 50,
+                height: 36,
+                border: `1px solid ${t.border}`,
+                borderRadius: 6,
+                cursor: "pointer",
+                background: "transparent"
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: emailBrandColor,
+              onChange: (e) => setEmailBrandColor(e.target.value),
+              placeholder: "#0891b2",
+              style: {
+                width: 120,
+                padding: "8px 12px",
+                fontSize: 14,
+                border: `1px solid ${t.border}`,
+                borderRadius: 8,
+                background: darkMode ? "#1a1a1a" : "#fff",
+                color: t.text,
+                fontFamily: "monospace"
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, color: t.textMuted }, children: "Used for headings and accents in emails" })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }, children: "Email Subject Prefix" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            value: emailSubjectPrefix,
+            onChange: (e) => setEmailSubjectPrefix(e.target.value),
+            placeholder: "[Help Ticket]",
+            style: {
+              width: "100%",
+              maxWidth: 300,
+              padding: "10px 12px",
+              fontSize: 14,
+              border: `1px solid ${t.border}`,
+              borderRadius: 8,
+              background: darkMode ? "#1a1a1a" : "#fff",
+              color: t.text,
+              fontFamily: "inherit"
+            }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 11, color: t.textDim, margin: "4px 0 0" }, children: "This prefix will be added to the beginning of help ticket email subjects. Leave empty for no prefix." })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }, children: "Email Signature" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "textarea",
+          {
+            value: emailSignature,
+            onChange: (e) => setEmailSignature(e.target.value),
+            placeholder: "Best regards,\nYour Company Name\nSupport Team",
+            rows: 4,
+            style: {
+              width: "100%",
+              padding: "12px 14px",
+              fontSize: 14,
+              border: `1px solid ${t.border}`,
+              borderRadius: 8,
+              background: darkMode ? "#1a1a1a" : "#fff",
+              color: t.text,
+              fontFamily: "inherit",
+              resize: "vertical"
+            }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 11, color: t.textDim, margin: "4px 0 0" }, children: "This signature will be added to the bottom of all emails sent from the application." })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }, children: "Email Preview" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          background: "#fff",
+          border: `1px solid ${t.border}`,
+          borderRadius: 8,
+          padding: 20,
+          fontFamily: "Arial, sans-serif"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            padding: "16px 0",
+            borderBottom: `2px solid ${emailBrandColor}`,
+            marginBottom: 16
+          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { margin: 0, color: emailBrandColor, fontSize: 18 }, children: "Help Ticket Submission" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: "0 0 8px", color: "#374151", fontSize: 14 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "From:" }),
+            " John Doe <john@example.com>"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: "0 0 8px", color: "#374151", fontSize: 14 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Subject:" }),
+            " ",
+            emailSubjectPrefix ? `${emailSubjectPrefix} ` : "",
+            "Example Subject"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            background: "#f9fafb",
+            padding: 16,
+            borderRadius: 8,
+            margin: "16px 0",
+            color: "#374151",
+            fontSize: 14
+          }, children: "This is an example message body..." }),
+          emailSignature && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            marginTop: 20,
+            paddingTop: 16,
+            borderTop: "1px solid #e5e7eb",
+            color: "#6b7280",
+            fontSize: 13,
+            whiteSpace: "pre-wrap"
+          }, children: emailSignature })
+        ] })
+      ] }),
+      emailSettingsMessage.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        padding: "12px 16px",
+        borderRadius: 8,
+        marginBottom: 16,
+        background: emailSettingsMessage.type === "success" ? darkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)" : darkMode ? "rgba(239,68,68,0.15)" : "rgba(239,68,68,0.1)",
+        color: emailSettingsMessage.type === "success" ? "#22c55e" : "#ef4444",
+        fontSize: 13
+      }, children: emailSettingsMessage.text }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Btn,
+        {
+          primary: true,
+          darkMode,
+          t,
+          onClick: async () => {
+            setEmailSettingsSaving(true);
+            setEmailSettingsMessage({ type: "", text: "" });
+            try {
+              await setEmailSettings(emailSignature, emailBrandColor, emailSubjectPrefix);
+              setEmailSettingsMessage({ type: "success", text: "Email settings saved successfully!" });
+            } catch (err) {
+              setEmailSettingsMessage({ type: "error", text: "Failed to save: " + (err.message || "Unknown error") });
+            } finally {
+              setEmailSettingsSaving(false);
+            }
+          },
+          loading: emailSettingsSaving,
+          style: { fontSize: 13 },
+          children: "Save Email Settings"
+        }
+      )
+    ] })
+  ] });
+}
+function AppCenterSection({ t, darkMode, addToast }) {
+  const [customApps, setCustomApps] = reactExports.useState([]);
+  const [loading, setLoading] = reactExports.useState(true);
+  const [addingApp, setAddingApp] = reactExports.useState(false);
+  const [newAppName, setNewAppName] = reactExports.useState("");
+  const [newAppAbbr, setNewAppAbbr] = reactExports.useState("");
+  const [newAppLink, setNewAppLink] = reactExports.useState("");
+  const [editingAppId, setEditingAppId] = reactExports.useState(null);
+  const [editingAppName, setEditingAppName] = reactExports.useState("");
+  const [editingAppAbbr, setEditingAppAbbr] = reactExports.useState("");
+  const [editingAppLink, setEditingAppLink] = reactExports.useState("");
+  reactExports.useEffect(() => {
+    loadCustomApps();
+  }, []);
+  const loadCustomApps = async () => {
+    setLoading(true);
+    try {
+      const apps = await getCustomApps();
+      setCustomApps(apps);
+    } catch (err) {
+      console.error("Failed to load custom apps:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleAddApp = async () => {
+    const name = newAppName.trim();
+    const abbr = newAppAbbr.trim().toUpperCase();
+    const link = newAppLink.trim();
+    if (!name || !abbr || !link) return;
+    if (abbr.length > 4) {
+      addToast("Error", "Abbreviation must be 4 characters or less", 4e3, "error");
+      return;
+    }
+    try {
+      const created = await createCustomApp(name, abbr, link);
+      setCustomApps((prev) => [...prev, created]);
+      setNewAppName("");
+      setNewAppAbbr("");
+      setNewAppLink("");
+      setAddingApp(false);
+      addToast("App created", `"${name}" has been created`, 4e3, "create");
+    } catch (err) {
+      console.error("Failed to create app:", err);
+      addToast("Error", "Failed to create app", 4e3, "error");
+    }
+  };
+  const handleUpdateApp = async (id) => {
+    const name = editingAppName.trim();
+    const abbr = editingAppAbbr.trim().toUpperCase();
+    const link = editingAppLink.trim();
+    if (!name || !abbr || !link) return;
+    if (abbr.length > 4) {
+      addToast("Error", "Abbreviation must be 4 characters or less", 4e3, "error");
+      return;
+    }
+    try {
+      const updated = await updateCustomApp(id, name, abbr, link);
+      setCustomApps((prev) => prev.map((a) => a.id === id ? updated : a));
+      setEditingAppId(null);
+      addToast("App updated", `"${name}" has been updated`, 4e3, "create");
+    } catch (err) {
+      console.error("Failed to update app:", err);
+    }
+  };
+  const handleDeleteApp = async (app) => {
+    try {
+      await deleteCustomApp(app.id);
+      setCustomApps((prev) => prev.filter((a) => a.id !== app.id));
+      addToast("App deleted", `"${app.name}" has been deleted`, 4e3, "delete");
+    } catch (err) {
+      console.error("Failed to delete app:", err);
+    }
+  };
+  const inputStyle = {
+    width: "100%",
+    padding: "10px 12px",
+    fontSize: 14,
+    border: `1px solid ${t.border}`,
+    borderRadius: 8,
+    background: darkMode ? "#1a1a1a" : "#fff",
+    color: t.text,
+    fontFamily: "inherit",
+    boxSizing: "border-box"
+  };
+  if (loading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 40, textAlign: "center", color: t.textMuted }, children: "Loading..." });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { animation: "fadeIn 0.25s ease" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 24 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }, children: "Custom Applications" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 13, color: t.textMuted, margin: 0 }, children: "Create custom app shortcuts that appear on the landing page. When users click an app, they will be redirected to the specified link." })
+    ] }),
+    addingApp && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+      background: t.surface,
+      border: `1px solid ${t.accent}`,
+      borderRadius: 12,
+      padding: 20,
+      marginBottom: 16,
+      boxShadow: `0 0 0 3px ${t.accentSoft}`,
+      animation: "fadeIn 0.2s ease"
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 14, fontWeight: 700, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(PlusIcon, { size: 16 }),
+        " New Custom App"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 12, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 6 }, children: "App Name" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              value: newAppName,
+              onChange: (e) => setNewAppName(e.target.value),
+              placeholder: "e.g., Time Clock, Inventory System...",
+              autoFocus: true,
+              style: inputStyle
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 12, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 6 }, children: "Abbreviation (max 4 characters)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              value: newAppAbbr,
+              onChange: (e) => setNewAppAbbr(e.target.value.slice(0, 4)),
+              placeholder: "e.g., TIME, INV",
+              style: { ...inputStyle, maxWidth: 150, textTransform: "uppercase" }
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 12, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 6 }, children: "Link (URL)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              value: newAppLink,
+              onChange: (e) => setNewAppLink(e.target.value),
+              placeholder: "https://example.com",
+              style: inputStyle
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "flex-end", gap: 8 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => {
+              setAddingApp(false);
+              setNewAppName("");
+              setNewAppAbbr("");
+              setNewAppLink("");
+            },
+            style: {
+              background: t.surface,
+              border: `1px solid ${t.border}`,
+              borderRadius: 8,
+              padding: "8px 16px",
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+              color: t.text,
+              fontFamily: "inherit"
+            },
+            children: "Cancel"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { primary: true, darkMode, t, onClick: handleAddApp, style: { fontSize: 13, opacity: newAppName.trim() && newAppAbbr.trim() && newAppLink.trim() ? 1 : 0.4 }, children: "Create App" })
+      ] })
+    ] }),
+    customApps.length === 0 && !addingApp ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+      textAlign: "center",
+      padding: "60px 20px",
+      background: t.surface,
+      border: `1px dashed ${t.border}`,
+      borderRadius: 12
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 64, height: 64, borderRadius: 16, background: t.accentSoft, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(LinkIcon, { size: 28 }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 15, fontWeight: 600, color: t.text, marginBottom: 8 }, children: "No custom apps yet" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, color: t.textMuted, marginBottom: 20 }, children: "Create custom app shortcuts to display on the landing page." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Btn, { primary: true, darkMode, t, onClick: () => {
+        setAddingApp(true);
+        setNewAppName("");
+        setNewAppAbbr("");
+        setNewAppLink("");
+      }, style: { fontSize: 13 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(PlusIcon, { size: 14 }),
+        " Add Custom App"
+      ] })
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      customApps.length > 0 && !addingApp && /* @__PURE__ */ jsxRuntimeExports.jsxs(Btn, { primary: true, darkMode, t, onClick: () => {
+        setAddingApp(true);
+        setNewAppName("");
+        setNewAppAbbr("");
+        setNewAppLink("");
+      }, style: { fontSize: 13, marginBottom: 16 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(PlusIcon, { size: 14 }),
+        " Add Custom App"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 8 }, children: customApps.map((app, idx) => {
+        const isEditing = editingAppId === app.id;
+        const abbr = app.abbreviation || app.name.substring(0, 2).toUpperCase();
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "folder-row",
+            style: {
+              display: "flex",
+              alignItems: "center",
+              background: t.surface,
+              border: `1px solid ${isEditing ? t.accent : t.border}`,
+              borderRadius: 10,
+              padding: "14px 16px",
+              boxShadow: isEditing ? `0 0 0 3px ${t.accentSoft}` : "none",
+              animation: `fadeIn 0.25s ease ${idx * 0.04}s both`
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg, #88c0d0, #5b9bd5)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: 12, flexShrink: 0 }, children: abbr }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, marginLeft: 12, minWidth: 0 }, children: isEditing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 8 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    value: editingAppName,
+                    onChange: (e) => setEditingAppName(e.target.value),
+                    onKeyDown: (e) => {
+                      if (e.key === "Enter") handleUpdateApp(app.id);
+                      if (e.key === "Escape") setEditingAppId(null);
+                    },
+                    autoFocus: true,
+                    style: { ...inputStyle, fontSize: 13, padding: "6px 10px" }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 8 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      value: editingAppAbbr,
+                      onChange: (e) => setEditingAppAbbr(e.target.value.slice(0, 4)),
+                      onKeyDown: (e) => {
+                        if (e.key === "Enter") handleUpdateApp(app.id);
+                        if (e.key === "Escape") setEditingAppId(null);
+                      },
+                      placeholder: "ABBR",
+                      style: { ...inputStyle, fontSize: 12, padding: "6px 10px", maxWidth: 100, textTransform: "uppercase" }
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      value: editingAppLink,
+                      onChange: (e) => setEditingAppLink(e.target.value),
+                      onKeyDown: (e) => {
+                        if (e.key === "Enter") handleUpdateApp(app.id);
+                        if (e.key === "Escape") setEditingAppId(null);
+                      },
+                      style: { ...inputStyle, fontSize: 12, padding: "6px 10px", flex: 1 }
+                    }
+                  )
+                ] })
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 600, color: t.text }, children: app.name }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 12, color: t.textMuted, display: "flex", alignItems: "center", gap: 4, marginTop: 2 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(LinkIcon, { size: 12 }),
+                  " ",
+                  app.link
+                ] })
+              ] }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: 4 }, children: isEditing ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { t, title: "Save", onClick: () => handleUpdateApp(app.id), children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 600 }, children: "OK" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { t, title: "Cancel", onClick: () => setEditingAppId(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { size: 12 }) })
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { t, title: "Edit", onClick: () => {
+                  setEditingAppId(app.id);
+                  setEditingAppName(app.name);
+                  setEditingAppAbbr(app.abbreviation || "");
+                  setEditingAppLink(app.link);
+                }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(EditIcon, {}) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { t, title: "Delete", onClick: () => handleDeleteApp(app), children: /* @__PURE__ */ jsxRuntimeExports.jsx(TrashIcon, { size: 12 }) })
+              ] }) })
+            ]
+          },
+          app.id
+        );
+      }) })
     ] })
   ] });
 }
@@ -23745,6 +24766,9 @@ function AdminPage({
   const [showAddUser, setShowAddUser] = reactExports.useState(false);
   const [editingUser, setEditingUser] = reactExports.useState(null);
   const [showEditUser, setShowEditUser] = reactExports.useState(false);
+  const [permTab, setPermTab] = reactExports.useState("dda");
+  const [customApps, setCustomApps] = reactExports.useState([]);
+  const [customAppPerms, setCustomAppPerms] = reactExports.useState({});
   const editLocRef = reactExports.useRef(null);
   const addLocRef = reactExports.useRef(null);
   const editDeptRef = reactExports.useRef(null);
@@ -23778,6 +24802,47 @@ function AdminPage({
   reactExports.useEffect(() => {
     if (addingDept && addDeptRef.current) addDeptRef.current.focus();
   }, [addingDept]);
+  reactExports.useEffect(() => {
+    if (editingGroupId) {
+      loadCustomApps();
+      loadCustomAppPermissions();
+    }
+  }, [editingGroupId]);
+  const loadCustomApps = async () => {
+    try {
+      const apps = await getCustomApps();
+      setCustomApps(apps);
+    } catch (err) {
+      console.error("Failed to load custom apps:", err);
+    }
+  };
+  const loadCustomAppPermissions = async () => {
+    try {
+      const perms = await getCustomAppPermissions();
+      const permMap = {};
+      perms.forEach((p) => {
+        if (!permMap[p.app_id]) permMap[p.app_id] = {};
+        permMap[p.app_id][p.group_id] = p.can_view;
+      });
+      setCustomAppPerms(permMap);
+    } catch (err) {
+      console.error("Failed to load custom app permissions:", err);
+    }
+  };
+  const toggleCustomAppPerm = async (appId, groupId, currentValue) => {
+    try {
+      await setCustomAppPermission(appId, groupId, !currentValue);
+      setCustomAppPerms((prev) => ({
+        ...prev,
+        [appId]: {
+          ...prev[appId] || {},
+          [groupId]: !currentValue
+        }
+      }));
+    } catch (err) {
+      console.error("Failed to update custom app permission:", err);
+    }
+  };
   const adminActiveMenu = ADMIN_MENU.find((m) => m.id === adminSection);
   const demoUsers = adminUsers;
   const demoGroups = securityGroups.map((g) => ({
@@ -23794,10 +24859,12 @@ function AdminPage({
       return updated;
     });
   };
-  const toggleAllInCategory = (groupId, category, value) => {
-    const permsInCat = Object.entries(PERMISSION_LABELS).filter(([, v]) => v.category === category).map(([k]) => k);
+  const toggleAllInApp = (groupId, appId, value) => {
+    const appConfig = APP_PERMISSIONS[appId];
+    if (!appConfig) return;
+    const permsInApp = appConfig.permissions.map((p) => p.key);
     setSecurityGroups((p) => {
-      const updated = p.map((g) => g.id === groupId ? { ...g, permissions: { ...g.permissions, ...Object.fromEntries(permsInCat.map((pk) => [pk, value])) } } : g);
+      const updated = p.map((g) => g.id === groupId ? { ...g, permissions: { ...g.permissions, ...Object.fromEntries(permsInApp.map((pk) => [pk, value])) } } : g);
       const group = updated.find((g) => g.id === groupId);
       if (group) updateGroupPermissions(groupId, group.permissions).catch(console.error);
       return updated;
@@ -23942,7 +25009,8 @@ function AdminPage({
         }, style: { fontSize: 12 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(PlusIcon, { size: 13 }),
           " Add Location"
-        ] })
+        ] }),
+        adminSection === "app-center" && /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { primary: true, darkMode, t, onClick: () => setPage("landing"), style: { fontSize: 12 }, children: "View Landing Page" })
       ] }),
       adminSection === "users" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: demoUsers.map((u, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "folder-row", style: { display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "12px 16px", animation: `fadeIn 0.25s ease ${i * 0.04}s both` }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, display: "flex", alignItems: "center", gap: 10 }, children: [
@@ -24084,25 +25152,52 @@ function AdminPage({
                 }, style: { background: "transparent", border: "none", cursor: "pointer", color: t.error, fontSize: 11, fontWeight: 600, fontFamily: "inherit", padding: "4px 6px" }, children: "Disable All" })
               ] })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "16px 20px", maxHeight: 480, overflowY: "auto" }, children: PERMISSION_CATEGORIES.map((cat, ci) => {
-              const permsInCat = Object.entries(PERMISSION_LABELS).filter(([, v]) => v.category === cat);
-              const enabledInCat = permsInCat.filter(([k]) => editingGroup.permissions[k]).length;
-              const allEnabled = enabledInCat === permsInCat.length;
-              return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: ci < PERMISSION_CATEGORIES.length - 1 ? 20 : 0, animation: `fadeIn 0.2s ease ${ci * 0.05}s both` }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, padding: "0 2px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "12px 20px", borderBottom: `1px solid ${t.border}`, display: "flex", gap: 6, overflowX: "auto" }, children: ["dda", "cht", "help", "admin", "custom"].map((appId) => {
+              const app = APP_PERMISSIONS[appId];
+              const isActive = permTab === appId;
+              const appColor = appId === "custom" ? "#8b5cf6" : (app == null ? void 0 : app.color) || "#6b7280";
+              return /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setPermTab(appId), style: { background: isActive ? appColor + "15" : "transparent", border: `1px solid ${isActive ? appColor + "40" : t.border}`, borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer", color: isActive ? appColor : t.textMuted, fontFamily: "inherit", whiteSpace: "nowrap", transition: "all 0.15s" }, children: appId === "custom" ? "Custom Apps" : (app == null ? void 0 : app.name) || appId.toUpperCase() }, appId);
+            }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "16px 20px", maxHeight: 420, overflowY: "auto" }, children: permTab === "custom" ? customApps.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "40px 20px", color: t.textMuted }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, marginBottom: 8 }, children: "No custom apps configured" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11 }, children: "Create custom apps in App Center to manage visibility" })
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: customApps.map((app) => {
+              var _a, _b;
+              const canView = ((_a = customAppPerms[app.id]) == null ? void 0 : _a[editingGroupId]) ?? true;
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)", borderRadius: 8, border: `1px solid ${t.border}` }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 36, height: 36, borderRadius: 8, background: app.color || "#6b7280", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }, children: (app.abbreviation || ((_b = app.name) == null ? void 0 : _b.slice(0, 3)) || "APP").toUpperCase() }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 600 }, children: app.name }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, color: t.textMuted }, children: app.link })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, color: canView ? t.success : t.textMuted }, children: canView ? "Visible" : "Hidden" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { onClick: () => toggleCustomAppPerm(app.id, editingGroupId, canView), style: { width: 36, height: 20, borderRadius: 10, background: canView ? t.success : darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)", position: "relative", cursor: "pointer", transition: "background 0.15s" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 16, height: 16, borderRadius: 8, background: "#fff", position: "absolute", top: 2, left: canView ? 18 : 2, transition: "left 0.15s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" } }) })
+                ] })
+              ] }, app.id);
+            }) }) : (() => {
+              const app = APP_PERMISSIONS[permTab];
+              if (!app) return null;
+              const permsInApp = app.permissions;
+              const enabledInApp = permsInApp.filter((p) => editingGroup.permissions[p.key]).length;
+              const allEnabled = enabledInApp === permsInApp.length;
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { animation: "fadeIn 0.2s ease" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, padding: "0 2px" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textDim }, children: cat }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 9.5, fontWeight: 600, padding: "1px 6px", borderRadius: 6, background: enabledInCat > 0 ? t.successSoft : "transparent", color: enabledInCat > 0 ? t.success : t.textDim }, children: [
-                      enabledInCat,
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 600, color: t.text }, children: app.name }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 10, fontWeight: 600, padding: "1px 6px", borderRadius: 6, background: enabledInApp > 0 ? t.successSoft : "transparent", color: enabledInApp > 0 ? t.success : t.textDim }, children: [
+                      enabledInApp,
                       "/",
-                      permsInCat.length
+                      permsInApp.length
                     ] })
                   ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => toggleAllInCategory(editingGroupId, cat, !allEnabled), style: { background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 10, fontWeight: 600, fontFamily: "inherit", padding: "2px 4px" }, children: allEnabled ? "Disable All" : "Enable All" })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => toggleAllInApp(editingGroupId, permTab, !allEnabled), style: { background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 11, fontWeight: 600, fontFamily: "inherit", padding: "2px 4px" }, children: allEnabled ? "Disable All" : "Enable All" })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: permsInCat.map(([key, meta]) => /* @__PURE__ */ jsxRuntimeExports.jsx(PermToggle, { checked: editingGroup.permissions[key], onChange: () => togglePerm(editingGroupId, key), label: meta.label, desc: meta.desc, t, darkMode }, key)) })
-              ] }, cat);
-            }) })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: permsInApp.map((perm) => /* @__PURE__ */ jsxRuntimeExports.jsx(PermToggle, { checked: editingGroup.permissions[perm.key], onChange: () => togglePerm(editingGroupId, perm.key), label: perm.label, desc: perm.desc, t, darkMode }, perm.key)) })
+              ] });
+            })() })
           ] })
         ] })
       ] }),
@@ -24519,13 +25614,14 @@ function AdminPage({
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12.5, marginTop: 4 }, children: "File uploads, renames, and folder changes will appear here" })
         ] })
       ] }),
-      !["users", "groups", "locations", "departments", "audit", "authentication", "settings"].includes(adminSection) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "60px 0", color: t.textDim }, children: [
+      !["users", "groups", "app-center", "locations", "departments", "audit", "authentication", "settings"].includes(adminSection) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "60px 0", color: t.textDim }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: adminActiveMenu == null ? void 0 : adminActiveMenu.icon }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 15, fontWeight: 500, marginTop: 14 }, children: adminActiveMenu == null ? void 0 : adminActiveMenu.label }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13 }, children: "Under development" })
       ] }),
       adminSection === "authentication" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AuthenticationSection, { t, darkMode }) }),
-      adminSection === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsSection, { t, darkMode }) })
+      adminSection === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsSection, { t, darkMode }) }),
+      adminSection === "app-center" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AppCenterSection, { t, darkMode, addToast }) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       AddUserModal,
@@ -24576,15 +25672,45 @@ function AdminPage({
     )
   ] });
 }
-function LandingPage({ setPage, t, darkMode, loggedInUser }) {
+function CHTDashboardPage({ loggedInUser, t, darkMode }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "calc(100vh - 54px)",
+    padding: 40
+  }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+      width: 80,
+      height: 80,
+      borderRadius: 20,
+      background: "linear-gradient(135deg,#f59e0b,#d97706)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      color: "white",
+      fontSize: 24,
+      fontWeight: 800,
+      marginBottom: 24
+    }, children: "CHT" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { fontSize: 28, fontWeight: 700, margin: "0 0 12px", color: t.text }, children: "Credit Hold Tracker" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 15, color: t.textMuted, margin: 0 }, children: "Manage and track credit holds across your organization" })
+  ] });
+}
+function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
   var _a;
-  const isAdmin = (_a = loggedInUser == null ? void 0 : loggedInUser.groups) == null ? void 0 : _a.includes("Administrator");
+  const isAdmin2 = (_a = loggedInUser == null ? void 0 : loggedInUser.groups) == null ? void 0 : _a.includes("Administrator");
   const [logoUrl, setLogoUrl] = reactExports.useState(null);
+  const [customApps, setCustomApps] = reactExports.useState([]);
   reactExports.useEffect(() => {
     const logoType = darkMode ? "dark" : "light";
     const url = `/api/settings/logo/${logoType}?t=${Date.now()}`;
     setLogoUrl(url);
   }, [darkMode]);
+  reactExports.useEffect(() => {
+    getCustomApps().then(setCustomApps).catch(console.error);
+  }, []);
   const apps = [
     {
       id: "dda",
@@ -24603,7 +25729,60 @@ function LandingPage({ setPage, t, darkMode, loggedInUser }) {
       }, children: "DDA" }),
       onClick: () => setPage("dashboard")
     },
-    ...isAdmin ? [{
+    {
+      id: "cht",
+      name: "Credit Hold Tracker",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        width: 56,
+        height: 56,
+        borderRadius: 14,
+        background: "linear-gradient(135deg,#f59e0b,#d97706)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        fontSize: 16,
+        fontWeight: 800
+      }, children: "CHT" }),
+      onClick: () => setPage("cht-dashboard")
+    },
+    {
+      id: "help",
+      name: "Submit Help Ticket",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        width: 56,
+        height: 56,
+        borderRadius: 14,
+        background: "linear-gradient(135deg,#10b981,#059669)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white"
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TicketIcon, { size: 28 }) }),
+      onClick: () => {
+        if (onOpenHelpTicket) onOpenHelpTicket();
+      }
+    },
+    ...customApps.map((app) => ({
+      id: app.id,
+      name: app.name,
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        width: 56,
+        height: 56,
+        borderRadius: 14,
+        background: "linear-gradient(135deg, #88c0d0, #5b9bd5)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        fontSize: 16,
+        fontWeight: 800
+      }, children: app.abbreviation || app.name.substring(0, 2).toUpperCase() }),
+      onClick: () => {
+        window.open(app.link, "_blank");
+      }
+    })),
+    ...isAdmin2 ? [{
       id: "admin",
       name: "Admin Center",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
@@ -24889,10 +26068,15 @@ function LandingNavbar({ darkMode, setDarkMode, loggedInUser, setPage, setShowCh
     ] })
   ] });
 }
-function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection }) {
+function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket }) {
   var _a, _b;
   const [showProfileMenu, setShowProfileMenu] = reactExports.useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = reactExports.useState(false);
+  const [customApps, setCustomApps] = reactExports.useState([]);
+  reactExports.useEffect(() => {
+    getCustomApps().then(setCustomApps).catch(() => {
+    });
+  }, []);
   const t = {
     accent: darkMode ? "#88c0d0" : "#0891b2",
     accentSoft: darkMode ? "rgba(136,192,208,0.15)" : "rgba(8,145,178,0.08)"
@@ -24906,6 +26090,23 @@ function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setSh
       setPage("dashboard");
       setShowAppsDropdown(false);
     } },
+    { id: "cht", name: "Credit Hold Tracker", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "CHT" }), onClick: () => {
+      setPage("cht-dashboard");
+      setShowAppsDropdown(false);
+    } },
+    { id: "help", name: "Submit Help Ticket", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TicketIcon, { size: 14 }) }), onClick: () => {
+      setShowAppsDropdown(false);
+      onOpenHelpTicket == null ? void 0 : onOpenHelpTicket();
+    } },
+    ...customApps.map((app) => ({
+      id: app.id,
+      name: app.name,
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg, #88c0d0, #5b9bd5)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: app.abbreviation || app.name.substring(0, 2).toUpperCase() }),
+      onClick: () => {
+        window.open(app.link, "_blank");
+        setShowAppsDropdown(false);
+      }
+    })),
     { id: "admin", name: "Admin Center", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, { size: 20 }), onClick: () => {
       setPage("admin");
       setAdminSection == null ? void 0 : setAdminSection("users");
@@ -25188,6 +26389,314 @@ function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setSh
     ] })
   ] });
 }
+function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket }) {
+  var _a;
+  const [showProfileMenu, setShowProfileMenu] = reactExports.useState(false);
+  const [showAppsDropdown, setShowAppsDropdown] = reactExports.useState(false);
+  const [customApps, setCustomApps] = reactExports.useState([]);
+  const chtAccent = "#f59e0b";
+  const chtAccentDark = "#d97706";
+  const t = {
+    accentSoft: darkMode ? "rgba(245,158,11,0.15)" : "rgba(245,158,11,0.08)",
+    textMuted: darkMode ? "#94a3b8" : "#57606a",
+    text: darkMode ? "#e5e7eb" : "#1f2937",
+    border: darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+    surface: darkMode ? "#0d1117" : "#fff"
+  };
+  const apps = [
+    { id: "home", name: "Home", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(HomeIcon, { size: 20 }), onClick: () => {
+      setPage("landing");
+      setShowAppsDropdown(false);
+    } },
+    { id: "dda", name: "Dealer Document Archive", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#88c0d0,#88c0d0)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "DDA" }), onClick: () => {
+      setPage("dashboard");
+      setShowAppsDropdown(false);
+    } },
+    { id: "cht", name: "Credit Hold Tracker", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "CHT" }), onClick: () => {
+      setPage("cht-dashboard");
+      setShowAppsDropdown(false);
+    } },
+    { id: "help", name: "Submit Help Ticket", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TicketIcon, { size: 14 }) }), onClick: () => {
+      setShowAppsDropdown(false);
+      onOpenHelpTicket == null ? void 0 : onOpenHelpTicket();
+    } },
+    ...customApps.map((app) => ({
+      id: app.id,
+      name: app.name,
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg, #88c0d0, #5b9bd5)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: app.abbreviation || app.name.substring(0, 2).toUpperCase() }),
+      onClick: () => {
+        window.open(app.link, "_blank");
+        setShowAppsDropdown(false);
+      }
+    })),
+    ...isAdmin ? [{ id: "admin", name: "Admin Center", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, { size: 20 }), onClick: () => {
+      setPage("admin");
+      setAdminSection == null ? void 0 : setAdminSection("users");
+      setShowAppsDropdown(false);
+    } }] : []
+  ];
+  const navActiveBg = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)";
+  reactExports.useEffect(() => {
+    getCustomApps().then(setCustomApps).catch(() => {
+    });
+  }, []);
+  reactExports.useEffect(() => {
+    const handleClickOutside = () => {
+      setShowAppsDropdown(false);
+    };
+    if (showAppsDropdown) {
+      setTimeout(() => document.addEventListener("click", handleClickOutside), 0);
+    }
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [showAppsDropdown]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { style: {
+    borderBottom: `1px solid ${t.border}`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "0 24px",
+    height: 54,
+    backdropFilter: "blur(12px)",
+    background: darkMode ? "rgba(15,17,20,0.92)" : "rgba(240,237,232,0.88)",
+    position: "sticky",
+    top: 0,
+    zIndex: 100
+  }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "center", gap: 12 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { onClick: () => setPage("cht-dashboard"), style: { display: "flex", alignItems: "center", gap: 9, cursor: "pointer" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        width: 28,
+        height: 28,
+        borderRadius: 7,
+        background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        fontSize: 9,
+        fontWeight: 800,
+        letterSpacing: "-0.02em"
+      }, children: "CHT" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 700, letterSpacing: "-0.03em", color: t.text }, children: "Credit Hold Tracker" })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 10, flexShrink: 0, position: "relative", zIndex: 2 }, children: [
+      loggedInUser && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            onClick: (e) => {
+              e.stopPropagation();
+              setShowProfileMenu(!showProfileMenu);
+            },
+            style: {
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              cursor: "pointer",
+              padding: "4px 8px",
+              borderRadius: 8,
+              background: showProfileMenu ? navActiveBg : "transparent"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                background: loggedInUser.avatarUrl ? "transparent" : t.accentSoft,
+                color: chtAccent,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 11,
+                fontWeight: 700,
+                textTransform: "uppercase",
+                overflow: "hidden"
+              }, children: [
+                loggedInUser.avatarUrl ? /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: loggedInUser.avatarUrl, alt: loggedInUser.name, style: { width: "100%", height: "100%", objectFit: "cover" }, onError: (e) => {
+                  e.target.style.display = "none";
+                  e.target.nextSibling.style.display = "flex";
+                } }) : null,
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: loggedInUser.avatarUrl ? "none" : "flex" }, children: loggedInUser.name.charAt(0) })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 500, color: t.textMuted }, children: loggedInUser.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, {})
+            ]
+          }
+        ),
+        showProfileMenu && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            onClick: (e) => e.stopPropagation(),
+            style: {
+              position: "absolute",
+              top: "calc(100% + 6px)",
+              right: 0,
+              zIndex: 200,
+              background: t.surface,
+              border: `1px solid ${t.border}`,
+              borderRadius: 10,
+              boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
+              padding: 4,
+              minWidth: 200,
+              animation: "fadeIn 0.15s ease"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "10px 12px 8px", borderBottom: `1px solid ${t.border}`, marginBottom: 4 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 600, color: t.text }, children: loggedInUser.name }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 10.5, color: darkMode ? "#6b7280" : "#9ca3af", marginTop: 2 }, children: (_a = loggedInUser.groups) == null ? void 0 : _a.join(", ") })
+              ] }),
+              [
+                { l: "My Account", i: /* @__PURE__ */ jsxRuntimeExports.jsx(UserIcon, {}) },
+                { l: "Change Password", i: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, {}) },
+                { l: "My Subscriptions", i: /* @__PURE__ */ jsxRuntimeExports.jsx(BellIcon, {}) }
+              ].map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  onClick: () => {
+                    setShowProfileMenu(false);
+                    if (item.l === "Change Password") {
+                      setShowChangePassword(true);
+                      setChangePasswordForm({ current: "", new: "", confirm: "" });
+                      setChangePasswordError("");
+                      setChangePasswordSuccess("");
+                    }
+                    if (item.l === "My Subscriptions") {
+                      setShowSubscriptionsModal(true);
+                    }
+                  },
+                  className: "folder-select-item",
+                  style: {
+                    padding: "8px 12px",
+                    borderRadius: 7,
+                    cursor: "pointer",
+                    fontSize: 13,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    color: t.text,
+                    fontWeight: 500
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: t.textMuted }, children: item.i }),
+                    " ",
+                    item.l
+                  ]
+                },
+                item.l
+              )),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { borderTop: `1px solid ${t.border}`, marginTop: 4, paddingTop: 4 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  onClick: () => {
+                    setShowProfileMenu(false);
+                    handleLogout();
+                  },
+                  className: "folder-select-item",
+                  style: {
+                    padding: "8px 12px",
+                    borderRadius: 7,
+                    cursor: "pointer",
+                    fontSize: 13,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    color: darkMode ? "#f87171" : "#ef4444",
+                    fontWeight: 500
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(LogOutIcon, {}),
+                    " Sign Out"
+                  ]
+                }
+              ) })
+            ]
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => setShowAppsDropdown(!showAppsDropdown),
+            style: {
+              background: showAppsDropdown ? navActiveBg : "transparent",
+              border: `1px solid ${t.border}`,
+              borderRadius: 7,
+              padding: "6px 10px",
+              cursor: "pointer",
+              color: showAppsDropdown ? chtAccent : t.textMuted,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: "inherit"
+            },
+            title: "Applications",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(AppsIcon, { size: 14 })
+          }
+        ),
+        showAppsDropdown && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              top: "calc(100% + 6px)",
+              right: 0,
+              zIndex: 200,
+              background: t.surface,
+              border: `1px solid ${t.border}`,
+              borderRadius: 12,
+              boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
+              padding: 8,
+              animation: "fadeIn 0.15s ease"
+            },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4 }, children: apps.map((app) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                onClick: app.onClick,
+                title: app.name,
+                style: {
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "transparent",
+                  transition: "background 0.15s"
+                },
+                onMouseEnter: (e) => e.currentTarget.style.background = t.accentSoft,
+                onMouseLeave: (e) => e.currentTarget.style.background = "transparent",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: chtAccent, display: "flex", alignItems: "center" }, children: app.icon })
+              },
+              app.id
+            )) })
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertsDropdown, { darkMode, onNavigate: () => {
+      } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          onClick: () => setDarkMode(!darkMode),
+          style: {
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 7,
+            padding: 6,
+            cursor: "pointer",
+            color: t.textMuted,
+            display: "flex",
+            alignItems: "center"
+          },
+          children: darkMode ? /* @__PURE__ */ jsxRuntimeExports.jsx(SunIcon, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(MoonIcon, {})
+        }
+      )
+    ] })
+  ] });
+}
 function playNotificationSound() {
   try {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -25432,6 +26941,7 @@ function AppInner() {
   const [adminSetPasswordSuccess, setAdminSetPasswordSuccess] = reactExports.useState("");
   const [adminSetPasswordLoading, setAdminSetPasswordLoading] = reactExports.useState(false);
   const [showSubscriptionsModal, setShowSubscriptionsModal] = reactExports.useState(false);
+  const [showHelpTicketModal, setShowHelpTicketModal] = reactExports.useState(false);
   const [toasts, setToasts] = reactExports.useState([]);
   const toastIdCounter = reactExports.useRef(0);
   const addToast = reactExports.useCallback((title, message, duration, type) => {
@@ -26097,9 +27607,11 @@ function AppInner() {
     /* @__PURE__ */ jsxRuntimeExports.jsx("link", { href: "https://cdn.jsdelivr.net/npm/geist@1.2.2/dist/fonts/geist-sans/style.min.css", rel: "stylesheet" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: `@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} @keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}} @keyframes toastIn{from{opacity:0;transform:translateX(100px)}to{opacity:1;transform:translateX(0)}} @keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(100px)}} .file-card:hover{transform:translateY(-1px);box-shadow:${t.cardShadow}} .folder-row:hover{transform:translateY(-1px);box-shadow:${t.cardShadow};border-color:${darkMode ? "#3a3f47" : t.accent}!important} .icon-btn:hover{color:${t.text}!important;background:${t.accentSoft}} .folder-select-item:hover{background:${t.accentSoft}!important} .nav-tab:hover{background:${t.navActive}} .admin-menu-item:hover{background:${t.accentSoft}} ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:${t.scrollThumb};border-radius:3px} input::placeholder{color:${t.textDim}}` }),
     page === "landing" && /* @__PURE__ */ jsxRuntimeExports.jsx(LandingNavbar, { darkMode, setDarkMode, loggedInUser, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal }),
-    page === "admin" && /* @__PURE__ */ jsxRuntimeExports.jsx(AdminNavbar, { darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection }),
-    page !== "landing" && page !== "admin" && /* @__PURE__ */ jsxRuntimeExports.jsx(Navbar, { page, setPage, darkMode, setDarkMode, isLoggedIn, loggedInUser, locations, departments, folders, files, unsortedFiles, stagedFiles, activeLocation, setActiveLocation, activeDepartment, setActiveDepartment, setActiveFolderId, setSelectedFile, setViewingFileId, setFolderSearch, expandedLocations, setExpandedLocations, showDeptDropdown, setShowDeptDropdown, showProfileMenu, setShowProfileMenu, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, setAdminSection, handleLogout, foldersInLocation, foldersInDepartment, deptsInLocation, filesInFolder, setShowSubscriptionsModal, setViewingFileIdFromAlert, t }),
-    page === "landing" && /* @__PURE__ */ jsxRuntimeExports.jsx(LandingPage, { setPage, t, darkMode, loggedInUser }),
+    page === "admin" && /* @__PURE__ */ jsxRuntimeExports.jsx(AdminNavbar, { darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket: () => setShowHelpTicketModal(true) }),
+    page.startsWith("cht-") && /* @__PURE__ */ jsxRuntimeExports.jsx(CHTNavbar, { darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket: () => setShowHelpTicketModal(true) }),
+    page !== "landing" && page !== "admin" && !page.startsWith("cht-") && /* @__PURE__ */ jsxRuntimeExports.jsx(Navbar, { page, setPage, darkMode, setDarkMode, isLoggedIn, loggedInUser, locations, departments, folders, files, unsortedFiles, stagedFiles, activeLocation, setActiveLocation, activeDepartment, setActiveDepartment, setActiveFolderId, setSelectedFile, setViewingFileId, setFolderSearch, expandedLocations, setExpandedLocations, showDeptDropdown, setShowDeptDropdown, showProfileMenu, setShowProfileMenu, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, setAdminSection, handleLogout, foldersInLocation, foldersInDepartment, deptsInLocation, filesInFolder, setShowSubscriptionsModal, setViewingFileIdFromAlert, onOpenHelpTicket: () => setShowHelpTicketModal(true), t }),
+    page === "landing" && /* @__PURE__ */ jsxRuntimeExports.jsx(LandingPage, { setPage, t, darkMode, loggedInUser, onOpenHelpTicket: () => setShowHelpTicketModal(true) }),
+    page === "cht-dashboard" && /* @__PURE__ */ jsxRuntimeExports.jsx(CHTDashboardPage, { loggedInUser, t, darkMode }),
     page === "dashboard" && /* @__PURE__ */ jsxRuntimeExports.jsx(DashboardPage, { dashboardData, loggedInUser, setPage, setActiveFolderId, setViewingFileId, t, darkMode }),
     page === "folders-browse" && /* @__PURE__ */ jsxRuntimeExports.jsx(FoldersBrowsePage, { locations, departments, deptsInLocation, setActiveLocation, setActiveDepartment, setActiveFolderId, setFolderSearch, setSelectedFile, setPage, subscriptions, setSubscriptions, t, darkMode }),
     page === "folders" && /* @__PURE__ */ jsxRuntimeExports.jsx(FoldersPage, { currentLocation, currentDept, currentDeptFolders, folderSearch, setFolderSearch, creatingDeptFolder, setCreatingDeptFolder, newDeptFolderName, setNewDeptFolderName, createDeptFolder, setActiveFolderId, setPage, setCreatingSubfolder, handleDeleteFolder, subscriptions, setSubscriptions, loggedInUser, t, darkMode }),
@@ -26113,6 +27625,7 @@ function AppInner() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(ChangePasswordModal, { show: showChangePassword, form: changePasswordForm, setForm: setChangePasswordForm, error: changePasswordError, setError: setChangePasswordError, success: changePasswordSuccess, setSuccess: setChangePasswordSuccess, loading: changePasswordLoading, onSubmit: handleChangePassword, onClose: () => setShowChangePassword(false), t, darkMode }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(AdminSetPasswordModal, { userId: adminSetPasswordUserId, userName: (_a = adminUsers.find((u) => u.id === adminSetPasswordUserId)) == null ? void 0 : _a.name, form: adminSetPasswordForm, setForm: setAdminSetPasswordForm, error: adminSetPasswordError, setError: setAdminSetPasswordError, success: adminSetPasswordSuccess, setSuccess: setAdminSetPasswordSuccess, loading: adminSetPasswordLoading, onSubmit: handleAdminSetPassword, onClose: () => setAdminSetPasswordUserId(null), t, darkMode }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(SubscriptionsModal, { show: showSubscriptionsModal, onClose: () => setShowSubscriptionsModal(false), subscriptions, setSubscriptions, t, darkMode }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTicketModal, { show: showHelpTicketModal, onClose: () => setShowHelpTicketModal(false), darkMode, loggedInUser }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Toast, { toasts, removeToast, darkMode })
   ] });
 }
@@ -26122,4 +27635,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-Bzy5bN6b.js.map
+//# sourceMappingURL=index-DOorDypc.js.map

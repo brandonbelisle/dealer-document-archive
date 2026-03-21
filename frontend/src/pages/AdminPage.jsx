@@ -5,7 +5,7 @@ import PermToggle from "../components/ui/PermToggle";
 import GroupAccessEditor from "../components/GroupAccessEditor";
 import AddUserModal from "../components/modals/AddUserModal";
 import EditUserModal from "../components/modals/EditUserModal";
-import { ADMIN_MENU, PERMISSION_LABELS, PERMISSION_CATEGORIES } from "../constants";
+import { ADMIN_MENU, PERMISSION_LABELS, APP_PERMISSIONS } from "../constants";
 import {
   PlusIcon,
   XIcon,
@@ -1673,88 +1673,95 @@ function AppCenterSection({ t, darkMode, addToast }) {
           </Btn>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {customApps.map((app, idx) => {
-            const isEditing = editingAppId === app.id;
-            const abbr = app.abbreviation || app.name.substring(0, 2).toUpperCase();
-            return (
-              <div
-                key={app.id}
-                className="folder-row"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  background: t.surface,
-                  border: `1px solid ${isEditing ? t.accent : t.border}`,
-                  borderRadius: 10,
-                  padding: "14px 16px",
-                  boxShadow: isEditing ? `0 0 0 3px ${t.accentSoft}` : "none",
-                  animation: `fadeIn 0.25s ease ${idx * 0.04}s both`,
-                }}
-              >
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg, #88c0d0, #5b9bd5)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: 12, flexShrink: 0 }}>
-                  {abbr}
-                </div>
-                <div style={{ flex: 1, marginLeft: 12, minWidth: 0 }}>
-                  {isEditing ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      <input
-                        value={editingAppName}
-                        onChange={(e) => setEditingAppName(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter") handleUpdateApp(app.id); if (e.key === "Escape") setEditingAppId(null); }}
-                        autoFocus
-                        style={{ ...inputStyle, fontSize: 13, padding: "6px 10px" }}
-                      />
-                      <div style={{ display: "flex", gap: 8 }}>
+        <>
+          {customApps.length > 0 && !addingApp && (
+            <Btn primary darkMode={darkMode} t={t} onClick={() => { setAddingApp(true); setNewAppName(""); setNewAppAbbr(""); setNewAppLink(""); }} style={{ fontSize: 13, marginBottom: 16 }}>
+              <PlusIcon size={14} /> Add Custom App
+            </Btn>
+          )}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {customApps.map((app, idx) => {
+              const isEditing = editingAppId === app.id;
+              const abbr = app.abbreviation || app.name.substring(0, 2).toUpperCase();
+              return (
+                <div
+                  key={app.id}
+                  className="folder-row"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    background: t.surface,
+                    border: `1px solid ${isEditing ? t.accent : t.border}`,
+                    borderRadius: 10,
+                    padding: "14px 16px",
+                    boxShadow: isEditing ? `0 0 0 3px ${t.accentSoft}` : "none",
+                    animation: `fadeIn 0.25s ease ${idx * 0.04}s both`,
+                  }}
+                >
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg, #88c0d0, #5b9bd5)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: 12, flexShrink: 0 }}>
+                    {abbr}
+                  </div>
+                  <div style={{ flex: 1, marginLeft: 12, minWidth: 0 }}>
+                    {isEditing ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                         <input
-                          value={editingAppAbbr}
-                          onChange={(e) => setEditingAppAbbr(e.target.value.slice(0, 4))}
+                          value={editingAppName}
+                          onChange={(e) => setEditingAppName(e.target.value)}
                           onKeyDown={(e) => { if (e.key === "Enter") handleUpdateApp(app.id); if (e.key === "Escape") setEditingAppId(null); }}
-                          placeholder="ABBR"
-                          style={{ ...inputStyle, fontSize: 12, padding: "6px 10px", maxWidth: 100, textTransform: "uppercase" }}
+                          autoFocus
+                          style={{ ...inputStyle, fontSize: 13, padding: "6px 10px" }}
                         />
-                        <input
-                          value={editingAppLink}
-                          onChange={(e) => setEditingAppLink(e.target.value)}
-                          onKeyDown={(e) => { if (e.key === "Enter") handleUpdateApp(app.id); if (e.key === "Escape") setEditingAppId(null); }}
-                          style={{ ...inputStyle, fontSize: 12, padding: "6px 10px", flex: 1 }}
-                        />
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <input
+                            value={editingAppAbbr}
+                            onChange={(e) => setEditingAppAbbr(e.target.value.slice(0, 4))}
+                            onKeyDown={(e) => { if (e.key === "Enter") handleUpdateApp(app.id); if (e.key === "Escape") setEditingAppId(null); }}
+                            placeholder="ABBR"
+                            style={{ ...inputStyle, fontSize: 12, padding: "6px 10px", maxWidth: 100, textTransform: "uppercase" }}
+                          />
+                          <input
+                            value={editingAppLink}
+                            onChange={(e) => setEditingAppLink(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === "Enter") handleUpdateApp(app.id); if (e.key === "Escape") setEditingAppId(null); }}
+                            style={{ ...inputStyle, fontSize: 12, padding: "6px 10px", flex: 1 }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>{app.name}</div>
-                      <div style={{ fontSize: 12, color: t.textMuted, display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
-                        <LinkIcon size={12} /> {app.link}
-                      </div>
-                    </>
-                  )}
+                    ) : (
+                      <>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>{app.name}</div>
+                        <div style={{ fontSize: 12, color: t.textMuted, display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
+                          <LinkIcon size={12} /> {app.link}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", gap: 4 }}>
+                    {isEditing ? (
+                      <>
+                        <SmallBtn t={t} title="Save" onClick={() => handleUpdateApp(app.id)}>
+                          <span style={{ fontSize: 12, fontWeight: 600 }}>OK</span>
+                        </SmallBtn>
+                        <SmallBtn t={t} title="Cancel" onClick={() => setEditingAppId(null)}>
+                          <XIcon size={12} />
+                        </SmallBtn>
+                      </>
+                    ) : (
+                      <>
+                        <SmallBtn t={t} title="Edit" onClick={() => { setEditingAppId(app.id); setEditingAppName(app.name); setEditingAppAbbr(app.abbreviation || ""); setEditingAppLink(app.link); }}>
+                          <EditIcon />
+                        </SmallBtn>
+                        <SmallBtn t={t} title="Delete" onClick={() => handleDeleteApp(app)}>
+                          <TrashIcon size={12} />
+                        </SmallBtn>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <div style={{ display: "flex", gap: 4 }}>
-                  {isEditing ? (
-                    <>
-                      <SmallBtn t={t} title="Save" onClick={() => handleUpdateApp(app.id)}>
-                        <span style={{ fontSize: 12, fontWeight: 600 }}>OK</span>
-                      </SmallBtn>
-                      <SmallBtn t={t} title="Cancel" onClick={() => setEditingAppId(null)}>
-                        <XIcon size={12} />
-                      </SmallBtn>
-                    </>
-                  ) : (
-                    <>
-                      <SmallBtn t={t} title="Edit" onClick={() => { setEditingAppId(app.id); setEditingAppName(app.name); setEditingAppAbbr(app.abbreviation || ""); setEditingAppLink(app.link); }}>
-                        <EditIcon />
-                      </SmallBtn>
-                      <SmallBtn t={t} title="Delete" onClick={() => handleDeleteApp(app)}>
-                        <TrashIcon size={12} />
-                      </SmallBtn>
-                    </>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );
@@ -1840,6 +1847,9 @@ export default function AdminPage({
   const [showAddUser, setShowAddUser] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [showEditUser, setShowEditUser] = useState(false);
+  const [permTab, setPermTab] = useState("dda");
+  const [customApps, setCustomApps] = useState([]);
+  const [customAppPerms, setCustomAppPerms] = useState({});
 
   const editLocRef = useRef(null);
   const addLocRef = useRef(null);
@@ -1868,6 +1878,51 @@ export default function AdminPage({
   useEffect(() => { if (addingLocation && addLocRef.current) addLocRef.current.focus(); }, [addingLocation]);
   useEffect(() => { if (editingDeptId && editDeptRef.current) editDeptRef.current.focus(); }, [editingDeptId]);
   useEffect(() => { if (addingDept && addDeptRef.current) addDeptRef.current.focus(); }, [addingDept]);
+  
+  useEffect(() => {
+    if (editingGroupId) {
+      loadCustomApps();
+      loadCustomAppPermissions();
+    }
+  }, [editingGroupId]);
+
+  const loadCustomApps = async () => {
+    try {
+      const apps = await api.getCustomApps();
+      setCustomApps(apps);
+    } catch (err) {
+      console.error("Failed to load custom apps:", err);
+    }
+  };
+
+  const loadCustomAppPermissions = async () => {
+    try {
+      const perms = await api.getCustomAppPermissions();
+      const permMap = {};
+      perms.forEach(p => {
+        if (!permMap[p.app_id]) permMap[p.app_id] = {};
+        permMap[p.app_id][p.group_id] = p.can_view;
+      });
+      setCustomAppPerms(permMap);
+    } catch (err) {
+      console.error("Failed to load custom app permissions:", err);
+    }
+  };
+
+  const toggleCustomAppPerm = async (appId, groupId, currentValue) => {
+    try {
+      await api.setCustomAppPermission(appId, groupId, !currentValue);
+      setCustomAppPerms(prev => ({
+        ...prev,
+        [appId]: {
+          ...(prev[appId] || {}),
+          [groupId]: !currentValue
+        }
+      }));
+    } catch (err) {
+      console.error("Failed to update custom app permission:", err);
+    }
+  };
 
   const adminActiveMenu = ADMIN_MENU.find((m) => m.id === adminSection);
   const demoUsers = adminUsers;
@@ -1884,6 +1939,17 @@ export default function AdminPage({
   const togglePerm = (groupId, perm) => {
     setSecurityGroups((p) => {
       const updated = p.map((g) => g.id === groupId ? { ...g, permissions: { ...g.permissions, [perm]: !g.permissions[perm] } } : g);
+      const group = updated.find((g) => g.id === groupId);
+      if (group) api.updateGroupPermissions(groupId, group.permissions).catch(console.error);
+      return updated;
+    });
+  };
+  const toggleAllInApp = (groupId, appId, value) => {
+    const appConfig = APP_PERMISSIONS[appId];
+    if (!appConfig) return;
+    const permsInApp = appConfig.permissions.map(p => p.key);
+    setSecurityGroups((p) => {
+      const updated = p.map((g) => g.id === groupId ? { ...g, permissions: { ...g.permissions, ...Object.fromEntries(permsInApp.map((pk) => [pk, value])) } } : g);
       const group = updated.find((g) => g.id === groupId);
       if (group) api.updateGroupPermissions(groupId, group.permissions).catch(console.error);
       return updated;
@@ -2120,39 +2186,85 @@ export default function AdminPage({
                       </div>
                     </div>
                     <div style={{ padding: "12px 20px", borderBottom: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: t.text }}>Permissions</span>
-                        <span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: t.successSoft, color: t.success }}>{Object.values(editingGroup.permissions).filter(Boolean).length} of {Object.keys(PERMISSION_LABELS).length} enabled</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ fontSize: 12, fontWeight: 600, color: t.text }}>Permissions</span>
+                          <span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: t.successSoft, color: t.success }}>{Object.values(editingGroup.permissions).filter(Boolean).length} of {Object.keys(PERMISSION_LABELS).length} enabled</span>
+                        </div>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <button onClick={() => { const allTrue = Object.fromEntries(Object.keys(editingGroup.permissions).map((k) => [k, true])); setSecurityGroups((p) => p.map((g) => g.id === editingGroupId ? { ...g, permissions: allTrue } : g)); api.updateGroupPermissions(editingGroupId, allTrue).catch(console.error); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 11, fontWeight: 600, fontFamily: "inherit", padding: "4px 6px" }}>Enable All</button>
+                          <span style={{ color: t.textDim }}>·</span>
+                          <button onClick={() => { const allFalse = Object.fromEntries(Object.keys(editingGroup.permissions).map((k) => [k, false])); setSecurityGroups((p) => p.map((g) => g.id === editingGroupId ? { ...g, permissions: allFalse } : g)); api.updateGroupPermissions(editingGroupId, allFalse).catch(console.error); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.error, fontSize: 11, fontWeight: 600, fontFamily: "inherit", padding: "4px 6px" }}>Disable All</button>
+                        </div>
                       </div>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        <button onClick={() => { const allTrue = Object.fromEntries(Object.keys(editingGroup.permissions).map((k) => [k, true])); setSecurityGroups((p) => p.map((g) => g.id === editingGroupId ? { ...g, permissions: allTrue } : g)); api.updateGroupPermissions(editingGroupId, allTrue).catch(console.error); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 11, fontWeight: 600, fontFamily: "inherit", padding: "4px 6px" }}>Enable All</button>
-                        <span style={{ color: t.textDim }}>·</span>
-                        <button onClick={() => { const allFalse = Object.fromEntries(Object.keys(editingGroup.permissions).map((k) => [k, false])); setSecurityGroups((p) => p.map((g) => g.id === editingGroupId ? { ...g, permissions: allFalse } : g)); api.updateGroupPermissions(editingGroupId, allFalse).catch(console.error); }} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.error, fontSize: 11, fontWeight: 600, fontFamily: "inherit", padding: "4px 6px" }}>Disable All</button>
+                      <div style={{ padding: "12px 20px", borderBottom: `1px solid ${t.border}`, display: "flex", gap: 6, overflowX: "auto" }}>
+                        {["dda", "cht", "help", "admin", "custom"].map((appId) => {
+                          const app = APP_PERMISSIONS[appId];
+                          const isActive = permTab === appId;
+                          const appColor = appId === "custom" ? "#8b5cf6" : app?.color || "#6b7280";
+                          return (
+                            <button key={appId} onClick={() => setPermTab(appId)} style={{ background: isActive ? appColor + "15" : "transparent", border: `1px solid ${isActive ? appColor + "40" : t.border}`, borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer", color: isActive ? appColor : t.textMuted, fontFamily: "inherit", whiteSpace: "nowrap", transition: "all 0.15s" }}>
+                              {appId === "custom" ? "Custom Apps" : app?.name || appId.toUpperCase()}
+                            </button>
+                          );
+                        })}
                       </div>
-                    </div>
-                    <div style={{ padding: "16px 20px", maxHeight: 480, overflowY: "auto" }}>
-                      {PERMISSION_CATEGORIES.map((cat, ci) => {
-                        const permsInCat = Object.entries(PERMISSION_LABELS).filter(([, v]) => v.category === cat);
-                        const enabledInCat = permsInCat.filter(([k]) => editingGroup.permissions[k]).length;
-                        const allEnabled = enabledInCat === permsInCat.length;
-                        return (
-                          <div key={cat} style={{ marginBottom: ci < PERMISSION_CATEGORIES.length - 1 ? 20 : 0, animation: `fadeIn 0.2s ease ${ci * 0.05}s both` }}>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, padding: "0 2px" }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textDim }}>{cat}</span>
-                                <span style={{ fontSize: 9.5, fontWeight: 600, padding: "1px 6px", borderRadius: 6, background: enabledInCat > 0 ? t.successSoft : "transparent", color: enabledInCat > 0 ? t.success : t.textDim }}>{enabledInCat}/{permsInCat.length}</span>
-                              </div>
-                              <button onClick={() => toggleAllInCategory(editingGroupId, cat, !allEnabled)} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 10, fontWeight: 600, fontFamily: "inherit", padding: "2px 4px" }}>{allEnabled ? "Disable All" : "Enable All"}</button>
+                      <div style={{ padding: "16px 20px", maxHeight: 420, overflowY: "auto" }}>
+                        {permTab === "custom" ? (
+                          customApps.length === 0 ? (
+                            <div style={{ textAlign: "center", padding: "40px 20px", color: t.textMuted }}>
+                              <div style={{ fontSize: 13, marginBottom: 8 }}>No custom apps configured</div>
+                              <div style={{ fontSize: 11 }}>Create custom apps in App Center to manage visibility</div>
                             </div>
+                          ) : (
                             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                              {permsInCat.map(([key, meta]) => (
-                                <PermToggle key={key} checked={editingGroup.permissions[key]} onChange={() => togglePerm(editingGroupId, key)} label={meta.label} desc={meta.desc} t={t} darkMode={darkMode} />
-                              ))}
+                              {customApps.map((app) => {
+                                const canView = customAppPerms[app.id]?.[editingGroupId] ?? true;
+                                return (
+                                  <div key={app.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)", borderRadius: 8, border: `1px solid ${t.border}` }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                      <div style={{ width: 36, height: 36, borderRadius: 8, background: app.color || "#6b7280", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>{(app.abbreviation || app.name?.slice(0, 3) || "APP").toUpperCase()}</div>
+                                      <div>
+                                        <div style={{ fontSize: 13, fontWeight: 600 }}>{app.name}</div>
+                                        <div style={{ fontSize: 11, color: t.textMuted }}>{app.link}</div>
+                                      </div>
+                                    </div>
+                                    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                                      <span style={{ fontSize: 11, color: canView ? t.success : t.textMuted }}>{canView ? "Visible" : "Hidden"}</span>
+                                      <div onClick={() => toggleCustomAppPerm(app.id, editingGroupId, canView)} style={{ width: 36, height: 20, borderRadius: 10, background: canView ? t.success : darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)", position: "relative", cursor: "pointer", transition: "background 0.15s" }}>
+                                        <div style={{ width: 16, height: 16, borderRadius: 8, background: "#fff", position: "absolute", top: 2, left: canView ? 18 : 2, transition: "left 0.15s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
+                                      </div>
+                                    </label>
+                                  </div>
+                                );
+                              })}
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                          )
+                        ) : (
+                          (() => {
+                            const app = APP_PERMISSIONS[permTab];
+                            if (!app) return null;
+                            const permsInApp = app.permissions;
+                            const enabledInApp = permsInApp.filter((p) => editingGroup.permissions[p.key]).length;
+                            const allEnabled = enabledInApp === permsInApp.length;
+                            return (
+                              <div style={{ animation: "fadeIn 0.2s ease" }}>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, padding: "0 2px" }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{app.name}</span>
+                                    <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 6px", borderRadius: 6, background: enabledInApp > 0 ? t.successSoft : "transparent", color: enabledInApp > 0 ? t.success : t.textDim }}>{enabledInApp}/{permsInApp.length}</span>
+                                  </div>
+                                  <button onClick={() => toggleAllInApp(editingGroupId, permTab, !allEnabled)} style={{ background: "transparent", border: "none", cursor: "pointer", color: t.accent, fontSize: 11, fontWeight: 600, fontFamily: "inherit", padding: "2px 4px" }}>{allEnabled ? "Disable All" : "Enable All"}</button>
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                  {permsInApp.map((perm) => (
+                                    <PermToggle key={perm.key} checked={editingGroup.permissions[perm.key]} onChange={() => togglePerm(editingGroupId, perm.key)} label={perm.label} desc={perm.desc} t={t} darkMode={darkMode} />
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })()
+                        )}
+                      </div>
                   </div>
                 )}
               </div>

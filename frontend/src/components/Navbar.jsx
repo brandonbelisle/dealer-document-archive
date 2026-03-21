@@ -67,6 +67,7 @@ export default function Navbar({
   filesInFolder,
   setShowSubscriptionsModal,
   setViewingFileIdFromAlert,
+  onOpenHelpTicket,
   t,
 }) {
   const [globalSearch, setGlobalSearch] = useState("");
@@ -96,14 +97,17 @@ export default function Navbar({
 
   const isAdmin = loggedInUser?.groups?.includes("Administrator");
 
-  const apps = [
-    { id: "home", name: "Home", icon: <HomeIcon size={20} />, onClick: () => { setPage("landing"); setShowAppsDropdown(false); } },
+const apps = [
+    { id: "home", name: "Home", icon: <HomeIcon size={20} />, onClick: () => { setPage("landing"); setSelectedFile(null); setShowAppsDropdown(false); } },
     { id: "dda", name: "Dealer Document Archive", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${t.accent},${t.accentDark || t.accent})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>DDA</div>
     ), onClick: () => { setPage("dashboard"); setSelectedFile(null); setShowAppsDropdown(false); } },
     { id: "cht", name: "Credit Hold Tracker", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
     ), onClick: () => { setPage("cht-dashboard"); setShowAppsDropdown(false); } },
+    { id: "help", name: "Submit Help Ticket", icon: (
+      <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>HELP</div>
+    ), onClick: () => { setShowAppsDropdown(false); onOpenHelpTicket?.(); } },
     ...customApps.map((app) => ({
       id: app.id,
       name: app.name,

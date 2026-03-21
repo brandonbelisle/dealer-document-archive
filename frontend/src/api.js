@@ -378,7 +378,24 @@ export function getSamlLoginUrl() {
 }
 export function getSamlMetadataUrl() {
   return `${API_BASE}/saml/metadata`;
- }
+}
+
+export async function getSupportEmail() {
+  return request('/help-ticket/support-email');
+}
+export async function setSupportEmail(email) {
+  return request('/help-ticket/support-email', { method: 'POST', body: JSON.stringify({ email }) });
+}
+export async function submitHelpTicket(message, attachments) {
+  const formData = new FormData();
+  formData.append('message', message);
+  if (attachments && attachments.length > 0) {
+    attachments.forEach((file) => {
+      formData.append('attachments', file);
+    });
+  }
+  return request('/help-ticket/submit', { method: 'POST', body: formData });
+}
 
 export async function getCustomApps() {
   return request('/custom-apps');

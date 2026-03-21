@@ -730,9 +730,14 @@ function SettingsSection({ t, darkMode }) {
   const [testEmail, setTestEmail] = useState('');
   const [smtpMessage, setSmtpMessage] = useState({ type: '', text: '' });
 
+  const [supportEmail, setSupportEmail] = useState('');
+  const [supportEmailSaving, setSupportEmailSaving] = useState(false);
+  const [supportEmailMessage, setSupportEmailMessage] = useState({ type: '', text: '' });
+
   useEffect(() => {
     loadLogos();
     loadSmtpSettings();
+    loadSupportEmail();
   }, []);
 
   const loadLogos = async () => {
@@ -762,6 +767,15 @@ function SettingsSection({ t, darkMode }) {
       console.error("Failed to load SMTP settings:", err);
     } finally {
       setSmtpLoading(false);
+    }
+  };
+
+  const loadSupportEmail = async () => {
+    try {
+      const data = await api.getSupportEmail();
+      setSupportEmail(data.email || '');
+    } catch (err) {
+      console.error("Failed to load support email:", err);
     }
   };
 
@@ -1170,6 +1184,84 @@ function SettingsSection({ t, darkMode }) {
           </div>
         </div>
       )}
+
+      {/* Support Email Section */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }}>Support Email</h2>
+        <p style={{ fontSize: 13, color: t.textMuted, margin: 0 }}>
+          Set the email address where help ticket submissions will be sent.
+        </p>
+      </div>
+
+      <div style={{
+        background: t.surface,
+        border: `1px solid ${t.border}`,
+        borderRadius: 12,
+        padding: 24,
+        maxWidth: 600,
+      }}>
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+            Support Email Address
+          </label>
+          <input
+            type="email"
+            value={supportEmail}
+            onChange={(e) => setSupportEmail(e.target.value)}
+            placeholder="support@yourcompany.com"
+            style={{
+              width: "100%",
+              padding: "10px 12px",
+              fontSize: 14,
+              border: `1px solid ${t.border}`,
+              borderRadius: 8,
+              background: darkMode ? "#1a1a1a" : "#fff",
+              color: t.text,
+              fontFamily: "inherit",
+            }}
+          />
+          <p style={{ fontSize: 11, color: t.textDim, margin: "4px 0 0" }}>
+            Help tickets submitted by users will be sent to this email address.
+          </p>
+        </div>
+
+        {supportEmailMessage.text && (
+          <div style={{
+            padding: "12px 16px",
+            borderRadius: 8,
+            marginBottom: 16,
+            background: supportEmailMessage.type === 'success'
+              ? (darkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)")
+              : (darkMode ? "rgba(239,68,68,0.15)" : "rgba(239,68,68,0.1)"),
+            color: supportEmailMessage.type === 'success' ? "#22c55e" : "#ef4444",
+            fontSize: 13,
+          }}>
+            {supportEmailMessage.text}
+          </div>
+        )}
+
+        <Btn
+          primary
+          darkMode={darkMode}
+          t={t}
+          onClick={async () => {
+            setSupportEmailSaving(true);
+            setSupportEmailMessage({ type: '', text: '' });
+            try {
+              await api.setSupportEmail(supportEmail);
+              setSupportEmailMessage({ type: 'success', text: 'Support email saved successfully!' });
+            } catch (err) {
+              setSupportEmailMessage({ type: 'error', text: 'Failed to save: ' + (err.message || 'Unknown error') });
+            } finally {
+              setSupportEmailSaving(false);
+            }
+          }}
+          loading={supportEmailSaving}
+          style={{ fontSize: 13 }}
+        >
+          Save Support Email
+        </Btn>
+      </div>
     </div>
   );
 }

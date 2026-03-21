@@ -3,7 +3,7 @@ import { SunIcon, MoonIcon, UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronD
 import AlertsDropdown from "./AlertsDropdown";
 import * as api from "../api";
 
-export default function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection }) {
+export default function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
   const [customApps, setCustomApps] = useState([]);
@@ -26,6 +26,9 @@ export default function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page,
     { id: "cht", name: "Credit Hold Tracker", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
     ), onClick: () => { setPage("cht-dashboard"); setShowAppsDropdown(false); } },
+    { id: "help", name: "Submit Help Ticket", icon: (
+      <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>HELP</div>
+    ), onClick: () => { setShowAppsDropdown(false); onOpenHelpTicket?.(); } },
     ...customApps.map((app) => ({
       id: app.id,
       name: app.name,

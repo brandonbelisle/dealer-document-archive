@@ -253,8 +253,10 @@ async function initializeSamlStrategy() {
     wantAuthnResponseSigned: false,
     acceptedClockSkewMs: 300000,
     disableRequestedAuthnContext: true,
+    authnContext: ['urn:oasis:names:tc:SAML:2.0:ac:classes:Password'],
     signatureAlgorithm: 'sha256',
     digestAlgorithm: 'sha256',
+    relaxDestinationStrictly: true,
   };
 
   if (sloUrl) {

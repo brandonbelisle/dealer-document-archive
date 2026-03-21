@@ -1,15 +1,21 @@
 import { useState, useEffect } from "react";
 import { GearIcon } from "./Icons";
+import * as api from "../api";
 
 export default function LandingPage({ setPage, t, darkMode, loggedInUser }) {
   const isAdmin = loggedInUser?.groups?.includes("Administrator");
   const [logoUrl, setLogoUrl] = useState(null);
+  const [customApps, setCustomApps] = useState([]);
 
   useEffect(() => {
     const logoType = darkMode ? "dark" : "light";
     const url = `/api/settings/logo/${logoType}?t=${Date.now()}`;
     setLogoUrl(url);
   }, [darkMode]);
+
+  useEffect(() => {
+    api.getCustomApps().then(setCustomApps).catch(console.error);
+  }, []);
 
   const apps = [
     {
@@ -42,6 +48,21 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser }) {
       ),
       onClick: () => setPage("cht-dashboard"),
     },
+    ...customApps.map((app) => ({
+      id: app.id,
+      name: app.name,
+      icon: (
+        <div style={{
+          width: 56, height: 56, borderRadius: 14,
+          background: "linear-gradient(135deg,#88c0d0,#5b9bd5)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          color: "white", fontSize: 16, fontWeight: 800,
+        }}>
+          {app.name.substring(0, 2).toUpperCase()}
+        </div>
+      ),
+      onClick: () => { window.open(app.link, "_blank"); },
+    })),
     ...(isAdmin ? [{
       id: "admin",
       name: "Admin Center",

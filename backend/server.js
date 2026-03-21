@@ -88,6 +88,7 @@ app.use('/api/notifications', require('./routes/notifications').router);
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/smtp', require('./routes/smtp').router);
 app.use('/api/saml', require('./routes/saml').router);
+app.use('/api/custom-apps', require('./routes/custom-apps'));
 
 // ── Health check ──────────────────────────────────────────
 app.get('/api/health', (req, res) => {

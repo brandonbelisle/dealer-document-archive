@@ -18,6 +18,7 @@ import {
   ClipboardIcon,
   FolderClosedIcon,
   UploadCloudIcon,
+  LinkIcon,
 } from "../components/Icons";
 
 // Authentication Settings Section
@@ -710,11 +711,10 @@ function AuthenticationSection({ t, darkMode }) {
 function SettingsSection({ t, darkMode }) {
   const [darkLogo, setDarkLogo] = useState(null);
   const [lightLogo, setLightLogo] = useState(null);
-  const [uploading, setUploading] = useState({ dark: false, light: false });
+  const [uploading, setUploading] = useState({ dark: false, light: false});
   const darkInputRef = useRef(null);
   const lightInputRef = useRef(null);
 
-  // SMTP settings
   const [smtpSettings, setSmtpSettings] = useState({
     host: '',
     port: 587,
@@ -1174,6 +1174,257 @@ function SettingsSection({ t, darkMode }) {
   );
 }
 
+function AppCenterSection({ t, darkMode, addToast }) {
+  const [customApps, setCustomApps] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [addingApp, setAddingApp] = useState(false);
+  const [newAppName, setNewAppName] = useState("");
+  const [newAppLink, setNewAppLink] = useState("");
+  const [editingAppId, setEditingAppId] = useState(null);
+  const [editingAppName, setEditingAppName] = useState("");
+  const [editingAppLink, setEditingAppLink] = useState("");
+
+  useEffect(() => {
+    loadCustomApps();
+  }, []);
+
+  const loadCustomApps = async () => {
+    setLoading(true);
+    try {
+      const apps = await api.getCustomApps();
+      setCustomApps(apps);
+    } catch (err) {
+      console.error("Failed to load custom apps:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddApp = async () => {
+    const name = newAppName.trim();
+    const link = newAppLink.trim();
+    if (!name || !link) return;
+    try {
+      const created = await api.createCustomApp(name, link);
+      setCustomApps((prev) => [...prev, created]);
+      setNewAppName("");
+      setNewAppLink("");
+      setAddingApp(false);
+      addToast("App created", `"${name}" has been created`, 4000, "create");
+    } catch (err) {
+      console.error("Failed to create app:", err);
+      addToast("Error", "Failed to create app", 4000, "error");
+    }
+  };
+
+  const handleUpdateApp = async (id) => {
+    const name = editingAppName.trim();
+    const link = editingAppLink.trim();
+    if (!name || !link) return;
+    try {
+      const updated = await api.updateCustomApp(id, name, link);
+      setCustomApps((prev) => prev.map((a) => (a.id === id ? updated : a)));
+      setEditingAppId(null);
+      addToast("App updated", `"${name}" has been updated`, 4000, "create");
+    } catch (err) {
+      console.error("Failed to update app:", err);
+    }
+  };
+
+  const handleDeleteApp = async (app) => {
+    try {
+      await api.deleteCustomApp(app.id);
+      setCustomApps((prev) => prev.filter((a) => a.id !== app.id));
+      addToast("App deleted", `"${app.name}" has been deleted`, 4000, "delete");
+    } catch (err) {
+      console.error("Failed to delete app:", err);
+    }
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "10px 12px",
+    fontSize: 14,
+    border: `1px solid ${t.border}`,
+    borderRadius: 8,
+    background: darkMode ? "#1a1a1a" : "#fff",
+    color: t.text,
+    fontFamily: "inherit",
+    boxSizing: "border-box",
+  };
+
+  if (loading) {
+    return <div style={{ padding: 40, textAlign: "center", color: t.textMuted }}>Loading...</div>;
+  }
+
+  return (
+    <div style={{ animation: "fadeIn 0.25s ease" }}>
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }}>Custom Applications</h2>
+        <p style={{ fontSize: 13, color: t.textMuted, margin: 0 }}>
+          Create custom app shortcuts that appear on the landing page. When users click an app, they will be redirected to the specified link.
+        </p>
+      </div>
+
+      {addingApp && (
+        <div style={{
+          background: t.surface,
+          border: `1px solid ${t.accent}`,
+          borderRadius: 12,
+          padding: 20,
+          marginBottom: 16,
+          boxShadow: `0 0 0 3px ${t.accentSoft}`,
+          animation: "fadeIn 0.2s ease",
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+            <PlusIcon size={16} /> New Custom App
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 6 }}>
+                App Name
+              </label>
+              <input
+                value={newAppName}
+                onChange={(e) => setNewAppName(e.target.value)}
+                placeholder="e.g., Time Clock, Inventory System..."
+                autoFocus
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted, display: "block", marginBottom: 6 }}>
+                Link (URL)
+              </label>
+              <input
+                value={newAppLink}
+                onChange={(e) => setNewAppLink(e.target.value)}
+                placeholder="https://example.com"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+            <button
+              onClick={() => { setAddingApp(false); setNewAppName(""); setNewAppLink(""); }}
+              style={{
+                background: t.surface,
+                border: `1px solid ${t.border}`,
+                borderRadius: 8,
+                padding: "8px 16px",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                color: t.text,
+                fontFamily: "inherit",
+              }}
+            >
+              Cancel
+            </button>
+            <Btn primary darkMode={darkMode} t={t} onClick={handleAddApp} style={{ fontSize: 13, opacity: newAppName.trim() && newAppLink.trim() ? 1 : 0.4 }}>
+              Create App
+            </Btn>
+          </div>
+        </div>
+      )}
+
+      {customApps.length === 0 && !addingApp ? (
+        <div style={{
+          textAlign: "center",
+          padding: "60px 20px",
+          background: t.surface,
+          border: `1px dashed ${t.border}`,
+          borderRadius: 12,
+        }}>
+          <div style={{ width: 64, height: 64, borderRadius: 16, background: t.accentSoft, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <LinkIcon size={28} />
+          </div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: t.text, marginBottom: 8 }}>No custom apps yet</div>
+          <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 20 }}>
+            Create custom app shortcuts to display on the landing page.
+          </div>
+          <Btn primary darkMode={darkMode} t={t} onClick={() => { setAddingApp(true); setNewAppName(""); setNewAppLink(""); }} style={{ fontSize: 13 }}>
+            <PlusIcon size={14} /> Add Custom App
+          </Btn>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {customApps.map((app, idx) => {
+            const isEditing = editingAppId === app.id;
+            return (
+              <div
+                key={app.id}
+                className="folder-row"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  background: t.surface,
+                  border: `1px solid ${isEditing ? t.accent : t.border}`,
+                  borderRadius: 10,
+                  padding: "14px 16px",
+                  boxShadow: isEditing ? `0 0 0 3px ${t.accentSoft}` : "none",
+                  animation: `fadeIn 0.25s ease ${idx * 0.04}s both`,
+                }}
+              >
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg, #88c0d0, #5b9bd5)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: 12, flexShrink: 0 }}>
+                  {app.name.substring(0, 2).toUpperCase()}
+                </div>
+                <div style={{ flex: 1, marginLeft: 12, minWidth: 0 }}>
+                  {isEditing ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <input
+                        value={editingAppName}
+                        onChange={(e) => setEditingAppName(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") handleUpdateApp(app.id); if (e.key === "Escape") setEditingAppId(null); }}
+                        autoFocus
+                        style={{ ...inputStyle, fontSize: 13, padding: "6px 10px" }}
+                      />
+                      <input
+                        value={editingAppLink}
+                        onChange={(e) => setEditingAppLink(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") handleUpdateApp(app.id); if (e.key === "Escape") setEditingAppId(null); }}
+                        style={{ ...inputStyle, fontSize: 12, padding: "6px 10px" }}
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>{app.name}</div>
+                      <div style={{ fontSize: 12, color: t.textMuted, display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
+                        <LinkIcon size={12} /> {app.link}
+                      </div>
+                    </>
+                  )}
+                </div>
+                <div style={{ display: "flex", gap: 4 }}>
+                  {isEditing ? (
+                    <>
+                      <SmallBtn t={t} title="Save" onClick={() => handleUpdateApp(app.id)}>
+                        <span style={{ fontSize: 12, fontWeight: 600 }}>OK</span>
+                      </SmallBtn>
+                      <SmallBtn t={t} title="Cancel" onClick={() => setEditingAppId(null)}>
+                        <XIcon size={12} />
+                      </SmallBtn>
+                    </>
+                  ) : (
+                    <>
+                      <SmallBtn t={t} title="Edit" onClick={() => { setEditingAppId(app.id); setEditingAppName(app.name); setEditingAppLink(app.link); }}>
+                        <EditIcon />
+                      </SmallBtn>
+                      <SmallBtn t={t} title="Delete" onClick={() => handleDeleteApp(app)}>
+                        <TrashIcon size={12} />
+                      </SmallBtn>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminPage({
   adminSection,
   setAdminSection,
@@ -1442,6 +1693,7 @@ export default function AdminPage({
             {adminSection === "users" && <Btn primary darkMode={darkMode} t={t} onClick={() => setShowAddUser(true)} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add User</Btn>}
             {adminSection === "groups" && !addingGroup && <Btn primary darkMode={darkMode} t={t} onClick={() => { setAddingGroup(true); setNewGroupName(""); setNewGroupDesc(""); }} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add Group</Btn>}
             {adminSection === "locations" && !addingLocation && <Btn primary darkMode={darkMode} t={t} onClick={() => { setAddingLocation(true); setNewLocationName(""); }} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add Location</Btn>}
+            {adminSection === "app-center" && <Btn primary darkMode={darkMode} t={t} onClick={() => setPage("landing")} style={{ fontSize: 12 }}>View Landing Page</Btn>}
           </div>
 
           {/* USERS */}
@@ -1867,7 +2119,7 @@ export default function AdminPage({
           )}
 
           {/* Fallback */}
-          {!["users", "groups", "locations", "departments", "audit", "authentication", "settings"].includes(adminSection) && (
+          {!["users", "groups", "app-center", "locations", "departments", "audit", "authentication", "settings"].includes(adminSection) && (
             <div style={{ textAlign: "center", padding: "60px 0", color: t.textDim }}>
               <span>{adminActiveMenu?.icon}</span>
               <div style={{ fontSize: 15, fontWeight: 500, marginTop: 14 }}>{adminActiveMenu?.label}</div>
@@ -1886,6 +2138,13 @@ export default function AdminPage({
           {adminSection === "settings" && (
             <div style={{ animation: "fadeIn 0.25s ease" }}>
               <SettingsSection t={t} darkMode={darkMode} />
+            </div>
+          )}
+
+          {/* APP CENTER */}
+          {adminSection === "app-center" && (
+            <div style={{ animation: "fadeIn 0.25s ease" }}>
+              <AppCenterSection t={t} darkMode={darkMode} addToast={addToast} />
             </div>
           )}
         </div>

@@ -6,6 +6,7 @@ import {
   ClipboardIcon,
   GearIcon,
   LockIcon,
+  AppsIcon,
 } from "./components/Icons";
 
 export const DEFAULT_LOCATIONS = [];
@@ -23,6 +24,12 @@ export const ADMIN_MENU = [
     label: "Groups",
     icon: <ShieldIcon size={17} />,
     desc: "Manage security groups and permissions",
+  },
+  {
+    id: "app-center",
+    label: "App Center",
+    icon: <AppsIcon size={17} />,
+    desc: "Manage custom apps on the landing page",
   },
   {
     id: "dda",

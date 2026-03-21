@@ -378,4 +378,17 @@ export function getSamlLoginUrl() {
 }
 export function getSamlMetadataUrl() {
   return `${API_BASE}/saml/metadata`;
+ }
+
+export async function getCustomApps() {
+  return request('/custom-apps');
+}
+export async function createCustomApp(name, link) {
+  return request('/custom-apps', { method: 'POST', body: JSON.stringify({ name, link }) });
+}
+export async function updateCustomApp(id, name, link) {
+  return request(`/custom-apps/${id}`, { method: 'PUT', body: JSON.stringify({ name, link }) });
+}
+export async function deleteCustomApp(id) {
+  return request(`/custom-apps/${id}`, { method: 'DELETE' });
 }

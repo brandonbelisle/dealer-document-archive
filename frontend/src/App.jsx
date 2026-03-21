@@ -10,6 +10,7 @@ import WarningModal from "./components/modals/WarningModal";
 import RenameModal from "./components/modals/RenameModal";
 import ChangePasswordModal from "./components/modals/ChangePasswordModal";
 import AdminSetPasswordModal from "./components/modals/AdminSetPasswordModal";
+import SubscriptionsModal from "./components/modals/SubscriptionsModal";
 import DashboardPage from "./pages/DashboardPage";
 import FoldersPage from "./pages/FoldersPage";
 import FoldersBrowsePage from "./pages/FoldersBrowsePage";
@@ -20,6 +21,7 @@ import UploadPage from "./pages/UploadPage";
 import AdminPage from "./pages/AdminPage";
 import LandingPage from "./components/LandingPage";
 import LandingNavbar from "./components/LandingNavbar";
+import Toast from "./components/ui/Toast";
 
 function AppInner() {
   // ── Core UI state ───────────────────────────────────────
@@ -93,17 +95,36 @@ function AppInner() {
   const [locationAccess, setLocationAccess] = useState({});
   const [departmentAccess, setDepartmentAccess] = useState({});
 
-  // ── Password modals state ───────────────────────────────
-  const [showChangePassword, setShowChangePassword] = useState(false);
-  const [changePasswordForm, setChangePasswordForm] = useState({ current: "", new: "", confirm: "" });
-  const [changePasswordError, setChangePasswordError] = useState("");
-  const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
-  const [changePasswordLoading, setChangePasswordLoading] = useState(false);
-  const [adminSetPasswordUserId, setAdminSetPasswordUserId] = useState(null);
-  const [adminSetPasswordForm, setAdminSetPasswordForm] = useState({ new: "", confirm: "" });
-  const [adminSetPasswordError, setAdminSetPasswordError] = useState("");
-  const [adminSetPasswordSuccess, setAdminSetPasswordSuccess] = useState("");
-  const [adminSetPasswordLoading, setAdminSetPasswordLoading] = useState(false);
+// ── Password modals state ───────────────────────────────
+const [showChangePassword, setShowChangePassword] = useState(false);
+const [changePasswordForm, setChangePasswordForm] = useState({ current: "", new: "", confirm: "" });
+const [changePasswordError, setChangePasswordError] = useState("");
+const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
+const [changePasswordLoading, setChangePasswordLoading] = useState(false);
+const [adminSetPasswordUserId, setAdminSetPasswordUserId] = useState(null);
+const [adminSetPasswordForm, setAdminSetPasswordForm] = useState({ new: "", confirm: "" });
+const [adminSetPasswordError, setAdminSetPasswordError] = useState("");
+const [adminSetPasswordSuccess, setAdminSetPasswordSuccess] = useState("");
+const [adminSetPasswordLoading, setAdminSetPasswordLoading] = useState(false);
+
+// ── Subscriptions modal state ──────────────────────────
+const [showSubscriptionsModal, setShowSubscriptionsModal] = useState(false);
+
+// ── Toast notifications state ────────────────────────────
+const [toasts, setToasts] = useState([]);
+const toastIdCounter = useRef(0);
+
+const addToast = useCallback((title, message, duration) => {
+  const id = ++toastIdCounter.current;
+  setToasts((prev) => [...prev, { id, title, message, duration: duration || 5000 }]);
+}, []);
+
+const removeToast = useCallback((id) => {
+  setToasts((prev) => prev.filter((t) => t.id !== id));
+}, []);
+
+// ── Subscriptions state ────────────────────────────────
+const [subscriptions, setSubscriptions] = useState([]);
 
   const t = getTheme(darkMode);
 
@@ -164,6 +185,40 @@ function AppInner() {
       api.getDepartmentAccess().then(setDepartmentAccess).catch(console.error);
     }
   }, [isLoggedIn, page, adminSection]);
+
+  // Load user subscriptions
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    api.getSubscriptionsWithDetails().then(setSubscriptions).catch(console.error);
+  }, [isLoggedIn]);
+
+  // Poll for notifications
+  const lastNotificationCheck = useRef(0);
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    
+    const fetchNotifications = async () => {
+      try {
+        const notifications = await api.getNotifications(true);
+        if (notifications.length > 0) {
+          notifications.forEach((n) => {
+            addToast(
+              `New file uploaded`,
+              `${n.file_name} was uploaded by ${n.created_by_name} to ${n.item_name || 'a subscribed location'}`,
+              7000
+            );
+            api.markNotificationRead(n.id).catch(console.error);
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch notifications:", err);
+      }
+    };
+
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [isLoggedIn, addToast]);
 
   // Auto-suggest folders for staged files
   useEffect(() => {
@@ -253,28 +308,30 @@ function AppInner() {
     <div style={{ minHeight: "100vh", background: t.pageBg, color: t.text, fontFamily: "'Geist','DM Sans',system-ui,sans-serif", transition: "background 0.35s" }}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
       <link href="https://cdn.jsdelivr.net/npm/geist@1.2.2/dist/fonts/geist-sans/style.min.css" rel="stylesheet" />
-      <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} @keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}} .file-card:hover{transform:translateY(-1px);box-shadow:${t.cardShadow}} .folder-row:hover{transform:translateY(-1px);box-shadow:${t.cardShadow};border-color:${darkMode ? "#3a3f47" : t.accent}!important} .icon-btn:hover{color:${t.text}!important;background:${t.accentSoft}} .folder-select-item:hover{background:${t.accentSoft}!important} .nav-tab:hover{background:${t.navActive}} .admin-menu-item:hover{background:${t.accentSoft}} ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:${t.scrollThumb};border-radius:3px} input::placeholder{color:${t.textDim}}`}</style>
+      <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} @keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}} @keyframes toastIn{from{opacity:0;transform:translateX(100px)}to{opacity:1;transform:translateX(0)}} @keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(100px)}} .file-card:hover{transform:translateY(-1px);box-shadow:${t.cardShadow}} .folder-row:hover{transform:translateY(-1px);box-shadow:${t.cardShadow};border-color:${darkMode ? "#3a3f47" : t.accent}!important} .icon-btn:hover{color:${t.text}!important;background:${t.accentSoft}} .folder-select-item:hover{background:${t.accentSoft}!important} .nav-tab:hover{background:${t.navActive}} .admin-menu-item:hover{background:${t.accentSoft}} ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:${t.scrollThumb};border-radius:3px} input::placeholder{color:${t.textDim}}`}</style>
 
       {(page === "landing" || page === "admin") ? (
-        <LandingNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} />
+        <LandingNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} />
       ) : (
-        <Navbar page={page} setPage={setPage} darkMode={darkMode} setDarkMode={setDarkMode} isLoggedIn={isLoggedIn} loggedInUser={loggedInUser} locations={locations} departments={departments} folders={folders} files={files} unsortedFiles={unsortedFiles} stagedFiles={stagedFiles} activeLocation={activeLocation} setActiveLocation={setActiveLocation} activeDepartment={activeDepartment} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setFolderSearch={setFolderSearch} expandedLocations={expandedLocations} setExpandedLocations={setExpandedLocations} showDeptDropdown={showDeptDropdown} setShowDeptDropdown={setShowDeptDropdown} showProfileMenu={showProfileMenu} setShowProfileMenu={setShowProfileMenu} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} setAdminSection={setAdminSection} handleLogout={handleLogout} foldersInLocation={foldersInLocation} foldersInDepartment={foldersInDepartment} deptsInLocation={deptsInLocation} filesInFolder={filesInFolder} t={t} />
+        <Navbar page={page} setPage={setPage} darkMode={darkMode} setDarkMode={setDarkMode} isLoggedIn={isLoggedIn} loggedInUser={loggedInUser} locations={locations} departments={departments} folders={folders} files={files} unsortedFiles={unsortedFiles} stagedFiles={stagedFiles} activeLocation={activeLocation} setActiveLocation={setActiveLocation} activeDepartment={activeDepartment} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setFolderSearch={setFolderSearch} expandedLocations={expandedLocations} setExpandedLocations={setExpandedLocations} showDeptDropdown={showDeptDropdown} setShowDeptDropdown={setShowDeptDropdown} showProfileMenu={showProfileMenu} setShowProfileMenu={setShowProfileMenu} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} setAdminSection={setAdminSection} handleLogout={handleLogout} foldersInLocation={foldersInLocation} foldersInDepartment={foldersInDepartment} deptsInLocation={deptsInLocation} filesInFolder={filesInFolder} setShowSubscriptionsModal={setShowSubscriptionsModal} t={t} />
       )}
 
       {page === "landing" && <LandingPage setPage={setPage} t={t} darkMode={darkMode} loggedInUser={loggedInUser} />}
       {page === "dashboard" && <DashboardPage dashboardData={dashboardData} loggedInUser={loggedInUser} setPage={setPage} setActiveFolderId={setActiveFolderId} t={t} darkMode={darkMode} />}
       {page === "folders-browse" && <FoldersBrowsePage locations={locations} departments={departments} deptsInLocation={deptsInLocation} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setFolderSearch={setFolderSearch} setSelectedFile={setSelectedFile} setPage={setPage} t={t} darkMode={darkMode} />}
       {page === "folders" && <FoldersPage currentLocation={currentLocation} currentDept={currentDept} currentDeptFolders={currentDeptFolders} folderSearch={folderSearch} setFolderSearch={setFolderSearch} creatingDeptFolder={creatingDeptFolder} setCreatingDeptFolder={setCreatingDeptFolder} newDeptFolderName={newDeptFolderName} setNewDeptFolderName={setNewDeptFolderName} createDeptFolder={createDeptFolder} setActiveFolderId={setActiveFolderId} setPage={setPage} setCreatingSubfolder={setCreatingSubfolder} handleDeleteFolder={handleDeleteFolder} t={t} darkMode={darkMode} />}
-      {page === "folder-detail" && <FolderDetailPage activeFolder={activeFolder} activeFolderId={activeFolderId} filesInFolder={filesInFolder} subfoldersOf={subfoldersOf} allFilesInFolderRecursive={allFilesInFolderRecursive} getBreadcrumb={getBreadcrumb} locations={locations} departments={departments} folders={folders} setActiveFolderId={setActiveFolderId} setPage={setPage} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} copyText={copyText} removeFile={removeFile} handleDeleteFolder={handleDeleteFolder} creatingSubfolder={creatingSubfolder} setCreatingSubfolder={setCreatingSubfolder} newSubfolderName={newSubfolderName} setNewSubfolderName={setNewSubfolderName} createSubfolder={createSubfolder} folderDetailDragOver={folderDetailDragOver} setFolderDetailDragOver={setFolderDetailDragOver} handleFolderDetailDrop={handleFolderDetailDrop} handleFolderDetailFiles={handleFolderDetailFiles} t={t} darkMode={darkMode} />}
+      {page === "folder-detail" && <FolderDetailPage activeFolder={activeFolder} activeFolderId={activeFolderId} filesInFolder={filesInFolder} subfoldersOf={subfoldersOf} allFilesInFolderRecursive={allFilesInFolderRecursive} getBreadcrumb={getBreadcrumb} locations={locations} departments={departments} folders={folders} setActiveFolderId={setActiveFolderId} setPage={setPage} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} copyText={copyText} removeFile={removeFile} handleDeleteFolder={handleDeleteFolder} creatingSubfolder={creatingSubfolder} setCreatingSubfolder={setCreatingSubfolder} newSubfolderName={newSubfolderName} setNewSubfolderName={setNewSubfolderName} createSubfolder={createSubfolder} folderDetailDragOver={folderDetailDragOver} setFolderDetailDragOver={setFolderDetailDragOver} handleFolderDetailDrop={handleFolderDetailDrop} handleFolderDetailFiles={handleFolderDetailFiles} subscriptions={subscriptions} setSubscriptions={setSubscriptions} t={t} darkMode={darkMode} />}
       {page === "file-detail" && <FileDetailPage viewingFileId={viewingFileId} files={files} folders={folders} locations={locations} departments={departments} getBreadcrumb={getBreadcrumb} setViewingFileId={setViewingFileId} setActiveFolderId={setActiveFolderId} setPage={setPage} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} removeFile={removeFile} t={t} darkMode={darkMode} />}
       {page === "unsorted" && <UnsortedPage unsortedFiles={unsortedFiles} folders={folders} locations={locations} departments={departments} deptsInLocation={deptsInLocation} handleMoveFile={handleMoveFile} removeFile={removeFile} setUnsortedFiles={setUnsortedFiles} setWarningModal={setWarningModal} t={t} darkMode={darkMode} />}
       {page === "upload" && <UploadPage stagedFiles={stagedFiles} setStagedFiles={setStagedFiles} stagedFolderAssignments={stagedFolderAssignments} setStagedFolderAssignments={setStagedFolderAssignments} stagedSuggestions={stagedSuggestions} setStagedSuggestions={setStagedSuggestions} folders={folders} locations={locations} departments={departments} deptsInLocation={deptsInLocation} handleDrop={handleDrop} handleUploadFiles={handleUploadFiles} dragOver={dragOver} setDragOver={setDragOver} uploadAllStaged={uploadAllStaged} removeStagedFile={removeStagedFile} t={t} darkMode={darkMode} />}
-      {page === "admin" && <AdminPage adminSection={adminSection} setAdminSection={setAdminSection} setPage={setPage} adminUsers={adminUsers} setAdminSetPasswordUserId={setAdminSetPasswordUserId} setAdminSetPasswordForm={setAdminSetPasswordForm} setAdminSetPasswordError={setAdminSetPasswordError} setAdminSetPasswordSuccess={setAdminSetPasswordSuccess} securityGroups={securityGroups} setSecurityGroups={setSecurityGroups} editingGroupId={editingGroupId} setEditingGroupId={setEditingGroupId} addingGroup={addingGroup} setAddingGroup={setAddingGroup} newGroupName={newGroupName} setNewGroupName={setNewGroupName} newGroupDesc={newGroupDesc} setNewGroupDesc={setNewGroupDesc} setWarningModal={setWarningModal} locations={locations} setLocations={setLocations} addingLocation={addingLocation} setAddingLocation={setAddingLocation} newLocationName={newLocationName} setNewLocationName={setNewLocationName} editingLocationId={editingLocationId} setEditingLocationId={setEditingLocationId} editingLocationName={editingLocationName} setEditingLocationName={setEditingLocationName} foldersInLocation={foldersInLocation} filesInFolder={filesInFolder} handleDeleteLocation={handleDeleteLocation} departments={departments} setDepartments={setDepartments} deptsInLocation={deptsInLocation} foldersInDepartment={foldersInDepartment} addingDept={addingDept} setAddingDept={setAddingDept} addingDeptLocId={addingDeptLocId} setAddingDeptLocId={setAddingDeptLocId} newDeptName={newDeptName} setNewDeptName={setNewDeptName} editingDeptId={editingDeptId} setEditingDeptId={setEditingDeptId} editingDeptName={editingDeptName} setEditingDeptName={setEditingDeptName} handleDeleteDept={handleDeleteDept} auditLog={auditLog} auditFilterUser={auditFilterUser} setAuditFilterUser={setAuditFilterUser} auditFilterAction={auditFilterAction} setAuditFilterAction={setAuditFilterAction} auditFilterDate={auditFilterDate} setAuditFilterDate={setAuditFilterDate} locationAccess={locationAccess} setLocationAccess={setLocationAccess} departmentAccess={departmentAccess} setDepartmentAccess={setDepartmentAccess} t={t} darkMode={darkMode} />}
+      {page === "admin" && <AdminPage adminSection={adminSection} setAdminSection={setAdminSection} setPage={setPage} adminUsers={adminUsers} setAdminSetPasswordUserId={setAdminSetPasswordUserId} setAdminSetPasswordForm={setAdminSetPasswordForm} setAdminSetPasswordError={setAdminSetPasswordError} setAdminSetPasswordSuccess={setAdminSetPasswordSuccess} securityGroups={securityGroups} setSecurityGroups={setSecurityGroups} editingGroupId={editingGroupId} setEditingGroupId={setEditingGroupId} addingGroup={addingGroup} setAddingGroup={setAddingGroup} newGroupName={newGroupName} setNewGroupName={setNewGroupName} newGroupDesc={newGroupDesc} setNewGroupDesc={setNewGroupDesc} setWarningModal={setWarningModal} locations={locations} setLocations={setLocations} addingLocation={addingLocation} setAddingLocation={setAddingLocation} newLocationName={newLocationName} setNewLocationName={setNewLocationName} editingLocationId={editingLocationId} setEditingLocationId={setEditingLocationId} editingLocationName={editingLocationName} setEditingLocationName={setEditingLocationName} foldersInLocation={foldersInLocation} filesInFolder={filesInFolder} handleDeleteLocation={handleDeleteLocation} departments={departments} setDepartments={setDepartments} deptsInLocation={deptsInLocation} foldersInDepartment={foldersInDepartment} addingDept={addingDept} setAddingDept={setAddingDept} addingDeptLocId={addingDeptLocId} setAddingDeptLocId={setAddingDeptLocId} newDeptName={newDeptName} setNewDeptName={setNewDeptName} editingDeptId={editingDeptId} setEditingDeptId={setEditingDeptId} editingDeptName={editingDeptName} setEditingDeptName={setEditingDeptName} handleDeleteDept={handleDeleteDept} auditLog={auditLog} auditFilterUser={auditFilterUser} setAuditFilterUser={setAuditFilterUser} auditFilterAction={auditFilterAction} setAuditFilterAction={setAuditFilterAction} auditFilterDate={auditFilterDate} setAuditFilterDate={setAuditFilterDate} locationAccess={locationAccess} setLocationAccess={setLocationAccess} departmentAccess={departmentAccess} setDepartmentAccess={setDepartmentAccess} subscriptions={subscriptions} setSubscriptions={setSubscriptions} t={t} darkMode={darkMode} />}
 
       <RenameModal renamingFileId={renamingFileId} renamingFileName={renamingFileName} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} renameFile={renameFile} t={t} darkMode={darkMode} />
       <WarningModal warningModal={warningModal} setWarningModal={setWarningModal} t={t} darkMode={darkMode} />
       <ChangePasswordModal show={showChangePassword} form={changePasswordForm} setForm={setChangePasswordForm} error={changePasswordError} setError={setChangePasswordError} success={changePasswordSuccess} setSuccess={setChangePasswordSuccess} loading={changePasswordLoading} onSubmit={handleChangePassword} onClose={() => setShowChangePassword(false)} t={t} darkMode={darkMode} />
       <AdminSetPasswordModal userId={adminSetPasswordUserId} userName={adminUsers.find((u) => u.id === adminSetPasswordUserId)?.name} form={adminSetPasswordForm} setForm={setAdminSetPasswordForm} error={adminSetPasswordError} setError={setAdminSetPasswordError} success={adminSetPasswordSuccess} setSuccess={setAdminSetPasswordSuccess} loading={adminSetPasswordLoading} onSubmit={handleAdminSetPassword} onClose={() => setAdminSetPasswordUserId(null)} t={t} darkMode={darkMode} />
+      <SubscriptionsModal show={showSubscriptionsModal} onClose={() => setShowSubscriptionsModal(false)} subscriptions={subscriptions} setSubscriptions={setSubscriptions} t={t} darkMode={darkMode} />
+      <Toast toasts={toasts} removeToast={removeToast} darkMode={darkMode} />
     </div>
   );
 }

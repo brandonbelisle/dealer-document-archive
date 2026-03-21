@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import { fmtSize } from "../utils/helpers";
 import { Btn, SmallBtn } from "../components/ui/Btn";
+import SubscribeButton from "../components/SubscribeButton";
 import {
   FolderClosedIcon,
   FolderOpenIcon,
@@ -42,11 +43,21 @@ export default function FolderDetailPage({
   setFolderDetailDragOver,
   handleFolderDetailDrop,
   handleFolderDetailFiles,
+  subscriptions,
+  setSubscriptions,
   t,
   darkMode,
 }) {
   const newSubfolderRef = useRef(null);
   const folderDetailInputRef = useRef(null);
+
+  const handleSubscribe = (newSub) => {
+    setSubscriptions((prev) => [...prev, newSub]);
+  };
+
+  const handleUnsubscribe = (subId) => {
+    setSubscriptions((prev) => prev.filter((s) => s.id !== subId));
+  };
 
   useEffect(() => {
     if (creatingSubfolder && newSubfolderRef.current)
@@ -221,6 +232,14 @@ export default function FolderDetailPage({
               {ff.length} file{ff.length !== 1 ? "s" : ""}
             </p>
           </div>
+          <SubscribeButton
+            type="folder"
+            itemId={activeFolderId}
+            subscriptions={subscriptions || []}
+            onSubscribe={handleSubscribe}
+            onUnsubscribe={handleUnsubscribe}
+            t={t}
+          />
         </div>
         <div style={{ display: "flex", gap: 6 }}>
           {!creatingSubfolder && (

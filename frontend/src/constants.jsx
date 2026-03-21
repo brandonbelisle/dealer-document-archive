@@ -25,7 +25,7 @@ export const ADMIN_MENU = [
   },
   {
     id: "dda",
-    label: "DDA",
+    label: "DDA - Dealer Document Archive",
     icon: null,
     desc: "Dealer Document Archive settings",
     isCategory: true,

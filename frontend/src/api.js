@@ -275,3 +275,40 @@ export async function updateDepartmentAccess(departmentId, groupIds) {
 export async function globalSearch(query) {
   return request(`/search?q=${encodeURIComponent(query)}`);
 }
+
+// ── Subscriptions ────────────────────────────────────────
+export async function getSubscriptions() {
+  return request('/subscriptions');
+}
+export async function getSubscriptionsWithDetails() {
+  return request('/subscriptions/with-details');
+}
+export async function createSubscription(subscriptionType, subscriptionId) {
+  return request('/subscriptions', {
+    method: 'POST',
+    body: JSON.stringify({ subscriptionType, subscriptionId }),
+  });
+}
+export async function deleteSubscription(id) {
+  return request(`/subscriptions/${id}`, { method: 'DELETE' });
+}
+export async function checkSubscription(subscriptionType, subscriptionId) {
+  return request(`/subscriptions/check?subscriptionType=${subscriptionType}&subscriptionId=${subscriptionId}`);
+}
+
+// ── Notifications ─────────────────────────────────────────
+export async function getNotifications(unreadOnly = false) {
+  return request(`/notifications${unreadOnly ? '?unreadOnly=true' : ''}`);
+}
+export async function markNotificationRead(id) {
+  return request(`/notifications/${id}/read`, { method: 'PUT' });
+}
+export async function markAllNotificationsRead() {
+  return request('/notifications/mark-all-read', { method: 'PUT' });
+}
+export async function getUnreadNotificationCount() {
+  return request('/notifications/unread-count');
+}
+export async function clearReadNotifications() {
+  return request('/notifications', { method: 'DELETE' });
+}

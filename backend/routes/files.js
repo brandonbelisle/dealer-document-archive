@@ -7,6 +7,7 @@ const db = require('../config/db');
 const { uploadBlob, downloadBlob, deleteBlob } = require('../config/azure-storage');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
+const { createNotificationsForUpload, createNotificationsForUnsortedUpload } = require('./notifications');
 
 const router = express.Router();
 
@@ -167,6 +168,15 @@ router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.sin
       req.user,
       req.ip
     );
+
+    // Create notifications for subscribers
+    createNotificationsForUpload({
+      fileId: id,
+      fileName: req.file.originalname,
+      folderId: folderId || null,
+      uploadedBy: req.user.id,
+      uploadedByName: req.user.displayName || req.user.username || 'Unknown',
+    });
 
     const [rows] = await db.execute('SELECT * FROM files WHERE id = ?', [id]);
     res.status(201).json(rows[0]);

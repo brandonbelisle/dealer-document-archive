@@ -1,0 +1,231 @@
+// routes/notifications.js
+// Notifications for subscribed users when files are uploaded
+const express = require('express');
+const { v4: uuidv4 } = require('uuid');
+const db = require('../config/db');
+const { requireAuth } = require('../middleware/auth');
+
+const router = express.Router();
+
+// ── GET /api/notifications ─────────────────────────────────
+// Get all unread (or all) notifications for the current user
+router.get('/', requireAuth, async (req, res) => {
+  try {
+    const unreadOnly = req.query.unreadOnly === 'true';
+    
+    let sql = `SELECT id, notification_type, item_type, item_id, item_name, 
+                      location_name, department_name, file_name, file_id,
+                      created_by_name, created_at, read_at
+               FROM notifications 
+               WHERE user_id = ?`;
+    if (unreadOnly) sql += ' AND read_at IS NULL';
+    sql += ' ORDER BY created_at DESC LIMIT 100';
+    
+    const [rows] = await db.execute(sql, [req.user.id]);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── PUT /api/notifications/:id/read ───────────────────────
+// Mark a single notification as read
+router.put('/:id/read', requireAuth, async (req, res) => {
+  try {
+    const [existing] = await db.execute(
+      'SELECT id FROM notifications WHERE id = ? AND user_id = ?',
+      [req.params.id, req.user.id]
+    );
+    if (existing.length === 0) {
+      return res.status(404).json({ error: 'Notification not found' });
+    }
+
+    await db.execute(
+      'UPDATE notifications SET read_at = NOW() WHERE id = ?',
+      [req.params.id]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── PUT /api/notifications/mark-all-read ──────────────────
+// Mark all notifications as read for the current user
+router.put('/mark-all-read', requireAuth, async (req, res) => {
+  try {
+    await db.execute(
+      'UPDATE notifications SET read_at = NOW() WHERE user_id = ? AND read_at IS NULL',
+      [req.user.id]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── GET /api/notifications/unread-count ──────────────────
+// Get count of unread notifications
+router.get('/unread-count', requireAuth, async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      'SELECT COUNT(*) AS count FROM notifications WHERE user_id = ? AND read_at IS NULL',
+      [req.user.id]
+    );
+    res.json({ count: rows[0].count });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── DELETE /api/notifications ─────────────────────────────
+// Delete all read notifications older than a certain time
+router.delete('/', requireAuth, async (req, res) => {
+  try {
+    await db.execute(
+      'DELETE FROM notifications WHERE user_id = ? AND read_at IS NOT NULL',
+      [req.user.id]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── Helper: Create notifications for subscribers ───────────
+// Called when a file is uploaded
+async function createNotificationsForUpload(uploadInfo) {
+  const { fileId, fileName, folderId, uploadedBy, uploadedByName } = uploadInfo;
+  
+  try {
+    // Get folder details if file is in a folder
+    let locationId = null;
+    let locationName = null;
+    let departmentId = null;
+    let departmentName = null;
+    
+    if (folderId) {
+      const [folders] = await db.execute(
+        `SELECT f.id, f.name, f.location_id, f.department_id, 
+                l.name AS location_name, d.name AS department_name
+         FROM folders f
+         LEFT JOIN locations l ON f.location_id = l.id
+         LEFT JOIN departments d ON f.department_id = d.id
+         WHERE f.id = ?`,
+        [folderId]
+      );
+      if (folders.length > 0) {
+        locationId = folders[0].location_id;
+        locationName = folders[0].location_name;
+        departmentId = folders[0].department_id;
+        departmentName = folders[0].department_name;
+      }
+    }
+
+    // Find all users subscribed to: this specific folder, its department, or its location
+    // They should NOT receive notification if they uploaded the file themselves
+    let subscriberQuery = `
+      SELECT DISTINCT s.user_id
+      FROM subscriptions s
+      WHERE (s.subscription_type = 'folder' AND s.subscription_id = ?)
+    `;
+    const params = [folderId];
+    
+    if (departmentId) {
+      subscriberQuery += ` OR (s.subscription_type = 'department' AND s.subscription_id = ?)`;
+      params.push(departmentId);
+    }
+    if (locationId) {
+      subscriberQuery += ` OR (s.subscription_type = 'location' AND s.subscription_id = ?)`;
+      params.push(locationId);
+    }
+    
+    const [subscribers] = await db.execute(subscriberQuery, params);
+    
+    // Create notification for each subscriber (except the uploader)
+    for (const sub of subscribers) {
+      if (sub.user_id === uploadedBy) continue; // Don't notify the uploader
+      
+      const notificationId = uuidv4();
+      
+      // Determine notification_type and item_type based on match
+      let notificationType = 'folder_upload';
+      let itemType = 'folder';
+      let itemName = null;
+      
+      // Get the subscribed item name
+      const [subDetails] = await db.execute(
+        `SELECT s.subscription_type, s.subscription_id,
+                CASE 
+                  WHEN s.subscription_type = 'location' THEN l.name
+                  WHEN s.subscription_type = 'department' THEN d.name
+                  WHEN s.subscription_type = 'folder' THEN f.name
+                END AS item_name_val
+         FROM subscriptions s
+         LEFT JOIN locations l ON s.subscription_type = 'location' AND s.subscription_id = l.id
+         LEFT JOIN departments d ON s.subscription_type = 'department' AND s.subscription_id = d.id
+         LEFT JOIN folders f ON s.subscription_type = 'folder' AND s.subscription_id = f.id
+         WHERE s.user_id = ? AND (
+           (s.subscription_type = 'folder' AND s.subscription_id = ?)
+           ${departmentId ? 'OR (s.subscription_type = \'department\' AND s.subscription_id = ?)' : ''}
+           ${locationId ? 'OR (s.subscription_type = \'location\' AND s.subscription_id = ?)' : ''}
+         )
+         LIMIT 1`,
+        params.length === 1 ? [sub.user_id, folderId] : 
+          departmentId && locationId ? [sub.user_id, folderId, departmentId, locationId] :
+          departmentId ? [sub.user_id, folderId, departmentId] : [sub.user_id, folderId, locationId]
+      );
+      
+      if (subDetails.length > 0) {
+        itemType = subDetails[0].subscription_type;
+        itemName = subDetails[0].item_name_val;
+      }
+      
+      await db.execute(
+        `INSERT INTO notifications 
+         (id, user_id, notification_type, item_type, item_id, item_name, 
+          location_name, department_name, file_name, file_id, created_by_name)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          notificationId,
+          sub.user_id,
+          notificationType,
+          itemType,
+          sub.subscription_id || folderId,
+          itemName,
+          locationName,
+          departmentName,
+          fileName,
+          fileId,
+          uploadedByName
+        ]
+      );
+    }
+  } catch (err) {
+    console.error('Error creating notifications:', err);
+    // Don't throw - notifications are not critical to the upload process
+  }
+}
+
+// ── Helper: Create notifications for unsorted uploads ──────
+async function createNotificationsForUnsortedUpload(uploadInfo) {
+  const { fileId, fileName, uploadedBy, uploadedByName } = uploadInfo;
+  
+  try {
+    // For unsorted files, we could notify admins or users with certain permissions
+    // For now, we'll skip unsorted uploads
+  } catch (err) {
+    console.error('Error creating unsorted notifications:', err);
+  }
+}
+
+module.exports = {
+  router,
+  createNotificationsForUpload,
+  createNotificationsForUnsortedUpload
+};

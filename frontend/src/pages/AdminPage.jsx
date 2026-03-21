@@ -3,6 +3,7 @@ import * as api from "../api";
 import { Btn, SmallBtn } from "../components/ui/Btn";
 import PermToggle from "../components/ui/PermToggle";
 import GroupAccessEditor from "../components/GroupAccessEditor";
+import SubscribeButton from "../components/SubscribeButton";
 import { ADMIN_MENU, PERMISSION_LABELS, PERMISSION_CATEGORIES } from "../constants";
 import {
   PlusIcon,
@@ -82,6 +83,9 @@ export default function AdminPage({
   setLocationAccess,
   departmentAccess,
   setDepartmentAccess,
+  // Subscriptions
+  subscriptions,
+  setSubscriptions,
   t,
   darkMode,
 }) {
@@ -92,6 +96,14 @@ export default function AdminPage({
   const addLocRef = useRef(null);
   const editDeptRef = useRef(null);
   const addDeptRef = useRef(null);
+
+  const handleSubscribe = (newSub) => {
+    setSubscriptions((prev) => [...prev, newSub]);
+  };
+
+  const handleUnsubscribe = (subId) => {
+    setSubscriptions((prev) => prev.filter((s) => s.id !== subId));
+  };
 
   useEffect(() => { if (editingLocationId && editLocRef.current) editLocRef.current.focus(); }, [editingLocationId]);
   useEffect(() => { if (addingLocation && addLocRef.current) addLocRef.current.focus(); }, [addingLocation]);
@@ -434,6 +446,16 @@ export default function AdminPage({
                           darkMode={darkMode}
                         />
                       </div>
+                      <div style={{ width: 120, display: "flex", justifyContent: "center" }}>
+                        <SubscribeButton
+                          type="location"
+                          itemId={loc.id}
+                          subscriptions={subscriptions || []}
+                          onSubscribe={handleSubscribe}
+                          onUnsubscribe={handleUnsubscribe}
+                          t={t}
+                        />
+                      </div>
                       {!isEd && <div style={{ width: 70, display: "flex", justifyContent: "flex-end", gap: 2 }}><SmallBtn t={t} title="Edit" onClick={() => { setEditingLocationId(loc.id); setEditingLocationName(loc.name); }}><EditIcon /></SmallBtn><SmallBtn t={t} title="Remove" onClick={() => handleDeleteLocation(loc)}><TrashIcon size={12} /></SmallBtn></div>}
                     </div>
                   );
@@ -502,6 +524,16 @@ export default function AdminPage({
                                   onSave={handleSaveDepartmentAccess}
                                   t={t}
                                   darkMode={darkMode}
+                                />
+                              </div>
+                              <div style={{ width: 120, display: "flex", justifyContent: "center" }}>
+                                <SubscribeButton
+                                  type="department"
+                                  itemId={dept.id}
+                                  subscriptions={subscriptions || []}
+                                  onSubscribe={handleSubscribe}
+                                  onUnsubscribe={handleUnsubscribe}
+                                  t={t}
                                 />
                               </div>
                               {!isEd && <div style={{ width: 60, display: "flex", justifyContent: "flex-end", gap: 2 }}><SmallBtn t={t} title="Edit" onClick={() => { setEditingDeptId(dept.id); setEditingDeptName(dept.name); }}><EditIcon /></SmallBtn><SmallBtn t={t} title="Remove" onClick={() => handleDeleteDept(dept, loc.name)}><TrashIcon size={12} /></SmallBtn></div>}

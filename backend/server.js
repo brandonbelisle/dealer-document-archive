@@ -79,6 +79,8 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/audit', require('./routes/audit'));
 app.use('/api/access', require('./routes/access'));
 app.use('/api/search', require('./routes/search'));
+app.use('/api/subscriptions', require('./routes/subscriptions'));
+app.use('/api/notifications', require('./routes/notifications').router);
 
 // ── Health check ──────────────────────────────────────────
 app.get('/api/health', (req, res) => {

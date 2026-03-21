@@ -22,6 +22,7 @@ import {
   LogOutIcon,
   AppsIcon,
   ArrowLeftIcon,
+  BellIcon,
 } from "./Icons";
 
 export default function Navbar({
@@ -61,6 +62,7 @@ export default function Navbar({
   foldersInDepartment,
   deptsInLocation,
   filesInFolder,
+  setShowSubscriptionsModal,
   t,
 }) {
   const [globalSearch, setGlobalSearch] = useState("");
@@ -849,6 +851,7 @@ export default function Navbar({
                 {[
                   { l: "My Account", i: <UserIcon /> },
                   { l: "Change Password", i: <ShieldIcon /> },
+                  { l: "My Subscriptions", i: <BellIcon /> },
                   { l: "Settings", i: <GearIcon /> },
                 ].map((item) => (
                   <div
@@ -864,6 +867,9 @@ export default function Navbar({
                         });
                         setChangePasswordError("");
                         setChangePasswordSuccess("");
+                      }
+                      if (item.l === "My Subscriptions") {
+                        setShowSubscriptionsModal(true);
                       }
                     }}
                     className="folder-select-item"

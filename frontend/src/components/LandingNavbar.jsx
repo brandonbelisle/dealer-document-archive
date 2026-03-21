@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { SunIcon, MoonIcon, UserIcon, ArrowLeftIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown } from "./Icons";
+import { SunIcon, MoonIcon, UserIcon, ArrowLeftIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon } from "./Icons";
 
-export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout }) {
+export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const showBackButton = page === "admin";
 
@@ -119,6 +119,7 @@ export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, pag
                 {[
                   { l: "My Account", i: <UserIcon /> },
                   { l: "Change Password", i: <ShieldIcon /> },
+                  { l: "My Subscriptions", i: <BellIcon /> },
                   { l: "Settings", i: <GearIcon /> },
                 ].map((item) => (
                   <div
@@ -130,6 +131,9 @@ export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, pag
                         setChangePasswordForm({ current: "", new: "", confirm: "" });
                         setChangePasswordError("");
                         setChangePasswordSuccess("");
+                      }
+                      if (item.l === "My Subscriptions") {
+                        setShowSubscriptionsModal(true);
                       }
                     }}
                     className="folder-select-item"

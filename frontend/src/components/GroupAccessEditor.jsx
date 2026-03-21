@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ShieldIcon, XIcon, ChevronDown, CheckIcon } from "./Icons";
 
 /**
@@ -24,6 +24,8 @@ export default function GroupAccessEditor({
   const [selected, setSelected] = useState(new Set());
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
+  const triggerRef = useRef(null);
   const dropdownRef = useRef(null);
 
   // Sync selected state when assignedGroups changes
@@ -32,11 +34,47 @@ export default function GroupAccessEditor({
     setDirty(false);
   }, [assignedGroups, entityId]);
 
+  // Calculate dropdown position when opening
+  const updatePosition = useCallback(() => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      const dropdownWidth = 260;
+      // Position below the trigger, aligned to the right edge
+      let left = rect.right - dropdownWidth;
+      // Ensure it doesn't go off-screen left
+      if (left < 8) left = 8;
+      // Ensure it doesn't go off-screen right
+      if (left + dropdownWidth > window.innerWidth - 8) {
+        left = window.innerWidth - dropdownWidth - 8;
+      }
+      setDropdownPos({
+        top: rect.bottom + 6,
+        left: left,
+      });
+    }
+  }, []);
+
+  // Update position on scroll/resize while open
+  useEffect(() => {
+    if (!open) return;
+    updatePosition();
+    const onScrollOrResize = () => updatePosition();
+    window.addEventListener("scroll", onScrollOrResize, true);
+    window.addEventListener("resize", onScrollOrResize);
+    return () => {
+      window.removeEventListener("scroll", onScrollOrResize, true);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, [open, updatePosition]);
+
   // Close on outside click
   useEffect(() => {
     if (!open) return;
     const handler = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(e.target) &&
+        triggerRef.current && !triggerRef.current.contains(e.target)
+      ) {
         setOpen(false);
         // Reset to saved state if not saved
         if (dirty) {
@@ -90,11 +128,15 @@ export default function GroupAccessEditor({
   const groupNames = (assignedGroups || []).map((g) => g.groupName);
 
   return (
-    <div ref={dropdownRef} style={{ position: "relative" }}>
+    <div style={{ position: "relative" }}>
       {/* Trigger button */}
       <button
+        ref={triggerRef}
         onClick={(e) => {
           e.stopPropagation();
+          if (!open) {
+            updatePosition();
+          }
           setOpen(!open);
         }}
         title={
@@ -134,15 +176,16 @@ export default function GroupAccessEditor({
         <ChevronDown />
       </button>
 
-      {/* Dropdown */}
+      {/* Dropdown — uses position:fixed to escape overflow:auto/hidden containers */}
       {open && (
         <div
+          ref={dropdownRef}
           onClick={(e) => e.stopPropagation()}
           style={{
-            position: "absolute",
-            top: "calc(100% + 6px)",
-            right: 0,
-            zIndex: 200,
+            position: "fixed",
+            top: dropdownPos.top,
+            left: dropdownPos.left,
+            zIndex: 9999,
             minWidth: 260,
             background: darkMode ? "#1a1d23" : "#ffffff",
             border: `1px solid ${t.border}`,

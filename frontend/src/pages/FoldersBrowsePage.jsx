@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
-import { fuzzyMatch } from "../utils/helpers";
 import {
   FolderClosedIcon,
   MapPinIcon,
   LayersIcon,
   ChevronRightIcon,
-  SearchIcon,
   ChevronIcon,
 } from "../components/Icons";
 import * as api from "../api";
@@ -23,15 +21,12 @@ export default function FoldersBrowsePage({
   t,
   darkMode,
 }) {
-  const [search, setSearch] = useState("");
   const [collapsedLocations, setCollapsedLocations] = useState({});
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
     api.getFolderStats().then(setStats).catch(console.error);
   }, []);
-
-  const q = search.trim();
 
   const toggleLocation = (locId) => {
     setCollapsedLocations((p) => ({ ...p, [locId]: !p[locId] }));
@@ -51,19 +46,9 @@ export default function FoldersBrowsePage({
   const getDeptFileCount = (deptId) =>
     stats?.deptStats?.[deptId]?.fileCount ?? 0;
 
-  // Build filtered structure
-  const locationsWithData = locations
-    .map((loc) => {
-      const depts = deptsInLocation(loc.id);
-      const filteredDepts = q
-        ? depts.filter((d) => fuzzyMatch(q, d.name).match)
-        : depts;
-      return { ...loc, depts: filteredDepts };
-    })
-    .filter((loc) => {
-      if (q) return loc.depts.length > 0 || fuzzyMatch(q, loc.name).match;
-      return loc.depts.length > 0;
-    });
+  const locationsWithData = locations.filter(
+    (loc) => deptsInLocation(loc.id).length > 0
+  );
 
   return (
     <div
@@ -74,50 +59,11 @@ export default function FoldersBrowsePage({
         animation: "fadeIn 0.35s ease",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 24,
-        }}
-      >
-        <div>
-          <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>Folders</h1>
-          <p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>
-            Browse departments by location
-          </p>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            background: darkMode
-              ? "rgba(255,255,255,0.04)"
-              : "rgba(0,0,0,0.03)",
-            border: `1px solid ${t.border}`,
-            borderRadius: 8,
-            padding: "6px 12px",
-            width: 240,
-          }}
-        >
-          <SearchIcon size={14} style={{ color: t.textDim, flexShrink: 0 }} />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search departments..."
-            style={{
-              flex: 1,
-              background: "transparent",
-              border: "none",
-              fontSize: 13,
-              color: t.text,
-              outline: "none",
-              fontFamily: "inherit",
-            }}
-          />
-        </div>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>Folders</h1>
+        <p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>
+          Browse departments by location
+        </p>
       </div>
 
       {locationsWithData.length === 0 ? (
@@ -133,18 +79,19 @@ export default function FoldersBrowsePage({
         >
           <FolderClosedIcon size={36} />
           <div style={{ fontSize: 13, fontWeight: 500, marginTop: 12 }}>
-            {q ? "No departments match your search" : "No locations yet"}
+            No locations yet
           </div>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {locationsWithData.map((loc) => {
             const isCollapsed = collapsedLocations[loc.id];
-            const totalFolders = loc.depts.reduce(
+            const depts = deptsInLocation(loc.id);
+            const totalFolders = depts.reduce(
               (s, d) => s + getDeptFolderCount(d.id),
               0
             );
-            const totalFiles = loc.depts.reduce(
+            const totalFiles = depts.reduce(
               (s, d) => s + getDeptFileCount(d.id),
               0
             );
@@ -197,8 +144,8 @@ export default function FoldersBrowsePage({
                     <div
                       style={{ fontSize: 11, color: t.textDim, marginTop: 1 }}
                     >
-                      {loc.depts.length} department
-                      {loc.depts.length !== 1 ? "s" : ""} · {totalFolders}{" "}
+                      {depts.length} department
+                      {depts.length !== 1 ? "s" : ""} · {totalFolders}{" "}
                       folder
                       {totalFolders !== 1 ? "s" : ""} · {totalFiles} file
                       {totalFiles !== 1 ? "s" : ""}
@@ -209,7 +156,7 @@ export default function FoldersBrowsePage({
                 {/* Departments */}
                 {!isCollapsed && (
                   <div style={{ padding: "8px 12px 12px" }}>
-                    {loc.depts.map((dept) => {
+                    {depts.map((dept) => {
                       const deptFolderCount = getDeptFolderCount(dept.id);
                       const deptFileCount = getDeptFileCount(dept.id);
 

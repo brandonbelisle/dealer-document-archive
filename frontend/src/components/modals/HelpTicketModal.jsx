@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
-import * as api from "../api";
-import { XIcon, UploadCloudIcon } from "./Icons";
+import * as api from "../../api";
+import { XIcon, UploadCloudIcon } from "../Icons";
 
 export default function HelpTicketModal({ show, onClose, darkMode, loggedInUser }) {
+  const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [attachments, setAttachments] = useState([]);
   const [submitting, setSubmitting] = useState(false);
@@ -43,6 +44,10 @@ export default function HelpTicketModal({ show, onClose, darkMode, loggedInUser 
   };
 
   const handleSubmit = async () => {
+    if (!subject.trim()) {
+      setError("Please enter a subject");
+      return;
+    }
     if (!message.trim()) {
       setError("Please describe your issue");
       return;
@@ -52,8 +57,9 @@ export default function HelpTicketModal({ show, onClose, darkMode, loggedInUser 
     setError("");
 
     try {
-      await api.submitHelpTicket(message.trim(), attachments);
+      await api.submitHelpTicket(subject.trim(), message.trim(), attachments);
       setSuccess(true);
+      setSubject("");
       setMessage("");
       setAttachments([]);
       setTimeout(() => {
@@ -69,6 +75,7 @@ export default function HelpTicketModal({ show, onClose, darkMode, loggedInUser 
 
   const handleClose = () => {
     if (!submitting) {
+      setSubject("");
       setMessage("");
       setAttachments([]);
       setError("");
@@ -166,6 +173,29 @@ export default function HelpTicketModal({ show, onClose, darkMode, loggedInUser 
               <div style={{ fontSize: 12, color: t.textMuted }}>
                 {loggedInUser?.email || ""}
               </div>
+            </div>
+
+            {/* Subject */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+                Subject
+              </label>
+              <input
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="Brief summary of your issue"
+                style={{
+                  width: "100%",
+                  padding: "12px 14px",
+                  fontSize: 14,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 8,
+                  background: darkMode ? "#1a1a1a" : "#fff",
+                  color: t.text,
+                  fontFamily: "inherit",
+                }}
+              />
             </div>
 
             {/* Message */}
@@ -301,7 +331,7 @@ export default function HelpTicketModal({ show, onClose, darkMode, loggedInUser 
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={submitting || !message.trim()}
+                disabled={submitting || !subject.trim() || !message.trim()}
                 style={{
                   background: t.accent,
                   border: "none",
@@ -312,7 +342,7 @@ export default function HelpTicketModal({ show, onClose, darkMode, loggedInUser 
                   cursor: submitting ? "not-allowed" : "pointer",
                   color: "#fff",
                   fontFamily: "inherit",
-                  opacity: submitting || !message.trim() ? 0.5 : 1,
+                  opacity: submitting || !subject.trim() || !message.trim() ? 0.5 : 1,
                 }}
               >
                 {submitting ? "Submitting..." : "Submit"}

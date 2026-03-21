@@ -386,8 +386,9 @@ export async function getSupportEmail() {
 export async function setSupportEmail(email) {
   return request('/help-ticket/support-email', { method: 'POST', body: JSON.stringify({ email }) });
 }
-export async function submitHelpTicket(message, attachments) {
+export async function submitHelpTicket(subject, message, attachments) {
   const formData = new FormData();
+  formData.append('subject', subject);
   formData.append('message', message);
   if (attachments && attachments.length > 0) {
     attachments.forEach((file) => {

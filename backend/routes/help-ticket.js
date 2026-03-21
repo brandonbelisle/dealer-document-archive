@@ -61,9 +61,12 @@ router.post('/support-email', requireAuth, async (req, res) => {
 
 router.post('/submit', requireAuth, upload.array('attachments', 5), async (req, res) => {
   try {
-    const { message } = req.body;
+    const { subject, message } = req.body;
     const files = req.files || [];
 
+    if (!subject?.trim()) {
+      return res.status(400).json({ error: 'Subject is required' });
+    }
     if (!message?.trim()) {
       return res.status(400).json({ error: 'Message is required' });
     }
@@ -101,14 +104,15 @@ router.post('/submit', requireAuth, upload.array('attachments', 5), async (req, 
       contentType: file.mimetype,
     }));
 
-    const subject = `Help Ticket from ${userDisplayName}`;
+    const emailSubject = `[Help Ticket] ${subject.trim()}`;
 
-    const textBody = `Help Ticket Submission\n\nFrom: ${userDisplayName} <${userEmail}>\n\nMessage:\n${message}\n\n---\nSubmitted via Dealer Document Archive`;
+    const textBody = `Help Ticket Submission\n\nFrom: ${userDisplayName} <${userEmail}>\nSubject: ${subject.trim()}\n\nMessage:\n${message.trim()}\n\n---\nSubmitted via Dealer Document Archive`;
 
     const htmlBody = `
       <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
         <h2 style="color: #0891b2; margin-bottom: 20px;">Help Ticket Submission</h2>
         <p><strong>From:</strong> ${userDisplayName} &lt;${userEmail}&gt;</p>
+        <p><strong>Subject:</strong> ${subject.trim()}</p>
         <h3 style="color: #374151; margin-top: 20px;">Message:</h3>
         <div style="background: #f9fafb; padding: 16px; border-radius: 8px; white-space: pre-wrap;">${message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
         ${files.length > 0 ? `<p style="color: #6b7280; margin-top: 16px;"><strong>Attachments:</strong> ${files.length} file(s)</p>` : ''}
@@ -121,13 +125,13 @@ router.post('/submit', requireAuth, upload.array('attachments', 5), async (req, 
       from: `"${fromName}" <${fromAddress}>`,
       to: supportEmail,
       replyTo: userEmail,
-      subject,
+      subject: emailSubject,
       text: textBody,
       html: htmlBody,
       attachments,
     });
 
-    logAudit('Help Ticket Submitted', `Message: "${message.substring(0, 50)}..."`, req.user, req.ip);
+    logAudit('Help Ticket Submitted', `Subject: "${subject.trim()}"`, req.user, req.ip);
 
     res.json({ success: true, message: 'Help ticket submitted successfully' });
   } catch (err) {

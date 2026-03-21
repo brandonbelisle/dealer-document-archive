@@ -698,30 +698,59 @@ router.post('/callback', async (req, res) => {
 async function parseSamlResponseManually(samlResponseBase64) {
   const xml = Buffer.from(samlResponseBase64, 'base64').toString('utf8');
   
-  // Extract attributes from SAML assertion
-  const getValue = (pattern) => {
-    const match = xml.match(pattern);
-    return match ? match[1] : null;
+  // Log the full XML for debugging
+  console.log('Full SAML Response:', xml.substring(0, 2000));
+  
+  // Helper to get attribute value by name
+  const getAttributeValue = (attrName) => {
+    // Try different attribute name formats
+    const patterns = [
+      new RegExp(`<saml:Attribute\\s+Name="${attrName}"[^>]*>[\\s\\S]*?<saml:AttributeValue[^>]*>([^<]+)<\\/saml:AttributeValue>`, 'i'),
+      new RegExp(`<Attribute\\s+Name="${attrName}"[^>]*>[\\s\\S]*?<AttributeValue[^>]*>([^<]+)<\\/AttributeValue>`, 'i'),
+      // Azure format with NameFormat
+      new RegExp(`<saml:Attribute[^>]+Name="${attrName}"[^>]*>[\\s\\S]*?<saml:AttributeValue[^>]*>([^<]+)<\\/saml:AttributeValue>`, 'i'),
+    ];
+    
+    for (const pattern of patterns) {
+      const match = xml.match(pattern);
+      if (match) {
+        return match[1].trim();
+      }
+    }
+    return null;
   };
   
   // Get NameID
-  const nameId = getValue(/<NameID[^>]*>([^<]+)<\/NameID>/i) || 
-                 getValue(/<saml:NameID[^>]*>([^<]+)<\/saml:NameID>/i);
+  const nameIdMatch = xml.match(/<saml:NameID[^>]*>([^<]+)<\/saml:NameID>/i) ||
+                       xml.match(/<NameID[^>]*>([^<]+)<\/NameID>/i);
+  const nameId = nameIdMatch ? nameIdMatch[1].trim() : null;
   
-  // Get standard Azure AD attributes
-  const email = getValue(/<saml:AttributeValue[^>]*>\s*([^<]+)\s*<\/saml:AttributeValue>[\s\S]*?Name="http:\/\/schemas\.xmlsoap\.org\/ws\/2005\/05\/identity\/claims\/emailaddress"/i) ||
-                getValue(/Name="http:\/\/schemas\.xmlsoap\.org\/ws\/2005\/05\/identity\/claims\/emailaddress"[\s\S]*?<saml:AttributeValue[^>]*>\s*([^<]+)\s*<\/saml:AttributeValue>/i) ||
-                nameId;
+  // Standard Azure AD attribute URIs
+  const emailAttr = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress';
+  const nameAttr = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name';
+  const upnAttr = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn';
+  const objectIdAttr = 'http://schemas.microsoft.com/identity/claims/objectidentifier';
   
-  const name = getValue(/<saml:AttributeValue[^>]*>\s*([^<]+)\s*<\/saml:AttributeValue>[\s\S]*?Name="http:\/\/schemas\.xmlsoap\.org\/ws\/2005\/05\/identity\/claims\/name"/i) ||
-                getValue(/Name="http:\/\/schemas\.xmlsoap\.org\/ws\/2005\/05\/identity\/claims\/name"[\s\S]*?<saml:AttributeValue[^>]*>\s*([^<]+)\s*<\/saml:AttributeValue>/i) ||
-                email?.split('@')[0];
+  // Try to get attributes
+  let email = getAttributeValue(emailAttr) || getAttributeValue(upnAttr);
+  let name = getAttributeValue(nameAttr) || nameId;
+  const upn = getAttributeValue(upnAttr) || email;
+  const objectId = getAttributeValue(objectIdAttr);
   
-  const upn = getValue(/<saml:AttributeValue[^>]*>\s*([^<]+)\s*<\/saml:AttributeValue>[\s\S]*?Name="http:\/\/schemas\.xmlsoap\.org\/ws\/2005\/05\/identity\/claims\/upn"/i) ||
-              getValue(/Name="http:\/\/schemas\.xmlsoap\.org\/ws\/2005\/05\/identity\/claims\/upn"[\s\S]*?<saml:AttributeValue[^>]*>\s*([^<]+)\s*<\/saml:AttributeValue>/i) ||
-              nameId;
+  // If email is still not found, try to find any email-like value
+  if (!email || !email.includes('@')) {
+    const emailMatch = xml.match(/[\w.-]+@[\w.-]+\.\w+/);
+    if (emailMatch) {
+      email = emailMatch[0];
+    } else if (upn && upn.includes('@')) {
+      email = upn;
+    } else {
+      // Use nameId as last resort - it might be the UPN
+      email = nameId;
+    }
+  }
   
-  console.log('Extracted from SAML:', { email, name, upn, nameId });
+  console.log('Extracted from SAML:', { email, name, upn, nameId, objectId });
   
   if (!email) {
     throw new Error('Could not extract email from SAML response');
@@ -734,10 +763,10 @@ async function parseSamlResponseManually(samlResponseBase64) {
   return processSamlUser({
     nameID: nameId,
     email: email,
-    name: name,
-    [settings.attribute_email || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']: email,
-    [settings.attribute_name || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']: name,
-    [settings.attribute_username || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn']: upn,
+    displayName: name,
+    [settings.attribute_email || emailAttr]: email,
+    [settings.attribute_name || nameAttr]: name,
+    [settings.attribute_username || upnAttr]: upn || email,
   }, settings);
 }
 

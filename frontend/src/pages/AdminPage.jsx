@@ -20,25 +20,6 @@ import {
   FolderClosedIcon,
   UploadCloudIcon,
 } from "../components/Icons";
-import PermToggle from "../components/ui/PermToggle";
-import GroupAccessEditor from "../components/GroupAccessEditor";
-import SubscribeButton from "../components/SubscribeButton";
-import AddUserModal from "../components/modals/AddUserModal";
-import EditUserModal from "../components/modals/EditUserModal";
-import { ADMIN_MENU, PERMISSION_LABELS, PERMISSION_CATEGORIES } from "../constants";
-import {
-  PlusIcon,
-  XIcon,
-  EditIcon,
-  TrashIcon,
-  ShieldIcon,
-  MapPinIcon,
-  LayersIcon,
-  SearchIcon,
-  ClipboardIcon,
-  FolderClosedIcon,
-  UploadIcon,
-} from "../components/Icons";
 
 function SettingsSection({ t, darkMode }) {
   const [darkLogo, setDarkLogo] = useState(null);

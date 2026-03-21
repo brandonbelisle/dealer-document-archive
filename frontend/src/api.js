@@ -389,8 +389,8 @@ export async function setSupportEmail(email) {
 export async function getEmailSettings() {
   return request('/help-ticket/email-settings');
 }
-export async function setEmailSettings(signature, brandColor) {
-  return request('/help-ticket/email-settings', { method: 'POST', body: JSON.stringify({ signature, brandColor }) });
+export async function setEmailSettings(signature, brandColor, subjectPrefix) {
+  return request('/help-ticket/email-settings', { method: 'POST', body: JSON.stringify({ signature, brandColor, subjectPrefix }) });
 }
 export async function submitHelpTicket(subject, message, attachments) {
   const formData = new FormData();

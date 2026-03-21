@@ -736,6 +736,7 @@ function SettingsSection({ t, darkMode }) {
 
   const [emailSignature, setEmailSignature] = useState('');
   const [emailBrandColor, setEmailBrandColor] = useState('#0891b2');
+  const [emailSubjectPrefix, setEmailSubjectPrefix] = useState('[Help Ticket]');
   const [emailSettingsSaving, setEmailSettingsSaving] = useState(false);
   const [emailSettingsMessage, setEmailSettingsMessage] = useState({ type: '', text: '' });
 
@@ -790,6 +791,7 @@ function SettingsSection({ t, darkMode }) {
       const data = await api.getEmailSettings();
       setEmailSignature(data.signature || '');
       setEmailBrandColor(data.brandColor || '#0891b2');
+      setEmailSubjectPrefix(data.subjectPrefix || '[Help Ticket]');
     } catch (err) {
       console.error("Failed to load email settings:", err);
     }
@@ -1336,6 +1338,36 @@ function SettingsSection({ t, darkMode }) {
 
         <div style={{ marginBottom: 20 }}>
           <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+            Email Subject Prefix
+          </label>
+          <input
+            type="text"
+            value={emailSubjectPrefix}
+            onChange={(e) => setEmailSubjectPrefix(e.target.value)}
+            placeholder="[Help Ticket]"
+            style={{
+              width: "100%",
+              maxWidth: 300,
+              padding: "10px 12px",
+              fontSize: 14,
+              border: `1px solid ${t.border}`,
+              borderRadius: 8,
+              background: darkMode ? "#1a1a1a" : "#fff",
+              color: t.text,
+              fontFamily: "inherit",
+            }}
+          />
+          <p style={{ fontSize: 11, color: t.textDim, margin: "4px 0 0" }}>
+            This prefix will be added to the beginning of help ticket email subjects. Leave empty for no prefix.
+          </p>
+        </div>
+              Used for headings and accents in emails
+            </span>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
             Email Signature
           </label>
           <textarea
@@ -1385,7 +1417,7 @@ function SettingsSection({ t, darkMode }) {
               <strong>From:</strong> John Doe &lt;john@example.com&gt;
             </p>
             <p style={{ margin: "0 0 8px", color: "#374151", fontSize: 14 }}>
-              <strong>Subject:</strong> Example Subject
+              <strong>Subject:</strong> {emailSubjectPrefix ? `${emailSubjectPrefix} ` : ''}Example Subject
             </p>
             <div style={{
               background: "#f9fafb",
@@ -1435,7 +1467,7 @@ function SettingsSection({ t, darkMode }) {
             setEmailSettingsSaving(true);
             setEmailSettingsMessage({ type: '', text: '' });
             try {
-              await api.setEmailSettings(emailSignature, emailBrandColor);
+              await api.setEmailSettings(emailSignature, emailBrandColor, emailSubjectPrefix);
               setEmailSettingsMessage({ type: 'success', text: 'Email settings saved successfully!' });
             } catch (err) {
               setEmailSettingsMessage({ type: 'error', text: 'Failed to save: ' + (err.message || 'Unknown error') });

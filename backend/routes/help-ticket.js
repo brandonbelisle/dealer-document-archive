@@ -61,7 +61,7 @@ router.post('/support-email', requireAuth, async (req, res) => {
 
 router.get('/email-settings', requireAuth, async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT `key`, `value` FROM app_settings WHERE `key` IN ("email_signature", "email_brand_color")');
+    const [rows] = await db.execute('SELECT `key`, `value` FROM app_settings WHERE `key` IN ("email_signature", "email_brand_color", "email_subject_prefix")');
     const settings = {};
     for (const row of rows) {
       settings[row.key] = row.value;
@@ -69,6 +69,7 @@ router.get('/email-settings', requireAuth, async (req, res) => {
     res.json({
       signature: settings.email_signature || '',
       brandColor: settings.email_brand_color || '#0891b2',
+      subjectPrefix: settings.email_subject_prefix || '[Help Ticket]',
     });
   } catch (err) {
     console.error(err);
@@ -78,7 +79,7 @@ router.get('/email-settings', requireAuth, async (req, res) => {
 
 router.post('/email-settings', requireAuth, async (req, res) => {
   try {
-    const { signature, brandColor } = req.body;
+    const { signature, brandColor, subjectPrefix } = req.body;
     
     await db.execute(
       'INSERT INTO app_settings (`key`, `value`) VALUES ("email_signature", ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)',
@@ -89,6 +90,13 @@ router.post('/email-settings', requireAuth, async (req, res) => {
       await db.execute(
         'INSERT INTO app_settings (`key`, `value`) VALUES ("email_brand_color", ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)',
         [brandColor]
+      );
+    }
+
+    if (subjectPrefix !== undefined) {
+      await db.execute(
+        'INSERT INTO app_settings (`key`, `value`) VALUES ("email_subject_prefix", ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)',
+        [subjectPrefix || '']
       );
     }
     
@@ -118,12 +126,14 @@ router.post('/submit', requireAuth, upload.array('attachments', 5), async (req, 
     }
     const supportEmail = supportRows[0].value;
 
-    const [settingsRows] = await db.execute('SELECT `key`, `value` FROM app_settings WHERE `key` IN ("email_signature", "email_brand_color")');
+    const [settingsRows] = await db.execute('SELECT `key`, `value` FROM app_settings WHERE `key` IN ("email_signature", "email_brand_color", "email_subject_prefix")');
     let emailSignature = '';
     let brandColor = '#0891b2';
+    let subjectPrefix = '[Help Ticket]';
     for (const row of settingsRows) {
       if (row.key === 'email_signature') emailSignature = row.value || '';
       if (row.key === 'email_brand_color') brandColor = row.value || '#0891b2';
+      if (row.key === 'email_subject_prefix') subjectPrefix = row.value || '[Help Ticket]';
     }
 
     const [smtpRows] = await db.execute('SELECT * FROM smtp_settings WHERE id = 1');
@@ -153,7 +163,7 @@ router.post('/submit', requireAuth, upload.array('attachments', 5), async (req, 
       contentType: file.mimetype,
     }));
 
-    const emailSubject = `[Help Ticket] ${subject.trim()}`;
+    const emailSubject = subjectPrefix ? `${subjectPrefix} ${subject.trim()}` : subject.trim();
 
     const textBody = `Help Ticket Submission\n\nFrom: ${userDisplayName} <${userEmail}>\nSubject: ${subject.trim()}\n\nMessage:\n${message.trim()}${emailSignature ? '\n\n' + emailSignature : ''}`;
 

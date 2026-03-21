@@ -43,9 +43,11 @@ export default function FoldersPage({
   handleDeleteFolder,
   subscriptions,
   setSubscriptions,
+  loggedInUser,
   t,
   darkMode,
 }) {
+  const canDeleteFolders = loggedInUser?.permissions?.deleteFolders;
   const newDeptFolderRef = useRef(null);
   const [sortCol, setSortCol] = useState("createdAt");
   const [sortDir, setSortDir] = useState("desc");
@@ -162,7 +164,16 @@ export default function FoldersPage({
       >
         <div>
           <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>
-            {currentLocation?.name} — {currentDept?.name}
+            <span
+              onClick={() => setPage("folders-browse")}
+              style={{ cursor: "pointer", color: t.textMuted, transition: "color 0.15s" }}
+              onMouseEnter={(e) => e.currentTarget.style.color = t.accent}
+              onMouseLeave={(e) => e.currentTarget.style.color = t.textMuted}
+            >
+              {currentLocation?.name}
+            </span>
+            <span style={{ color: t.textDim, margin: "0 8px" }}>/</span>
+            <span>{currentDept?.name}</span>
           </h1>
           <p
             style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}
@@ -496,16 +507,18 @@ export default function FoldersPage({
                     }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <SmallBtn
-                      t={t}
-                      title="Delete folder"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteFolder(folder);
-                      }}
-                    >
-                      <TrashIcon size={12} />
-                    </SmallBtn>
+                    {canDeleteFolders && (
+                      <SmallBtn
+                        t={t}
+                        title="Delete folder"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteFolder(folder);
+                        }}
+                      >
+                        <TrashIcon size={12} />
+                      </SmallBtn>
+                    )}
                   </td>
                 </tr>
               ))}

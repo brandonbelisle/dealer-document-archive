@@ -25,9 +25,11 @@ export default function FileDetailPage({
   setRenamingFileId,
   setRenamingFileName,
   removeFile,
+  loggedInUser,
   t,
   darkMode,
 }) {
+  const canDeleteFiles = loggedInUser?.permissions?.deleteFiles;
   const vf = files.find((f) => f.id === viewingFileId);
   if (!vf) return null;
 
@@ -315,25 +317,27 @@ export default function FileDetailPage({
             >
               <CopyIcon /> Copy Text
             </Btn>
-            <button
-              onClick={() => removeFile(vf.id)}
-              style={{
-                background: t.errorSoft,
-                color: t.error,
-                border: "none",
-                borderRadius: 8,
-                padding: "6px 12px",
-                fontSize: 11.5,
-                fontWeight: 600,
-                cursor: "pointer",
-                fontFamily: "inherit",
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-              }}
-            >
-              <TrashIcon size={12} /> Delete
-            </button>
+            {canDeleteFiles && (
+              <button
+                onClick={() => removeFile(vf.id)}
+                style={{
+                  background: t.errorSoft,
+                  color: t.error,
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "6px 12px",
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                }}
+              >
+                <TrashIcon size={12} /> Delete
+              </button>
+            )}
           </div>
           <div
             style={{ borderBottom: `1px solid ${t.border}`, marginBottom: 0 }}

@@ -45,9 +45,12 @@ export default function FolderDetailPage({
   handleFolderDetailFiles,
   subscriptions,
   setSubscriptions,
+  loggedInUser,
   t,
   darkMode,
 }) {
+  const canDeleteFiles = loggedInUser?.permissions?.deleteFiles;
+  const canDeleteFolders = loggedInUser?.permissions?.deleteFolders;
   const newSubfolderRef = useRef(null);
   const folderDetailInputRef = useRef(null);
 
@@ -416,16 +419,18 @@ export default function FolderDetailPage({
                       marginLeft: 6,
                     }}
                   >
-                    <SmallBtn
-                      t={t}
-                      title="Delete subfolder"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteFolder(sub);
-                      }}
-                    >
-                      <TrashIcon size={12} />
-                    </SmallBtn>
+                    {canDeleteFolders && (
+                      <SmallBtn
+                        t={t}
+                        title="Delete subfolder"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteFolder(sub);
+                        }}
+                      >
+                        <TrashIcon size={12} />
+                      </SmallBtn>
+                    )}
                   </div>
                   <div
                     style={{
@@ -726,16 +731,18 @@ export default function FolderDetailPage({
                         <CopyIcon />
                       </SmallBtn>
                     )}
-                    <SmallBtn
-                      t={t}
-                      title="Remove"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeFile(file.id);
-                      }}
-                    >
-                      <TrashIcon size={12} />
-                    </SmallBtn>
+                    {canDeleteFiles && (
+                      <SmallBtn
+                        t={t}
+                        title="Remove"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeFile(file.id);
+                        }}
+                      >
+                        <TrashIcon size={12} />
+                      </SmallBtn>
+                    )}
                   </div>
                 </div>
               );

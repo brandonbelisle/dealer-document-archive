@@ -36,9 +36,11 @@ export default function UnsortedPage({
   removeFile,
   setUnsortedFiles,
   setWarningModal,
+  loggedInUser,
   t,
   darkMode,
 }) {
+  const canDeleteFiles = loggedInUser?.permissions?.deleteFiles;
   const [movingFileId, setMovingFileId] = useState(null);
   const [moveTargetFolderId, setMoveTargetFolderId] = useState("");
   const [showMoveSelect, setShowMoveSelect] = useState(false);
@@ -367,16 +369,48 @@ export default function UnsortedPage({
                             if (!di.length) return null;
                             return (
                               <div key={dept.id}>
-                                <div
-                                  style={{
-                                    padding: "3px 8px 2px 16px",
-                                    fontSize: 9,
-                                    fontWeight: 600,
-                                    color: t.textDim,
-                                  }}
-                                >
-                                  {dept.name}
-                                </div>
+<div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                            justifyContent: "center",
+                          }}
+                        >
+                          <SmallBtn
+                            t={t}
+                            title="Move to Folder"
+                            onClick={() => {
+                              setSelectedFileId(file.id);
+                              setMovingFileId(file.id);
+                              setMoveTargetFolderId("");
+                              setShowMoveSelect(false);
+                            }}
+                          >
+                            <FolderClosedIcon size={12} />
+                          </SmallBtn>
+                          {canDeleteFiles && (
+                            <SmallBtn
+                              t={t}
+                              title="Delete"
+                              onClick={() => {
+                                setWarningModal({
+                                  title: "Delete File",
+                                  message: `Delete "${file.name}"? This cannot be undone.`,
+                                  onConfirm: async () => {
+                                    await removeFile(file.id);
+                                    setUnsortedFiles((p) =>
+                                      p.filter((f) => f.id !== file.id)
+                                    );
+                                    setWarningModal(null);
+                                  },
+                                });
+                              }}
+                            >
+                              <TrashIcon size={11} />
+                            </SmallBtn>
+                          )}
+                        </div>
                                 {di.map((folder) => (
                                   <div
                                     key={folder.id}

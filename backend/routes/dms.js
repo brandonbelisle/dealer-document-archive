@@ -256,7 +256,7 @@ router.get('/schedules', requireAuth, requirePermission('manageSettings'), async
       name: row.name,
       description: row.description,
       taskType: row.task_type,
-      queryConfig: row.query_config ? JSON.parse(row.query_config) : null,
+      queryConfig: typeof row.query_config === 'string' ? JSON.parse(row.query_config) : row.query_config,
       enabled: Boolean(row.enabled),
       intervalMinutes: row.interval_minutes || 0,
       lastRunAt: row.last_run_at,
@@ -340,7 +340,7 @@ async function runDmsTask(taskType, queryConfig) {
     await pool.connect();
 
     if (taskType === 'DMS_TO_DDA') {
-      const config = JSON.parse(queryConfig);
+      const config = typeof queryConfig === 'string' ? JSON.parse(queryConfig) : queryConfig;
       const table = config.table || 'SVSLS';
       const dateColumn = config.dateColumn || 'DateOpen';
       const lookbackHours = config.lookbackHours || 48;

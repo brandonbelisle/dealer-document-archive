@@ -89,7 +89,7 @@ app.use('/api/settings', require('./routes/settings'));
 app.use('/api/smtp', require('./routes/smtp').router);
 app.use('/api/saml', require('./routes/saml').router);
 app.use('/api/custom-apps', require('./routes/custom-apps'));
-app.use('/api/dms', require('./routes/dms'));
+app.use('/api/dms-settings', require('./routes/dms'));
 app.use('/api/help-ticket', require('./routes/help-ticket'));
 
 // ── Health check ──────────────────────────────────────────

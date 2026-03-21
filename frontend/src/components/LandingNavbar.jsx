@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SunIcon, MoonIcon, UserIcon, ArrowLeftIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon } from "./Icons";
+import AlertsDropdown from "./AlertsDropdown";
 
 export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -178,6 +179,7 @@ export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, pag
             )}
           </div>
         )}
+        <AlertsDropdown darkMode={darkMode} />
         <button
           onClick={() => setDarkMode(!darkMode)}
           style={{

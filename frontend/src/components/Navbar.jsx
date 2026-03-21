@@ -24,6 +24,7 @@ import {
   ArrowLeftIcon,
   BellIcon,
 } from "./Icons";
+import AlertsDropdown from "./AlertsDropdown";
 
 export default function Navbar({
   page,
@@ -967,6 +968,7 @@ export default function Navbar({
         >
           <AppsIcon size={14} /> Apps
         </button>
+        <AlertsDropdown darkMode={darkMode} />
         <button
           onClick={() => setDarkMode(!darkMode)}
           style={{

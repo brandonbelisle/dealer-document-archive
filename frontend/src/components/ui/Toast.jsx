@@ -1,8 +1,38 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { XCloseIcon } from "../Icons";
+
+function playNotificationSound() {
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+    oscillator.type = "sine";
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+  } catch (e) {
+    console.log("Could not play notification sound");
+  }
+}
 
 export default function Toast({ toasts, removeToast, darkMode }) {
   const t = darkMode;
+  const prevToastCount = useRef(0);
+  
+  useEffect(() => {
+    if (toasts.length > prevToastCount.current) {
+      playNotificationSound();
+    }
+    prevToastCount.current = toasts.length;
+  }, [toasts.length]);
   
   if (toasts.length === 0) return null;
 

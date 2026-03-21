@@ -535,7 +535,8 @@ export default function AdminPage({
                       const date = new Date(entry.timestamp);
                       const timeStr = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
                       const dateStr = date.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
-                      const ac = actionColors[entry.action] || { bg: t.accentSoft, color: t.accent };
+                      const isDeleted = entry.action.includes("Deleted") || entry.action.includes("Deleting");
+                      const ac = actionColors[entry.action] || (isDeleted ? { bg: t.errorSoft, color: t.error } : { bg: t.accentSoft, color: t.accent });
                       return (
                         <div key={entry.id} style={{ display: "flex", alignItems: "center", gap: 12, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 9, padding: "10px 14px", animation: `fadeIn 0.15s ease ${Math.min(idx, 20) * 0.02}s both` }}>
                           <div style={{ width: 130, flexShrink: 0 }}><span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: ac.bg, color: ac.color, whiteSpace: "nowrap" }}>{entry.action}</span></div>

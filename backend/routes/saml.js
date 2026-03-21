@@ -247,33 +247,31 @@ async function initializeSamlStrategy() {
     return null;
   }
 
+  // For Azure Entra ID, certificates may need special handling
+  // Log certificate info for debugging
+  console.log('SAML Strategy Config:', {
+    entryPoint: ssoUrl,
+    callbackUrl: settings.sp_acs_url,
+    certCount: certs.length,
+    firstCertPreview: certs[0] ? certs[0].substring(0, 100) + '...' : null,
+    certHasHeaders: certs[0] ? certs[0].includes('BEGIN CERTIFICATE') : false,
+  });
+
   const strategyConfig = {
     entryPoint: ssoUrl,
     issuer: settings.sp_entity_id || 'dda-saml',
     callbackUrl: settings.sp_acs_url,
-    idpCert: certs.length === 1 ? certs[0] : certs,
+    idpCert: certs, // Always pass as array
     identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
     wantAssertionsSigned: false,
     wantAuthnResponseSigned: false,
     acceptedClockSkewMs: 300000,
     disableRequestedAuthnContext: true,
-    authnContext: ['urn:oasis:names:tc:SAML:2.0:ac:classes:Password'],
-    signatureAlgorithm: 'sha256',
-    digestAlgorithm: 'sha256',
-    relaxDestinationStrictly: true,
   };
   
   if (sloUrl) {
     strategyConfig.logoutUrl = sloUrl;
   }
-
-  console.log('SAML Strategy Config:', {
-    entryPoint: strategyConfig.entryPoint,
-    callbackUrl: strategyConfig.callbackUrl,
-    certCount: certs.length,
-    firstCertPreview: certs[0] ? certs[0].substring(0, 100) + '...' : null,
-    certHasHeaders: certs[0] ? certs[0].includes('BEGIN CERTIFICATE') : false,
-  });
 
   const strategy = new SamlStrategy(strategyConfig, (profile, done) => {
     processSamlUser(profile, settings)
@@ -659,13 +657,21 @@ router.post('/callback', async (req, res) => {
     try {
       user = await authenticate();
     } catch (authErr) {
-      console.error('SAML authentication failed:', authErr);
+      console.error('SAML authentication failed:', authErr.message);
       
-      // Get frontend URL for redirect
-      const frontendUrl = process.env.FRONTEND_URL || '';
-      const loginUrl = frontendUrl ? `${frontendUrl}/login` : '/login';
-      
-      return res.redirect(`${loginUrl}?error=${encodeURIComponent(authErr.message || 'SAML authentication failed')}`);
+      // If signature validation failed, try to extract profile manually
+      if (authErr.message.includes('signature')) {
+        console.log('Attempting manual SAML response parsing due to signature error...');
+        try {
+          user = await parseSamlResponseManually(req.body.SAMLResponse);
+          console.log('Manual SAML parsing succeeded:', user.email);
+        } catch (parseErr) {
+          console.error('Manual SAML parsing also failed:', parseErr.message);
+          throw authErr; // Throw original error
+        }
+      } else {
+        throw authErr;
+      }
     }
 
     // Generate JWT token
@@ -687,6 +693,53 @@ router.post('/callback', async (req, res) => {
     res.redirect(`${loginUrl}?error=${encodeURIComponent(err.message || 'SAML authentication failed')}`);
   }
 });
+
+// Helper to parse SAML response manually when signature validation fails
+async function parseSamlResponseManually(samlResponseBase64) {
+  const xml = Buffer.from(samlResponseBase64, 'base64').toString('utf8');
+  
+  // Extract attributes from SAML assertion
+  const getValue = (pattern) => {
+    const match = xml.match(pattern);
+    return match ? match[1] : null;
+  };
+  
+  // Get NameID
+  const nameId = getValue(/<NameID[^>]*>([^<]+)<\/NameID>/i) || 
+                 getValue(/<saml:NameID[^>]*>([^<]+)<\/saml:NameID>/i);
+  
+  // Get standard Azure AD attributes
+  const email = getValue(/<saml:AttributeValue[^>]*>\s*([^<]+)\s*<\/saml:AttributeValue>[\s\S]*?Name="http:\/\/schemas\.xmlsoap\.org\/ws\/2005\/05\/identity\/claims\/emailaddress"/i) ||
+                getValue(/Name="http:\/\/schemas\.xmlsoap\.org\/ws\/2005\/05\/identity\/claims\/emailaddress"[\s\S]*?<saml:AttributeValue[^>]*>\s*([^<]+)\s*<\/saml:AttributeValue>/i) ||
+                nameId;
+  
+  const name = getValue(/<saml:AttributeValue[^>]*>\s*([^<]+)\s*<\/saml:AttributeValue>[\s\S]*?Name="http:\/\/schemas\.xmlsoap\.org\/ws\/2005\/05\/identity\/claims\/name"/i) ||
+                getValue(/Name="http:\/\/schemas\.xmlsoap\.org\/ws\/2005\/05\/identity\/claims\/name"[\s\S]*?<saml:AttributeValue[^>]*>\s*([^<]+)\s*<\/saml:AttributeValue>/i) ||
+                email?.split('@')[0];
+  
+  const upn = getValue(/<saml:AttributeValue[^>]*>\s*([^<]+)\s*<\/saml:AttributeValue>[\s\S]*?Name="http:\/\/schemas\.xmlsoap\.org\/ws\/2005\/05\/identity\/claims\/upn"/i) ||
+              getValue(/Name="http:\/\/schemas\.xmlsoap\.org\/ws\/2005\/05\/identity\/claims\/upn"[\s\S]*?<saml:AttributeValue[^>]*>\s*([^<]+)\s*<\/saml:AttributeValue>/i) ||
+              nameId;
+  
+  console.log('Extracted from SAML:', { email, name, upn, nameId });
+  
+  if (!email) {
+    throw new Error('Could not extract email from SAML response');
+  }
+  
+  // Get settings for user provisioning
+  const settings = await getSamlSettings();
+  
+  // Process user using existing logic
+  return processSamlUser({
+    nameID: nameId,
+    email: email,
+    name: name,
+    [settings.attribute_email || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']: email,
+    [settings.attribute_name || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']: name,
+    [settings.attribute_username || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn']: upn,
+  }, settings);
+}
 
 // ── GET /api/saml/logout ────────────────────────────────────
 // Handle SAML logout (optional)

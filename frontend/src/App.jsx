@@ -181,6 +181,49 @@ const t = getTheme(darkMode);
   useEffect(() => { if (!isLoggedIn || page !== "admin" || adminSection !== "audit") return; api.getAuditLog({ action: auditFilterAction || undefined, user: auditFilterUser || undefined, date: auditFilterDate || undefined }).then((data) => { setAuditLog((data.entries || []).map((e) => ({ id: e.id, action: e.action, detail: e.detail, user: e.user_name, timestamp: new Date(e.timestamp).getTime() }))); }).catch(console.error); }, [isLoggedIn, page, adminSection, auditFilterAction, auditFilterUser, auditFilterDate]);
   useEffect(() => { if (!isLoggedIn || page !== "dashboard") return; api.getDashboard().then(setDashboardData).catch(console.error); }, [isLoggedIn, page]);
 
+  // Polling for live updates
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const interval = setInterval(() => {
+      loadCoreData();
+      api.getGroups().then((groups) => { setSecurityGroups(groups.map((g) => ({ id: g.id, name: g.name, desc: g.description, permissions: g.permissions, memberCount: g.memberCount }))); }).catch(() => {});
+      api.getSubscriptionsWithDetails().then(setSubscriptions).catch(() => {});
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [isLoggedIn, loadCoreData]);
+
+  useEffect(() => {
+    if (!isLoggedIn || page !== "dashboard") return;
+    const interval = setInterval(() => {
+      api.getDashboard().then(setDashboardData).catch(() => {});
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [isLoggedIn, page]);
+
+  useEffect(() => {
+    if (!isLoggedIn || !activeFolderId) return;
+    const interval = setInterval(() => {
+      api.getFiles(activeFolderId).then((rows) => { const norm = rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: f.folder_id, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 })); setFiles((prev) => [...prev.filter((f) => f.folderId !== activeFolderId), ...norm]); }).catch(() => {});
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [isLoggedIn, activeFolderId]);
+
+  useEffect(() => {
+    if (!isLoggedIn || !activeDepartment) return;
+    const interval = setInterval(() => {
+      api.getFolders({ departmentId: activeDepartment }).then((rows) => { const norm = rows.map((f) => ({ id: f.id, name: f.name, locationId: f.location_id || f.locationId, departmentId: f.department_id || f.departmentId, parentId: f.parent_id || f.parentId || null, createdAt: f.created_at, fileCount: Number(f.fileCount || 0), subfolderCount: Number(f.subfolderCount || 0) })); setFolders((prev) => [...prev.filter((f) => f.departmentId !== activeDepartment), ...norm]); }).catch(() => {});
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [isLoggedIn, activeDepartment]);
+
+  useEffect(() => {
+    if (!isLoggedIn || page !== "unsorted") return;
+    const interval = setInterval(() => {
+      api.getUnsortedFiles().then((rows) => { setUnsortedFiles(rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: null, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 }))); }).catch(() => {});
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [isLoggedIn, page]);
+
   // Load access control data when viewing locations or departments in admin
   useEffect(() => {
     if (!isLoggedIn || page !== "admin") return;

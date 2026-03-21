@@ -7,7 +7,6 @@ import {
   GearIcon,
   LockIcon,
   AppsIcon,
-  FolderIcon,
   TicketIcon,
 } from "./components/Icons";
 

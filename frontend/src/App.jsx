@@ -123,6 +123,57 @@ const removeToast = useCallback((id) => {
   setToasts((prev) => prev.filter((t) => t.id !== id));
 }, []);
 
+// ── Browser history navigation ───────────────────────────
+const isPopStateRef = useRef(false);
+const isInitialMount = useRef(true);
+
+useEffect(() => {
+  const handlePopState = (e) => {
+    isPopStateRef.current = true;
+    if (e.state) {
+      if (e.state.page) setPage(e.state.page);
+      if (e.state.activeFolderId !== undefined) setActiveFolderId(e.state.activeFolderId);
+      if (e.state.activeLocation !== undefined) setActiveLocation(e.state.activeLocation);
+      if (e.state.activeDepartment !== undefined) setActiveDepartment(e.state.activeDepartment);
+      if (e.state.viewingFileId !== undefined) setViewingFileId(e.state.viewingFileId);
+      if (e.state.adminSection) setAdminSection(e.state.adminSection);
+    } else {
+      setPage("landing");
+    }
+    setTimeout(() => { isPopStateRef.current = false; }, 0);
+  };
+  window.addEventListener("popstate", handlePopState);
+  window.history.replaceState({ page }, "");
+  return () => window.removeEventListener("popstate", handlePopState);
+}, []);
+
+// Track page changes and update browser history
+const pageRef = useRef(page);
+const activeFolderIdRef = useRef(activeFolderId);
+const activeLocationRef = useRef(activeLocation);
+const activeDepartmentRef = useRef(activeDepartment);
+const viewingFileIdRef = useRef(viewingFileId);
+const adminSectionRef = useRef(adminSection);
+
+useEffect(() => {
+  // Skip initial mount
+  if (isInitialMount.current) {
+    isInitialMount.current = false;
+    return;
+  }
+  
+  if (!isPopStateRef.current) {
+    window.history.pushState({
+      page,
+      activeFolderId,
+      activeLocation,
+      activeDepartment,
+      viewingFileId,
+      adminSection,
+    }, "");
+  }
+}, [page, activeFolderId, activeLocation, activeDepartment, viewingFileId, adminSection]);
+
 // ── Subscriptions state ────────────────────────────────
 const [subscriptions, setSubscriptions] = useState([]);
 

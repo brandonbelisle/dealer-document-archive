@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { fuzzyMatch } from "../utils/helpers";
-import { Btn } from "../components/ui/Btn";
-import { SmallBtn } from "../components/ui/Btn";
+import { Btn, SmallBtn } from "../components/ui/Btn";
 import HighlightedName from "../components/HighlightedName";
+import SubscribeButton from "../components/SubscribeButton";
 import {
   FolderClosedIcon,
   PlusIcon,
@@ -41,12 +41,22 @@ export default function FoldersPage({
   setPage,
   setCreatingSubfolder,
   handleDeleteFolder,
+  subscriptions,
+  setSubscriptions,
   t,
   darkMode,
 }) {
   const newDeptFolderRef = useRef(null);
   const [sortCol, setSortCol] = useState("createdAt");
   const [sortDir, setSortDir] = useState("desc");
+
+  const handleSubscribe = (newSub) => {
+    setSubscriptions((prev) => [...prev, newSub]);
+  };
+
+  const handleUnsubscribe = (subId) => {
+    setSubscriptions((prev) => prev.filter((s) => s.id !== subId));
+  };
 
   useEffect(() => {
     if (creatingDeptFolder && newDeptFolderRef.current)
@@ -162,20 +172,32 @@ export default function FoldersPage({
             {totalFiles !== 1 ? "s" : ""}
           </p>
         </div>
-        {!creatingDeptFolder && (
-          <Btn
-            primary
-            darkMode={darkMode}
-            t={t}
-            onClick={() => {
-              setCreatingDeptFolder(true);
-              setNewDeptFolderName("");
-            }}
-            style={{ fontSize: 12 }}
-          >
-            <PlusIcon size={13} /> New Folder
-          </Btn>
-        )}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {currentDept && (
+            <SubscribeButton
+              type="department"
+              itemId={currentDept.id}
+              subscriptions={subscriptions || []}
+              onSubscribe={handleSubscribe}
+              onUnsubscribe={handleUnsubscribe}
+              t={t}
+            />
+          )}
+          {!creatingDeptFolder && (
+            <Btn
+              primary
+              darkMode={darkMode}
+              t={t}
+              onClick={() => {
+                setCreatingDeptFolder(true);
+                setNewDeptFolderName("");
+              }}
+              style={{ fontSize: 12 }}
+            >
+              <PlusIcon size={13} /> New Folder
+            </Btn>
+          )}
+        </div>
       </div>
       <div
         style={{

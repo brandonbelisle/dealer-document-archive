@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import SubscribeButton from "../components/SubscribeButton";
 import {
   FolderClosedIcon,
   MapPinIcon,
@@ -18,11 +19,21 @@ export default function FoldersBrowsePage({
   setFolderSearch,
   setSelectedFile,
   setPage,
+  subscriptions,
+  setSubscriptions,
   t,
   darkMode,
 }) {
   const [collapsedLocations, setCollapsedLocations] = useState({});
   const [stats, setStats] = useState(null);
+
+  const handleSubscribe = (newSub) => {
+    setSubscriptions((prev) => [...prev, newSub]);
+  };
+
+  const handleUnsubscribe = (subId) => {
+    setSubscriptions((prev) => prev.filter((s) => s.id !== subId));
+  };
 
   useEffect(() => {
     api.getFolderStats().then(setStats).catch(console.error);
@@ -151,6 +162,14 @@ export default function FoldersBrowsePage({
                       {totalFiles !== 1 ? "s" : ""}
                     </div>
                   </div>
+                  <SubscribeButton
+                    type="location"
+                    itemId={loc.id}
+                    subscriptions={subscriptions || []}
+                    onSubscribe={handleSubscribe}
+                    onUnsubscribe={handleUnsubscribe}
+                    t={t}
+                  />
                 </div>
 
                 {/* Departments */}

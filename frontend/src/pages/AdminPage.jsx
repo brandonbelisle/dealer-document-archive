@@ -4,6 +4,7 @@ import { Btn, SmallBtn } from "../components/ui/Btn";
 import PermToggle from "../components/ui/PermToggle";
 import GroupAccessEditor from "../components/GroupAccessEditor";
 import SubscribeButton from "../components/SubscribeButton";
+import AddUserModal from "../components/modals/AddUserModal";
 import { ADMIN_MENU, PERMISSION_LABELS, PERMISSION_CATEGORIES } from "../constants";
 import {
   PlusIcon,
@@ -24,6 +25,7 @@ export default function AdminPage({
   setPage,
   // Users
   adminUsers,
+  setAdminUsers,
   setAdminSetPasswordUserId,
   setAdminSetPasswordForm,
   setAdminSetPasswordError,
@@ -83,7 +85,7 @@ export default function AdminPage({
   setLocationAccess,
   departmentAccess,
   setDepartmentAccess,
-  // Subscriptions
+// Subscriptions
   subscriptions,
   setSubscriptions,
   t,
@@ -91,7 +93,8 @@ export default function AdminPage({
 }) {
   const [auditPage, setAuditPage] = useState(1);
   const [auditPageSize, setAuditPageSize] = useState(25);
-
+  const [showAddUser, setShowAddUser] = useState(false);
+  
   const editLocRef = useRef(null);
   const addLocRef = useRef(null);
   const editDeptRef = useRef(null);
@@ -262,7 +265,7 @@ export default function AdminPage({
               <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 10 }}><span style={{ color: t.accent }}>{adminActiveMenu?.icon}</span> {adminActiveMenu?.label}</h1>
               <p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>{adminActiveMenu?.desc}</p>
             </div>
-            {adminSection === "users" && <Btn primary darkMode={darkMode} t={t} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add User</Btn>}
+            {adminSection === "users" && <Btn primary darkMode={darkMode} t={t} onClick={() => setShowAddUser(true)} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add User</Btn>}
             {adminSection === "groups" && !addingGroup && <Btn primary darkMode={darkMode} t={t} onClick={() => { setAddingGroup(true); setNewGroupName(""); setNewGroupDesc(""); }} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add Group</Btn>}
             {adminSection === "locations" && !addingLocation && <Btn primary darkMode={darkMode} t={t} onClick={() => { setAddingLocation(true); setNewLocationName(""); }} style={{ fontSize: 12 }}><PlusIcon size={13} /> Add Location</Btn>}
           </div>
@@ -717,6 +720,24 @@ export default function AdminPage({
           )}
         </div>
       </div>
+
+      <AddUserModal
+        show={showAddUser}
+        onClose={() => setShowAddUser(false)}
+        groups={securityGroups}
+        onUserCreated={async () => {
+          const users = await api.getUsers();
+          setAdminUsers(users.map((u) => ({
+            name: u.display_name,
+            email: u.email,
+            groups: u.groups || [],
+            status: u.status === "active" ? "Active" : "Inactive",
+            id: u.id,
+          })));
+        }}
+        t={t}
+        darkMode={darkMode}
+      />
     </div>
   );
 }

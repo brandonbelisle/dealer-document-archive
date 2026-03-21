@@ -6,7 +6,6 @@ import {
   LayersIcon,
   ChevronRightIcon,
   SearchIcon,
-  FileDocIcon,
   ChevronIcon,
 } from "../components/Icons";
 import * as api from "../api";
@@ -14,9 +13,7 @@ import * as api from "../api";
 export default function FoldersBrowsePage({
   locations,
   departments,
-  folders,
   deptsInLocation,
-  foldersInDepartment,
   setActiveLocation,
   setActiveDepartment,
   setActiveFolderId,
@@ -30,10 +27,9 @@ export default function FoldersBrowsePage({
   const [collapsedLocations, setCollapsedLocations] = useState({});
   const [stats, setStats] = useState(null);
 
-  // Fetch real counts from the database on mount and when folders change
   useEffect(() => {
     api.getFolderStats().then(setStats).catch(console.error);
-  }, [folders.length]);
+  }, []);
 
   const q = search.trim();
 
@@ -50,39 +46,17 @@ export default function FoldersBrowsePage({
     setPage("folders");
   };
 
-  const goToFolder = (locId, deptId, folderId) => {
-    setActiveLocation(locId);
-    setActiveDepartment(deptId);
-    setActiveFolderId(folderId);
-    setSelectedFile(null);
-    setPage("folder-detail");
-  };
-
   const getDeptFolderCount = (deptId) =>
     stats?.deptStats?.[deptId]?.folderCount ?? 0;
   const getDeptFileCount = (deptId) =>
     stats?.deptStats?.[deptId]?.fileCount ?? 0;
-  const getFolderFileCount = (folderId) =>
-    stats?.folderStats?.[folderId]?.fileCount ?? 0;
-  const getFolderSubfolderCount = (folderId) =>
-    stats?.folderStats?.[folderId]?.subfolderCount ?? 0;
 
   // Build filtered structure
   const locationsWithData = locations
     .map((loc) => {
-      const depts = deptsInLocation(loc.id).map((dept) => {
-        const deptFolders = foldersInDepartment(dept.id).filter(
-          (f) => !f.parentId
-        );
-        const filtered = q
-          ? deptFolders.filter((f) => fuzzyMatch(q, f.name).match)
-          : deptFolders;
-        return { ...dept, folders: filtered, allFolders: deptFolders };
-      });
+      const depts = deptsInLocation(loc.id);
       const filteredDepts = q
-        ? depts.filter(
-            (d) => d.folders.length > 0 || fuzzyMatch(q, d.name).match
-          )
+        ? depts.filter((d) => fuzzyMatch(q, d.name).match)
         : depts;
       return { ...loc, depts: filteredDepts };
     })
@@ -111,7 +85,7 @@ export default function FoldersBrowsePage({
         <div>
           <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0 }}>Folders</h1>
           <p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>
-            Browse all departments and folders by location
+            Browse departments by location
           </p>
         </div>
         <div
@@ -132,7 +106,7 @@ export default function FoldersBrowsePage({
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search folders..."
+            placeholder="Search departments..."
             style={{
               flex: 1,
               background: "transparent",
@@ -159,7 +133,7 @@ export default function FoldersBrowsePage({
         >
           <FolderClosedIcon size={36} />
           <div style={{ fontSize: 13, fontWeight: 500, marginTop: 12 }}>
-            {q ? "No folders match your search" : "No folders yet"}
+            {q ? "No departments match your search" : "No locations yet"}
           </div>
         </div>
       ) : (
@@ -238,135 +212,63 @@ export default function FoldersBrowsePage({
                     {loc.depts.map((dept) => {
                       const deptFolderCount = getDeptFolderCount(dept.id);
                       const deptFileCount = getDeptFileCount(dept.id);
-                      const foldersToShow = q ? dept.folders : dept.allFolders;
 
                       return (
-                        <div key={dept.id} style={{ marginBottom: 6 }}>
-                          {/* Department header */}
+                        <div
+                          key={dept.id}
+                          onClick={() => goToDept(loc.id, dept.id)}
+                          className="folder-select-item"
+                          style={{
+                            padding: "10px 12px",
+                            borderRadius: 8,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            marginBottom: 2,
+                          }}
+                        >
                           <div
-                            onClick={() => goToDept(loc.id, dept.id)}
-                            className="folder-select-item"
                             style={{
-                              padding: "10px 12px",
-                              borderRadius: 8,
-                              cursor: "pointer",
+                              width: 28,
+                              height: 28,
+                              borderRadius: 7,
+                              background: darkMode
+                                ? "rgba(255,255,255,0.05)"
+                                : "rgba(0,0,0,0.04)",
                               display: "flex",
                               alignItems: "center",
-                              gap: 10,
+                              justifyContent: "center",
+                              flexShrink: 0,
+                              color: t.textMuted,
                             }}
                           >
+                            <LayersIcon size={14} />
+                          </div>
+                          <div style={{ flex: 1 }}>
                             <div
                               style={{
-                                width: 28,
-                                height: 28,
-                                borderRadius: 7,
-                                background: darkMode
-                                  ? "rgba(255,255,255,0.05)"
-                                  : "rgba(0,0,0,0.04)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                flexShrink: 0,
-                                color: t.textMuted,
+                                fontSize: 13.5,
+                                fontWeight: 600,
+                                color: t.text,
                               }}
                             >
-                              <LayersIcon size={14} />
+                              {dept.name}
                             </div>
-                            <div style={{ flex: 1 }}>
-                              <div
-                                style={{
-                                  fontSize: 13.5,
-                                  fontWeight: 600,
-                                  color: t.text,
-                                }}
-                              >
-                                {dept.name}
-                              </div>
-                              <div
-                                style={{
-                                  fontSize: 10.5,
-                                  color: t.textDim,
-                                  marginTop: 1,
-                                }}
-                              >
-                                {deptFolderCount} folder
-                                {deptFolderCount !== 1 ? "s" : ""} ·{" "}
-                                {deptFileCount} file
-                                {deptFileCount !== 1 ? "s" : ""}
-                              </div>
+                            <div
+                              style={{
+                                fontSize: 10.5,
+                                color: t.textDim,
+                                marginTop: 1,
+                              }}
+                            >
+                              {deptFolderCount} folder
+                              {deptFolderCount !== 1 ? "s" : ""} ·{" "}
+                              {deptFileCount} file
+                              {deptFileCount !== 1 ? "s" : ""}
                             </div>
-                            <ChevronRightIcon size={14} />
                           </div>
-
-                          {/* Folder list under department */}
-                          {foldersToShow.length > 0 && (
-                            <div style={{ paddingLeft: 22, marginTop: 2 }}>
-                              {foldersToShow.map((folder) => {
-                                const fileCount = getFolderFileCount(folder.id);
-                                const subCount = getFolderSubfolderCount(
-                                  folder.id
-                                );
-                                return (
-                                  <div
-                                    key={folder.id}
-                                    onClick={() =>
-                                      goToFolder(loc.id, dept.id, folder.id)
-                                    }
-                                    className="folder-select-item"
-                                    style={{
-                                      padding: "7px 12px",
-                                      borderRadius: 7,
-                                      cursor: "pointer",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      gap: 9,
-                                      fontSize: 12.5,
-                                    }}
-                                  >
-                                    <FolderClosedIcon
-                                      size={14}
-                                      style={{ color: t.textDim }}
-                                    />
-                                    <span
-                                      style={{
-                                        flex: 1,
-                                        fontWeight: 500,
-                                        color: t.textMuted,
-                                      }}
-                                    >
-                                      {folder.name}
-                                    </span>
-                                    <span
-                                      style={{
-                                        fontSize: 10,
-                                        color: t.textDim,
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: 6,
-                                      }}
-                                    >
-                                      {subCount > 0 && (
-                                        <span>
-                                          {subCount} subfolder
-                                          {subCount !== 1 ? "s" : ""}
-                                        </span>
-                                      )}
-                                      <span
-                                        style={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                          gap: 3,
-                                        }}
-                                      >
-                                        <FileDocIcon size={10} />
-                                        {fileCount}
-                                      </span>
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
+                          <ChevronRightIcon size={14} />
                         </div>
                       );
                     })}

@@ -984,33 +984,41 @@ export default function Navbar({
                 borderRadius: 12,
                 boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
                 padding: 8,
-                minWidth: 140,
                 animation: "fadeIn 0.15s ease",
               }}
             >
-              {apps.map((app) => (
-                <div
-                  key={app.id}
-                  onClick={app.onClick}
-                  className="folder-select-item"
-                  style={{
-                    padding: "10px 12px",
-                    borderRadius: 8,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    color: t.text,
-                    fontWeight: 500,
-                    fontSize: 12.5,
-                  }}
-                >
-                  <div style={{ color: t.textMuted, display: "flex", alignItems: "center" }}>
-                    {app.icon}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: 4,
+                }}
+              >
+                {apps.map((app) => (
+                  <div
+                    key={app.id}
+                    onClick={app.onClick}
+                    title={app.name}
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 10,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "transparent",
+                      transition: "background 0.15s",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = t.accentSoft}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                  >
+                    <div style={{ color: t.accent, display: "flex", alignItems: "center" }}>
+                      {app.icon}
+                    </div>
                   </div>
-                  <span>{app.name}</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>

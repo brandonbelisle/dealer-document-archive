@@ -14385,8 +14385,9 @@ function Navbar({
                                 borderRadius: 10,
                                 boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
                                 padding: 4,
-                                minWidth: 260,
-                                maxHeight: 420,
+                                minWidth: 340,
+                                maxWidth: 400,
+                                maxHeight: 480,
                                 overflowY: "auto",
                                 animation: "fadeIn 0.15s ease"
                               },
@@ -16610,7 +16611,7 @@ function DashboardPage({
     "div",
     {
       style: {
-        maxWidth: 960,
+        maxWidth: 1200,
         margin: "0 auto",
         padding: "36px 28px",
         animation: "fadeIn 0.35s ease"
@@ -17136,7 +17137,7 @@ function FoldersPage({
     "div",
     {
       style: {
-        maxWidth: 900,
+        maxWidth: 1200,
         margin: "0 auto",
         padding: "36px 28px",
         animation: "fadeIn 0.35s ease"
@@ -17664,7 +17665,7 @@ function FoldersBrowsePage({
     "div",
     {
       style: {
-        maxWidth: 960,
+        maxWidth: 1200,
         margin: "0 auto",
         padding: "36px 28px",
         animation: "fadeIn 0.35s ease"
@@ -17943,7 +17944,7 @@ function FolderDetailPage({
           setFolderDetailDragOver(false);
       },
       style: {
-        maxWidth: 900,
+        maxWidth: 1200,
         margin: "0 auto",
         padding: "36px 28px",
         animation: "fadeIn 0.3s ease",
@@ -19609,7 +19610,7 @@ function UnsortedPage({
       "div",
       {
         style: {
-          maxWidth: 900,
+          maxWidth: 1200,
           margin: "0 auto",
           padding: "36px 28px",
           animation: "fadeIn 0.35s ease"
@@ -19937,8 +19938,8 @@ function UnsortedPage({
           "div",
           {
             style: {
-              width: 520,
-              minWidth: 420,
+              width: 700,
+              minWidth: 520,
               borderRight: `1px solid ${t.border}`,
               background: darkMode ? "rgba(15,17,20,0.5)" : "rgba(246,244,240,0.6)",
               display: "flex",
@@ -20480,7 +20481,7 @@ function UploadPage({
     "div",
     {
       style: {
-        maxWidth: 900,
+        maxWidth: 1200,
         margin: "0 auto",
         padding: "36px 28px",
         animation: "fadeIn 0.35s ease"
@@ -20643,7 +20644,7 @@ function UploadPage({
                         "div",
                         {
                           style: {
-                            width: 260,
+                            width: 320,
                             textAlign: "left",
                             flexShrink: 0,
                             paddingLeft: 12
@@ -20783,7 +20784,7 @@ function UploadPage({
                           "div",
                           {
                             style: {
-                              width: 260,
+                              width: 320,
                               flexShrink: 0,
                               paddingLeft: 12,
                               position: "relative"
@@ -23763,7 +23764,7 @@ function AdminPage({
     "Department Access Updated": { bg: t.accentSoft, color: t.accent }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flex: 1, minHeight: "calc(100vh - 55px)", paddingTop: 55, animation: "fadeIn 0.3s ease" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { width: 260, minWidth: 260, borderRight: `1px solid ${t.border}`, background: darkMode ? "rgba(15,17,20,0.5)" : "rgba(246,244,240,0.6)", padding: "20px 10px", display: "flex", flexDirection: "column" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { width: 300, minWidth: 300, borderRight: `1px solid ${t.border}`, background: darkMode ? "rgba(15,17,20,0.5)" : "rgba(246,244,240,0.6)", padding: "20px 10px", display: "flex", flexDirection: "column" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "0 10px 12px", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: t.textDim }, children: "Administration" }),
       ADMIN_MENU.map((item) => {
         if (item.isCategory) {
@@ -26006,4 +26007,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-Dq0Uo8YB.js.map
+//# sourceMappingURL=index-C84fKloB.js.map

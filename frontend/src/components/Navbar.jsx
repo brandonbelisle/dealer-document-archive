@@ -318,8 +318,9 @@ export default function Navbar({
                     ? "0 8px 30px rgba(0,0,0,0.4)"
                     : "0 8px 30px rgba(0,0,0,0.12)",
                   padding: 4,
-                  minWidth: 260,
-                  maxHeight: 420,
+                  minWidth: 340,
+                  maxWidth: 400,
+                  maxHeight: 480,
                   overflowY: "auto",
                   animation: "fadeIn 0.15s ease",
                 }}

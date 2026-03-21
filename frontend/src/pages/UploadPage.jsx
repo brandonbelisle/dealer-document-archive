@@ -50,7 +50,7 @@ export default function UploadPage({
   return (
     <div
       style={{
-        maxWidth: 900,
+        maxWidth: 1200,
         margin: "0 auto",
         padding: "36px 28px",
         animation: "fadeIn 0.35s ease",
@@ -189,7 +189,7 @@ export default function UploadPage({
               </div>
               <div
                 style={{
-                  width: 260,
+                  width: 320,
                   textAlign: "left",
                   flexShrink: 0,
                   paddingLeft: 12,
@@ -345,7 +345,7 @@ export default function UploadPage({
                   {/* Per-file folder dropdown */}
                   <div
                     style={{
-                      width: 260,
+                      width: 320,
                       flexShrink: 0,
                       paddingLeft: 12,
                       position: "relative",

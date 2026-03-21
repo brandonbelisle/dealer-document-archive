@@ -148,7 +148,7 @@ export default function FoldersPage({
   return (
     <div
       style={{
-        maxWidth: 900,
+        maxWidth: 1200,
         margin: "0 auto",
         padding: "36px 28px",
         animation: "fadeIn 0.35s ease",

@@ -185,7 +185,7 @@ export default function UnsortedPage({
     return (
       <div
         style={{
-          maxWidth: 900,
+          maxWidth: 1200,
           margin: "0 auto",
           padding: "36px 28px",
           animation: "fadeIn 0.35s ease",
@@ -517,8 +517,8 @@ export default function UnsortedPage({
       {/* ── Left panel: file table ── */}
       <div
         style={{
-          width: 520,
-          minWidth: 420,
+          width: 700,
+          minWidth: 520,
           borderRight: `1px solid ${t.border}`,
           background: darkMode
             ? "rgba(15,17,20,0.5)"

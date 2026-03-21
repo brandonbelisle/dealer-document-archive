@@ -7,10 +7,10 @@ export default function LandingPage({ setPage, t, darkMode }) {
       name: "Dealer Document Archive",
       icon: (
         <div style={{
-          width: 48, height: 48, borderRadius: 12,
+          width: 56, height: 56, borderRadius: 14,
           background: `linear-gradient(135deg,${t.accent},${t.accentDark || t.accent})`,
           display: "flex", alignItems: "center", justifyContent: "center",
-          color: "white", fontSize: 14, fontWeight: 800,
+          color: "white", fontSize: 16, fontWeight: 800,
         }}>
           DDA
         </div>
@@ -27,17 +27,8 @@ export default function LandingPage({ setPage, t, darkMode }) {
       justifyContent: "center",
       minHeight: "calc(100vh - 55px)",
       animation: "fadeIn 0.3s ease",
+      paddingTop: 20,
     }}>
-      <div style={{
-        width: 72, height: 72, borderRadius: 18,
-        background: `linear-gradient(135deg,${t.accent},${t.accentDark || t.accent})`,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        color: "white", fontSize: 18, fontWeight: 800,
-        marginBottom: 20,
-        boxShadow: `0 8px 32px ${t.accent}40`,
-      }}>
-        DDA
-      </div>
       <h1 style={{ fontSize: 28, fontWeight: 700, margin: "0 0 48px", color: t.text }}>
         Applications
       </h1>
@@ -56,13 +47,13 @@ export default function LandingPage({ setPage, t, darkMode }) {
               flexDirection: "column",
               alignItems: "center",
               gap: 14,
-              padding: "28px 32px",
+              padding: "32px 40px",
               background: t.surface,
               border: `1px solid ${t.border}`,
               borderRadius: 16,
               cursor: "pointer",
               transition: "all 0.2s ease",
-              minWidth: 180,
+              minWidth: 200,
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = t.accent;

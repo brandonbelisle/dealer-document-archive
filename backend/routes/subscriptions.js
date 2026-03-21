@@ -99,7 +99,7 @@ router.get('/check', requireAuth, async (req, res) => {
     
     const [rows] = await db.execute(
       `SELECT id FROM subscriptions 
-       WHERE user_id = ? AND subscription_type COLLATE utf8mb4_0900_ai_ci = ? AND subscription_id = ?`,
+       WHERE user_id = ? AND subscription_type = ? COLLATE utf8mb4_unicode_ci AND subscription_id = ?`,
       [req.user.id, subscriptionType, subscriptionId]
     );
     
@@ -117,26 +117,26 @@ router.get('/with-details', requireAuth, async (req, res) => {
     const [rows] = await db.execute(
       `SELECT s.id, s.subscription_type, s.subscription_id, s.created_at,
               CASE 
-                WHEN s.subscription_type COLLATE utf8mb4_0900_ai_ci = 'location' THEN l.name
-                WHEN s.subscription_type COLLATE utf8mb4_0900_ai_ci = 'department' THEN d.name
-                WHEN s.subscription_type COLLATE utf8mb4_0900_ai_ci = 'folder' THEN f.name
+                WHEN s.subscription_type = 'location' COLLATE utf8mb4_unicode_ci THEN l.name
+                WHEN s.subscription_type = 'department' COLLATE utf8mb4_unicode_ci THEN d.name
+                WHEN s.subscription_type = 'folder' COLLATE utf8mb4_unicode_ci THEN f.name
               END AS item_name,
               CASE 
-                WHEN s.subscription_type COLLATE utf8mb4_0900_ai_ci = 'location' THEN NULL
-                WHEN s.subscription_type COLLATE utf8mb4_0900_ai_ci = 'department' THEN loc.name
-                WHEN s.subscription_type COLLATE utf8mb4_0900_ai_ci = 'folder' THEN loc.name
+                WHEN s.subscription_type = 'location' COLLATE utf8mb4_unicode_ci THEN NULL
+                WHEN s.subscription_type = 'department' COLLATE utf8mb4_unicode_ci THEN loc.name
+                WHEN s.subscription_type = 'folder' COLLATE utf8mb4_unicode_ci THEN loc.name
               END AS location_name,
               CASE 
-                WHEN s.subscription_type COLLATE utf8mb4_0900_ai_ci = 'folder' THEN dept.name
+                WHEN s.subscription_type = 'folder' COLLATE utf8mb4_unicode_ci THEN dept.name
                 ELSE NULL
               END AS department_name
        FROM subscriptions s
-       LEFT JOIN locations l ON s.subscription_type COLLATE utf8mb4_0900_ai_ci = 'location' AND s.subscription_id = l.id
-       LEFT JOIN departments d ON s.subscription_type COLLATE utf8mb4_0900_ai_ci = 'department' AND s.subscription_id = d.id
-       LEFT JOIN folders f ON s.subscription_type COLLATE utf8mb4_0900_ai_ci = 'folder' AND s.subscription_id = f.id
-       LEFT JOIN locations loc ON (s.subscription_type COLLATE utf8mb4_0900_ai_ci = 'department' AND d.location_id = loc.id) 
-                               OR (s.subscription_type COLLATE utf8mb4_0900_ai_ci = 'folder' AND f.location_id = loc.id)
-       LEFT JOIN departments dept ON s.subscription_type COLLATE utf8mb4_0900_ai_ci = 'folder' AND f.department_id = dept.id
+       LEFT JOIN locations l ON s.subscription_type = 'location' COLLATE utf8mb4_unicode_ci AND s.subscription_id = l.id
+       LEFT JOIN departments d ON s.subscription_type = 'department' COLLATE utf8mb4_unicode_ci AND s.subscription_id = d.id
+       LEFT JOIN folders f ON s.subscription_type = 'folder' COLLATE utf8mb4_unicode_ci AND s.subscription_id = f.id
+       LEFT JOIN locations loc ON (s.subscription_type = 'department' COLLATE utf8mb4_unicode_ci AND d.location_id = loc.id) 
+                               OR (s.subscription_type = 'folder' COLLATE utf8mb4_unicode_ci AND f.location_id = loc.id)
+       LEFT JOIN departments dept ON s.subscription_type = 'folder' COLLATE utf8mb4_unicode_ci AND f.department_id = dept.id
        WHERE s.user_id = ?
        ORDER BY s.created_at DESC`,
       [req.user.id]

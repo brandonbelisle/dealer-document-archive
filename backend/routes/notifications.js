@@ -132,16 +132,16 @@ async function createNotificationsForUpload(uploadInfo) {
     let subscriberQuery = `
       SELECT DISTINCT s.user_id
       FROM subscriptions s
-      WHERE (s.subscription_type = 'folder' AND s.subscription_id = ?)
+      WHERE (s.subscription_type = 'folder' COLLATE utf8mb4_unicode_ci AND s.subscription_id = ?)
     `;
     const params = [folderId];
     
     if (departmentId) {
-      subscriberQuery += ` OR (s.subscription_type = 'department' AND s.subscription_id = ?)`;
+      subscriberQuery += ` OR (s.subscription_type = 'department' COLLATE utf8mb4_unicode_ci AND s.subscription_id = ?)`;
       params.push(departmentId);
     }
     if (locationId) {
-      subscriberQuery += ` OR (s.subscription_type = 'location' AND s.subscription_id = ?)`;
+      subscriberQuery += ` OR (s.subscription_type = 'location' COLLATE utf8mb4_unicode_ci AND s.subscription_id = ?)`;
       params.push(locationId);
     }
     
@@ -162,18 +162,18 @@ async function createNotificationsForUpload(uploadInfo) {
       const [subDetails] = await db.execute(
         `SELECT s.subscription_type, s.subscription_id,
                 CASE 
-                  WHEN s.subscription_type = 'location' THEN l.name
-                  WHEN s.subscription_type = 'department' THEN d.name
-                  WHEN s.subscription_type = 'folder' THEN f.name
+                  WHEN s.subscription_type = 'location' COLLATE utf8mb4_unicode_ci THEN l.name
+                  WHEN s.subscription_type = 'department' COLLATE utf8mb4_unicode_ci THEN d.name
+                  WHEN s.subscription_type = 'folder' COLLATE utf8mb4_unicode_ci THEN f.name
                 END AS item_name_val
          FROM subscriptions s
-         LEFT JOIN locations l ON s.subscription_type = 'location' AND s.subscription_id = l.id
-         LEFT JOIN departments d ON s.subscription_type = 'department' AND s.subscription_id = d.id
-         LEFT JOIN folders f ON s.subscription_type = 'folder' AND s.subscription_id = f.id
+         LEFT JOIN locations l ON s.subscription_type = 'location' COLLATE utf8mb4_unicode_ci AND s.subscription_id = l.id
+         LEFT JOIN departments d ON s.subscription_type = 'department' COLLATE utf8mb4_unicode_ci AND s.subscription_id = d.id
+         LEFT JOIN folders f ON s.subscription_type = 'folder' COLLATE utf8mb4_unicode_ci AND s.subscription_id = f.id
          WHERE s.user_id = ? AND (
-           (s.subscription_type = 'folder' AND s.subscription_id = ?)
-           ${departmentId ? 'OR (s.subscription_type = \'department\' AND s.subscription_id = ?)' : ''}
-           ${locationId ? 'OR (s.subscription_type = \'location\' AND s.subscription_id = ?)' : ''}
+           (s.subscription_type = 'folder' COLLATE utf8mb4_unicode_ci AND s.subscription_id = ?)
+           ${departmentId ? 'OR (s.subscription_type = \'department\' COLLATE utf8mb4_unicode_ci AND s.subscription_id = ?)' : ''}
+           ${locationId ? 'OR (s.subscription_type = \'location\' COLLATE utf8mb4_unicode_ci AND s.subscription_id = ?)' : ''}
          )
          LIMIT 1`,
         params.length === 1 ? [sub.user_id, folderId] : 

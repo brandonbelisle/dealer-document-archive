@@ -1442,7 +1442,7 @@ export default function AdminPage({
       </div>
       {/* Content */}
       <div style={{ flex: 1, padding: "32px 36px", overflowY: "auto" }}>
-        <div style={{ maxWidth: 1200 }}>
+        <div style={{ width: "100%", maxWidth: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
             <div>
               <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 10 }}><span style={{ color: t.accent }}>{adminActiveMenu?.icon}</span> {adminActiveMenu?.label}</h1>

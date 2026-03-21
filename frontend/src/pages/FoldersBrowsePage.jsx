@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { fuzzyMatch } from "../utils/helpers";
 import {
   FolderClosedIcon,
@@ -9,6 +9,7 @@ import {
   FileDocIcon,
   ChevronIcon,
 } from "../components/Icons";
+import * as api from "../api";
 
 export default function FoldersBrowsePage({
   locations,
@@ -16,9 +17,6 @@ export default function FoldersBrowsePage({
   folders,
   deptsInLocation,
   foldersInDepartment,
-  filesInFolder,
-  allFilesInFolderRecursive,
-  subfoldersOf,
   setActiveLocation,
   setActiveDepartment,
   setActiveFolderId,
@@ -30,6 +28,12 @@ export default function FoldersBrowsePage({
 }) {
   const [search, setSearch] = useState("");
   const [collapsedLocations, setCollapsedLocations] = useState({});
+  const [stats, setStats] = useState(null);
+
+  // Fetch real counts from the database on mount and when folders change
+  useEffect(() => {
+    api.getFolderStats().then(setStats).catch(console.error);
+  }, [folders.length]);
 
   const q = search.trim();
 
@@ -54,6 +58,15 @@ export default function FoldersBrowsePage({
     setPage("folder-detail");
   };
 
+  const getDeptFolderCount = (deptId) =>
+    stats?.deptStats?.[deptId]?.folderCount ?? 0;
+  const getDeptFileCount = (deptId) =>
+    stats?.deptStats?.[deptId]?.fileCount ?? 0;
+  const getFolderFileCount = (folderId) =>
+    stats?.folderStats?.[folderId]?.fileCount ?? 0;
+  const getFolderSubfolderCount = (folderId) =>
+    stats?.folderStats?.[folderId]?.subfolderCount ?? 0;
+
   // Build filtered structure
   const locationsWithData = locations
     .map((loc) => {
@@ -64,7 +77,6 @@ export default function FoldersBrowsePage({
           : deptFolders;
         return { ...dept, folders: filtered, allFolders: deptFolders };
       });
-      // If searching, only show depts that have matching folders or whose name matches
       const filteredDepts = q
         ? depts.filter(
             (d) => d.folders.length > 0 || fuzzyMatch(q, d.name).match
@@ -100,7 +112,6 @@ export default function FoldersBrowsePage({
             Browse all departments and folders by location
           </p>
         </div>
-        {/* Search */}
         <div
           style={{
             display: "flex",
@@ -154,16 +165,11 @@ export default function FoldersBrowsePage({
           {locationsWithData.map((loc) => {
             const isCollapsed = collapsedLocations[loc.id];
             const totalFolders = loc.depts.reduce(
-              (s, d) => s + d.allFolders.length,
+              (s, d) => s + getDeptFolderCount(d.id),
               0
             );
             const totalFiles = loc.depts.reduce(
-              (s, d) =>
-                s +
-                d.allFolders.reduce(
-                  (fs, f) => fs + allFilesInFolderRecursive(f.id),
-                  0
-                ),
+              (s, d) => s + getDeptFileCount(d.id),
               0
             );
 
@@ -228,10 +234,8 @@ export default function FoldersBrowsePage({
                 {!isCollapsed && (
                   <div style={{ padding: "8px 12px 12px" }}>
                     {loc.depts.map((dept) => {
-                      const deptFileCount = dept.allFolders.reduce(
-                        (s, f) => s + allFilesInFolderRecursive(f.id),
-                        0
-                      );
+                      const deptFolderCount = getDeptFolderCount(dept.id);
+                      const deptFileCount = getDeptFileCount(dept.id);
                       const foldersToShow = q ? dept.folders : dept.allFolders;
 
                       return (
@@ -283,8 +287,8 @@ export default function FoldersBrowsePage({
                                   marginTop: 1,
                                 }}
                               >
-                                {dept.allFolders.length} folder
-                                {dept.allFolders.length !== 1 ? "s" : ""} ·{" "}
+                                {deptFolderCount} folder
+                                {deptFolderCount !== 1 ? "s" : ""} ·{" "}
                                 {deptFileCount} file
                                 {deptFileCount !== 1 ? "s" : ""}
                               </div>
@@ -296,10 +300,10 @@ export default function FoldersBrowsePage({
                           {foldersToShow.length > 0 && (
                             <div style={{ paddingLeft: 22, marginTop: 2 }}>
                               {foldersToShow.map((folder) => {
-                                const fileCount =
-                                  allFilesInFolderRecursive(folder.id);
-                                const subCount =
-                                  subfoldersOf(folder.id).length;
+                                const fileCount = getFolderFileCount(folder.id);
+                                const subCount = getFolderSubfolderCount(
+                                  folder.id
+                                );
                                 return (
                                   <div
                                     key={folder.id}

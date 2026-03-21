@@ -53,6 +53,85 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
+// ── GET /api/folders/stats ──────────────────────────────
+// Returns folder and file counts grouped by location and department
+router.get('/stats', requireAuth, async (req, res) => {
+  try {
+    const num = (val) => Number(val || 0);
+
+    // Per-department: folder count and file count (including files in subfolders)
+    const [deptRows] = await db.execute(
+      `SELECT d.id AS department_id,
+              d.location_id,
+              COUNT(DISTINCT fld.id) AS folder_count,
+              COUNT(DISTINCT f.id) AS file_count
+       FROM departments d
+       LEFT JOIN folders fld ON fld.department_id = d.id
+       LEFT JOIN files f ON f.folder_id = fld.id AND f.status = 'done'
+       GROUP BY d.id, d.location_id`
+    );
+
+    // Per-folder: direct file count and subfolder count (for top-level folders only)
+    const [folderRows] = await db.execute(
+      `SELECT fld.id AS folder_id,
+              fld.department_id,
+              fld.location_id,
+              (SELECT COUNT(*) FROM files WHERE folder_id = fld.id) AS file_count,
+              (SELECT COUNT(*) FROM folders WHERE parent_id = fld.id) AS subfolder_count
+       FROM folders fld
+       WHERE fld.parent_id IS NULL`
+    );
+
+    // Build recursive file counts per folder (all descendants)
+    // First get ALL folders for recursive counting
+    const [allFolders] = await db.execute('SELECT id, parent_id FROM folders');
+    const [allFileCounts] = await db.execute(
+      `SELECT folder_id, COUNT(*) AS cnt FROM files WHERE status = 'done' GROUP BY folder_id`
+    );
+
+    const fileCountMap = {};
+    for (const r of allFileCounts) fileCountMap[r.folder_id] = num(r.cnt);
+
+    const childrenMap = {};
+    for (const f of allFolders) {
+      if (f.parent_id) {
+        if (!childrenMap[f.parent_id]) childrenMap[f.parent_id] = [];
+        childrenMap[f.parent_id].push(f.id);
+      }
+    }
+
+    function countFilesRecursive(folderId) {
+      let total = fileCountMap[folderId] || 0;
+      const children = childrenMap[folderId] || [];
+      for (const childId of children) {
+        total += countFilesRecursive(childId);
+      }
+      return total;
+    }
+
+    const deptStats = {};
+    for (const r of deptRows) {
+      deptStats[r.department_id] = {
+        folderCount: num(r.folder_count),
+        fileCount: num(r.file_count),
+      };
+    }
+
+    const folderStats = {};
+    for (const r of folderRows) {
+      folderStats[r.folder_id] = {
+        fileCount: countFilesRecursive(r.folder_id),
+        subfolderCount: num(r.subfolder_count),
+      };
+    }
+
+    res.json({ deptStats, folderStats });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // ── GET /api/folders/:id ──────────────────────────────────
 router.get('/:id', requireAuth, async (req, res) => {
   try {

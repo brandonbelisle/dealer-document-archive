@@ -141,6 +141,9 @@ export async function getFolders(params = {}) {
 export async function getFolder(id) {
   return request(`/folders/${id}`);
 }
+export async function getFolderStats() {
+  return request('/folders/stats');
+}
 export async function createFolder(name, locationId, departmentId, parentId) {
   return request('/folders', {
     method: 'POST',

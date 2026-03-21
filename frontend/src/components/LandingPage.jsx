@@ -84,14 +84,15 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser }) {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              justifyContent: "center",
               gap: 14,
-              padding: "32px 40px",
+              width: 200,
+              height: 200,
               background: t.surface,
               border: `1px solid ${t.border}`,
               borderRadius: 16,
               cursor: "pointer",
               transition: "all 0.2s ease",
-              minWidth: 200,
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = t.accent;

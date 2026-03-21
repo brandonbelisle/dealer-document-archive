@@ -21,7 +21,7 @@ import {
   WrenchIcon,
   LogOutIcon,
   AppsIcon,
-  ArrowLeftIcon,
+  HomeIcon,
   BellIcon,
 } from "./Icons";
 import AlertsDropdown from "./AlertsDropdown";
@@ -73,8 +73,30 @@ export default function Navbar({
   const [searchResults, setSearchResults] = useState({ folders: [], files: [] });
   const [searchLoading, setSearchLoading] = useState(false);
   const searchTimer = useRef(null);
+  const [showAppsDropdown, setShowAppsDropdown] = useState(false);
 
   const q = globalSearch.trim();
+
+  const isAdmin = loggedInUser?.groups?.includes("Administrator");
+
+  const apps = [
+    { id: "home", name: "Home", icon: <HomeIcon size={20} />, onClick: () => { setPage("landing"); setShowAppsDropdown(false); } },
+    { id: "dda", name: "Dealer Document Archive", icon: (
+      <div style={{ width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${t.accent},${t.accentDark || t.accent})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>DDA</div>
+    ), onClick: () => { setPage("dashboard"); setSelectedFile(null); setShowAppsDropdown(false); } },
+    ...(isAdmin ? [{ id: "admin", name: "Admin Center", icon: <GearIcon size={20} />, onClick: () => { setPage("admin"); setAdminSection("users"); setShowAppsDropdown(false); } }] : []),
+  ];
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowAppsDropdown(false);
+    };
+    if (showAppsDropdown) {
+      setTimeout(() => document.addEventListener("click", handleClickOutside), 0);
+    }
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [showAppsDropdown]);
 
   // Debounced API search
   useEffect(() => {
@@ -128,26 +150,6 @@ export default function Navbar({
           zIndex: 2,
         }}
       >
-        <button
-          onClick={() => setPage("landing")}
-          style={{
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            padding: "6px 10px",
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-            borderRadius: 8,
-            color: t.textMuted,
-            fontSize: 13,
-            fontWeight: 600,
-            fontFamily: "inherit",
-          }}
-          title="Back to Apps"
-        >
-          <ArrowLeftIcon /> Back
-        </button>
         <div
           onClick={() => {
             setPage("dashboard");
@@ -949,26 +951,69 @@ export default function Navbar({
             )}
           </div>
         )}
-        <button
-          onClick={() => setPage("landing")}
-          style={{
-            background: t.surface,
-            border: `1px solid ${t.border}`,
-            borderRadius: 7,
-            padding: "6px 10px",
-            cursor: "pointer",
-            color: t.textMuted,
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            fontSize: 13,
-            fontWeight: 600,
-            fontFamily: "inherit",
-          }}
-          title="Back to Apps"
-        >
-          <AppsIcon size={14} /> Apps
-        </button>
+        <div style={{ position: "relative" }}>
+          <button
+            onClick={() => setShowAppsDropdown(!showAppsDropdown)}
+            style={{
+              background: showAppsDropdown ? t.navActive : t.surface,
+              border: `1px solid ${t.border}`,
+              borderRadius: 7,
+              padding: "6px 10px",
+              cursor: "pointer",
+              color: showAppsDropdown ? t.accent : t.textMuted,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: "inherit",
+            }}
+            title="Applications"
+          >
+            <AppsIcon size={14} />
+          </button>
+          {showAppsDropdown && (
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 6px)",
+                right: 0,
+                zIndex: 200,
+                background: t.surface,
+                border: `1px solid ${t.border}`,
+                borderRadius: 12,
+                boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
+                padding: 8,
+                minWidth: 140,
+                animation: "fadeIn 0.15s ease",
+              }}
+            >
+              {apps.map((app) => (
+                <div
+                  key={app.id}
+                  onClick={app.onClick}
+                  className="folder-select-item"
+                  style={{
+                    padding: "10px 12px",
+                    borderRadius: 8,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    color: t.text,
+                    fontWeight: 500,
+                    fontSize: 12.5,
+                  }}
+                >
+                  <div style={{ color: t.textMuted, display: "flex", alignItems: "center" }}>
+                    {app.icon}
+                  </div>
+                  <span>{app.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         <AlertsDropdown darkMode={darkMode} onNavigate={(alert) => {
             if (alert.file_id) {
               setActiveFolderId(alert.folder_id || null);

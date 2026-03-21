@@ -533,6 +533,11 @@ export default function FolderDetailPage({
             >
               <div style={{ flex: 1, minWidth: 0 }}>Name</div>
               <div
+                style={{ width: 70, textAlign: "center", flexShrink: 0 }}
+              >
+                Type
+              </div>
+              <div
                 style={{ width: 70, textAlign: "right", flexShrink: 0 }}
               >
                 Size
@@ -683,6 +688,23 @@ export default function FolderDetailPage({
                         </div>
                       )}
                     </div>
+                  </div>
+                  <div
+                    style={{
+                      width: 70,
+                      textAlign: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <span style={{
+                      fontSize: 11,
+                      color: getFileTypeInfo(file).type === "image"
+                        ? "#eab308"
+                        : t.textMuted,
+                      fontWeight: 500,
+                    }}>
+                      {getFileTypeInfo(file).label}
+                    </span>
                   </div>
                   <div
                     style={{

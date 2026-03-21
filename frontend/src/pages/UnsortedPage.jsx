@@ -560,6 +560,11 @@ export default function UnsortedPage({
                   Name <SortArrow col="name" />
                 </th>
                 <th
+                  style={{ ...colHeaderStyle, textAlign: "center" }}
+                >
+                  Type
+                </th>
+                <th
                   style={{ ...colHeaderStyle, color: sortCol === "size" ? t.accent : t.textDim }}
                   onClick={() => toggleSort("size")}
                 >
@@ -671,6 +676,25 @@ export default function UnsortedPage({
                           {file.name}
                         </span>
                       </div>
+                    </td>
+                    <td
+                      style={{
+                        padding: "8px 10px",
+                        borderBottom: isMoving
+                          ? "none"
+                          : `1px solid ${t.border}`,
+                        textAlign: "center",
+                      }}
+                    >
+                      <span style={{
+                        fontSize: 11,
+                        color: getFileTypeInfo(file).type === "image"
+                          ? "#eab308"
+                          : t.textDim,
+                        fontWeight: 500,
+                      }}>
+                        {getFileTypeInfo(file).label}
+                      </span>
                     </td>
                     <td
                       style={{

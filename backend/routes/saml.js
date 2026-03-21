@@ -251,10 +251,11 @@ async function initializeSamlStrategy() {
     identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
     wantAssertionsSigned: false,
     wantResponseSigned: false,
-    acceptedClockSkewMs: -1,
+    acceptedClockSkewMs: 300000,
     disableRequestedAuthnContext: true,
     signatureAlgorithm: 'sha256',
     digestAlgorithm: 'sha256',
+    rejectUnauthorized: false,
   };
 
   if (sloUrl) {

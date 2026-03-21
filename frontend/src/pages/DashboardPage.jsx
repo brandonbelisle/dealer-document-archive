@@ -7,7 +7,35 @@ import {
   LayersIcon,
   UploadCloudIcon,
   ChevronRightIcon,
+  ImageIcon,
 } from "../components/Icons";
+
+function getFileTypeInfo(mimeType, fileName) {
+  if (mimeType?.startsWith("image/")) {
+    return { type: "image", label: "Image", icon: ImageIcon };
+  }
+  if (mimeType === "application/pdf" || fileName?.toLowerCase().endsWith(".pdf")) {
+    return { type: "document", label: "Document", icon: FileDocIcon };
+  }
+  return { type: "other", label: "Other", icon: FileDocIcon };
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
 
 function StatCard({ icon, label, value, color, sub, t }) {
   return (
@@ -87,6 +115,8 @@ export default function DashboardPage({
     name: f.name,
     size: Number(f.file_size_bytes || 0),
     pages: Number(f.page_count || 0),
+    mimeType: f.mime_type,
+    uploadedAt: f.uploaded_at,
     folderId: f.folder_id,
     folderName: f.folder_name,
     locationName: f.location_name,
@@ -248,103 +278,168 @@ export default function DashboardPage({
           Recent Uploads
         </h2>
         {recentFiles.length > 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {recentFiles.map((file, idx) => (
-<div
-                  key={file.id}
-                  className="folder-row"
-                  onClick={() => {
-                    setViewingFileId(file.id);
-                    setPage("file-detail");
-                  }}
-                  style={{
-                  display: "flex",
-                  alignItems: "center",
-                  background: t.surface,
-                  border: `1px solid ${t.border}`,
-                  borderRadius: 10,
-                  padding: "10px 16px",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  animation: `fadeIn 0.25s ease ${idx * 0.03}s both`,
-                }}
-              >
-                <div
-                  style={{
-                    flex: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    minWidth: 0,
-                  }}
-                >
+          <>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "8px 16px",
+                fontSize: 10.5,
+                fontWeight: 600,
+                color: t.textDim,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              <div style={{ flex: 1, minWidth: 0 }}>File</div>
+              <div style={{ width: 70, textAlign: "center", flexShrink: 0 }}>
+                Type
+              </div>
+              <div style={{ width: 70, textAlign: "right", flexShrink: 0 }}>
+                Size
+              </div>
+              <div style={{ width: 60, textAlign: "right", flexShrink: 0 }}>
+                Pages
+              </div>
+              <div style={{ width: 70, textAlign: "right", flexShrink: 0 }}>
+                Uploaded
+              </div>
+              <div style={{ width: 24, flexShrink: 0 }} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {recentFiles.map((file, idx) => {
+                const typeInfo = getFileTypeInfo(file.mimeType, file.name);
+                const Icon = typeInfo.icon;
+                const isImage = typeInfo.type === "image";
+                return (
                   <div
+                    key={file.id}
+                    className="folder-row"
+                    onClick={() => {
+                      setViewingFileId(file.id);
+                      setPage("file-detail");
+                    }}
                     style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 8,
-                      background: t.successSoft,
-                      color: t.success,
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
+                      background: t.surface,
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 10,
+                      padding: "10px 16px",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                      animation: `fadeIn 0.25s ease ${idx * 0.03}s both`,
                     }}
                   >
-                    <FileDocIcon size={16} />
-                  </div>
-                  <div style={{ minWidth: 0 }}>
                     <div
                       style={{
-                        fontSize: 12.5,
-                        fontWeight: 600,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        flex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        minWidth: 0,
                       }}
                     >
-                      {file.name}
+                      <div
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 8,
+                          background: isImage
+                            ? "rgba(234,179,8,0.15)"
+                            : t.successSoft,
+                          color: isImage ? "#eab308" : t.success,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Icon size={16} />
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div
+                          style={{
+                            fontSize: 12.5,
+                            fontWeight: 600,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {file.name}
+                        </div>
+                        <div style={{ fontSize: 10.5, color: t.textDim }}>
+                          {file.locationName} / {file.departmentName} /{" "}
+                          {file.folderName}
+                        </div>
+                      </div>
                     </div>
-                    <div style={{ fontSize: 10.5, color: t.textDim }}>
-                      {file.locationName} / {file.departmentName} /{" "}
-                      {file.folderName}
+                    <div
+                      style={{
+                        width: 70,
+                        textAlign: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 11,
+                          color: isImage ? "#eab308" : t.textMuted,
+                          fontWeight: 500,
+                        }}
+                      >
+                        {typeInfo.label}
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        width: 70,
+                        textAlign: "right",
+                        fontSize: 11.5,
+                        color: t.textMuted,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {fmtSize(file.size)}
+                    </div>
+                    <div
+                      style={{
+                        width: 60,
+                        textAlign: "right",
+                        fontSize: 10.5,
+                        color: t.textDim,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {file.pages} pg
+                    </div>
+                    <div
+                      style={{
+                        width: 70,
+                        textAlign: "right",
+                        fontSize: 10.5,
+                        color: t.textDim,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {formatDate(file.uploadedAt)}
+                    </div>
+                    <div
+                      style={{
+                        width: 24,
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        color: t.textDim,
+                      }}
+                    >
+                      <ChevronRightIcon />
                     </div>
                   </div>
-                </div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: t.textMuted,
-                    flexShrink: 0,
-                    marginLeft: 12,
-                  }}
-                >
-                  {fmtSize(file.size)}
-                </div>
-                <div
-                  style={{
-                    fontSize: 10.5,
-                    color: t.textDim,
-                    flexShrink: 0,
-                    marginLeft: 12,
-                  }}
-                >
-                  {file.pages} pg
-                </div>
-                <div
-                  style={{
-                    width: 24,
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    color: t.textDim,
-                    marginLeft: 8,
-                  }}
-                >
-                  <ChevronRightIcon />
-                </div>
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
+          </>
         ) : (
           <div
             style={{

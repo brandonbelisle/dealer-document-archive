@@ -43,7 +43,7 @@ router.get('/', requireAuth, async (req, res) => {
 
     // Recent uploads (last 10)
     const [recentFiles] = await db.execute(
-      `SELECT f.id, f.name, f.file_size_bytes, f.page_count, f.uploaded_at,
+      `SELECT f.id, f.name, f.file_size_bytes, f.page_count, f.mime_type, f.uploaded_at,
               fld.id AS folder_id, fld.name AS folder_name,
               l.name AS location_name, d.name AS department_name
        FROM files f
@@ -62,6 +62,7 @@ router.get('/', requireAuth, async (req, res) => {
       name: f.name,
       file_size_bytes: num(f.file_size_bytes),
       page_count: num(f.page_count),
+      mime_type: f.mime_type,
       uploaded_at: f.uploaded_at,
       folder_id: f.folder_id,
       folder_name: f.folder_name,

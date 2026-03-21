@@ -2,6 +2,7 @@ import { fmtSize, copyText } from "../utils/helpers";
 import { Btn } from "../components/ui/Btn";
 import {
   FileDocIcon,
+  ImageIcon,
   ArrowLeftIcon,
   EditIcon,
   CopyIcon,
@@ -45,6 +46,9 @@ export default function FileDetailPage({
     vf.type === "application/pdf" ||
     vf.name.toLowerCase().endsWith(".pdf");
   const isImage = vf.type?.startsWith("image/");
+  const FileTypeIcon = isImage ? ImageIcon : FileDocIcon;
+  const fileIconBg = isImage ? "rgba(234,179,8,0.15)" : t.successSoft;
+  const fileIconColor = isImage ? "#eab308" : t.success;
 
   return (
     <div
@@ -108,15 +112,15 @@ export default function FileDetailPage({
                 width: 44,
                 height: 44,
                 borderRadius: 12,
-                background: t.successSoft,
-                color: t.success,
+                background: fileIconBg,
+                color: fileIconColor,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 flexShrink: 0,
               }}
             >
-              <FileDocIcon size={22} />
+              <FileTypeIcon size={22} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <h2
@@ -422,7 +426,7 @@ export default function FileDetailPage({
               gap: 8,
             }}
           >
-            <FileDocIcon size={16} /> Document Preview
+            <FileTypeIcon size={16} /> {isImage ? "Image Preview" : "Document Preview"}
           </div>
           <span style={{ fontSize: 11, color: t.textDim }}>{vf.name}</span>
         </div>

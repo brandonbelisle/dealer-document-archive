@@ -560,12 +560,6 @@ export default function UnsortedPage({
                   Name <SortArrow col="name" />
                 </th>
                 <th
-                  style={{ ...colHeaderStyle, color: sortCol === "type" ? t.accent : t.textDim, textAlign: "center" }}
-                  onClick={() => toggleSort("type")}
-                >
-                  Type
-                </th>
-                <th
                   style={{ ...colHeaderStyle, color: sortCol === "size" ? t.accent : t.textDim }}
                   onClick={() => toggleSort("size")}
                 >
@@ -635,23 +629,36 @@ export default function UnsortedPage({
                           gap: 8,
                         }}
                       >
-                        <div
-                          style={{
-                            width: 28,
-                            height: 28,
-                            borderRadius: 6,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            flexShrink: 0,
-                            background: isSelected
-                              ? t.accent + "18"
-                              : t.accentSoft,
-                            color: isSelected ? t.accent : t.textDim,
-                          }}
-                        >
-                          <FileDocIcon size={14} />
-                        </div>
+                        {(() => {
+                          const typeInfo = getFileTypeInfo(file);
+                          const FileTypeIcon = typeInfo.icon;
+                          const isImage = typeInfo.type === "image";
+                          return (
+                            <div
+                              style={{
+                                width: 28,
+                                height: 28,
+                                borderRadius: 6,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0,
+                                background: isSelected
+                                  ? t.accent + "18"
+                                  : isImage
+                                    ? "rgba(234,179,8,0.15)"
+                                    : t.accentSoft,
+                                color: isSelected
+                                  ? t.accent
+                                  : isImage
+                                    ? "#eab308"
+                                    : t.textDim,
+                              }}
+                            >
+                              <FileTypeIcon size={14} />
+                            </div>
+                          );
+                        })()}
                         <span
                           style={{
                             fontWeight: isSelected ? 600 : 500,
@@ -663,51 +670,6 @@ export default function UnsortedPage({
                         >
                           {file.name}
                         </span>
-                      </div>
-                    </td>
-                    <td
-                      style={{
-                        padding: "8px 6px",
-                        borderBottom: isMoving
-                          ? "none"
-                          : `1px solid ${t.border}`,
-                        textAlign: "center",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 4,
-                        }}
-                      >
-                        {(() => {
-                          const typeInfo = getFileTypeInfo(file);
-                          const Icon = typeInfo.icon;
-                          const isImage = typeInfo.type === "image";
-                          return (
-                            <>
-                              <div
-                                style={{
-                                  width: 20,
-                                  height: 20,
-                                  borderRadius: 4,
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  background: isImage ? "rgba(234,179,8,0.15)" : "transparent",
-                                  color: isImage ? "#eab308" : t.textDim,
-                                }}
-                              >
-                                <Icon size={12} />
-                              </div>
-                              <span style={{ fontSize: 10, color: t.textDim }}>
-                                {typeInfo.label}
-                              </span>
-                            </>
-                          );
-                        })()}
                       </div>
                     </td>
                     <td

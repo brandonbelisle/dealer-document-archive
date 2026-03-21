@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import * as api from "../../api";
-import { BellIcon, XIcon, MapPinIcon, LayersIcon, FolderClosedIcon } from "../Icons";
+import * as api from "../api";
+import { BellIcon, XIcon, MapPinIcon, LayersIcon, FolderClosedIcon } from "./Icons";
 import { getTheme } from "../theme";
 
 export default function AlertsDropdown({ darkMode }) {

@@ -1,13 +1,40 @@
-import { useState } from "react";
-import { SunIcon, MoonIcon, UserIcon, ArrowLeftIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon } from "./Icons";
+import { useState, useEffect } from "react";
+import { SunIcon, MoonIcon, UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon } from "./Icons";
 import AlertsDropdown from "./AlertsDropdown";
 
-export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal }) {
+export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const showBackButton = page === "admin";
+  const [showAppsDropdown, setShowAppsDropdown] = useState(false);
+
+  const isAdmin = loggedInUser?.groups?.includes("Administrator");
+
+  const t = {
+    accent: darkMode ? "#88c0d0" : "#0891b2",
+    accentSoft: darkMode ? "rgba(136,192,208,0.15)" : "rgba(8,145,178,0.08)",
+    textMuted: darkMode ? "#94a3b8" : "#57606a",
+  };
+
+  const apps = [
+    { id: "home", name: "Home", icon: <HomeIcon size={20} />, onClick: () => { setPage("landing"); setShowAppsDropdown(false); } },
+    { id: "dda", name: "Dealer Document Archive", icon: (
+      <div style={{ width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${t.accent},${t.accent})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>DDA</div>
+    ), onClick: () => { setPage("dashboard"); setShowAppsDropdown(false); } },
+    ...(isAdmin ? [{ id: "admin", name: "Admin Center", icon: <GearIcon size={20} />, onClick: () => { setPage("admin"); setAdminSection?.("users"); setShowAppsDropdown(false); } }] : []),
+  ];
 
   const navActiveBg = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)";
   const surfaceBg = darkMode ? "rgba(15,17,20,0.98)" : "#fff";
+
+  // Close apps dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowAppsDropdown(false);
+    };
+    if (showAppsDropdown) {
+      setTimeout(() => document.addEventListener("click", handleClickOutside), 0);
+    }
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [showAppsDropdown]);
 
   return (
     <div style={{
@@ -26,30 +53,77 @@ export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, pag
       backdropFilter: "blur(12px)",
       zIndex: 100,
     }}>
-      <div style={{ display: "flex", alignItems: "center" }}>
-        {showBackButton && (
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ position: "relative" }}>
           <button
-            onClick={() => setPage("landing")}
+            onClick={() => setShowAppsDropdown(!showAppsDropdown)}
             style={{
-              background: "transparent",
+              background: showAppsDropdown ? navActiveBg : "transparent",
               border: "none",
               cursor: "pointer",
               color: darkMode ? "#c9d1d9" : "#57606a",
               display: "flex",
               alignItems: "center",
               gap: 6,
-              padding: "8px 14px",
+              padding: "8px 12px",
               borderRadius: 8,
               fontSize: 13,
               fontWeight: 600,
               fontFamily: "inherit",
               transition: "background 0.2s",
             }}
-            onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"}
-            onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
           >
-            <ArrowLeftIcon /> Back
+            <AppsIcon size={14} />
           </button>
+          {showAppsDropdown && (
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 6px)",
+                left: 0,
+                zIndex: 200,
+                background: surfaceBg,
+                border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+                borderRadius: 12,
+                boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
+                padding: 8,
+                animation: "fadeIn 0.15s ease",
+              }}
+            >
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4 }}>
+                {apps.map((app) => (
+                  <div
+                    key={app.id}
+                    onClick={app.onClick}
+                    title={app.name}
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 10,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "transparent",
+                      transition: "background 0.15s",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = t.accentSoft}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                  >
+                    <div style={{ color: t.accent, display: "flex", alignItems: "center" }}>
+                      {app.icon}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        {page === "admin" && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, color: darkMode ? "#e5e7eb" : "#1f2937" }}>
+            <GearIcon size={16} />
+            <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.03em" }}>Admin Center</span>
+          </div>
         )}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative" }}>

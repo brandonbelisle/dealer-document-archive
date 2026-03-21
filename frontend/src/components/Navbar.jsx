@@ -893,60 +893,34 @@ export default function Navbar({
                     {item.l}
                   </div>
                 ))}
-                {loggedInUser.groups?.includes("Administrator") && (
-                  <div
-                    onClick={() => {
-                      setShowProfileMenu(false);
-                      setPage("admin");
-                      setAdminSection("users");
-                    }}
-                    className="folder-select-item"
-                    style={{
-                      padding: "8px 12px",
-                      borderRadius: 7,
-                      cursor: "pointer",
-                      fontSize: 13,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      color: t.text,
-                      fontWeight: 500,
-                    }}
-                  >
-                    <span style={{ color: t.textMuted }}>
-                      <WrenchIcon />
-                    </span>{" "}
-                    Administration
-                  </div>
-                )}
                 <div
-                  style={{
-                    borderTop: `1px solid ${t.border}`,
-                    marginTop: 4,
-                    paddingTop: 4,
-                  }}
-                >
-                  <div
-                    onClick={() => {
-                      setShowProfileMenu(false);
-                      handleLogout();
-                    }}
-                    className="folder-select-item"
                     style={{
-                      padding: "8px 12px",
-                      borderRadius: 7,
-                      cursor: "pointer",
-                      fontSize: 13,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      color: t.error,
-                      fontWeight: 500,
+                      borderTop: `1px solid ${t.border}`,
+                      marginTop: 4,
+                      paddingTop: 4,
                     }}
                   >
-                    <LogOutIcon /> Sign Out
+                    <div
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        handleLogout();
+                      }}
+                      className="folder-select-item"
+                      style={{
+                        padding: "8px 12px",
+                        borderRadius: 7,
+                        cursor: "pointer",
+                        fontSize: 13,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        color: t.error,
+                        fontWeight: 500,
+                      }}
+                    >
+                      <LogOutIcon /> Sign Out
+                    </div>
                   </div>
-                </div>
               </div>
             )}
           </div>

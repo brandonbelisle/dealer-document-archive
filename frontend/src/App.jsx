@@ -18,6 +18,7 @@ import FileDetailPage from "./pages/FileDetailPage";
 import UnsortedPage from "./pages/UnsortedPage";
 import UploadPage from "./pages/UploadPage";
 import AdminPage from "./pages/AdminPage";
+import LandingPage from "./components/LandingPage";
 
 function AppInner() {
   // ── Core UI state ───────────────────────────────────────
@@ -28,7 +29,7 @@ function AppInner() {
   const [loginLoading, setLoginLoading] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [page, setPage] = useState("dashboard");
+  const [page, setPage] = useState("landing");
   const [adminSection, setAdminSection] = useState("users");
 
   // ── Data state ──────────────────────────────────────────
@@ -197,7 +198,7 @@ function AppInner() {
   };
 
   // ── Handlers ────────────────────────────────────────────
-  const handleLogin = async () => { setLoginError(""); if (!loginForm.username.trim() || !loginForm.password.trim()) { setLoginError("Please enter both fields."); return; } setLoginLoading(true); try { const user = await api.login(loginForm.username.trim(), loginForm.password.trim()); setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions }); setIsLoggedIn(true); setLoginForm({ username: "", password: "" }); } catch (err) { setLoginError(err.message || "Login failed"); } finally { setLoginLoading(false); } };
+  const handleLogin = async () => { setLoginError(""); if (!loginForm.username.trim() || !loginForm.password.trim()) { setLoginError("Please enter both fields."); return; } setLoginLoading(true); try { const user = await api.login(loginForm.username.trim(), loginForm.password.trim()); setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions }); setIsLoggedIn(true); setPage("landing"); setLoginForm({ username: "", password: "" }); } catch (err) { setLoginError(err.message || "Login failed"); } finally { setLoginLoading(false); } };
   const handleLogout = () => { api.logout(); setIsLoggedIn(false); setLoggedInUser(null); setPage("dashboard"); setSelectedFile(null); setLocations([]); setDepartments([]); setFolders([]); setFiles([]); setActiveLocation(null); setActiveDepartment(null); };
 
   const validateFile = (file) => { if (file.type !== ACCEPTED_TYPE && !file.name.toLowerCase().endsWith(".pdf")) return { valid: false, error: "Only PDFs" }; if (file.size > MAX_FILE_SIZE) return { valid: false, error: "Too large" }; return { valid: true }; };
@@ -255,6 +256,7 @@ function AppInner() {
 
       <Navbar page={page} setPage={setPage} darkMode={darkMode} setDarkMode={setDarkMode} isLoggedIn={isLoggedIn} loggedInUser={loggedInUser} locations={locations} departments={departments} folders={folders} files={files} unsortedFiles={unsortedFiles} stagedFiles={stagedFiles} activeLocation={activeLocation} setActiveLocation={setActiveLocation} activeDepartment={activeDepartment} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setFolderSearch={setFolderSearch} expandedLocations={expandedLocations} setExpandedLocations={setExpandedLocations} showDeptDropdown={showDeptDropdown} setShowDeptDropdown={setShowDeptDropdown} showProfileMenu={showProfileMenu} setShowProfileMenu={setShowProfileMenu} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} setAdminSection={setAdminSection} handleLogout={handleLogout} foldersInLocation={foldersInLocation} foldersInDepartment={foldersInDepartment} deptsInLocation={deptsInLocation} filesInFolder={filesInFolder} t={t} />
 
+      {page === "landing" && <LandingPage setPage={setPage} t={t} darkMode={darkMode} />}
       {page === "dashboard" && <DashboardPage dashboardData={dashboardData} loggedInUser={loggedInUser} setPage={setPage} setActiveFolderId={setActiveFolderId} t={t} darkMode={darkMode} />}
       {page === "folders-browse" && <FoldersBrowsePage locations={locations} departments={departments} deptsInLocation={deptsInLocation} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setFolderSearch={setFolderSearch} setSelectedFile={setSelectedFile} setPage={setPage} t={t} darkMode={darkMode} />}
       {page === "folders" && <FoldersPage currentLocation={currentLocation} currentDept={currentDept} currentDeptFolders={currentDeptFolders} folderSearch={folderSearch} setFolderSearch={setFolderSearch} creatingDeptFolder={creatingDeptFolder} setCreatingDeptFolder={setCreatingDeptFolder} newDeptFolderName={newDeptFolderName} setNewDeptFolderName={setNewDeptFolderName} createDeptFolder={createDeptFolder} setActiveFolderId={setActiveFolderId} setPage={setPage} setCreatingSubfolder={setCreatingSubfolder} handleDeleteFolder={handleDeleteFolder} t={t} darkMode={darkMode} />}

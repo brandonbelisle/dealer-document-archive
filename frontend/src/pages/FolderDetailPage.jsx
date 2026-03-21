@@ -6,6 +6,7 @@ import {
   FolderClosedIcon,
   FolderOpenIcon,
   FileDocIcon,
+  ImageIcon,
   UploadCloudIcon,
   PlusIcon,
   XIcon,
@@ -75,6 +76,17 @@ export default function FolderDetailPage({
   const subs = subfoldersOf(activeFolderId);
   const breadcrumb = getBreadcrumb(activeFolderId);
   const ddOver = folderDetailDragOver;
+
+  const getFileTypeInfo = (file) => {
+    const mimeType = file.type || "";
+    if (mimeType.startsWith("image/")) {
+      return { type: "image", label: "Image", icon: ImageIcon };
+    }
+    if (mimeType === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+      return { type: "document", label: "Document", icon: FileDocIcon };
+    }
+    return { type: "other", label: "Other", icon: FileDocIcon };
+  };
 
   return (
     <div
@@ -521,6 +533,11 @@ export default function FolderDetailPage({
             >
               <div style={{ flex: 1, minWidth: 0 }}>Name</div>
               <div
+                style={{ width: 70, textAlign: "center", flexShrink: 0 }}
+              >
+                Type
+              </div>
+              <div
                 style={{ width: 70, textAlign: "right", flexShrink: 0 }}
               >
                 Size
@@ -662,6 +679,44 @@ export default function FolderDetailPage({
                         </div>
                       )}
                     </div>
+                  </div>
+                  <div
+                    style={{
+                      width: 70,
+                      textAlign: "center",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 4,
+                    }}
+                  >
+                    {(() => {
+                      const typeInfo = getFileTypeInfo(file);
+                      const Icon = typeInfo.icon;
+                      const isImage = typeInfo.type === "image";
+                      return (
+                        <>
+                          <div
+                            style={{
+                              width: 22,
+                              height: 22,
+                              borderRadius: 5,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              background: isImage ? "rgba(234,179,8,0.15)" : t.surface,
+                              color: isImage ? "#eab308" : t.textMuted,
+                            }}
+                          >
+                            <Icon size={13} />
+                          </div>
+                          <span style={{ fontSize: 10, color: t.textMuted }}>
+                            {typeInfo.label}
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                   <div
                     style={{

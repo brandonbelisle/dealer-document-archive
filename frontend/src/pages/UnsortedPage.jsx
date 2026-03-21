@@ -3,6 +3,7 @@ import { fmtSize, fuzzyMatch } from "../utils/helpers";
 import { Btn, SmallBtn } from "../components/ui/Btn";
 import {
   FileDocIcon,
+  ImageIcon,
   FolderClosedIcon,
   CheckIcon,
   TrashIcon,
@@ -53,6 +54,17 @@ export default function UnsortedPage({
   const [sortDir, setSortDir] = useState("desc");
 
   const selectedFile = unsortedFiles.find((f) => f.id === selectedFileId);
+
+  const getFileTypeInfo = (file) => {
+    const mimeType = file.type || "";
+    if (mimeType.startsWith("image/")) {
+      return { type: "image", label: "Image", icon: ImageIcon };
+    }
+    if (mimeType === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+      return { type: "document", label: "Document", icon: FileDocIcon };
+    }
+    return { type: "other", label: "Other", icon: FileDocIcon };
+  };
 
   const toggleSort = (col) => {
     if (sortCol === col) {
@@ -548,6 +560,12 @@ export default function UnsortedPage({
                   Name <SortArrow col="name" />
                 </th>
                 <th
+                  style={{ ...colHeaderStyle, color: sortCol === "type" ? t.accent : t.textDim, textAlign: "center" }}
+                  onClick={() => toggleSort("type")}
+                >
+                  Type
+                </th>
+                <th
                   style={{ ...colHeaderStyle, color: sortCol === "size" ? t.accent : t.textDim }}
                   onClick={() => toggleSort("size")}
                 >
@@ -645,6 +663,51 @@ export default function UnsortedPage({
                         >
                           {file.name}
                         </span>
+                      </div>
+                    </td>
+                    <td
+                      style={{
+                        padding: "8px 6px",
+                        borderBottom: isMoving
+                          ? "none"
+                          : `1px solid ${t.border}`,
+                        textAlign: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 4,
+                        }}
+                      >
+                        {(() => {
+                          const typeInfo = getFileTypeInfo(file);
+                          const Icon = typeInfo.icon;
+                          const isImage = typeInfo.type === "image";
+                          return (
+                            <>
+                              <div
+                                style={{
+                                  width: 20,
+                                  height: 20,
+                                  borderRadius: 4,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  background: isImage ? "rgba(234,179,8,0.15)" : "transparent",
+                                  color: isImage ? "#eab308" : t.textDim,
+                                }}
+                              >
+                                <Icon size={12} />
+                              </div>
+                              <span style={{ fontSize: 10, color: t.textDim }}>
+                                {typeInfo.label}
+                              </span>
+                            </>
+                          );
+                        })()}
                       </div>
                     </td>
                     <td

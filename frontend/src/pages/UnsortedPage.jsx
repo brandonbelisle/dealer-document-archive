@@ -12,6 +12,20 @@ import {
 import PdfCanvasPreview from "../components/PdfCanvasPreview";
 import * as api from "../api";
 
+function fmtDate(d) {
+  if (!d) return "—";
+  const dt = new Date(d);
+  if (isNaN(dt)) return "—";
+  const mon = dt.toLocaleString("en-US", { month: "short" });
+  const day = dt.getDate();
+  const yr = dt.getFullYear();
+  const h = dt.getHours();
+  const m = dt.getMinutes().toString().padStart(2, "0");
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 || 12;
+  return `${mon} ${day}, ${yr} ${h12}:${m} ${ampm}`;
+}
+
 export default function UnsortedPage({
   unsortedFiles,
   folders,
@@ -113,7 +127,7 @@ export default function UnsortedPage({
     setMoveTargetFolderId("");
   };
 
-  // Empty state
+  // ── Empty state ──
   if (unsortedFiles.length === 0) {
     return (
       <div
@@ -160,6 +174,238 @@ export default function UnsortedPage({
     : false;
   const isImage = selectedFile?.type?.startsWith("image/");
 
+  const colHeaderStyle = {
+    fontSize: 9.5,
+    fontWeight: 700,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+    color: t.textDim,
+    padding: "8px 10px",
+    whiteSpace: "nowrap",
+    userSelect: "none",
+    borderBottom: `1px solid ${t.border}`,
+    position: "sticky",
+    top: 0,
+    background: darkMode ? "rgba(15,17,20,0.95)" : "rgba(246,244,240,0.95)",
+    backdropFilter: "blur(6px)",
+    zIndex: 2,
+  };
+
+  // ── Move-to-folder dropdown (rendered under a row) ──
+  const renderMoveControls = (file) => (
+    <tr key={`move-${file.id}`}>
+      <td
+        colSpan={5}
+        style={{ padding: "0 10px 8px", borderBottom: `1px solid ${t.border}` }}
+      >
+        <div style={{ position: "relative" }}>
+          <div
+            onClick={() => {
+              setShowMoveSelect(!showMoveSelect);
+              setMoveSelectSearch("");
+            }}
+            style={{
+              border: `1px solid ${showMoveSelect ? t.accent : t.border}`,
+              borderRadius: 8,
+              padding: "6px 10px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 11.5,
+              background: darkMode
+                ? "rgba(255,255,255,0.03)"
+                : "rgba(0,0,0,0.02)",
+            }}
+          >
+            <FolderClosedIcon size={13} />
+            <span
+              style={{
+                flex: 1,
+                color: moveTargetFolderId ? t.text : t.textDim,
+              }}
+            >
+              {moveTargetFolderId
+                ? folders.find((f) => f.id === moveTargetFolderId)?.name ||
+                  "Select..."
+                : "Choose folder..."}
+            </span>
+            <ChevronDown />
+          </div>
+          {showMoveSelect &&
+            (() => {
+              const sq = moveSelectSearch.trim();
+              const dff = sq
+                ? folders
+                    .map((f) => ({ ...f, ...fuzzyMatch(sq, f.name) }))
+                    .filter((r) => r.match)
+                    .sort((a, b) => b.score - a.score)
+                : folders;
+              return (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 4px)",
+                    left: 0,
+                    right: 0,
+                    zIndex: 100,
+                    background: t.surface,
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 10,
+                    boxShadow: "0 12px 36px rgba(0,0,0,0.2)",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: "6px 8px",
+                      borderBottom: `1px solid ${t.border}`,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <SearchIcon size={13} />
+                    <input
+                      ref={moveSelectRef}
+                      value={moveSelectSearch}
+                      onChange={(e) => setMoveSelectSearch(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      placeholder="Search folders..."
+                      style={{
+                        flex: 1,
+                        background: "transparent",
+                        border: "none",
+                        fontSize: 12,
+                        color: t.text,
+                        outline: "none",
+                        fontFamily: "inherit",
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      maxHeight: 250,
+                      overflowY: "auto",
+                      padding: 4,
+                    }}
+                  >
+                    {locations.map((loc) => {
+                      const li = dff.filter((f) => f.locationId === loc.id);
+                      if (!li.length) return null;
+                      return (
+                        <div key={loc.id}>
+                          <div
+                            style={{
+                              padding: "5px 8px 2px",
+                              fontSize: 9.5,
+                              fontWeight: 700,
+                              letterSpacing: "0.06em",
+                              textTransform: "uppercase",
+                              color: t.textMuted,
+                            }}
+                          >
+                            {loc.name}
+                          </div>
+                          {deptsInLocation(loc.id).map((dept) => {
+                            const di = li.filter(
+                              (f) => f.departmentId === dept.id
+                            );
+                            if (!di.length) return null;
+                            return (
+                              <div key={dept.id}>
+                                <div
+                                  style={{
+                                    padding: "3px 8px 2px 16px",
+                                    fontSize: 9,
+                                    fontWeight: 600,
+                                    color: t.textDim,
+                                  }}
+                                >
+                                  {dept.name}
+                                </div>
+                                {di.map((folder) => (
+                                  <div
+                                    key={folder.id}
+                                    onClick={() => {
+                                      setMoveTargetFolderId(folder.id);
+                                      setShowMoveSelect(false);
+                                      setMoveSelectSearch("");
+                                    }}
+                                    className="folder-select-item"
+                                    style={{
+                                      padding: "6px 10px 6px 24px",
+                                      borderRadius: 6,
+                                      cursor: "pointer",
+                                      fontSize: 12,
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 8,
+                                      background:
+                                        moveTargetFolderId === folder.id
+                                          ? t.accentSoft
+                                          : "transparent",
+                                      color:
+                                        moveTargetFolderId === folder.id
+                                          ? t.accent
+                                          : t.text,
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    <FolderClosedIcon size={13} />
+                                    <span style={{ flex: 1 }}>
+                                      {folder.name}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+        </div>
+        <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+          {moveTargetFolderId && (
+            <Btn
+              primary
+              darkMode={darkMode}
+              t={t}
+              onClick={() => doMove(file.id, moveTargetFolderId)}
+              style={{ fontSize: 11, padding: "5px 12px", flex: 1 }}
+            >
+              <CheckIcon /> Move to Folder
+            </Btn>
+          )}
+          <button
+            onClick={() => {
+              setMovingFileId(null);
+              setMoveTargetFolderId("");
+              setShowMoveSelect(false);
+            }}
+            style={{
+              background: "transparent",
+              border: `1px solid ${t.border}`,
+              borderRadius: 8,
+              cursor: "pointer",
+              color: t.textDim,
+              fontSize: 11,
+              fontFamily: "inherit",
+              padding: "5px 12px",
+              flex: moveTargetFolderId ? undefined : 1,
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+
   return (
     <div
       style={{
@@ -169,11 +415,11 @@ export default function UnsortedPage({
         animation: "fadeIn 0.3s ease",
       }}
     >
-      {/* ── Left panel: file list ── */}
+      {/* ── Left panel: file table ── */}
       <div
         style={{
-          width: 400,
-          minWidth: 400,
+          width: 520,
+          minWidth: 420,
           borderRight: `1px solid ${t.border}`,
           background: darkMode
             ? "rgba(15,17,20,0.5)"
@@ -198,384 +444,202 @@ export default function UnsortedPage({
             {unsortedFiles.length !== 1 ? "s" : ""} not assigned to any folder
           </p>
         </div>
-        <div
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            padding: "8px 10px",
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          }}
-        >
-          {unsortedFiles.map((file, idx) => {
-            const isSelected = selectedFileId === file.id;
-            const isMoving = movingFileId === file.id;
-            return (
-              <div
-                key={file.id}
-                style={{ animation: `fadeIn 0.25s ease ${idx * 0.03}s both` }}
-              >
-                <div
-                  onClick={() => {
-                    setSelectedFileId(file.id);
-                    if (movingFileId && movingFileId !== file.id) {
-                      setMovingFileId(null);
-                      setMoveTargetFolderId("");
-                      setShowMoveSelect(false);
-                    }
-                  }}
-                  style={{
-                    background: isSelected
-                      ? darkMode
-                        ? "rgba(255,255,255,0.06)"
-                        : "rgba(0,0,0,0.04)"
-                      : "transparent",
-                    border: `1px solid ${isSelected ? t.accent + "44" : "transparent"}`,
-                    borderRadius: 10,
-                    padding: "10px 12px",
-                    cursor: "pointer",
-                    transition: "background 0.15s, border-color 0.15s",
-                  }}
-                >
-                  <div
+        <div style={{ flex: 1, overflowY: "auto" }}>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              fontSize: 12,
+            }}
+          >
+            <thead>
+              <tr>
+                <th style={{ ...colHeaderStyle, paddingLeft: 16 }}>Name</th>
+                <th style={colHeaderStyle}>Size</th>
+                <th style={colHeaderStyle}>Uploaded</th>
+                <th style={colHeaderStyle}>By</th>
+                <th style={{ ...colHeaderStyle, width: 60, textAlign: "center" }}>
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {unsortedFiles.map((file, idx) => {
+                const isSelected = selectedFileId === file.id;
+                const isMoving = movingFileId === file.id;
+                const rowBg = isSelected
+                  ? darkMode
+                    ? "rgba(255,255,255,0.06)"
+                    : "rgba(0,0,0,0.04)"
+                  : "transparent";
+
+                return [
+                  <tr
+                    key={file.id}
+                    onClick={() => {
+                      setSelectedFileId(file.id);
+                      if (movingFileId && movingFileId !== file.id) {
+                        setMovingFileId(null);
+                        setMoveTargetFolderId("");
+                        setShowMoveSelect(false);
+                      }
+                    }}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
+                      cursor: "pointer",
+                      background: rowBg,
+                      borderLeft: isSelected
+                        ? `3px solid ${t.accent}`
+                        : "3px solid transparent",
+                      transition: "background 0.15s",
+                      animation: `fadeIn 0.25s ease ${idx * 0.02}s both`,
                     }}
                   >
-                    <div
+                    <td
                       style={{
-                        width: 34,
-                        height: 34,
-                        borderRadius: 8,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                        background: isSelected ? t.accent + "18" : t.accentSoft,
-                        color: isSelected ? t.accent : t.textDim,
+                        padding: "8px 10px 8px 13px",
+                        borderBottom: isMoving
+                          ? "none"
+                          : `1px solid ${t.border}`,
+                        maxWidth: 200,
                       }}
                     >
-                      <FileDocIcon size={16} />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: 12,
-                          fontWeight: isSelected ? 600 : 500,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          color: isSelected ? t.text : t.textMuted,
-                        }}
-                      >
-                        {file.name}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 10,
-                          color: t.textDim,
-                          display: "flex",
-                          gap: 8,
-                          marginTop: 1,
-                        }}
-                      >
-                        <span>{fmtSize(file.size)}</span>
-                        {file.pages > 0 && <span>{file.pages} pg</span>}
-                      </div>
-                    </div>
-                    {!isMoving && (
                       <div
                         style={{
                           display: "flex",
-                          gap: 4,
                           alignItems: "center",
+                          gap: 8,
                         }}
-                        onClick={(e) => e.stopPropagation()}
                       >
-                        <SmallBtn
-                          t={t}
-                          title="Move to Folder"
-                          onClick={() => {
-                            setSelectedFileId(file.id);
-                            setMovingFileId(file.id);
-                            setMoveTargetFolderId("");
-                            setShowMoveSelect(false);
-                          }}
-                        >
-                          <FolderClosedIcon size={12} />
-                        </SmallBtn>
-                        <SmallBtn
-                          t={t}
-                          title="Delete"
-                          onClick={() => {
-                            setWarningModal({
-                              title: "Delete File",
-                              message: `Delete "${file.name}"? This cannot be undone.`,
-                              onConfirm: async () => {
-                                await removeFile(file.id);
-                                setUnsortedFiles((p) =>
-                                  p.filter((f) => f.id !== file.id)
-                                );
-                                setWarningModal(null);
-                              },
-                            });
-                          }}
-                        >
-                          <TrashIcon size={11} />
-                        </SmallBtn>
-                      </div>
-                    )}
-                  </div>
-                  {/* Move-to-folder inline controls */}
-                  {isMoving && (
-                    <div
-                      style={{ marginTop: 8 }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div style={{ position: "relative" }}>
                         <div
-                          onClick={() => {
-                            setShowMoveSelect(!showMoveSelect);
-                            setMoveSelectSearch("");
-                          }}
                           style={{
-                            border: `1px solid ${showMoveSelect ? t.accent : t.border}`,
-                            borderRadius: 8,
-                            padding: "6px 10px",
-                            cursor: "pointer",
+                            width: 28,
+                            height: 28,
+                            borderRadius: 6,
                             display: "flex",
                             alignItems: "center",
-                            gap: 8,
-                            fontSize: 11.5,
-                            background: darkMode
-                              ? "rgba(255,255,255,0.03)"
-                              : "rgba(0,0,0,0.02)",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                            background: isSelected
+                              ? t.accent + "18"
+                              : t.accentSoft,
+                            color: isSelected ? t.accent : t.textDim,
                           }}
                         >
-                          <FolderClosedIcon size={13} />
-                          <span
-                            style={{
-                              flex: 1,
-                              color: moveTargetFolderId ? t.text : t.textDim,
+                          <FileDocIcon size={14} />
+                        </div>
+                        <span
+                          style={{
+                            fontWeight: isSelected ? 600 : 500,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            color: isSelected ? t.text : t.textMuted,
+                          }}
+                        >
+                          {file.name}
+                        </span>
+                      </div>
+                    </td>
+                    <td
+                      style={{
+                        padding: "8px 10px",
+                        borderBottom: isMoving
+                          ? "none"
+                          : `1px solid ${t.border}`,
+                        color: t.textDim,
+                        whiteSpace: "nowrap",
+                        fontSize: 11,
+                      }}
+                    >
+                      {fmtSize(file.size)}
+                    </td>
+                    <td
+                      style={{
+                        padding: "8px 10px",
+                        borderBottom: isMoving
+                          ? "none"
+                          : `1px solid ${t.border}`,
+                        color: t.textDim,
+                        whiteSpace: "nowrap",
+                        fontSize: 11,
+                      }}
+                    >
+                      {fmtDate(file.uploadedAt)}
+                    </td>
+                    <td
+                      style={{
+                        padding: "8px 10px",
+                        borderBottom: isMoving
+                          ? "none"
+                          : `1px solid ${t.border}`,
+                        color: t.textDim,
+                        whiteSpace: "nowrap",
+                        fontSize: 11,
+                        maxWidth: 100,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {file.uploadedBy || "—"}
+                    </td>
+                    <td
+                      style={{
+                        padding: "8px 6px",
+                        borderBottom: isMoving
+                          ? "none"
+                          : `1px solid ${t.border}`,
+                        textAlign: "center",
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {!isMoving && (
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: 4,
+                            justifyContent: "center",
+                          }}
+                        >
+                          <SmallBtn
+                            t={t}
+                            title="Move to Folder"
+                            onClick={() => {
+                              setSelectedFileId(file.id);
+                              setMovingFileId(file.id);
+                              setMoveTargetFolderId("");
+                              setShowMoveSelect(false);
                             }}
                           >
-                            {moveTargetFolderId
-                              ? folders.find(
-                                  (f) => f.id === moveTargetFolderId
-                                )?.name || "Select..."
-                              : "Choose folder..."}
-                          </span>
-                          <ChevronDown />
+                            <FolderClosedIcon size={12} />
+                          </SmallBtn>
+                          <SmallBtn
+                            t={t}
+                            title="Delete"
+                            onClick={() => {
+                              setWarningModal({
+                                title: "Delete File",
+                                message: `Delete "${file.name}"? This cannot be undone.`,
+                                onConfirm: async () => {
+                                  await removeFile(file.id);
+                                  setUnsortedFiles((p) =>
+                                    p.filter((f) => f.id !== file.id)
+                                  );
+                                  setWarningModal(null);
+                                },
+                              });
+                            }}
+                          >
+                            <TrashIcon size={11} />
+                          </SmallBtn>
                         </div>
-                        {showMoveSelect &&
-                          (() => {
-                            const sq = moveSelectSearch.trim();
-                            const dff = sq
-                              ? folders
-                                  .map((f) => ({
-                                    ...f,
-                                    ...fuzzyMatch(sq, f.name),
-                                  }))
-                                  .filter((r) => r.match)
-                                  .sort((a, b) => b.score - a.score)
-                              : folders;
-                            return (
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  top: "calc(100% + 4px)",
-                                  left: 0,
-                                  right: 0,
-                                  zIndex: 100,
-                                  background: t.surface,
-                                  border: `1px solid ${t.border}`,
-                                  borderRadius: 10,
-                                  boxShadow:
-                                    "0 12px 36px rgba(0,0,0,0.2)",
-                                  overflow: "hidden",
-                                }}
-                              >
-                                <div
-                                  style={{
-                                    padding: "6px 8px",
-                                    borderBottom: `1px solid ${t.border}`,
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 6,
-                                  }}
-                                >
-                                  <SearchIcon size={13} />
-                                  <input
-                                    ref={moveSelectRef}
-                                    value={moveSelectSearch}
-                                    onChange={(e) =>
-                                      setMoveSelectSearch(e.target.value)
-                                    }
-                                    onClick={(e) => e.stopPropagation()}
-                                    placeholder="Search folders..."
-                                    style={{
-                                      flex: 1,
-                                      background: "transparent",
-                                      border: "none",
-                                      fontSize: 12,
-                                      color: t.text,
-                                      outline: "none",
-                                      fontFamily: "inherit",
-                                    }}
-                                  />
-                                </div>
-                                <div
-                                  style={{
-                                    maxHeight: 250,
-                                    overflowY: "auto",
-                                    padding: 4,
-                                  }}
-                                >
-                                  {locations.map((loc) => {
-                                    const li = dff.filter(
-                                      (f) => f.locationId === loc.id
-                                    );
-                                    if (!li.length) return null;
-                                    return (
-                                      <div key={loc.id}>
-                                        <div
-                                          style={{
-                                            padding: "5px 8px 2px",
-                                            fontSize: 9.5,
-                                            fontWeight: 700,
-                                            letterSpacing: "0.06em",
-                                            textTransform: "uppercase",
-                                            color: t.textMuted,
-                                          }}
-                                        >
-                                          {loc.name}
-                                        </div>
-                                        {deptsInLocation(loc.id).map(
-                                          (dept) => {
-                                            const di = li.filter(
-                                              (f) =>
-                                                f.departmentId === dept.id
-                                            );
-                                            if (!di.length) return null;
-                                            return (
-                                              <div key={dept.id}>
-                                                <div
-                                                  style={{
-                                                    padding:
-                                                      "3px 8px 2px 16px",
-                                                    fontSize: 9,
-                                                    fontWeight: 600,
-                                                    color: t.textDim,
-                                                  }}
-                                                >
-                                                  {dept.name}
-                                                </div>
-                                                {di.map((folder) => (
-                                                  <div
-                                                    key={folder.id}
-                                                    onClick={() => {
-                                                      setMoveTargetFolderId(
-                                                        folder.id
-                                                      );
-                                                      setShowMoveSelect(
-                                                        false
-                                                      );
-                                                      setMoveSelectSearch(
-                                                        ""
-                                                      );
-                                                    }}
-                                                    className="folder-select-item"
-                                                    style={{
-                                                      padding:
-                                                        "6px 10px 6px 24px",
-                                                      borderRadius: 6,
-                                                      cursor: "pointer",
-                                                      fontSize: 12,
-                                                      display: "flex",
-                                                      alignItems: "center",
-                                                      gap: 8,
-                                                      background:
-                                                        moveTargetFolderId ===
-                                                        folder.id
-                                                          ? t.accentSoft
-                                                          : "transparent",
-                                                      color:
-                                                        moveTargetFolderId ===
-                                                        folder.id
-                                                          ? t.accent
-                                                          : t.text,
-                                                      fontWeight: 500,
-                                                    }}
-                                                  >
-                                                    <FolderClosedIcon
-                                                      size={13}
-                                                    />
-                                                    <span
-                                                      style={{ flex: 1 }}
-                                                    >
-                                                      {folder.name}
-                                                    </span>
-                                                  </div>
-                                                ))}
-                                              </div>
-                                            );
-                                          }
-                                        )}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            );
-                          })()}
-                      </div>
-                      {moveTargetFolderId && (
-                        <Btn
-                          primary
-                          darkMode={darkMode}
-                          t={t}
-                          onClick={() =>
-                            doMove(file.id, moveTargetFolderId)
-                          }
-                          style={{
-                            marginTop: 6,
-                            fontSize: 11,
-                            padding: "5px 12px",
-                            width: "100%",
-                          }}
-                        >
-                          <CheckIcon /> Move to Folder
-                        </Btn>
                       )}
-                      <button
-                        onClick={() => {
-                          setMovingFileId(null);
-                          setMoveTargetFolderId("");
-                          setShowMoveSelect(false);
-                        }}
-                        style={{
-                          marginTop: 4,
-                          background: "transparent",
-                          border: "none",
-                          cursor: "pointer",
-                          color: t.textDim,
-                          fontSize: 10.5,
-                          fontFamily: "inherit",
-                          width: "100%",
-                          textAlign: "center",
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+                    </td>
+                  </tr>,
+                  isMoving ? renderMoveControls(file) : null,
+                ];
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -621,27 +685,17 @@ export default function UnsortedPage({
                   Document Preview
                 </span>
               </div>
-              <div
+              <span
                 style={{
-                  display: "flex",
-                  gap: 8,
-                  alignItems: "center",
-                  flexShrink: 0,
+                  fontSize: 11,
+                  color: t.textDim,
+                  whiteSpace: "nowrap",
                   marginLeft: 12,
+                  flexShrink: 0,
                 }}
               >
-                <span
-                  style={{
-                    fontSize: 11,
-                    color: t.textDim,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {fmtSize(selectedFile.size)}
-                  {selectedFile.pages > 0 &&
-                    ` · ${selectedFile.pages} page${selectedFile.pages !== 1 ? "s" : ""}`}
-                </span>
-              </div>
+                {selectedFile.name}
+              </span>
             </div>
 
             <div
@@ -763,9 +817,7 @@ export default function UnsortedPage({
           >
             <div style={{ textAlign: "center" }}>
               <FileDocIcon size={48} />
-              <div
-                style={{ fontSize: 14, fontWeight: 500, marginTop: 14 }}
-              >
+              <div style={{ fontSize: 14, fontWeight: 500, marginTop: 14 }}>
                 Select a file to preview
               </div>
             </div>

@@ -107,30 +107,30 @@ router.post('/', requireAuth, requirePermission('manageSettings'), async (req, r
       passwordEncrypted = encrypt(password);
     }
 
-    await db.execute(`
-      INSERT INTO dms_settings (id, server, port, database_name, username, password_encrypted, trust_certificate, encrypt_connection, query_interval_minutes)
-      VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE
-        server = VALUES(server),
-        port = VALUES(port),
-        database_name = VALUES(database_name),
-        username = VALUES(username),
-        password_encrypted = VALUES(password_encrypted),
-        trust_certificate = VALUES(trust_certificate),
-        encrypt_connection = VALUES(encrypt_connection),
-        query_interval_minutes = VALUES(query_interval_minutes),
-        updated_at = CURRENT_TIMESTAMP
-    `, [
-      1,
-      server.trim(),
-      port || 1433,
-      database?.trim() || '',
-      username?.trim() || '',
-      passwordEncrypted,
-      trustCertificate ? 1 : 0,
-      encryptConnection ? 1 : 0,
-      queryIntervalMinutes || 5,
-    ]);
+    const serverVal = server.trim();
+    const portVal = port || 1433;
+    const databaseVal = database?.trim() || '';
+    const usernameVal = username?.trim() || '';
+    const trustCertVal = trustCertificate ? 1 : 0;
+    const encryptConnVal = encryptConnection ? 1 : 0;
+    const intervalVal = queryIntervalMinutes || 5;
+
+    // Check if record exists
+    const [existing] = await db.execute('SELECT id FROM dms_settings WHERE id = 1');
+    
+    if (existing.length === 0) {
+      // Insert new record
+      await db.execute(
+        'INSERT INTO dms_settings (id, server, port, database_name, username, password_encrypted, trust_certificate, encrypt_connection, query_interval_minutes) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [serverVal, portVal, databaseVal, usernameVal, passwordEncrypted, trustCertVal, encryptConnVal, intervalVal]
+      );
+    } else {
+      // Update existing record
+      await db.execute(
+        'UPDATE dms_settings SET server = ?, port = ?, database_name = ?, username = ?, password_encrypted = ?, trust_certificate = ?, encrypt_connection = ?, query_interval_minutes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1',
+        [serverVal, portVal, databaseVal, usernameVal, passwordEncrypted, trustCertVal, encryptConnVal, intervalVal]
+      );
+    }
 
     await logAudit('DMS Settings Updated', `Server: ${server}`, req.user, req.ip);
     res.json({ success: true });

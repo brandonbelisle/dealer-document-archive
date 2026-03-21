@@ -1361,10 +1361,6 @@ function SettingsSection({ t, darkMode }) {
             This prefix will be added to the beginning of help ticket email subjects. Leave empty for no prefix.
           </p>
         </div>
-              Used for headings and accents in emails
-            </span>
-          </div>
-        </div>
 
         <div style={{ marginBottom: 20 }}>
           <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>

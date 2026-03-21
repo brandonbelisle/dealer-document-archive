@@ -21,6 +21,679 @@ import {
   UploadCloudIcon,
 } from "../components/Icons";
 
+// Authentication Settings Section
+function AuthenticationSection({ t, darkMode }) {
+  const [samlSettings, setSamlSettings] = useState({
+    enabled: false,
+    idp_entity_id: '',
+    idp_sso_url: '',
+    idp_slo_url: '',
+    idp_x509_cert: '',
+    sp_entity_id: '',
+    sp_acs_url: '',
+    sp_slo_url: '',
+    attribute_email: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+    attribute_name: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
+    attribute_username: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn',
+    auto_provision: true,
+    default_group_id: '',
+    allow_local_login: true,
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+  const [securityGroups, setSecurityGroups] = useState([]);
+
+  useEffect(() => {
+    loadSettings();
+    loadSecurityGroups();
+  }, []);
+
+  const loadSettings = async () => {
+    setLoading(true);
+    try {
+      const settings = await api.getSamlSettings();
+      setSamlSettings({
+        enabled: settings.enabled || false,
+        idp_entity_id: settings.idp_entity_id || '',
+        idp_sso_url: settings.idp_sso_url || '',
+        idp_slo_url: settings.idp_slo_url || '',
+        idp_x509_cert: settings.idp_x509_cert || '',
+        sp_entity_id: settings.sp_entity_id || '',
+        sp_acs_url: settings.sp_acs_url || '',
+        sp_slo_url: settings.sp_slo_url || '',
+        attribute_email: settings.attribute_email || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+        attribute_name: settings.attribute_name || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
+        attribute_username: settings.attribute_username || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn',
+        auto_provision: settings.auto_provision !== false,
+        default_group_id: settings.default_group_id || '',
+        allow_local_login: settings.allow_local_login !== false,
+      });
+    } catch (err) {
+      console.error('Failed to load SAML settings:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadSecurityGroups = async () => {
+    try {
+      const groups = await api.getGroups();
+      setSecurityGroups(groups);
+    } catch (err) {
+      console.error('Failed to load security groups:', err);
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    setMessage({ type: '', text: '' });
+    try {
+      await api.saveSamlSettings(samlSettings);
+      setMessage({ type: 'success', text: 'Authentication settings saved successfully!' });
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Failed to save: ' + (err.message || 'Unknown error') });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '10px 12px',
+    fontSize: 14,
+    border: `1px solid ${t.border}`,
+    borderRadius: 8,
+    background: darkMode ? '#1a1a1a' : '#fff',
+    color: t.text,
+    fontFamily: 'inherit',
+    boxSizing: 'border-box',
+  };
+
+  const textareaStyle = {
+    ...inputStyle,
+    minHeight: 100,
+    resize: 'vertical',
+    fontFamily: 'monospace',
+    fontSize: 12,
+  };
+
+  const labelStyle = {
+    fontSize: 13,
+    fontWeight: 600,
+    color: t.text,
+    display: 'block',
+    marginBottom: 8,
+  };
+
+  const hintStyle = {
+    fontSize: 11,
+    color: t.textDim,
+    margin: '4px 0 0',
+  };
+
+  return (
+    <div>
+      {/* SSO Section */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }}>Single Sign-On (SSO)</h2>
+        <p style={{ fontSize: 13, color: t.textMuted, margin: 0 }}>
+          Configure SAML 2.0 authentication with Azure Entra ID (formerly Azure AD).
+        </p>
+      </div>
+
+      {loading ? (
+        <div style={{ padding: 40, textAlign: 'center', color: t.textMuted }}>Loading...</div>
+      ) : (
+        <div style={{ maxWidth: 800 }}>
+          {/* Enable SSO Toggle */}
+          <div style={{
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 12,
+            padding: 20,
+            marginBottom: 20,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>Enable SSO</div>
+                <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>
+                  Allow users to sign in with Azure Entra ID
+                </div>
+              </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={samlSettings.enabled}
+                  onChange={(e) => setSamlSettings({ ...samlSettings, enabled: e.target.checked })}
+                  style={{ width: 18, height: 18, cursor: 'pointer' }}
+                />
+                <span style={{ fontSize: 13, color: t.text }}>{samlSettings.enabled ? 'Enabled' : 'Disabled'}</span>
+              </label>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>Allow Local Login</div>
+                <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>
+                  Allow users to sign in with username/password
+                </div>
+              </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={samlSettings.allow_local_login}
+                  onChange={(e) => setSamlSettings({ ...samlSettings, allow_local_login: e.target.checked })}
+                  style={{ width: 18, height: 18, cursor: 'pointer' }}
+                />
+                <span style={{ fontSize: 13, color: t.text }}>{samlSettings.allow_local_login ? 'Enabled' : 'Disabled'}</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Service Provider Settings */}
+          <div style={{
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 12,
+            padding: 20,
+            marginBottom: 20,
+          }}>
+            <h3 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 16px', color: t.text }}>
+              Service Provider (This Application)
+            </h3>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>Entity ID (Identifier)</label>
+              <input
+                type="text"
+                value={samlSettings.sp_entity_id}
+                onChange={(e) => setSamlSettings({ ...samlSettings, sp_entity_id: e.target.value })}
+                placeholder="dda-saml"
+                style={inputStyle}
+              />
+              <p style={hintStyle}>Unique identifier for this application (e.g., "dda-saml")</p>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>Assertion Consumer Service (ACS) URL</label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  type="text"
+                  value={samlSettings.sp_acs_url}
+                  onChange={(e) => setSamlSettings({ ...samlSettings, sp_acs_url: e.target.value })}
+                  placeholder="https://your-domain.com/api/saml/callback"
+                  style={{ ...inputStyle, flex: 1 }}
+                />
+                {samlSettings.sp_acs_url && (
+                  <button
+                    onClick={() => copyToClipboard(samlSettings.sp_acs_url)}
+                    style={{
+                      padding: '8px 12px',
+                      background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      fontSize: 12,
+                      color: t.textMuted,
+                    }}
+                    title="Copy to clipboard"
+                  >
+                    Copy
+                  </button>
+                )}
+              </div>
+              <p style={hintStyle}>The URL Azure Entra will send SAML responses to (must match your callback URL)</p>
+            </div>
+          </div>
+
+          {/* Identity Provider Settings */}
+          <div style={{
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 12,
+            padding: 20,
+            marginBottom: 20,
+          }}>
+            <h3 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 16px', color: t.text }}>
+              Identity Provider (Azure Entra ID)
+            </h3>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>Entity ID (Identifier)</label>
+              <input
+                type="text"
+                value={samlSettings.idp_entity_id}
+                onChange={(e) => setSamlSettings({ ...samlSettings, idp_entity_id: e.target.value })}
+                placeholder="https://sts.windows.net/{tenant-id}/"
+                style={inputStyle}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>SSO URL (Login URL)</label>
+              <input
+                type="text"
+                value={samlSettings.idp_sso_url}
+                onChange={(e) => setSamlSettings({ ...samlSettings, idp_sso_url: e.target.value })}
+                placeholder="https://login.microsoftonline.com/{tenant-id}/saml2"
+                style={inputStyle}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>Logout URL (Optional)</label>
+              <input
+                type="text"
+                value={samlSettings.idp_slo_url}
+                onChange={(e) => setSamlSettings({ ...samlSettings, idp_slo_url: e.target.value })}
+                placeholder="https://login.microsoftonline.com/{tenant-id}/saml2"
+                style={inputStyle}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>X.509 Certificate (Base64)</label>
+              <textarea
+                value={samlSettings.idp_x509_cert}
+                onChange={(e) => setSamlSettings({ ...samlSettings, idp_x509_cert: e.target.value })}
+                placeholder="Paste the Base64-encoded certificate from Azure Entra..."
+                style={textareaStyle}
+              />
+              <p style={hintStyle}>Copy the certificate from Azure Entra > App registrations > Your app > Endpoints</p>
+            </div>
+          </div>
+
+          {/* User Provisioning */}
+          <div style={{
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 12,
+            padding: 20,
+            marginBottom: 20,
+          }}>
+            <h3 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 16px', color: t.text }}>
+              User Provisioning
+            </h3>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>Auto-Provision Users</div>
+                <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>
+                  Automatically create user accounts for new SSO users
+                </div>
+              </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={samlSettings.auto_provision}
+                  onChange={(e) => setSamlSettings({ ...samlSettings, auto_provision: e.target.checked })}
+                  style={{ width: 18, height: 18, cursor: 'pointer' }}
+                />
+                <span style={{ fontSize: 13, color: t.text }}>{samlSettings.auto_provision ? 'Enabled' : 'Disabled'}</span>
+              </label>
+            </div>
+
+            {samlSettings.auto_provision && (
+              <div>
+                <label style={labelStyle}>Default Security Group</label>
+                <select
+                  value={samlSettings.default_group_id}
+                  onChange={(e) => setSamlSettings({ ...samlSettings, default_group_id: e.target.value })}
+                  style={inputStyle}
+                >
+                  <option value="">User (default)</option>
+                  {securityGroups.map((g) => (
+                    <option key={g.id} value={g.id}>{g.name}</option>
+                  ))}
+                </select>
+                <p style={hintStyle}>New SSO users will be assigned to this group</p>
+              </div>
+            )}
+          </div>
+
+          {/* Message */}
+          {message.text && (
+            <div style={{
+              padding: '12px 16px',
+              borderRadius: 8,
+              marginBottom: 16,
+              background: message.type === 'success'
+                ? (darkMode ? 'rgba(34,197,94,0.15)' : 'rgba(34,197,94,0.1)')
+                : (darkMode ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.1)'),
+              color: message.type === 'success' ? '#22c55e' : '#ef4444',
+              fontSize: 13,
+            }}>
+              {message.text}
+            </div>
+          )}
+
+          {/* Save Button */}
+          <div style={{ display: 'flex', gap: 12 }}>
+            <Btn
+              primary
+              darkMode={darkMode}
+              t={t}
+              onClick={handleSave}
+              loading={saving}
+              style={{ fontSize: 13 }}
+            >
+              Save Settings
+            </Btn>
+          </div>
+
+          {/* Instructions */}
+          <div style={{
+            marginTop: 32,
+            padding: 24,
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 12,
+          }}>
+            <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 20px', color: t.text }}>
+              Azure Entra ID Setup Guide
+            </h4>
+            
+            {/* Step 1 */}
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  background: t.accent,
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}>1</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>Create Enterprise Application in Azure</div>
+              </div>
+              <div style={{ marginLeft: 38, fontSize: 13, color: t.textMuted, lineHeight: 1.6 }}>
+                <ol style={{ margin: 0, paddingLeft: 20 }}>
+                  <li>Go to <strong>Azure Portal</strong> (portal.azure.com)</li>
+                  <li>Navigate to <strong>Azure Entra ID</strong> {" > "} <strong>Enterprise applications</strong></li>
+                  <li>Click <strong>New application</strong></li>
+                  <li>Click <strong>Create your own application</strong> on the left</li>
+                  <li>Enter a name (e.g., "Dealer Document Archive")</li>
+                  <li>Select <strong>Non-gallery application</strong></li>
+                  <li>Click <strong>Create</strong></li>
+                </ol>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  background: t.accent,
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}>2</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>Configure SAML Single Sign-On</div>
+              </div>
+              <div style={{ marginLeft: 38, fontSize: 13, color: t.textMuted, lineHeight: 1.6 }}>
+                <ol style={{ margin: 0, paddingLeft: 20 }}>
+                  <li>In your application, go to <strong>Single sign-on</strong></li>
+                  <li>Select <strong>SAML</strong></li>
+                  <li>In <strong>Basic SAML Configuration</strong>, click <strong>Edit</strong></li>
+                </ol>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  background: t.accent,
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}>3</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>Configure Service Provider Settings in Azure</div>
+              </div>
+              <div style={{ marginLeft: 38, fontSize: 13, color: t.textMuted, lineHeight: 1.6 }}>
+                <p style={{ margin: '0 0 12px' }}>Enter these values in the Azure SAML configuration:</p>
+                <div style={{
+                  background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                  borderRadius: 8,
+                  padding: 16,
+                  marginBottom: 12,
+                }}>
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: t.textDim, marginBottom: 4 }}>Identifier (Entity ID)</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <code style={{ fontSize: 12, color: t.accent, background: 'transparent' }}>
+                        {samlSettings.sp_entity_id || 'dda-saml'}
+                      </code>
+                      <button
+                        onClick={() => copyToClipboard(samlSettings.sp_entity_id || 'dda-saml')}
+                        style={{
+                          padding: '4px 8px',
+                          fontSize: 10,
+                          background: 'transparent',
+                          border: `1px solid ${t.border}`,
+                          borderRadius: 4,
+                          cursor: 'pointer',
+                          color: t.textMuted,
+                        }}
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: t.textDIM, marginBottom: 4 }}>Reply URL (Assertion Consumer Service URL)</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <code style={{ fontSize: 12, color: t.accent, background: 'transparent', wordBreak: 'break-all' }}>
+                        {samlSettings.sp_acs_url || 'https://your-domain.com/api/saml/callback'}
+                      </code>
+                      {samlSettings.sp_acs_url && (
+                        <button
+                          onClick={() => copyToClipboard(samlSettings.sp_acs_url)}
+                          style={{
+                            padding: '4px 8px',
+                            fontSize: 10,
+                            background: 'transparent',
+                            border: `1px solid ${t.border}`,
+                            borderRadius: 4,
+                            cursor: 'pointer',
+                            color: t.textMuted,
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          Copy
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <p style={{ margin: 0 }}>
+                  <strong>Note:</strong> Set both <strong>Sign on URL</strong> and <strong>Reply URL</strong> to the same ACS URL value.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  background: t.accent,
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}>4</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>Copy Azure Values to This Form</div>
+              </div>
+              <div style={{ marginLeft: 38, fontSize: 13, color: t.textMuted, lineHeight: 1.6 }}>
+                <p style={{ margin: '0 0 12px' }}>In Azure, go to <strong>SAML Certificates</strong> section and copy:</p>
+                <div style={{
+                  background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                  borderRadius: 8,
+                  padding: 16,
+                  marginBottom: 12,
+                }}>
+                  <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
+                    <tbody>
+                      <tr>
+                        <td style={{ padding: '8px 0', color: t.textMuted, width: 180 }}>Azure Field</td>
+                        <td style={{ padding: '8px 0', color: t.text, fontWeight: 500 }}>Paste Into</td>
+                      </tr>
+                      <tr style={{ background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)' }}>
+                        <td style={{ padding: '10px 8px', color: t.textMuted, borderBottom: `1px solid ${t.border}` }}>Azure AD Identifier</td>
+                        <td style={{ padding: '10px 8px', color: t.text, fontWeight: 500, borderBottom: `1px solid ${t.border}` }}>Entity ID (Identifier)</td>
+                      </tr>
+                      <tr style={{ background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)' }}>
+                        <td style={{ padding: '10px 8px', color: t.textMuted, borderBottom: `1px solid ${t.border}` }}>Login URL</td>
+                        <td style={{ padding: '10px 8px', color: t.text, fontWeight: 500, borderBottom: `1px solid ${t.border}` }}>SSO URL (Login URL)</td>
+                      </tr>
+                      <tr style={{ background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)' }}>
+                        <td style={{ padding: '10px 8px', color: t.textMuted }}>Certificate (Base64)</td>
+                        <td style={{ padding: '10px 8px', color: t.text, fontWeight: 500 }}>X.509 Certificate</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p style={{ margin: 0 }}>
+                  Click <strong>Download</strong> next to the certificate to get the Base64 value, then paste it into the certificate field above.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 5 */}
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  background: t.accent,
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}>5</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>Configure User Attributes (Optional)</div>
+              </div>
+              <div style={{ marginLeft: 38, fontSize: 13, color: t.textMuted, lineHeight: 1.6 }}>
+                <p style={{ margin: '0 0 12px' }}>
+                  In Azure, under <strong>Attributes {"&"} Claims</strong>, you can customize which attributes are sent:
+                </p>
+                <div style={{
+                  background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                  borderRadius: 8,
+                  padding: 16,
+                }}>
+                  <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ padding: '8px', textAlign: 'left', color: t.textMuted, fontWeight: 600 }}>Claim Name</th>
+                        <th style={{ padding: '8px', textAlign: 'left', color: t.textMuted, fontWeight: 600 }}>Maps To</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style={{ padding: '8px', color: t.text, borderBottom: `1px solid ${t.border}` }}>emailaddress</td>
+                        <td style={{ padding: '8px', color: t.textMuted, borderBottom: `1px solid ${t.border}` }}>User email</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '8px', color: t.text, borderBottom: `1px solid ${t.border}` }}>name</td>
+                        <td style={{ padding: '8px', color: t.textMuted, borderBottom: `1px solid ${t.border}` }}>Display name</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '8px', color: t.text }}>userprincipalname</td>
+                        <td style={{ padding: '8px', color: t.textMuted }}>Username</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 6 */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  background: t.accent,
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}>6</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>Assign Users and Test</div>
+              </div>
+              <div style={{ marginLeft: 38, fontSize: 13, color: t.textMuted, lineHeight: 1.6 }}>
+                <ol style={{ margin: 0, paddingLeft: 20 }}>
+                  <li>In Azure, go to <strong>Users and groups</strong></li>
+                  <li>Click <strong>Add user/group</strong> to assign users</li>
+                  <li>Save your settings above</li>
+                  <li>Enable SSO toggle above</li>
+                  <li>Test by clicking <strong>"Sign in with SSO"</strong> on the login page</li>
+                </ol>
+              </div>
+            </div>
+
+            {/* Troubleshooting */}
+            <div style={{
+              marginTop: 24,
+              padding: 16,
+              background: darkMode ? 'rgba(239,68,68,0.08)' : 'rgba(239,68,68,0.05)',
+              border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.15)'}`,
+              borderRadius: 8,
+            }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#ef4444', marginBottom: 8 }}>Troubleshooting</div>
+              <ul style={{ margin: 0, paddingLeft: 20, fontSize: 12, color: t.textMuted, lineHeight: 1.7 }}>
+                <li><strong>ACS URL Error:</strong> Ensure the Reply URL in Azure matches exactly (including https://)</li>
+                <li><strong>Certificate Error:</strong> Copy only the Base64 content, without the BEGIN/END lines</li>
+                <li><strong>User Not Created:</strong> Enable "Auto-Provision Users" or create the user manually first</li>
+                <li><strong>Attributes Missing:</strong> Verify claim names match the attribute mapping settings above</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SettingsSection({ t, darkMode }) {
   const [darkLogo, setDarkLogo] = useState(null);
   const [lightLogo, setLightLogo] = useState(null);
@@ -1209,11 +1882,18 @@ export default function AdminPage({
           )}
 
           {/* Fallback */}
-          {!["users", "groups", "locations", "departments", "audit", "settings"].includes(adminSection) && (
+          {!["users", "groups", "locations", "departments", "audit", "authentication", "settings"].includes(adminSection) && (
             <div style={{ textAlign: "center", padding: "60px 0", color: t.textDim }}>
               <span>{adminActiveMenu?.icon}</span>
               <div style={{ fontSize: 15, fontWeight: 500, marginTop: 14 }}>{adminActiveMenu?.label}</div>
               <div style={{ fontSize: 13 }}>Under development</div>
+            </div>
+          )}
+
+          {/* AUTHENTICATION */}
+          {adminSection === "authentication" && (
+            <div style={{ animation: "fadeIn 0.25s ease" }}>
+              <AuthenticationSection t={t} darkMode={darkMode} />
             </div>
           )}
 

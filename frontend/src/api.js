@@ -354,3 +354,23 @@ export async function testSmtpEmail(to_email) {
     body: JSON.stringify({ to_email }),
   });
 }
+
+// ── SAML/SSO Settings ─────────────────────────────────────
+export async function getSamlSettings() {
+  return request('/saml/settings');
+}
+export async function saveSamlSettings(settings) {
+  return request('/saml/settings', {
+    method: 'POST',
+    body: JSON.stringify(settings),
+  });
+}
+export async function getSamlStatus() {
+  return request('/saml/status');
+}
+export function getSamlLoginUrl() {
+  return `${API_BASE}/saml/login`;
+}
+export function getSamlMetadataUrl() {
+  return `${API_BASE}/saml/metadata`;
+}

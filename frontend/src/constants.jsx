@@ -5,6 +5,7 @@ import {
   LayersIcon,
   ClipboardIcon,
   GearIcon,
+  LockIcon,
 } from "./components/Icons";
 
 export const DEFAULT_LOCATIONS = [];
@@ -49,6 +50,12 @@ export const ADMIN_MENU = [
     label: "Audit Log",
     icon: <ClipboardIcon size={17} />,
     desc: "View system activity",
+  },
+  {
+    id: "authentication",
+    label: "Authentication",
+    icon: <LockIcon size={17} />,
+    desc: "Configure SSO and SAML settings",
   },
   {
     id: "settings",

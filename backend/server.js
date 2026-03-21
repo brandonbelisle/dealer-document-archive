@@ -10,6 +10,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const passport = require('passport');
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
@@ -67,6 +68,9 @@ const HTTP_REDIRECT = SSL_ENABLED && (process.env.HTTP_REDIRECT === 'true');
   }
 })();
 
+// ── Passport initialization (for SAML SSO) ─────────────────
+app.use(passport.initialize());
+
 // ── API Routes ────────────────────────────────────────────
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/dashboard', require('./routes/dashboard'));
@@ -83,6 +87,7 @@ app.use('/api/subscriptions', require('./routes/subscriptions'));
 app.use('/api/notifications', require('./routes/notifications').router);
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/smtp', require('./routes/smtp').router);
+app.use('/api/saml', require('./routes/saml').router);
 
 // ── Health check ──────────────────────────────────────────
 app.get('/api/health', (req, res) => {

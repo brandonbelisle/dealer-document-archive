@@ -15,7 +15,7 @@ export default function LandingPage({ setPage, t, darkMode }) {
           DDA
         </div>
       ),
-      onClick: () => setPage("folders"),
+      onClick: () => setPage("dashboard"),
     },
   ];
 

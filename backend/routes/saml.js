@@ -704,7 +704,16 @@ async function parseSamlResponseManually(samlResponseBase64) {
   const xml = Buffer.from(samlResponseBase64, 'base64').toString('utf8');
   
   // Log the full XML for debugging
-  console.log('Full SAML Response:', xml.substring(0, 2000));
+  console.log('Full SAML Response:', xml.substring(0, 3000));
+  
+  // Extract all attributes for debugging
+  const allAttributes = {};
+  const attrRegex = /<saml:Attribute[^>]+Name="([^"]+)"[^>]*>[\s\S]*?<saml:AttributeValue[^>]*>([^<]+)<\/saml:AttributeValue>[\s\S]*?<\/saml:Attribute>/gi;
+  let attrMatch;
+  while ((attrMatch = attrRegex.exec(xml)) !== null) {
+    allAttributes[attrMatch[1]] = attrMatch[2].trim();
+  }
+  console.log('All SAML attributes found:', allAttributes);
   
   // Helper to get attribute value by name
   const getAttributeValue = (attrName) => {
@@ -735,12 +744,28 @@ async function parseSamlResponseManually(samlResponseBase64) {
   const nameAttr = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name';
   const upnAttr = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn';
   const objectIdAttr = 'http://schemas.microsoft.com/identity/claims/objectidentifier';
+  const displayNameAttr = 'http://schemas.microsoft.com/identity/claims/displayname';
+  const givenNameAttr = 'http://schemas.microsoft.com/identity/claims/givenname';
+  const surnameAttr = 'http://schemas.microsoft.com/identity/claims/surname';
   
   // Try to get attributes
   let email = getAttributeValue(emailAttr) || getAttributeValue(upnAttr);
-  let name = getAttributeValue(nameAttr) || nameId;
+  let displayName = getAttributeValue(displayNameAttr) || getAttributeValue(nameAttr);
+  let givenName = getAttributeValue(givenNameAttr);
+  let surname = getAttributeValue(surnameAttr);
   const upn = getAttributeValue(upnAttr) || email;
   const objectId = getAttributeValue(objectIdAttr);
+  
+  // If no displayName, construct from given name + surname, or fall back to email
+  if (!displayName) {
+    if (givenName && surname) {
+      displayName = `${givenName} ${surname}`;
+    } else if (givenName) {
+      displayName = givenName;
+    } else {
+      displayName = email ? email.split('@')[0] : nameId;
+    }
+  }
   
   // If email is still not found, try to find any email-like value
   if (!email || !email.includes('@')) {
@@ -755,7 +780,7 @@ async function parseSamlResponseManually(samlResponseBase64) {
     }
   }
   
-  console.log('Extracted from SAML:', { email, name, upn, nameId, objectId });
+  console.log('Extracted from SAML:', { email, displayName, givenName, surname, upn, nameId, objectId });
   
   if (!email) {
     throw new Error('Could not extract email from SAML response');
@@ -764,13 +789,14 @@ async function parseSamlResponseManually(samlResponseBase64) {
   // Get settings for user provisioning
   const settings = await getSamlSettings();
   
-  // Process user using existing logic
+// Process user using existing logic
   const profile = {
     nameID: nameId,
     email: email,
-    displayName: name,
+    displayName: displayName,
+    name: displayName,
     [settings.attribute_email || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']: email,
-    [settings.attribute_name || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']: name,
+    [settings.attribute_name || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']: displayName,
     [settings.attribute_username || 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn']: upn || email,
   };
   

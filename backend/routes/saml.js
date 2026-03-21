@@ -294,23 +294,32 @@ async function processSamlUser(profile, settings) {
   const username = profile[settings.attribute_username] || profile.username || profile['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn'] || email?.split('@')[0];
   const nameId = profile.nameID || profile['nameID'];
   
-  // For SSO users, construct avatar URL using Microsoft 365 photo service or Gravatar
-  // Microsoft 365 profile photos can be accessed via:
-  // - https://outlook.office365.com/owa/service.svc/s/GetPersonaPhoto?email=${email}&size=HR96x96 (may require auth)
-  // - Microsoft Graph API (requires OAuth token)
-  // For now, use Gravatar as a fallback for all users
-  let avatarUrl = profile['http://schemas.microsoft.com/identity/claims/thumbnailphoto'] ||
-                    profile.thumbnailPhoto ||
-                    null;
+  // Get avatar URL from profile (set during manual SAML parsing) or try to extract from attributes
+  // Profile.avatarUrl is set during manual parsing for signature bypass
+  // For passport-saml flow, check attribute claims
+  let avatarUrl = profile.avatarUrl ||
+                   profile['http://schemas.microsoft.com/identity/claims/thumbnailphoto'] ||
+                   profile.thumbnailPhoto ||
+                   null;
+  
+  // If avatarUrl is base64 image data (from thumbnailPhoto), convert to data URL
+  if (avatarUrl && !avatarUrl.startsWith('http') && !avatarUrl.startsWith('data:')) {
+    // It's raw base64 - convert to data URL
+    const jpegPrefix = '/9j/';
+    const pngPrefix = 'iVBOR';
+    let mimeType = 'image/jpeg';
+    if (avatarUrl.startsWith(pngPrefix)) mimeType = 'image/png';
+    avatarUrl = `data:${mimeType};base64,${avatarUrl}`;
+  }
   
   // If no explicit avatar, construct a Gravatar URL for SSO users
-  // The frontend can also try Microsoft 365 photo service as an alternative
   if (!avatarUrl && email) {
-    // Use Gravatar with email hash as fallback
     const crypto = require('crypto');
     const emailHash = crypto.createHash('md5').update(email.toLowerCase().trim()).digest('hex');
     avatarUrl = `https://www.gravatar.com/avatar/${emailHash}?d=mp&s=96`;
   }
+  
+  console.log('Processing SAML user - avatarUrl:', avatarUrl ? 'present' : 'none');
 
   if (!email) {
     throw new Error('Email not provided in SAML response');
@@ -774,6 +783,7 @@ async function parseSamlResponseManually(samlResponseBase64) {
   const displayNameAttr = 'http://schemas.microsoft.com/identity/claims/displayname';
   const givenNameAttr = 'http://schemas.microsoft.com/identity/claims/givenname';
   const surnameAttr = 'http://schemas.microsoft.com/identity/claims/surname';
+  const thumbnailPhotoAttr = 'http://schemas.microsoft.com/identity/claims/thumbnailphoto';
   
   // Try to get attributes
   let email = getAttributeValue(emailAttr) || getAttributeValue(upnAttr);
@@ -782,6 +792,36 @@ async function parseSamlResponseManually(samlResponseBase64) {
   let surname = getAttributeValue(surnameAttr);
   const upn = getAttributeValue(upnAttr) || email;
   const objectId = getAttributeValue(objectIdAttr);
+  
+  // Get thumbnail photo - Azure sends this as base64-encoded image data
+  let thumbnailPhoto = getAttributeValue(thumbnailPhotoAttr) || getAttributeValue('thumbnailphoto') || getAttributeValue('thumbnailPhoto');
+  let avatarUrl = null;
+  
+  // If thumbnail photo is base64 image data, convert to data URL
+  if (thumbnailPhoto) {
+    // Check if it's already a URL or base64 data
+    if (thumbnailPhoto.startsWith('http')) {
+      avatarUrl = thumbnailPhoto;
+    } else if (thumbnailPhoto.startsWith('data:image')) {
+      avatarUrl = thumbnailPhoto;
+    } else {
+      // Assume it's base64-encoded image data - convert to data URL
+      // Try to detect image type from base64 header
+      const jpegPrefix = '/9j/';
+      const pngPrefix = 'iVBOR';
+      const gifPrefix = 'R0lGOD';
+      let mimeType = 'image/jpeg'; // default
+      
+      if (thumbnailPhoto.startsWith(pngPrefix)) {
+        mimeType = 'image/png';
+      } else if (thumbnailPhoto.startsWith(gifPrefix)) {
+        mimeType = 'image/gif';
+      }
+      
+      console.log('Thumbnail photo detected, type:', mimeType, 'length:', thumbnailPhoto.length);
+      avatarUrl = `data:${mimeType};base64,${thumbnailPhoto}`;
+    }
+  }
   
   // If no displayName, construct from given name + surname, or fall back to email
   if (!displayName) {
@@ -807,7 +847,7 @@ async function parseSamlResponseManually(samlResponseBase64) {
     }
   }
   
-  console.log('Extracted from SAML:', { email, displayName, givenName, surname, upn, nameId, objectId });
+  console.log('Extracted from SAML:', { email, displayName, givenName, surname, upn, nameId, objectId, hasThumbnailPhoto: !!thumbnailPhoto, avatarUrlLength: avatarUrl ? avatarUrl.length : 0 });
   
   if (!email) {
     throw new Error('Could not extract email from SAML response');
@@ -815,11 +855,6 @@ async function parseSamlResponseManually(samlResponseBase64) {
   
   // Get settings for user provisioning
   const settings = await getSamlSettings();
-  
-  // For Microsoft 365/Azure AD users, we can use the Microsoft Graph photo endpoint
-  // Note: This requires authentication, so we'll use the OWA endpoint which may work for internal users
-  // Alternatively, we can store a placeholder and fetch the photo later via Graph API
-  const avatarUrl = null; // Will be handled by frontend construction for Microsoft 365 users
   
 // Process user using existing logic
   const profile = {
@@ -836,7 +871,8 @@ async function parseSamlResponseManually(samlResponseBase64) {
   console.log('Processing SAML user with profile:', {
     nameID: profile.nameID,
     email: profile.email,
-    displayName: profile.displayName
+    displayName: profile.displayName,
+    hasAvatarUrl: !!profile.avatarUrl
   });
   
   return processSamlUser(profile, settings);

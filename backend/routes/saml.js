@@ -39,7 +39,8 @@ function decrypt(encrypted) {
     let decrypted = decipher.update(data, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
     return decrypted;
-  } catch {
+  } catch (err) {
+    console.error('Failed to decrypt SAML certificate:', err.message);
     return '';
   }
 }
@@ -68,14 +69,14 @@ async function getSamlSettings() {
   const row = rows[0];
   return {
     ...row,
-    idp_x509_cert: row.idp_x509_cert_encrypted ? decrypt(row.idp_x509_cert_encrypted) : row.idp_x509_cert,};
+    idp_x509_cert: row.idp_x509_cert_encrypted ? decrypt(row.idp_x509_cert_encrypted) : '',};
 }
 
 // Initialize or update SAML strategy
 async function initializeSamlStrategy() {
   const settings = await getSamlSettings();
   
-  if (!settings.enabled || !settings.idp_sso_url || !settings.idp_x509_cert) {
+  if (!settings.enabled || !settings.idp_sso_url || !settings.idp_x509_cert || !settings.sp_acs_url) {
     samlStrategy = null;
     lastSamlSettings = null;
     return null;

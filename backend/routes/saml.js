@@ -250,12 +250,11 @@ async function initializeSamlStrategy() {
     idpCert: certs.length === 1 ? certs[0] : certs,
     identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
     wantAssertionsSigned: false,
-    wantResponseSigned: false,
+    wantAuthnResponseSigned: false,
     acceptedClockSkewMs: 300000,
     disableRequestedAuthnContext: true,
     signatureAlgorithm: 'sha256',
     digestAlgorithm: 'sha256',
-    rejectUnauthorized: false,
   };
 
   if (sloUrl) {
@@ -599,6 +598,19 @@ router.post('/callback', async (req, res) => {
     if (req.body && req.body.SAMLResponse) {
       const samlResponse = Buffer.from(req.body.SAMLResponse, 'base64').toString('utf8');
       console.log('SAML Response received (first 500 chars):', samlResponse.substring(0, 500));
+      
+      // Check for signature elements
+      const hasSignature = samlResponse.includes('<ds:Signature') || samlResponse.includes('<Signature');
+      console.log('SAML Response has signature:', hasSignature);
+      
+      // Log more for debugging
+      if (hasSignature) {
+        const sigMatch = samlResponse.match(/<ds:Signature[^>]*>[\s\S]*?<\/ds:Signature>/i) || 
+                         samlResponse.match(/<Signature[^>]*>[\s\S]*?<\/Signature>/i);
+        if (sigMatch) {
+          console.log('Signature element length:', sigMatch[0].length);
+        }
+      }
     }
     
     const strategy = await initializeSamlStrategy();

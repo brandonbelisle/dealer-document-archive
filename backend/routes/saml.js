@@ -224,6 +224,9 @@ async function initializeSamlStrategy() {
       .catch(err => done(err));
   });
 
+  // Register strategy with passport
+  passport.use('saml', strategy);
+
   samlStrategy = strategy;
   lastSamlSettings = settingsKey;
   return strategy;

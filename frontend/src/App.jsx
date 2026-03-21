@@ -322,24 +322,29 @@ const t = getTheme(darkMode);
     const id = uid(), v = validateFile(rawFile);
     let fileDataUrl = null;
     try { fileDataUrl = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(rawFile); }); } catch {}
-    const entry = { id, name: rawFile.name, size: rawFile.size, type: rawFile.type || "", fileDataUrl, status: v.valid ? "processing" : "error", progress: 0, error: v.error || null, text: null, pages: 0, folderId: folderId || null, _rawFile: rawFile };
+    const isImage = isImageFile(rawFile);
+    const isPdf = isPdfFile(rawFile);
+    const initialStatus = (!folderId && isImage) ? "done" : (v.valid ? "processing" : "error");
+    const entry = { id, name: rawFile.name, size: rawFile.size, type: rawFile.type || "", fileDataUrl, status: initialStatus, progress: (!folderId && isImage) ? 100 : 0, error: v.error || null, text: null, pages: 0, folderId: folderId || null, _rawFile: rawFile };
     if (folderId) setFiles((p) => [...p, entry]); else setStagedFiles((p) => [...p, entry]);
     if (!v.valid) return;
+    if (!folderId && isImage) return;
     try {
-      if (isPdfFile(rawFile)) {
+      if (isPdf) {
         const r = await extractTextFromPDF(rawFile, (prog) => { const up = (p) => p.map((f) => f.id === id ? { ...f, progress: prog } : f); if (folderId) setFiles(up); else setStagedFiles(up); });
         if (folderId) { try { const uploaded = await api.uploadFile(rawFile, folderId, r.text, r.pages); const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || "application/pdf", pages: Number(uploaded.page_count || 0), status: "done", text: uploaded.extracted_text, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, uploadedAt: uploaded.uploaded_at || new Date().toISOString(), uploadedBy: uploaded.uploaded_by_name || loggedInUser?.name || null, progress: 100 }; setFiles((p) => p.map((f) => f.id === id ? norm : f)); } catch (err) { setFiles((p) => p.map((f) => f.id === id ? { ...f, status: "error", error: err.message } : f)); } }
         else { setStagedFiles((p) => p.map((f) => f.id === id ? { ...f, status: "done", text: r.text, pages: r.pages, progress: 100 } : f)); }
       } else {
-        if (folderId) {
-          try {
-            const uploaded = await api.uploadFile(rawFile, folderId, null, 0);
-            const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || rawFile.type, pages: 0, status: "done", text: null, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, uploadedAt: uploaded.uploaded_at || new Date().toISOString(), uploadedBy: uploaded.uploaded_by_name || loggedInUser?.name || null, progress: 100 };
-            setFiles((p) => p.map((f) => f.id === id ? norm : f));
-          } catch (err) { setFiles((p) => p.map((f) => f.id === id ? { ...f, status: "error", error: err.message } : f)); }
-        } else {
-          setStagedFiles((p) => p.map((f) => f.id === id ? { ...f, status: "done", text: null, pages: 0, progress: 100 } : f));
-        }
+        const updateProgress = (prog) => {
+          const up = (p) => p.map((f) => f.id === id ? { ...f, progress: prog } : f);
+          if (folderId) setFiles(up);
+        };
+        updateProgress(50);
+        try {
+          const uploaded = await api.uploadFile(rawFile, folderId, null, 0);
+          const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || rawFile.type, pages: 0, status: "done", text: null, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, uploadedAt: uploaded.uploaded_at || new Date().toISOString(), uploadedBy: uploaded.uploaded_by_name || loggedInUser?.name || null, progress: 100 };
+          setFiles((p) => p.map((f) => f.id === id ? norm : f));
+        } catch (err) { setFiles((p) => p.map((f) => f.id === id ? { ...f, status: "error", error: err.message } : f)); }
       }
     } catch { const up = (p) => p.map((f) => f.id === id ? { ...f, status: "error", error: "Failed" } : f); if (folderId) setFiles(up); else setStagedFiles(up); }
   }, []);

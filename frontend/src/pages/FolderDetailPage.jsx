@@ -49,8 +49,8 @@ export default function FolderDetailPage({
   t,
   darkMode,
 }) {
-  const canDeleteFiles = loggedInUser?.permissions?.deleteFiles;
-  const canDeleteFolders = loggedInUser?.permissions?.deleteFolders;
+  const canDeleteFiles = loggedInUser?.permissions?.includes("deleteFiles");
+  const canDeleteFolders = loggedInUser?.permissions?.includes("deleteFolders");
   const newSubfolderRef = useRef(null);
   const folderDetailInputRef = useRef(null);
 
@@ -151,6 +151,26 @@ export default function FolderDetailPage({
       >
         <button
           onClick={() => {
+            setPage("folders-browse");
+            setSelectedFile(null);
+            setCreatingSubfolder(false);
+          }}
+          style={{
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            color: t.accent,
+            fontSize: 12.5,
+            fontWeight: 500,
+            padding: 0,
+            fontFamily: "inherit",
+          }}
+        >
+          {fl?.name}
+        </button>
+        <span style={{ color: t.textDim, fontSize: 11 }}>/</span>
+        <button
+          onClick={() => {
             setPage("folders");
             setSelectedFile(null);
             setCreatingSubfolder(false);
@@ -162,14 +182,11 @@ export default function FolderDetailPage({
             color: t.accent,
             fontSize: 12.5,
             fontWeight: 500,
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
             padding: 0,
             fontFamily: "inherit",
           }}
         >
-          {fl?.name} — {fd?.name}
+          {fd?.name}
         </button>
         {breadcrumb.map((crumb, i) => (
           <span

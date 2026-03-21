@@ -40,7 +40,7 @@ export default function UnsortedPage({
   t,
   darkMode,
 }) {
-  const canDeleteFiles = loggedInUser?.permissions?.deleteFiles;
+  const canDeleteFiles = loggedInUser?.permissions?.includes("deleteFiles");
   const [movingFileId, setMovingFileId] = useState(null);
   const [moveTargetFolderId, setMoveTargetFolderId] = useState("");
   const [showMoveSelect, setShowMoveSelect] = useState(false);

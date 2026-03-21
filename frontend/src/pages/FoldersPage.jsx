@@ -47,7 +47,7 @@ export default function FoldersPage({
   t,
   darkMode,
 }) {
-  const canDeleteFolders = loggedInUser?.permissions?.deleteFolders;
+  const canDeleteFolders = loggedInUser?.permissions?.includes("deleteFolders");
   const newDeptFolderRef = useRef(null);
   const [sortCol, setSortCol] = useState("createdAt");
   const [sortDir, setSortDir] = useState("desc");

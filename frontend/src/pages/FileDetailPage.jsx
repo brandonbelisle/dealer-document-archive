@@ -29,7 +29,7 @@ export default function FileDetailPage({
   t,
   darkMode,
 }) {
-  const canDeleteFiles = loggedInUser?.permissions?.deleteFiles;
+  const canDeleteFiles = loggedInUser?.permissions?.includes("deleteFiles");
   const vf = files.find((f) => f.id === viewingFileId);
   if (!vf) return null;
 

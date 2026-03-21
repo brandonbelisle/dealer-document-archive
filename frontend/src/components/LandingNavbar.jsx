@@ -1,6 +1,8 @@
-import { SunIcon, MoonIcon, UserIcon } from "./Icons";
+import { SunIcon, MoonIcon, UserIcon, ArrowLeftIcon } from "./Icons";
 
-export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser }) {
+export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage }) {
+  const showBackButton = page === "admin";
+
   return (
     <div style={{
       position: "fixed",
@@ -10,7 +12,7 @@ export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser }) {
       height: 55,
       display: "flex",
       alignItems: "center",
-      justifyContent: "flex-end",
+      justifyContent: "space-between",
       padding: "0 20px",
       gap: 12,
       borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
@@ -18,6 +20,32 @@ export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser }) {
       backdropFilter: "blur(12px)",
       zIndex: 100,
     }}>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        {showBackButton && (
+          <button
+            onClick={() => setPage("landing")}
+            style={{
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              color: darkMode ? "#c9d1d9" : "#57606a",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "8px 14px",
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: "inherit",
+              transition: "background 0.2s",
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"}
+            onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+          >
+            <ArrowLeftIcon /> Back
+          </button>
+        )}
+      </div>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <button
           onClick={() => setDarkMode(!darkMode)}

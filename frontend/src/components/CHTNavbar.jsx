@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { SunIcon, MoonIcon, UserIcon, ShieldIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon } from "./Icons";
+import { SunIcon, MoonIcon, UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon } from "./Icons";
 import AlertsDropdown from "./AlertsDropdown";
 
-export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal }) {
+export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
+
+  const isAdmin = loggedInUser?.groups?.includes("Administrator");
 
   const chtAccent = "#f59e0b";
   const chtAccentDark = "#d97706";
@@ -25,6 +27,7 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
     { id: "cht", name: "Credit Hold Tracker", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
     ), onClick: () => { setPage("cht-dashboard"); setShowAppsDropdown(false); } },
+    ...(isAdmin ? [{ id: "admin", name: "Admin Center", icon: <GearIcon size={20} />, onClick: () => { setPage("admin"); setAdminSection?.("users"); setShowAppsDropdown(false); } }] : []),
   ];
 
   const navActiveBg = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)";

@@ -345,8 +345,7 @@ async function runDmsTask(taskType, queryConfig) {
       const dateColumn = config.dateColumn || 'DateOpen';
       const lookbackHours = config.lookbackHours || 48;
 
-      // Query DMS for records
-      const query = `SELECT * FROM dbo.${table} WHERE ${dateColumn} >= DATEADD(hour, -${lookbackHours}, GETDATE())`;
+      const query = `SELECT SlsId, ${dateColumn} FROM dbo.${table} WHERE ${dateColumn} >= DATEADD(hour, -${lookbackHours}, GETDATE())`;
       const dmsResult = await pool.request().query(query);
       const records = dmsResult.recordset;
 

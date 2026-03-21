@@ -1897,11 +1897,12 @@ export default function AdminPage({
 
   const loadCustomAppPermissions = async () => {
     try {
-      const perms = await api.getCustomAppPermissions();
+      const data = await api.getCustomAppPermissions();
       const permMap = {};
-      perms.forEach(p => {
-        if (!permMap[p.app_id]) permMap[p.app_id] = {};
-        permMap[p.app_id][p.group_id] = p.can_view;
+      Object.entries(data.permissions || {}).forEach(([key, canView]) => {
+        const [appId, groupId] = key.split(':');
+        if (!permMap[appId]) permMap[appId] = {};
+        permMap[appId][groupId] = canView;
       });
       setCustomAppPerms(permMap);
     } catch (err) {
@@ -2218,7 +2219,7 @@ export default function AdminPage({
                           ) : (
                             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                               {customApps.map((app) => {
-                                const canView = customAppPerms[app.id]?.[editingGroupId] ?? true;
+                                const canView = customAppPerms[app.id]?.[editingGroupId] ?? false;
                                 return (
                                   <div key={app.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)", borderRadius: 8, border: `1px solid ${t.border}` }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

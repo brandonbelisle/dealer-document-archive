@@ -4,6 +4,8 @@ A full-stack document management system built with React and Node.js for organiz
 
 ## Features
 
+### Core Features
+
 - **PDF Upload & Preview** — Drag-and-drop uploads with client-side text extraction (pdf.js) and embedded PDF preview via Azure Blob Storage URLs
 - **Folder Hierarchy** — Locations → Departments → Folders → Subfolders (unlimited nesting via self-referencing `parent_id`)
 - **Unsorted Files** — Files uploaded without a folder assignment land in an Unsorted inbox where they can later be moved to any folder
@@ -19,6 +21,37 @@ A full-stack document management system built with React and Node.js for organiz
 - **Self-Service Password Change** — Users can change their own password; admins can reset any user's password
 - **SSL/HTTPS Support** — Optional self-signed certificate generation with HTTP→HTTPS redirect
 
+### Multi-Application Platform
+
+The application now supports multiple integrated apps accessible from a centralized landing page:
+
+#### Dealer Document Archive (DDA)
+The core document management application with all features listed above.
+
+#### Credit Hold Tracker (CHT)
+A dedicated application for managing and tracking credit holds across your organization.
+
+#### Custom Applications
+Administrators can create custom app shortcuts in the **App Center** section of the Admin panel. Custom apps:
+- Display on the landing page and in the apps dropdown
+- Require a name, 4-character abbreviation (for the icon), and a URL
+- Redirect users to the configured URL when clicked
+
+#### Help Desk / Submit Help Ticket
+Users can submit support tickets from the landing page or apps dropdown:
+- Subject and message fields with multi-line text input
+- File attachments support (up to 5 files, 25MB each)
+- Tickets are emailed to a configurable support email address
+- Reply-to is set to the submitting user's email for easy responses
+- Customizable email branding (subject prefix, brand color, signature)
+
+### Email Integration
+
+- **SMTP Configuration** — Configure SMTP settings for sending emails
+- **Email Branding** — Customize brand color and email signature for all outgoing emails
+- **Email Subject Prefix** — Configure a custom prefix for help ticket email subjects
+- **Test Email** — Send test emails to verify SMTP configuration
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -29,6 +62,7 @@ A full-stack document management system built with React and Node.js for organiz
 | Auth | JWT (jsonwebtoken), bcryptjs |
 | File Storage | Azure Blob Storage (@azure/storage-blob) |
 | File Uploads | Multer (memory storage, 50 MB limit, PDF-only filter) |
+| Email | Nodemailer (SMTP) |
 | IDs | UUIDs (uuid v11) |
 
 ## Project Structure
@@ -49,12 +83,16 @@ dealer-document-archive/
 │   │   │   ├── GroupAccessEditor.jsx  # Inline group access dropdown (portal-based)
 │   │   │   ├── HighlightedName.jsx    # Fuzzy match highlighting
 │   │   │   ├── Icons.jsx              # SVG icon components
-│   │   │   ├── LoginScreen.jsx
+│   │   │   ├── LandingPage.jsx        # App launcher with DDA, CHT, custom apps
+│   │   │   ├── LandingNavbar.jsx     # Landing page navigation
 │   │   │   ├── Navbar.jsx             # Top nav with global search & dept dropdown
+│   │   │   ├── AdminNavbar.jsx        # Admin center navigation
+│   │   │   ├── CHTNavbar.jsx          # Credit Hold Tracker navigation
 │   │   │   ├── PdfCanvasPreview.jsx   # Client-side PDF rendering to canvas
 │   │   │   ├── modals/
 │   │   │   │   ├── AdminSetPasswordModal.jsx
 │   │   │   │   ├── ChangePasswordModal.jsx
+│   │   │   │   ├── HelpTicketModal.jsx  # Help ticket submission modal
 │   │   │   │   ├── RenameModal.jsx
 │   │   │   │   └── WarningModal.jsx
 │   │   │   └── ui/
@@ -62,7 +100,8 @@ dealer-document-archive/
 │   │   │       ├── FileCard.jsx       # File display card
 │   │   │       └── PermToggle.jsx     # Permission toggle switch
 │   │   └── pages/
-│   │       ├── AdminPage.jsx          # Users, groups, locations, depts, audit
+│   │       ├── AdminPage.jsx          # Users, groups, locations, depts, audit, app center, settings
+│   │       ├── CHTDashboardPage.jsx   # Credit Hold Tracker dashboard
 │   │       ├── DashboardPage.jsx      # Stats overview & recent uploads
 │   │       ├── FileDetailPage.jsx     # File info + PDF preview split view
 │   │       ├── FolderDetailPage.jsx   # Folder contents with drag-drop upload
@@ -82,14 +121,22 @@ dealer-document-archive/
 │   ├── middleware/
 │   │   ├── auth.js             # JWT signing, verification, permission middleware
 │   │   └── audit.js            # Audit log helper
+│   ├── migrations/             # Database migrations
+│   │   ├── 007_custom_apps.sql
+│   │   ├── 008_app_settings.sql
+│   │   └── 009_email_signature.sql
 │   ├── routes/
 │   │   ├── auth.js             # Login, register, profile, change password
+│   │   ├── custom-apps.js      # CRUD for custom applications
 │   │   ├── dashboard.js        # Dashboard statistics
+│   │   ├── files.js            # Upload, download, rename, delete, move, text update
+│   │   ├── folders.js          # CRUD folders + subfolders + breadcrumbs
+│   │   ├── groups.js           # CRUD groups + permission management
+│   │   ├── help-ticket.js      # Help ticket submission + email settings
 │   │   ├── locations.js        # CRUD locations
 │   │   ├── departments.js      # CRUD departments
-│   │   ├── folders.js          # CRUD folders + subfolders + breadcrumbs
-│   │   ├── files.js            # Upload, download, rename, delete, move, text update
-│   │   ├── groups.js           # CRUD groups + permission management
+│   │   ├── settings.js         # Logo uploads
+│   │   ├── smtp.js             # SMTP configuration + email sending
 │   │   ├── users.js            # User admin + status + password reset
 │   │   ├── audit.js            # Audit log queries + filter options
 │   │   └── access.js           # Location/department group access control
@@ -144,7 +191,20 @@ If you need location/department group-based access control (restricting location
 mysql -u root -p dealer_document_archive < database/migration-group-access.sql
 ```
 
-### 3. Configure the backend
+### 3. Run database migrations
+
+```bash
+# Custom apps table
+mysql -u root -p dealer_document_archive < backend/migrations/007_custom_apps.sql
+
+# App settings (support email, email branding)
+mysql -u root -p dealer_document_archive < backend/migrations/008_app_settings.sql
+
+# Email signature settings
+mysql -u root -p dealer_document_archive < backend/migrations/009_email_signature.sql
+```
+
+### 4. Configure the backend
 
 ```bash
 cd backend
@@ -177,9 +237,12 @@ MAX_FILE_SIZE_MB=50
 # Azure Blob Storage
 AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https;AccountName=youraccount;AccountKey=yourkey;EndpointSuffix=core.windows.net
 AZURE_STORAGE_CONTAINER_NAME=documents
+
+# Encryption (for SMTP passwords)
+ENCRYPTION_KEY=your-32-character-encryption-key
 ```
 
-### 4. Azure Blob Storage Setup
+### 5. Azure Blob Storage Setup
 
 1. Create a **Storage Account** in the [Azure Portal](https://portal.azure.com)
 2. Go to **Access Keys** and copy the connection string
@@ -194,7 +257,7 @@ AZURE_STORAGE_ACCOUNT_NAME=youraccount
 AZURE_STORAGE_ACCOUNT_KEY=yourkey
 ```
 
-### 5. Create the admin user
+### 6. Create the admin user
 
 ```bash
 cd backend
@@ -207,7 +270,7 @@ This creates:
 
 > ⚠️ **Change this password after first login!**
 
-### 6. Start the application
+### 7. Start the application
 
 **Development** (from the project root):
 
@@ -242,7 +305,7 @@ This builds the frontend and starts the backend serving both the API and the sta
 npm stop
 ```
 
-### 7. SSL/HTTPS (Optional)
+### 8. SSL/HTTPS (Optional)
 
 For HTTPS with a self-signed certificate:
 
@@ -259,6 +322,95 @@ HTTP_REDIRECT=true    # Also start HTTP on port 80 redirecting to HTTPS
 ```
 
 > Browsers will show a security warning for self-signed certificates. Click "Advanced" → "Proceed" to continue.
+
+## Admin Center
+
+Access Admin Center from the landing page (administrators only). Features include:
+
+### Users
+- Create, edit, deactivate users
+- Reset user passwords
+- Assign users to security groups
+
+### Groups
+- Create custom security groups
+- Assign granular permissions (13 total across 4 categories)
+- View member counts
+
+### App Center
+- Create custom application shortcuts
+- Set name, 4-character abbreviation (icon), and URL
+- Apps appear on the landing page and in the apps dropdown
+
+### Locations & Departments
+- Create and manage locations
+- Create departments under locations
+- Restrict access to specific security groups
+
+### Audit Log
+- View all system activity
+- Filter by action, user, date
+- Export to CSV
+
+### Authentication
+- Configure SSO/SAML authentication
+- Set up identity provider integration
+
+### Settings
+- **Branding** — Upload dark/light mode logos
+- **Email (SMTP)** — Configure SMTP server for outgoing emails
+- **Support Email** — Set the email address for help ticket submissions
+- **Email Signature & Branding** — Customize brand color, email signature, and subject prefix for help ticket emails
+
+## Help Desk / Support Tickets
+
+Users can submit help tickets from the landing page. Configure in Admin Center:
+
+1. **Support Email** — Set where help tickets are sent (Admin Center → Settings)
+2. **SMTP Settings** — Configure email server (Admin Center → Settings)
+3. **Email Branding** — Customize:
+   - Brand color (for headings)
+   - Email signature (appended to all emails)
+   - Subject prefix (e.g., `[Support]` or `[Help Desk]`)
+
+Help ticket emails include:
+- User's name and email
+- Subject (with customizable prefix)
+- Message body
+- Attachments (up to 5 files)
+- Reply-to set to user's email for easy responses
+
+## Permission System
+
+13 granular permissions organized into 4 categories:
+
+| Category | Permissions |
+|----------|------------|
+| **Documents** | View Files, Upload Files, Delete Files, Rename Files |
+| **Folders** | Create Folders, Delete Folders |
+| **Administration** | Manage Locations, Manage Departments, Manage Users, Manage Groups, Manage Settings |
+| **Audit** | View Audit Log, Export Audit Log |
+
+Permissions are assigned to **security groups**, and users are assigned to groups. A user's effective permissions are the **union** of all permissions from all their groups.
+
+### Default Security Groups
+
+| Group | Permissions | Count |
+|-------|-----------|-------|
+| **Administrator** | All permissions | 13/13 |
+| **User** | View Files, Upload Files, Rename Files, Create Folders | 4/13 |
+| **Read Only** | View Files only | 1/13 |
+| **Manager** | All Documents + Folders + Manage Departments + Audit | 9/13 |
+
+### Access Control (Locations & Departments)
+
+Locations and departments can optionally be restricted to specific security groups:
+
+- If a location/department has **no** group assignments → visible to **all** authenticated users
+- If a location/department has group assignments → only users belonging to at least one of those groups can see it
+- Administrators always have access regardless of restrictions
+
+This is managed via the Group Access dropdown in the Administration → Locations / Departments sections.
 
 ## API Endpoints
 
@@ -337,6 +489,33 @@ HTTP_REDIRECT=true    # Also start HTTP on port 80 redirecting to HTTPS
 | PUT | `/api/users/:id/status` | manageUsers | Set user status (active / inactive / suspended) |
 | PUT | `/api/users/:id/password` | manageUsers | Admin password reset (no current password required) |
 
+### Custom Apps (App Center)
+
+| Method | Endpoint | Permission | Description |
+|--------|----------|------------|-------------|
+| GET | `/api/custom-apps` | any auth | List all custom apps |
+| POST | `/api/custom-apps` | manageSettings | Create custom app |
+| PUT | `/api/custom-apps/:id` | manageSettings | Update custom app |
+| DELETE | `/api/custom-apps/:id` | manageSettings | Delete custom app |
+
+### Help Desk
+
+| Method | Endpoint | Permission | Description |
+|--------|----------|------------|-------------|
+| GET | `/api/help-ticket/support-email` | any auth | Get support email address |
+| POST | `/api/help-ticket/support-email` | manageSettings | Set support email address |
+| GET | `/api/help-ticket/email-settings` | manageSettings | Get email branding settings |
+| POST | `/api/help-ticket/email-settings` | manageSettings | Update email branding settings |
+| POST | `/api/help-ticket/submit` | any auth | Submit a help ticket (sends email) |
+
+### SMTP Settings
+
+| Method | Endpoint | Permission | Description |
+|--------|----------|------------|-------------|
+| GET | `/api/smtp/settings` | manageSettings | Get SMTP configuration |
+| POST | `/api/smtp/settings` | manageSettings | Save SMTP configuration |
+| POST | `/api/smtp/test` | manageSettings | Send test email |
+
 ### Audit Log
 
 | Method | Endpoint | Permission | Description |
@@ -353,43 +532,19 @@ HTTP_REDIRECT=true    # Also start HTTP on port 80 redirecting to HTTPS
 | GET | `/api/access/departments` | any auth | Department → group access assignments |
 | PUT | `/api/access/departments/:id` | manageDepartments | Set group restrictions for a department |
 
+### Settings
+
+| Method | Endpoint | Permission | Description |
+|--------|----------|------------|-------------|
+| GET | `/api/settings/logos` | manageSettings | Get logo URLs |
+| GET | `/api/settings/logo/:type` | any auth | Get logo file (`dark` or `light`) |
+| POST | `/api/settings/logo/:type` | manageSettings | Upload logo |
+
 ### Utility
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/health` | Health check (returns status, SSL state, timestamp) |
-
-## Permission System
-
-13 granular permissions organized into 4 categories:
-
-| Category | Permissions |
-|----------|------------|
-| **Documents** | View Files, Upload Files, Delete Files, Rename Files |
-| **Folders** | Create Folders, Delete Folders |
-| **Administration** | Manage Locations, Manage Departments, Manage Users, Manage Groups, Manage Settings |
-| **Audit** | View Audit Log, Export Audit Log |
-
-Permissions are assigned to **security groups**, and users are assigned to groups. A user's effective permissions are the **union** of all permissions from all their groups.
-
-### Default Security Groups
-
-| Group | Permissions | Count |
-|-------|-----------|-------|
-| **Administrator** | All permissions | 13/13 |
-| **User** | View Files, Upload Files, Rename Files, Create Folders | 4/13 |
-| **Read Only** | View Files only | 1/13 |
-| **Manager** | All Documents + Folders + Manage Departments + Audit | 9/13 |
-
-### Access Control (Locations & Departments)
-
-Locations and departments can optionally be restricted to specific security groups:
-
-- If a location/department has **no** group assignments → visible to **all** authenticated users
-- If a location/department has group assignments → only users belonging to at least one of those groups can see it
-- Administrators always have access regardless of restrictions
-
-This is managed via the Group Access dropdown in the Administration → Locations / Departments sections.
 
 ## Database Schema
 
@@ -398,6 +553,8 @@ The MySQL schema includes 11 tables, 6 views, and 6 stored procedures/functions:
 **Core Tables:** `users`, `security_groups`, `permissions`, `group_permissions`, `user_group_memberships`, `sessions`, `locations`, `departments`, `folders`, `files`, `audit_log`
 
 **Access Control Tables:** `location_group_access`, `department_group_access`
+
+**Application Tables:** `custom_apps`, `app_settings`, `smtp_settings`
 
 **Views:** `v_files_full`, `v_folder_paths` (recursive CTE), `v_users_with_groups`, `v_groups_with_permissions`, `v_user_permissions`, `v_location_stats`
 
@@ -424,6 +581,7 @@ See `database/schema.sql` for the complete schema with detailed comments and int
 | `JWT_SECRET` | Yes | — | Secret for signing JWTs |
 | `JWT_EXPIRES_IN` | No | `24h` | Token expiry duration |
 | `MAX_FILE_SIZE_MB` | No | `50` | Maximum upload size in MB |
+| `ENCRYPTION_KEY` | Yes | — | 32-character key for encrypting SMTP password |
 | `AZURE_STORAGE_CONNECTION_STRING` | Yes* | — | Azure connection string |
 | `AZURE_STORAGE_ACCOUNT_NAME` | Alt* | — | Azure account name (alternative to connection string) |
 | `AZURE_STORAGE_ACCOUNT_KEY` | Alt* | — | Azure account key (alternative to connection string) |

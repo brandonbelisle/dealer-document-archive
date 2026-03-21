@@ -194,7 +194,7 @@ async function initializeSamlStrategy() {
     entryPoint: ssoUrl,
     issuer: settings.sp_entity_id || 'dda-saml',
     callbackUrl: settings.sp_acs_url,
-    cert: cert,
+    idpCert: cert,
     identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
     wantAssertionsSigned: true,
     acceptedClockSkewMs: -1,
@@ -207,11 +207,11 @@ async function initializeSamlStrategy() {
   console.log('SAML Strategy Config:', {
     entryPoint: strategyConfig.entryPoint,
     callbackUrl: strategyConfig.callbackUrl,
-    hasCert: !!strategyConfig.cert,
-    certLength: strategyConfig.cert ? strategyConfig.cert.length : 0,
+    hasIdpCert: !!strategyConfig.idpCert,
+    idpCertLength: strategyConfig.idpCert ? strategyConfig.idpCert.length : 0,
   });
 
-  if (!strategyConfig.cert) {
+  if (!strategyConfig.idpCert) {
     console.error('ERROR: No certificate available for SAML strategy');
     samlStrategy = null;
     lastSamlSettings = null;

@@ -520,7 +520,7 @@ router.get('/metadata', async (req, res) => {
 
 // ── GET /api/saml/login ─────────────────────────────────────
 // Redirect to IdP for SAML login
-router.get('/login', async (req, res) => {
+router.get('/login', async (req, res, next) => {
   try {
     const strategy = await initializeSamlStrategy();
     if (!strategy) {
@@ -529,7 +529,7 @@ router.get('/login', async (req, res) => {
 
     passport.authenticate('saml', {
       samlFallback: 'login-request',
-    })(req, res);
+    })(req, res, next);
   } catch (err) {
     console.error('SAML login error:', err);
     res.status(500).json({ error: 'Failed to initiate SAML login' });

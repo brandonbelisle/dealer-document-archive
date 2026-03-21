@@ -40,7 +40,7 @@ export default function FoldersPage({
   }, [creatingDeptFolder]);
 
   const q = folderSearch.trim();
-  const df = currentDeptFolders;
+  const df = currentDeptFolders.filter((f) => !f.parentId);
   const filtered = q
     ? df
         .map((f) => ({ folder: f, ...fuzzyMatch(q, f.name) }))

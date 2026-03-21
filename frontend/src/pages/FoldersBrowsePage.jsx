@@ -71,7 +71,9 @@ export default function FoldersBrowsePage({
   const locationsWithData = locations
     .map((loc) => {
       const depts = deptsInLocation(loc.id).map((dept) => {
-        const deptFolders = foldersInDepartment(dept.id);
+        const deptFolders = foldersInDepartment(dept.id).filter(
+          (f) => !f.parentId
+        );
         const filtered = q
           ? deptFolders.filter((f) => fuzzyMatch(q, f.name).match)
           : deptFolders;

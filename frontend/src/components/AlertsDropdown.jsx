@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import * as api from "../api";
-import { BellIcon, XIcon, MapPinIcon, LayersIcon, FolderClosedIcon } from "./Icons";
+import { BellIcon, XIcon, TrashIcon, MapPinIcon, LayersIcon, FolderClosedIcon } from "./Icons";
 import { getTheme } from "../theme";
 
-export default function AlertsDropdown({ darkMode }) {
+export default function AlertsDropdown({ darkMode, onNavigate }) {
   const t = getTheme(darkMode);
   const [showDropdown, setShowDropdown] = useState(false);
   const [alerts, setAlerts] = useState([]);
@@ -46,10 +46,21 @@ export default function AlertsDropdown({ darkMode }) {
   const markAllRead = async () => {
     try {
       await api.markAllNotificationsRead();
-      setAlerts((prev) => prev.map((a) => ({ ...a, read_at: new Date().toISOString() })));
+      setAlerts((prev) => prev.map((a) => ({ ...a, read_at: a.read_at || new Date().toISOString() })));
       setUnreadCount(0);
     } catch (err) {
       console.error("Failed to mark all read:", err);
+    }
+  };
+
+  const deleteAlert = async (e, alertId) => {
+    e.stopPropagation();
+    try {
+      await api.markNotificationRead(alertId);
+      setAlerts((prev) => prev.filter((a) => a.id !== alertId));
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (err) {
+      console.error("Failed to delete alert:", err);
     }
   };
 
@@ -60,6 +71,21 @@ export default function AlertsDropdown({ darkMode }) {
     } catch (err) {
       console.error("Failed to clear alerts:", err);
     }
+  };
+
+  const handleAlertClick = async (alert) => {
+    try {
+      await api.markNotificationRead(alert.id);
+      setAlerts((prev) => prev.map((a) => a.id === alert.id ? { ...a, read_at: new Date().toISOString() } : a));
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (err) {
+      console.error("Failed to mark alert as read:", err);
+    }
+    
+    if (onNavigate) {
+      onNavigate(alert);
+    }
+    setShowDropdown(false);
   };
 
   const formatDate = (dateStr) => {
@@ -219,29 +245,47 @@ export default function AlertsDropdown({ darkMode }) {
               alerts.map((alert) => (
                 <div
                   key={alert.id}
+                  onClick={() => handleAlertClick(alert)}
                   style={{
                     padding: "12px 14px",
                     borderBottom: `1px solid ${t.border}`,
                     background: alert.read_at ? "transparent" : darkMode ? "rgba(88,166,255,0.05)" : "rgba(88,166,255,0.03)",
                     opacity: alert.read_at ? 0.7 : 1,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 10,
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                    <div style={{ color: t.accent, marginTop: 2 }}>
-                      {getTypeIcon(alert.item_type)}
+                  <div style={{ color: t.accent, marginTop: 2, flexShrink: 0 }}>
+                    {getTypeIcon(alert.item_type)}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>
+                      {alert.file_name}
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>
-                        {alert.file_name}
-                      </div>
-                      <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>
-                        Uploaded by {alert.created_by_name}
-                      </div>
-                      <div style={{ fontSize: 10, color: t.textDim, marginTop: 4 }}>
-                        {alert.item_name} • {formatDate(alert.created_at)}
-                      </div>
+                    <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>
+                      Uploaded by {alert.created_by_name}
+                    </div>
+                    <div style={{ fontSize: 10, color: t.textDim, marginTop: 4 }}>
+                      {alert.item_name} • {formatDate(alert.created_at)}
                     </div>
                   </div>
+                  <button
+                    onClick={(e) => deleteAlert(e, alert.id)}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      color: t.textMuted,
+                      padding: 4,
+                      display: "flex",
+                      flexShrink: 0,
+                    }}
+                    title="Delete alert"
+                  >
+                    <TrashIcon size={14} />
+                  </button>
                 </div>
               ))
             )}

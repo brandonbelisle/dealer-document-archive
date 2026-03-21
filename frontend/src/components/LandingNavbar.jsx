@@ -179,7 +179,15 @@ export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, pag
             )}
           </div>
         )}
-        <AlertsDropdown darkMode={darkMode} />
+        <AlertsDropdown darkMode={darkMode} onNavigate={(alert) => {
+            if (alert.file_id) {
+              setPage("dashboard");
+              setTimeout(() => {
+                setPage("folders");
+                setTimeout(() => setPage("file-detail"), 100);
+              }, 100);
+            }
+          }} />
         <button
           onClick={() => setDarkMode(!darkMode)}
           style={{

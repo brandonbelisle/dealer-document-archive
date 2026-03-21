@@ -64,6 +64,7 @@ export default function Navbar({
   deptsInLocation,
   filesInFolder,
   setShowSubscriptionsModal,
+  setViewingFileIdFromAlert,
   t,
 }) {
   const [globalSearch, setGlobalSearch] = useState("");
@@ -968,7 +969,19 @@ export default function Navbar({
         >
           <AppsIcon size={14} /> Apps
         </button>
-        <AlertsDropdown darkMode={darkMode} />
+        <AlertsDropdown darkMode={darkMode} onNavigate={(alert) => {
+            if (alert.file_id) {
+              setActiveFolderId(alert.folder_id || null);
+              if (alert.folder_id) {
+                setPage("folders");
+              } else {
+                setPage("unsorted");
+              }
+              setTimeout(() => {
+                setViewingFileIdFromAlert(alert.file_id);
+              }, 100);
+            }
+          }} />
         <button
           onClick={() => setDarkMode(!darkMode)}
           style={{

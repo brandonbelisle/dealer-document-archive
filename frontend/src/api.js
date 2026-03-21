@@ -324,3 +324,16 @@ export async function getUnreadNotificationCount() {
 export async function clearReadNotifications() {
   return request('/notifications', { method: 'DELETE' });
 }
+
+// ── Settings / Logos ─────────────────────────────────────
+export async function getLogos() {
+  return request('/settings/logos');
+}
+export async function uploadLogo(type, file) {
+  const formData = new FormData();
+  formData.append('logo', file);
+  return request(`/settings/logo/${type}`, {
+    method: 'POST',
+    body: formData,
+  });
+}

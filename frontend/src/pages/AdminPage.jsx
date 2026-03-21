@@ -18,7 +18,185 @@ import {
   SearchIcon,
   ClipboardIcon,
   FolderClosedIcon,
+  UploadCloudIcon,
 } from "../components/Icons";
+import PermToggle from "../components/ui/PermToggle";
+import GroupAccessEditor from "../components/GroupAccessEditor";
+import SubscribeButton from "../components/SubscribeButton";
+import AddUserModal from "../components/modals/AddUserModal";
+import EditUserModal from "../components/modals/EditUserModal";
+import { ADMIN_MENU, PERMISSION_LABELS, PERMISSION_CATEGORIES } from "../constants";
+import {
+  PlusIcon,
+  XIcon,
+  EditIcon,
+  TrashIcon,
+  ShieldIcon,
+  MapPinIcon,
+  LayersIcon,
+  SearchIcon,
+  ClipboardIcon,
+  FolderClosedIcon,
+  UploadIcon,
+} from "../components/Icons";
+
+function SettingsSection({ t, darkMode }) {
+  const [darkLogo, setDarkLogo] = useState(null);
+  const [lightLogo, setLightLogo] = useState(null);
+  const [uploading, setUploading] = useState({ dark: false, light: false });
+  const darkInputRef = useRef(null);
+  const lightInputRef = useRef(null);
+
+  useEffect(() => {
+    loadLogos();
+  }, []);
+
+  const loadLogos = async () => {
+    try {
+      const logos = await api.getLogos();
+      setDarkLogo(logos.darkLogo);
+      setLightLogo(logos.lightLogo);
+    } catch (err) {
+      console.error("Failed to load logos:", err);
+    }
+  };
+
+  const handleUpload = async (type, file) => {
+    if (!file) return;
+    setUploading((prev) => ({ ...prev, [type]: true }));
+    try {
+      await api.uploadLogo(type, file);
+      await loadLogos();
+    } catch (err) {
+      console.error("Failed to upload logo:", err);
+      alert("Failed to upload logo: " + (err.message || "Unknown error"));
+    } finally {
+      setUploading((prev) => ({ ...prev, [type]: false }));
+    }
+  };
+
+  return (
+    <div>
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }}>Branding</h2>
+        <p style={{ fontSize: 13, color: t.textMuted, margin: 0 }}>
+          Upload logos to customize the appearance of the landing page.
+        </p>
+      </div>
+
+      <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+        {/* Dark Mode Logo */}
+        <div style={{ flex: 1, minWidth: 280, maxWidth: 400 }}>
+          <div style={{
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 12,
+            padding: 20,
+          }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+              Dark Mode Logo
+            </label>
+            <p style={{ fontSize: 11, color: t.textDim, margin: "0 0 16px" }}>
+              Displayed when dark mode is active. Recommended: PNG or SVG with transparent background.
+            </p>
+            <div style={{
+              background: darkMode ? "#1a1a1a" : "#f5f5f5",
+              borderRadius: 8,
+              padding: 24,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: 80,
+              marginBottom: 16,
+            }}>
+              {darkLogo ? (
+                <img
+                  src={`${darkLogo}?t=${Date.now()}`}
+                  alt="Dark Mode Logo"
+                  style={{ maxHeight: 60, maxWidth: "100%", objectFit: "contain" }}
+                  onError={() => setDarkLogo(null)}
+                />
+              ) : (
+                <span style={{ fontSize: 12, color: t.textMuted }}>No logo uploaded</span>
+              )}
+            </div>
+            <input
+              ref={darkInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/svg+xml,image/webp"
+              style={{ display: "none" }}
+              onChange={(e) => handleUpload("dark", e.target.files[0])}
+            />
+            <Btn
+              darkMode={darkMode}
+              t={t}
+              onClick={() => darkInputRef.current?.click()}
+              loading={uploading.dark}
+              style={{ width: "100%", fontSize: 12 }}
+            >
+              <UploadCloudIcon size={14} /> Upload Dark Logo
+            </Btn>
+          </div>
+        </div>
+
+        {/* Light Mode Logo */}
+        <div style={{ flex: 1, minWidth: 280, maxWidth: 400 }}>
+          <div style={{
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 12,
+            padding: 20,
+          }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+              Light Mode Logo
+            </label>
+            <p style={{ fontSize: 11, color: t.textDim, margin: "0 0 16px" }}>
+              Displayed when light mode is active. Recommended: PNG or SVG with transparent background.
+            </p>
+            <div style={{
+              background: darkMode ? "#f5f5f5" : "#ffffff",
+              borderRadius: 8,
+              padding: 24,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: 80,
+              marginBottom: 16,
+              border: `1px solid ${t.border}`,
+            }}>
+              {lightLogo ? (
+                <img
+                  src={`${lightLogo}?t=${Date.now()}`}
+                  alt="Light Mode Logo"
+                  style={{ maxHeight: 60, maxWidth: "100%", objectFit: "contain" }}
+                  onError={() => setLightLogo(null)}
+                />
+              ) : (
+                <span style={{ fontSize: 12, color: "#666" }}>No logo uploaded</span>
+              )}
+            </div>
+            <input
+              ref={lightInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/svg+xml,image/webp"
+              style={{ display: "none" }}
+              onChange={(e) => handleUpload("light", e.target.files[0])}
+            />
+            <Btn
+              darkMode={darkMode}
+              t={t}
+              onClick={() => lightInputRef.current?.click()}
+              loading={uploading.light}
+              style={{ width: "100%", fontSize: 12 }}
+            >
+              <UploadCloudIcon size={14} /> Upload Light Logo
+            </Btn>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminPage({
   adminSection,
@@ -735,11 +913,18 @@ export default function AdminPage({
           )}
 
           {/* Fallback */}
-          {!["users", "groups", "locations", "departments", "audit"].includes(adminSection) && (
+          {!["users", "groups", "locations", "departments", "audit", "settings"].includes(adminSection) && (
             <div style={{ textAlign: "center", padding: "60px 0", color: t.textDim }}>
               <span>{adminActiveMenu?.icon}</span>
               <div style={{ fontSize: 15, fontWeight: 500, marginTop: 14 }}>{adminActiveMenu?.label}</div>
               <div style={{ fontSize: 13 }}>Under development</div>
+            </div>
+          )}
+
+          {/* SETTINGS */}
+          {adminSection === "settings" && (
+            <div style={{ animation: "fadeIn 0.25s ease" }}>
+              <SettingsSection t={t} darkMode={darkMode} />
             </div>
           )}
         </div>

@@ -1,7 +1,15 @@
+import { useState, useEffect } from "react";
 import { GearIcon } from "./Icons";
 
 export default function LandingPage({ setPage, t, darkMode, loggedInUser }) {
   const isAdmin = loggedInUser?.groups?.includes("Administrator");
+  const [logoUrl, setLogoUrl] = useState(null);
+
+  useEffect(() => {
+    const logoType = darkMode ? "dark" : "light";
+    const url = `/api/settings/logo/${logoType}?t=${Date.now()}`;
+    setLogoUrl(url);
+  }, [darkMode]);
 
   const apps = [
     {
@@ -46,6 +54,19 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser }) {
       animation: "fadeIn 0.3s ease",
       paddingTop: 20,
     }}>
+      {logoUrl && (
+        <img
+          src={logoUrl}
+          alt="Logo"
+          onError={() => setLogoUrl(null)}
+          style={{
+            height: 60,
+            maxWidth: 280,
+            objectFit: "contain",
+            marginBottom: 24,
+          }}
+        />
+      )}
       <h1 style={{ fontSize: 28, fontWeight: 700, margin: "0 0 48px", color: t.text }}>
         Applications
       </h1>

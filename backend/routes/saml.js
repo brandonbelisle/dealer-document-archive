@@ -105,22 +105,49 @@ async function fetchSamlMetadata(metadataUrl) {
 
 // Parse SAML metadata XML to extract IdP info
 function parseMetadataXml(xml) {
-  // Extract all X509 certificates (there may be multiple for key rotation)
-  const certMatches = xml.match(/<ds:X509Certificate[^>]*>([^<]+)<\/ds:X509Certificate>/gi);
-  const certs = certMatches 
-    ? certMatches.map(match => {
+  // Try to extract signing certificates specifically
+  // Azure Entra has KeyDescriptor with use="signing" and use="encryption"
+  let signingCerts = [];
+  
+  // First try to find signing certificates (KeyDescriptor with use="signing")
+  const signingKeyMatches = xml.match(/<md:KeyDescriptor[^>]*use="signing"[^>]*>[\s\S]*?<\/md:KeyDescriptor>/gi) || 
+                              xml.match(/<KeyDescriptor[^>]*use="signing"[^>]*>[\s\S]*?<\/KeyDescriptor>/gi);
+  
+  if (signingKeyMatches) {
+    for (const match of signingKeyMatches) {
+      const certMatch = match.match(/<ds:X509Certificate[^>]*>([^<]+)<\/ds:X509Certificate>/i);
+      if (certMatch) {
+        const content = certMatch[1].trim();
+        signingCerts.push(content.includes('-----BEGIN CERTIFICATE-----') ? content : 
+          `-----BEGIN CERTIFICATE-----\n${content}\n-----END CERTIFICATE-----`);
+      }
+    }
+  }
+  
+  // If no signing certs found, fall back to all certificates
+  let allCerts = [];
+  if (signingCerts.length === 0) {
+    const certMatches = xml.match(/<ds:X509Certificate[^>]*>([^<]+)<\/ds:X509Certificate>/gi);
+    if (certMatches) {
+      allCerts = certMatches.map(match => {
         const content = match.replace(/<\/?ds:X509Certificate[^>]*>/gi, '').trim();
-        // Wrap in PEM format if not already wrapped
-        if (content && !content.includes('-----BEGIN CERTIFICATE-----')) {
-          return `-----BEGIN CERTIFICATE-----\n${content}\n-----END CERTIFICATE-----`;
-        }
-        return content;
-      })
-    : [];
+        return content.includes('-----BEGIN CERTIFICATE-----') ? content :
+          `-----BEGIN CERTIFICATE-----\n${content}\n-----END CERTIFICATE-----`;
+      });
+    }
+  }
+  
+  const certs = signingCerts.length > 0 ? signingCerts : allCerts;
   
   const ssoUrlMatch = xml.match(/<md:SingleSignOnService[^>]*Location="([^"]+)"/i) || xml.match(/<SingleSignOnService[^>]*Location="([^"]+)"/i);
   const sloUrlMatch = xml.match(/<md:SingleLogoutService[^>]*Location="([^"]+)"/i) || xml.match(/<SingleLogoutService[^>]*Location="([^"]+)"/i);
   const entityIdMatch = xml.match(/entityID="([^"]+)"/i);
+  
+  console.log('Parsed metadata:', { 
+    certsFound: certs.length, 
+    signingCertsFound: signingCerts.length,
+    ssoUrl: ssoUrlMatch ? ssoUrlMatch[1] : null 
+  });
   
   return {
     certs: certs,
@@ -226,6 +253,8 @@ async function initializeSamlStrategy() {
     wantResponseSigned: true,
     acceptedClockSkewMs: -1,
     disableRequestedAuthnContext: true,
+    signatureAlgorithm: 'sha256',
+    digestAlgorithm: 'sha256',
   };
 
   if (sloUrl) {

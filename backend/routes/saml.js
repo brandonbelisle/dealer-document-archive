@@ -201,12 +201,16 @@ async function initializeSamlStrategy() {
   let entityId = settings.idp_entity_id;
   let sloUrl = settings.idp_slo_url;
 
-  // Helper to ensure PEM format
+  // Helper to ensure PEM format with proper line breaks
   const ensurePemFormat = (cert) => {
     if (!cert) return null;
-    const clean = cert.trim();
-    if (clean.includes('-----BEGIN CERTIFICATE-----')) return clean;
-    return `-----BEGIN CERTIFICATE-----\n${clean}\n-----END CERTIFICATE-----`;
+    // Remove any existing headers and whitespace
+    let clean = cert.replace(/-----BEGIN CERTIFICATE-----/gi, '')
+                    .replace(/-----END CERTIFICATE-----/gi, '')
+                    .replace(/\s+/g, '');
+    // Add line breaks every 64 chars for proper PEM format
+    const formatted = clean.match(/.{1,64}/g)?.join('\n') || clean;
+    return `-----BEGIN CERTIFICATE-----\n${formatted}\n-----END CERTIFICATE-----`;
   };
 
   // Use manual certificate if provided
@@ -611,6 +615,18 @@ router.post('/callback', async (req, res) => {
                          samlResponse.match(/<Signature[^>]*>[\s\S]*?<\/Signature>/i);
         if (sigMatch) {
           console.log('Signature element length:', sigMatch[0].length);
+        }
+        
+        // Check signature algorithm
+        const algMatch = samlResponse.match(/Algorithm="([^"]*rsa-with-[^"]+|[^"]*rsa-[^"]+)"/i);
+        if (algMatch) {
+          console.log('Signature algorithm found:', algMatch[1]);
+        }
+        
+        // Check digest method
+        const digestMatch = samlResponse.match(/<ds:DigestMethod[^>]*Algorithm="([^"]+)"/i);
+        if (digestMatch) {
+          console.log('Digest algorithm found:', digestMatch[1]);
         }
       }
     }

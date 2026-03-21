@@ -151,7 +151,8 @@ router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.sin
     );
 
     const id = uuidv4();
-    const status = extractedText ? 'done' : 'processing';
+    const isImage = req.file.mimetype?.startsWith('image/');
+    const status = (isImage || extractedText) ? 'done' : 'processing';
 
     // file_storage_path stores the full Azure blob URL for direct browser access
     await db.execute(

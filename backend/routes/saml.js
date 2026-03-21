@@ -205,8 +205,10 @@ async function initializeSamlStrategy() {
     callbackUrl: settings.sp_acs_url,
     idpCert: certs.length === 1 ? certs[0] : certs,
     identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
-    wantAssertionsSigned: true,
+    wantAssertionsSigned: false,
+    wantResponseSigned: true,
     acceptedClockSkewMs: -1,
+    disableRequestedAuthnContext: true,
   };
 
   if (sloUrl) {
@@ -217,6 +219,7 @@ async function initializeSamlStrategy() {
     entryPoint: strategyConfig.entryPoint,
     callbackUrl: strategyConfig.callbackUrl,
     certCount: certs.length,
+    firstCertPreview: certs[0] ? certs[0].substring(0, 50) + '...' : null,
   });
 
   const strategy = new SamlStrategy(strategyConfig, (profile, done) => {

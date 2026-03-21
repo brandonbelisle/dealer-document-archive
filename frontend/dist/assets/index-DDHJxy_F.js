@@ -23777,7 +23777,7 @@ function AdminPage({
         ] }, item.id);
       })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, padding: "32px 36px", overflowY: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: 860 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, padding: "32px 36px", overflowY: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: 1200 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { style: { fontSize: 24, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 10 }, children: [
@@ -26007,4 +26007,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-C84fKloB.js.map
+//# sourceMappingURL=index-DDHJxy_F.js.map

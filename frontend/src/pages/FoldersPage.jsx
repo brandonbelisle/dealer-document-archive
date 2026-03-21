@@ -40,8 +40,6 @@ export default function FoldersPage({
   setActiveFolderId,
   setPage,
   setCreatingSubfolder,
-  allFilesInFolderRecursive,
-  subfoldersOf,
   handleDeleteFolder,
   t,
   darkMode,
@@ -74,11 +72,11 @@ export default function FoldersPage({
         .map((r) => r.folder)
     : df;
 
-  // Build sortable list with computed counts
+  // Build sortable list with counts from API
   const withCounts = filtered.map((folder) => ({
     ...folder,
-    _fileCount: allFilesInFolderRecursive(folder.id),
-    _subCount: subfoldersOf(folder.id).length,
+    _fileCount: folder.fileCount || 0,
+    _subCount: folder.subfolderCount || 0,
   }));
 
   const sorted = [...withCounts].sort((a, b) => {
@@ -105,7 +103,7 @@ export default function FoldersPage({
   });
 
   const totalFiles = df.reduce(
-    (s, f) => s + allFilesInFolderRecursive(f.id),
+    (s, f) => s + (f.fileCount || 0),
     0
   );
 

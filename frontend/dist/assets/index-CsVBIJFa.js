@@ -13473,6 +13473,7 @@ function LoginScreen({
     }
     if (token) {
       localStorage.setItem("dda_token", token);
+      window.history.replaceState({}, "", window.location.pathname);
       window.location.reload();
     }
   }, [setLoginError]);
@@ -25960,4 +25961,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-Bg0HmY_g.js.map
+//# sourceMappingURL=index-CsVBIJFa.js.map

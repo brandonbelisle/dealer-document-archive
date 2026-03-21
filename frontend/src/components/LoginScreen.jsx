@@ -50,8 +50,11 @@ export default function LoginScreen({
     }
 
     if (token) {
-      // Set the token and reload
+      // Set the token and clean up URL before reload
       localStorage.setItem("dda_token", token);
+      // Remove token from URL to prevent infinite reload
+      window.history.replaceState({}, "", window.location.pathname);
+      // Force app to re-render with new token
       window.location.reload();
     }
   }, [setLoginError]);

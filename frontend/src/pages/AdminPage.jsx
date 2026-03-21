@@ -1492,6 +1492,7 @@ function DmsSection({ t, darkMode, addToast }) {
     encryptConnection: true,
     queryIntervalMinutes: 5,
   });
+  const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
@@ -1499,6 +1500,7 @@ function DmsSection({ t, darkMode, addToast }) {
 
   useEffect(() => {
     loadSettings();
+    loadSchedules();
   }, []);
 
   const loadSettings = async () => {
@@ -1519,6 +1521,15 @@ function DmsSection({ t, darkMode, addToast }) {
       console.error('Failed to load DMS settings:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSchedules = async () => {
+    try {
+      const data = await api.getDmsSchedules();
+      setSchedules(data);
+    } catch (err) {
+      console.error('Failed to load DMS schedules:', err);
     }
   };
 
@@ -1552,6 +1563,41 @@ function DmsSection({ t, darkMode, addToast }) {
     } finally {
       setTesting(false);
     }
+  };
+
+  const handleToggleSchedule = async (scheduleId, enabled) => {
+    try {
+      await api.updateDmsSchedule(scheduleId, { enabled });
+      setSchedules(prev => prev.map(s => s.id === scheduleId ? { ...s, enabled } : s));
+      addToast(enabled ? 'Schedule enabled' : 'Schedule disabled', `Schedule has been ${enabled ? 'enabled' : 'disabled'}`, 4000, 'create');
+    } catch (err) {
+      addToast('Error', err.message || 'Failed to update schedule', 5000, 'error');
+    }
+  };
+
+  const handleUpdateInterval = async (scheduleId, intervalMinutes) => {
+    try {
+      await api.updateDmsSchedule(scheduleId, { intervalMinutes });
+      setSchedules(prev => prev.map(s => s.id === scheduleId ? { ...s, intervalMinutes } : s));
+    } catch (err) {
+      addToast('Error', err.message || 'Failed to update interval', 5000, 'error');
+    }
+  };
+
+  const handleRunSchedule = async (scheduleId) => {
+    try {
+      const result = await api.runDmsSchedule(scheduleId);
+      addToast('Task completed', result.message || 'Schedule ran successfully', 4000, 'create');
+      loadSchedules();
+    } catch (err) {
+      addToast('Error', err.message || 'Failed to run schedule', 5000, 'error');
+    }
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'Never';
+    const date = new Date(dateStr);
+    return date.toLocaleString();
   };
 
   const inputStyle = {
@@ -1703,22 +1749,6 @@ function DmsSection({ t, darkMode, addToast }) {
           </p>
         </div>
 
-        {/* Query Interval */}
-        <div style={{ marginBottom: 24 }}>
-          <label style={labelStyle}>Query Interval (minutes)</label>
-          <input
-            type="number"
-            value={settings.queryIntervalMinutes}
-            onChange={(e) => setSettings({ ...settings, queryIntervalMinutes: parseInt(e.target.value) || 5 })}
-            min={1}
-            max={60}
-            style={{ ...inputStyle, maxWidth: 200 }}
-          />
-          <p style={{ fontSize: 11, color: t.textMuted, marginTop: 4 }}>
-            How often to query the DMS for new documents
-          </p>
-        </div>
-
         {/* Action Buttons */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           <Btn
@@ -1739,6 +1769,128 @@ function DmsSection({ t, darkMode, addToast }) {
             {testing ? 'Testing...' : 'Test Connection'}
           </Btn>
         </div>
+      </div>
+
+      {/* Schedules Section */}
+      <div style={{ marginBottom: 24 }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 12px' }}>Scheduled Tasks</h3>
+        <p style={{ fontSize: 13, color: t.textMuted, margin: '0 0 16px' }}>
+          Configure automatic data sync from DMS to DDA.
+        </p>
+
+        {schedules.length === 0 ? (
+          <div style={{
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 12,
+            padding: 24,
+            textAlign: 'center',
+            color: t.textMuted,
+          }}>
+            No scheduled tasks configured. Run the migration to add default tasks.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {schedules.map((schedule) => (
+              <div
+                key={schedule.id}
+                style={{
+                  background: t.surface,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 12,
+                  padding: 20,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{schedule.name}</div>
+                    <div style={{ fontSize: 12, color: t.textMuted }}>{schedule.description}</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={schedule.enabled}
+                        onChange={(e) => handleToggleSchedule(schedule.id, e.target.checked)}
+                        style={{ width: 16, height: 16, cursor: 'pointer' }}
+                      />
+                      <span style={{ fontSize: 13, fontWeight: 500, color: schedule.enabled ? t.success : t.textMuted }}>
+                        {schedule.enabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 12, flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted }}>Interval (minutes):</label>
+                    <input
+                      type="number"
+                      value={schedule.intervalMinutes || 0}
+                      onChange={(e) => handleUpdateInterval(schedule.id, parseInt(e.target.value) || 0)}
+                      min={0}
+                      max={1440}
+                      disabled={!schedule.enabled}
+                      style={{
+                        width: 80,
+                        padding: '6px 10px',
+                        fontSize: 13,
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 6,
+                        background: schedule.enabled ? (darkMode ? '#1a1a1a' : '#fff') : (darkMode ? '#2a2a2a' : '#f5f5f5'),
+                        color: t.text,
+                        fontFamily: 'inherit',
+                        opacity: schedule.enabled ? 1 : 0.5,
+                      }}
+                    />
+                    <span style={{ fontSize: 11, color: t.textMuted }}>{schedule.intervalMinutes === 0 ? '(manual only)' : ''}</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, color: t.textMuted }}>
+                    <span style={{ fontWeight: 600 }}>Last run:</span>{' '}
+                    <span style={{ 
+                      color: schedule.lastRunStatus === 'success' ? t.success 
+                           : schedule.lastRunStatus === 'failed' ? t.error 
+                           : t.textMuted 
+                    }}>
+                      {formatDate(schedule.lastRunAt)}
+                    </span>
+                  </div>
+                  {schedule.lastRunCount > 0 && (
+                    <div style={{ fontSize: 12, color: t.textMuted }}>
+                      <span style={{ fontWeight: 600 }}>Created:</span> {schedule.lastRunCount} folders
+                    </div>
+                  )}
+                </div>
+
+                {schedule.lastRunMessage && (
+                  <div style={{
+                    fontSize: 11,
+                    color: schedule.lastRunStatus === 'failed' ? t.error : t.textMuted,
+                    marginBottom: 12,
+                    padding: '8px 12px',
+                    background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                    borderRadius: 6,
+                    border: `1px solid ${t.border}`,
+                  }}>
+                    {schedule.lastRunMessage}
+                  </div>
+                )}
+
+                <Btn
+                  t={t}
+                  darkMode={darkMode}
+                  onClick={() => handleRunSchedule(schedule.id)}
+                  style={{ fontSize: 12 }}
+                >
+                  Run Now
+                </Btn>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Help Text */}

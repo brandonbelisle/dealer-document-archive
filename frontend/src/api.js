@@ -433,3 +433,14 @@ export async function saveDmsSettings(settings) {
 export async function testDmsConnection(settings) {
   return request('/dms-settings/test', { method: 'POST', body: JSON.stringify(settings) });
 }
+
+// DMS Schedules
+export async function getDmsSchedules() {
+  return request('/dms-settings/schedules');
+}
+export async function updateDmsSchedule(id, data) {
+  return request(`/dms-settings/schedules/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+}
+export async function runDmsSchedule(id) {
+  return request(`/dms-settings/schedules/${id}/run`, { method: 'POST' });
+}

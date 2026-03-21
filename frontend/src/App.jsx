@@ -483,7 +483,6 @@ function AppInner() {
     }
     setRenamingFileId(null);
   };
-  const removeStagedFile = id => setStagedFiles(p => p.filter(f => f.id !== id));
   const createFolder = () => {};
 
   const filesInFolder = id => files.filter(f => f.folderId === id);

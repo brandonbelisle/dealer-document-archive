@@ -2,7 +2,7 @@
 // SAML/SSO authentication routes for Azure Entra ID
 const express = require('express');
 const passport = require('passport');
-const { Strategy: SamlStrategy } = require('passport-saml');
+const { Strategy: SamlStrategy } = require('@node-saml/passport-saml');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../config/db');
 const { signToken, requireAuth, requirePermission } = require('../middleware/auth');

@@ -386,6 +386,12 @@ export async function getSupportEmail() {
 export async function setSupportEmail(email) {
   return request('/help-ticket/support-email', { method: 'POST', body: JSON.stringify({ email }) });
 }
+export async function getEmailSettings() {
+  return request('/help-ticket/email-settings');
+}
+export async function setEmailSettings(signature, brandColor) {
+  return request('/help-ticket/email-settings', { method: 'POST', body: JSON.stringify({ signature, brandColor }) });
+}
 export async function submitHelpTicket(subject, message, attachments) {
   const formData = new FormData();
   formData.append('subject', subject);

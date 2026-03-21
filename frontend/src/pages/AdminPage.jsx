@@ -734,10 +734,16 @@ function SettingsSection({ t, darkMode }) {
   const [supportEmailSaving, setSupportEmailSaving] = useState(false);
   const [supportEmailMessage, setSupportEmailMessage] = useState({ type: '', text: '' });
 
+  const [emailSignature, setEmailSignature] = useState('');
+  const [emailBrandColor, setEmailBrandColor] = useState('#0891b2');
+  const [emailSettingsSaving, setEmailSettingsSaving] = useState(false);
+  const [emailSettingsMessage, setEmailSettingsMessage] = useState({ type: '', text: '' });
+
   useEffect(() => {
     loadLogos();
     loadSmtpSettings();
     loadSupportEmail();
+    loadEmailSettings();
   }, []);
 
   const loadLogos = async () => {
@@ -776,6 +782,16 @@ function SettingsSection({ t, darkMode }) {
       setSupportEmail(data.email || '');
     } catch (err) {
       console.error("Failed to load support email:", err);
+    }
+  };
+
+  const loadEmailSettings = async () => {
+    try {
+      const data = await api.getEmailSettings();
+      setEmailSignature(data.signature || '');
+      setEmailBrandColor(data.brandColor || '#0891b2');
+    } catch (err) {
+      console.error("Failed to load email settings:", err);
     }
   };
 
@@ -1260,6 +1276,186 @@ function SettingsSection({ t, darkMode }) {
           style={{ fontSize: 13 }}
         >
           Save Support Email
+        </Btn>
+      </div>
+
+      {/* Email Signature Section */}
+      <div style={{ marginTop: 40, marginBottom: 24 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }}>Email Signature & Branding</h2>
+        <p style={{ fontSize: 13, color: t.textMuted, margin: 0 }}>
+          Customize the appearance and signature of emails sent from the application.
+        </p>
+      </div>
+
+      <div style={{
+        background: t.surface,
+        border: `1px solid ${t.border}`,
+        borderRadius: 12,
+        padding: 24,
+        maxWidth: 700,
+      }}>
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+            Brand Color
+          </label>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <input
+              type="color"
+              value={emailBrandColor}
+              onChange={(e) => setEmailBrandColor(e.target.value)}
+              style={{
+                width: 50,
+                height: 36,
+                border: `1px solid ${t.border}`,
+                borderRadius: 6,
+                cursor: "pointer",
+                background: "transparent",
+              }}
+            />
+            <input
+              type="text"
+              value={emailBrandColor}
+              onChange={(e) => setEmailBrandColor(e.target.value)}
+              placeholder="#0891b2"
+              style={{
+                width: 120,
+                padding: "8px 12px",
+                fontSize: 14,
+                border: `1px solid ${t.border}`,
+                borderRadius: 8,
+                background: darkMode ? "#1a1a1a" : "#fff",
+                color: t.text,
+                fontFamily: "monospace",
+              }}
+            />
+            <span style={{ fontSize: 12, color: t.textMuted }}>
+              Used for headings and accents in emails
+            </span>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+            Email Signature
+          </label>
+          <textarea
+            value={emailSignature}
+            onChange={(e) => setEmailSignature(e.target.value)}
+            placeholder="Best regards,&#10;Your Company Name&#10;Support Team"
+            rows={4}
+            style={{
+              width: "100%",
+              padding: "12px 14px",
+              fontSize: 14,
+              border: `1px solid ${t.border}`,
+              borderRadius: 8,
+              background: darkMode ? "#1a1a1a" : "#fff",
+              color: t.text,
+              fontFamily: "inherit",
+              resize: "vertical",
+            }}
+          />
+          <p style={{ fontSize: 11, color: t.textDim, margin: "4px 0 0" }}>
+            This signature will be added to the bottom of all emails sent from the application.
+          </p>
+        </div>
+
+        {/* Preview */}
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+            Email Preview
+          </label>
+          <div style={{
+            background: "#fff",
+            border: `1px solid ${t.border}`,
+            borderRadius: 8,
+            padding: 20,
+            fontFamily: "Arial, sans-serif",
+          }}>
+            <div style={{
+              padding: "16px 0",
+              borderBottom: `2px solid ${emailBrandColor}`,
+              marginBottom: 16,
+            }}>
+              <h2 style={{ margin: 0, color: emailBrandColor, fontSize: 18 }}>
+                Help Ticket Submission
+              </h2>
+            </div>
+            <p style={{ margin: "0 0 8px", color: "#374151", fontSize: 14 }}>
+              <strong>From:</strong> John Doe &lt;john@example.com&gt;
+            </p>
+            <p style={{ margin: "0 0 8px", color: "#374151", fontSize: 14 }}>
+              <strong>Subject:</strong> Example Subject
+            </p>
+            <div style={{
+              background: "#f9fafb",
+              padding: 16,
+              borderRadius: 8,
+              margin: "16px 0",
+              color: "#374151",
+              fontSize: 14,
+            }}>
+              This is an example message body...
+            </div>
+            {emailSignature && (
+              <div style={{
+                marginTop: 20,
+                paddingTop: 16,
+                borderTop: "1px solid #e5e7eb",
+                color: "#6b7280",
+                fontSize: 13,
+                whiteSpace: "pre-wrap",
+              }}>
+                {emailSignature}
+              </div>
+            )}
+            <div style={{
+              marginTop: 24,
+              paddingTop: 16,
+              borderTop: "1px solid #e5e7eb",
+              color: "#9ca3af",
+              fontSize: 12,
+            }}>
+              Submitted via Dealer Document Archive
+            </div>
+          </div>
+        </div>
+
+        {emailSettingsMessage.text && (
+          <div style={{
+            padding: "12px 16px",
+            borderRadius: 8,
+            marginBottom: 16,
+            background: emailSettingsMessage.type === 'success'
+              ? (darkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)")
+              : (darkMode ? "rgba(239,68,68,0.15)" : "rgba(239,68,68,0.1)"),
+            color: emailSettingsMessage.type === 'success' ? "#22c55e" : "#ef4444",
+            fontSize: 13,
+          }}>
+            {emailSettingsMessage.text}
+          </div>
+        )}
+
+        <Btn
+          primary
+          darkMode={darkMode}
+          t={t}
+          onClick={async () => {
+            setEmailSettingsSaving(true);
+            setEmailSettingsMessage({ type: '', text: '' });
+            try {
+              await api.setEmailSettings(emailSignature, emailBrandColor);
+              setEmailSettingsMessage({ type: 'success', text: 'Email settings saved successfully!' });
+            } catch (err) {
+              setEmailSettingsMessage({ type: 'error', text: 'Failed to save: ' + (err.message || 'Unknown error') });
+            } finally {
+              setEmailSettingsSaving(false);
+            }
+          }}
+          loading={emailSettingsSaving}
+          style={{ fontSize: 13 }}
+        >
+          Save Email Settings
         </Btn>
       </div>
     </div>

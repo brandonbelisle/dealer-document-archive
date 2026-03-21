@@ -209,12 +209,34 @@ async function sendEmail({ to, subject, text, html }) {
     const fromAddress = settings.from_email || settings.username;
     const fromName = settings.from_name || 'Dealer Document Archive';
 
+    // Get email settings (signature and brand color)
+    let emailSignature = '';
+    let brandColor = '#0891b2';
+    try {
+      const [settingsRows] = await db.execute('SELECT `key`, `value` FROM app_settings WHERE `key` IN ("email_signature", "email_brand_color")');
+      for (const row of settingsRows) {
+        if (row.key === 'email_signature') emailSignature = row.value || '';
+        if (row.key === 'email_brand_color') brandColor = row.value || '#0891b2';
+      }
+    } catch (e) {
+      // Ignore if settings don't exist
+    }
+
+    // Append signature to html if provided
+    let finalHtml = html || '';
+    let finalText = text || '';
+    
+    if (emailSignature) {
+      finalText += '\n\n' + emailSignature;
+      finalHtml += `<div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 13px; white-space: pre-wrap;">${emailSignature.replace(/\n/g, '<br>')}</div>`;
+    }
+
     await transporter.sendMail({
       from: `"${fromName}" <${fromAddress}>`,
       to,
       subject,
-      text,
-      html,
+      text: finalText,
+      html: finalHtml,
     });
 
     return { success: true };
@@ -224,4 +246,19 @@ async function sendEmail({ to, subject, text, html }) {
   }
 }
 
-module.exports = { router, sendEmail };
+async function getEmailBranding() {
+  try {
+    const [settingsRows] = await db.execute('SELECT `key`, `value` FROM app_settings WHERE `key` IN ("email_signature", "email_brand_color")');
+    let emailSignature = '';
+    let brandColor = '#0891b2';
+    for (const row of settingsRows) {
+      if (row.key === 'email_signature') emailSignature = row.value || '';
+      if (row.key === 'email_brand_color') brandColor = row.value || '#0891b2';
+    }
+    return { signature: emailSignature, brandColor };
+  } catch (e) {
+    return { signature: '', brandColor: '#0891b2' };
+  }
+}
+
+module.exports = { router, sendEmail, getEmailBranding };

@@ -59,6 +59,47 @@ router.post('/support-email', requireAuth, async (req, res) => {
   }
 });
 
+router.get('/email-settings', requireAuth, async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT `key`, `value` FROM app_settings WHERE `key` IN ("email_signature", "email_brand_color")');
+    const settings = {};
+    for (const row of rows) {
+      settings[row.key] = row.value;
+    }
+    res.json({
+      signature: settings.email_signature || '',
+      brandColor: settings.email_brand_color || '#0891b2',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.post('/email-settings', requireAuth, async (req, res) => {
+  try {
+    const { signature, brandColor } = req.body;
+    
+    await db.execute(
+      'INSERT INTO app_settings (`key`, `value`) VALUES ("email_signature", ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)',
+      [signature || '']
+    );
+    
+    if (brandColor) {
+      await db.execute(
+        'INSERT INTO app_settings (`key`, `value`) VALUES ("email_brand_color", ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)',
+        [brandColor]
+      );
+    }
+    
+    logAudit('Email Settings Updated', 'Email signature and branding updated', req.user, req.ip);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.post('/submit', requireAuth, upload.array('attachments', 5), async (req, res) => {
   try {
     const { subject, message } = req.body;
@@ -76,6 +117,14 @@ router.post('/submit', requireAuth, upload.array('attachments', 5), async (req, 
       return res.status(400).json({ error: 'Support email not configured. Please contact an administrator.' });
     }
     const supportEmail = supportRows[0].value;
+
+    const [settingsRows] = await db.execute('SELECT `key`, `value` FROM app_settings WHERE `key` IN ("email_signature", "email_brand_color")');
+    let emailSignature = '';
+    let brandColor = '#0891b2';
+    for (const row of settingsRows) {
+      if (row.key === 'email_signature') emailSignature = row.value || '';
+      if (row.key === 'email_brand_color') brandColor = row.value || '#0891b2';
+    }
 
     const [smtpRows] = await db.execute('SELECT * FROM smtp_settings WHERE id = 1');
     if (smtpRows.length === 0 || !smtpRows[0].host) {
@@ -106,18 +155,24 @@ router.post('/submit', requireAuth, upload.array('attachments', 5), async (req, 
 
     const emailSubject = `[Help Ticket] ${subject.trim()}`;
 
-    const textBody = `Help Ticket Submission\n\nFrom: ${userDisplayName} <${userEmail}>\nSubject: ${subject.trim()}\n\nMessage:\n${message.trim()}\n\n---\nSubmitted via Dealer Document Archive`;
+    const textBody = `Help Ticket Submission\n\nFrom: ${userDisplayName} <${userEmail}>\nSubject: ${subject.trim()}\n\nMessage:\n${message.trim()}\n\n---\nSubmitted via Dealer Document Archive${emailSignature ? '\n\n' + emailSignature : ''}`;
 
+    const signatureHtml = emailSignature 
+      ? `<div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 13px; white-space: pre-wrap;">${emailSignature.replace(/\n/g, '<br>')}</div>`
+      : '';
+    
     const htmlBody = `
       <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
-        <h2 style="color: #0891b2; margin-bottom: 20px;">Help Ticket Submission</h2>
-        <p><strong>From:</strong> ${userDisplayName} &lt;${userEmail}&gt;</p>
-        <p><strong>Subject:</strong> ${subject.trim()}</p>
-        <h3 style="color: #374151; margin-top: 20px;">Message:</h3>
-        <div style="background: #f9fafb; padding: 16px; border-radius: 8px; white-space: pre-wrap;">${message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
-        ${files.length > 0 ? `<p style="color: #6b7280; margin-top: 16px;"><strong>Attachments:</strong> ${files.length} file(s)</p>` : ''}
-        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
-        <p style="color: #9ca3af; font-size: 12px;">Submitted via Dealer Document Archive</p>
+        <div style="padding: 16px 0; border-bottom: 2px solid ${brandColor}; margin-bottom: 16px;">
+          <h2 style="color: ${brandColor}; margin: 0; font-size: 18px;">Help Ticket Submission</h2>
+        </div>
+        <p style="margin: 0 0 8px; color: #374151; font-size: 14px;"><strong>From:</strong> ${userDisplayName} &lt;${userEmail}&gt;</p>
+        <p style="margin: 0 0 8px; color: #374151; font-size: 14px;"><strong>Subject:</strong> ${subject.trim()}</p>
+        <h3 style="color: #374151; margin: 20px 0 12px; font-size: 15px;">Message:</h3>
+        <div style="background: #f9fafb; padding: 16px; border-radius: 8px; color: #374151; font-size: 14px; white-space: pre-wrap;">${message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</div>
+        ${files.length > 0 ? `<p style="color: #6b7280; margin-top: 16px; font-size: 13px;"><strong>Attachments:</strong> ${files.length} file(s)</p>` : ''}
+        ${signatureHtml}
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb; color: #9ca3af; font-size: 12px;">Submitted via Dealer Document Archive</div>
       </div>
     `;
 

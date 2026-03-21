@@ -236,6 +236,9 @@ export default function EditUserModal({ show, onClose, user, groups, onUserUpdat
                 boxSizing: "border-box",
               }}
             />
+            <div style={{ fontSize: 11, color: t.textDim, marginTop: 4 }}>
+              Login uses email address
+            </div>
           </div>
           
           <div style={{ marginBottom: 16 }}>

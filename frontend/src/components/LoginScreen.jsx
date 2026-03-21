@@ -111,18 +111,18 @@ export default function LoginScreen({
                 marginBottom: 6,
               }}
             >
-              Username
+              Email
             </label>
             <input
               className="login-input"
-              type="text"
+              type="email"
               value={loginForm.username}
               onChange={(e) => {
                 setLoginForm((p) => ({ ...p, username: e.target.value }));
                 setLoginError("");
               }}
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-              placeholder="Enter your username"
+              placeholder="Enter your email"
               autoFocus
               style={{
                 width: "100%",

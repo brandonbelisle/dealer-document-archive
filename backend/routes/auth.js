@@ -11,14 +11,14 @@ const router = express.Router();
 // ── POST /api/auth/login ──────────────────────────────────
 router.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password required' });
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password required' });
     }
 
     const [users] = await db.execute(
-      'SELECT * FROM users WHERE username = ?',
-      [username]
+      'SELECT * FROM users WHERE email = ?',
+      [email]
     );
     if (users.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials' });

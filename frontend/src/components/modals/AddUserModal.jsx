@@ -78,7 +78,7 @@ export default function AddUserModal({ show, onClose, groups, onUserCreated, t, 
     }
     
     const displayName = `${firstName.trim()} ${lastName.trim()}`;
-    const username = `${firstName.trim().toLowerCase()}.${lastName.trim().toLowerCase()}`;
+    const username = email.trim().toLowerCase();
     
     setLoading(true);
     try {
@@ -227,6 +227,9 @@ export default function AddUserModal({ show, onClose, groups, onUserCreated, t, 
                 boxSizing: "border-box",
               }}
             />
+            <div style={{ fontSize: 11, color: t.textDim, marginTop: 4 }}>
+              Login uses email address
+            </div>
           </div>
           
           <div style={{ marginBottom: 16 }}>

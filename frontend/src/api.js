@@ -51,10 +51,10 @@ async function request(path, options = {}) {
 }
 
 // ── Auth ──────────────────────────────────────────────────
-export async function login(username, password) {
+export async function login(email, password) {
   const data = await request('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ email, password }),
   });
   setToken(data.token);
   return data.user;

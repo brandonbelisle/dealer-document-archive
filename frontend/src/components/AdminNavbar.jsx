@@ -1,10 +1,16 @@
 import { useState, useEffect } from "react";
-import { SunIcon, MoonIcon, UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon } from "./Icons";
+import { SunIcon, MoonIcon, UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon, LinkIcon } from "./Icons";
 import AlertsDropdown from "./AlertsDropdown";
+import * as api from "../api";
 
 export default function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
+  const [customApps, setCustomApps] = useState([]);
+
+  useEffect(() => {
+    api.getCustomApps().then(setCustomApps).catch(() => {});
+  }, []);
 
   const t = {
     accent: darkMode ? "#88c0d0" : "#0891b2",
@@ -20,6 +26,12 @@ export default function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page,
     { id: "cht", name: "Credit Hold Tracker", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
     ), onClick: () => { setPage("cht-dashboard"); setShowAppsDropdown(false); } },
+    ...customApps.map((app) => ({
+      id: app.id,
+      name: app.name,
+      icon: <LinkIcon size={16} />,
+      onClick: () => { window.open(app.link, "_blank"); setShowAppsDropdown(false); },
+    })),
     { id: "admin", name: "Admin Center", icon: <GearIcon size={20} />, onClick: () => { setPage("admin"); setAdminSection?.("users"); setShowAppsDropdown(false); } },
   ];
 

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { SunIcon, MoonIcon, UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon } from "./Icons";
+import { SunIcon, MoonIcon, UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon, LinkIcon } from "./Icons";
 import AlertsDropdown from "./AlertsDropdown";
+import * as api from "../api";
 
 export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
-
-  const isAdmin = loggedInUser?.groups?.includes("Administrator");
+  const [customApps, setCustomApps] = useState([]);
 
   const chtAccent = "#f59e0b";
   const chtAccentDark = "#d97706";
@@ -27,10 +27,20 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
     { id: "cht", name: "Credit Hold Tracker", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
     ), onClick: () => { setPage("cht-dashboard"); setShowAppsDropdown(false); } },
+    ...customApps.map((app) => ({
+      id: app.id,
+      name: app.name,
+      icon: <LinkIcon size={16} />,
+      onClick: () => { window.open(app.link, "_blank"); setShowAppsDropdown(false); },
+    })),
     ...(isAdmin ? [{ id: "admin", name: "Admin Center", icon: <GearIcon size={20} />, onClick: () => { setPage("admin"); setAdminSection?.("users"); setShowAppsDropdown(false); } }] : []),
   ];
 
   const navActiveBg = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)";
+
+  useEffect(() => {
+    api.getCustomApps().then(setCustomApps).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = () => {

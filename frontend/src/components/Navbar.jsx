@@ -24,6 +24,7 @@ import {
   HomeIcon,
   BellIcon,
   MenuIcon,
+  LinkIcon,
 } from "./Icons";
 import AlertsDropdown from "./AlertsDropdown";
 
@@ -77,6 +78,7 @@ export default function Navbar({
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1200);
+  const [customApps, setCustomApps] = useState([]);
 
   const isMobile = windowWidth < 1100;
 
@@ -84,6 +86,10 @@ export default function Navbar({
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    api.getCustomApps().then(setCustomApps).catch(() => {});
   }, []);
 
   const q = globalSearch.trim();
@@ -98,6 +104,12 @@ export default function Navbar({
     { id: "cht", name: "Credit Hold Tracker", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
     ), onClick: () => { setPage("cht-dashboard"); setShowAppsDropdown(false); } },
+    ...customApps.map((app) => ({
+      id: app.id,
+      name: app.name,
+      icon: <LinkIcon size={16} />,
+      onClick: () => { window.open(app.link, "_blank"); setShowAppsDropdown(false); },
+    })),
     ...(isAdmin ? [{ id: "admin", name: "Admin Center", icon: <GearIcon size={20} />, onClick: () => { setPage("admin"); setAdminSection("users"); setShowAppsDropdown(false); } }] : []),
   ];
 

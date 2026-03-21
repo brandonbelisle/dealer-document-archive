@@ -29,7 +29,11 @@ export default function Toast({ toasts, removeToast, darkMode }) {
   
   useEffect(() => {
     if (toasts.length > prevToastCount.current) {
-      playNotificationSound();
+      const newToasts = toasts.slice(prevToastCount.current);
+      const hasSoundToast = newToasts.some((t) => t.type !== "delete" && t.type !== "create");
+      if (hasSoundToast) {
+        playNotificationSound();
+      }
     }
     prevToastCount.current = toasts.length;
   }, [toasts.length]);

@@ -749,6 +749,7 @@ function SettingsSection({ t, darkMode, addToast }) {
   const [newCertName, setNewCertName] = useState('');
   const [newCertFile, setNewCertFile] = useState(null);
   const [newKeyFile, setNewKeyFile] = useState(null);
+  const [newPassphrase, setNewPassphrase] = useState('');
   const [showRestartPrompt, setShowRestartPrompt] = useState(false);
   const sslInputRef = useRef(null);
   const sslKeyInputRef = useRef(null);
@@ -1632,6 +1633,28 @@ function SettingsSection({ t, darkMode, addToast }) {
                 )}
               </div>
             </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 11, fontWeight: 500, color: t.textMuted, display: "block", marginBottom: 4 }}>
+                Private Key Passphrase (optional)
+              </label>
+              <input
+                type="password"
+                value={newPassphrase}
+                onChange={(e) => setNewPassphrase(e.target.value)}
+                placeholder="Leave empty if key has no passphrase"
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  fontSize: 14,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 8,
+                  background: darkMode ? "#1a1a1a" : "#fff",
+                  color: t.text,
+                  fontFamily: "inherit",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
             <Btn
               darkMode={darkMode}
               t={t}
@@ -1643,11 +1666,12 @@ function SettingsSection({ t, darkMode, addToast }) {
                 const name = newCertName.trim() || newCertFile.name.replace(/\.[^/.]+$/, "");
                 setSslUploading(true);
                 try {
-                  await api.uploadSslCertificate(name, newCertFile, newKeyFile);
+                  await api.uploadSslCertificate(name, newCertFile, newKeyFile, newPassphrase || undefined);
                   addToast("Certificate uploaded", `"${name}" has been uploaded successfully`, 4000, "create");
                   setNewCertName("");
                   setNewCertFile(null);
                   setNewKeyFile(null);
+                  setNewPassphrase("");
                   loadSslCertificates();
                 } catch (err) {
                   addToast("Upload failed", err.message || "Failed to upload certificate", 5000, "error");
@@ -1811,6 +1835,7 @@ function SettingsSection({ t, darkMode, addToast }) {
                     <div style={{ fontSize: 11, color: t.textDim }}>
                       {cert.filename}
                       {cert.keyFilename && <span> + {cert.keyFilename}</span>}
+                      {cert.hasPassphrase && <span style={{ color: "#f97316" }}> (passphrase protected)</span>}
                       <span> · Uploaded {new Date(cert.uploadedAt).toLocaleString()}</span>
                     </div>
                   </div>

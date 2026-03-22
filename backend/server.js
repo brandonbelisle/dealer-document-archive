@@ -114,7 +114,7 @@ async function loadSSLOptions() {
   try {
     const db = require('./config/db');
     const [rows] = await db.execute(
-      'SELECT name, filename, key_filename FROM ssl_certificates WHERE is_active = 1 LIMIT 1'
+      'SELECT name, filename, key_filename, passphrase FROM ssl_certificates WHERE is_active = 1 LIMIT 1'
     );
 
     if (rows.length > 0) {
@@ -136,10 +136,14 @@ async function loadSSLOptions() {
             console.warn('  Falling back to environment variable certificates');
           } else {
             console.log('✓ Using active SSL certificate:', cert.name);
-            return {
+            const sslOptions = {
               key: keyContent,
               cert: certContent,
             };
+            if (cert.passphrase) {
+              sslOptions.passphrase = cert.passphrase;
+            }
+            return sslOptions;
           }
         } catch (readErr) {
           console.warn('⚠ Failed to read certificate files:', readErr.message);

@@ -205,7 +205,7 @@ router.post('/logo/:type', requireAuth, requirePermission('manageSettings'), (re
 router.get('/ssl', requireAuth, requirePermission('manageSettings'), async (req, res) => {
   try {
     const [rows] = await db.execute(
-      'SELECT id, name, filename, key_filename, is_active, issuer, subject, valid_from, valid_to, serial_number, fingerprint, uploaded_at FROM ssl_certificates ORDER BY uploaded_at DESC'
+      'SELECT id, name, filename, key_filename, passphrase, is_active, issuer, subject, valid_from, valid_to, serial_number, fingerprint, uploaded_at FROM ssl_certificates ORDER BY uploaded_at DESC'
     );
     
     const dir = path.join(__dirname, '../uploads/certificates');
@@ -218,6 +218,7 @@ router.get('/ssl', requireAuth, requirePermission('manageSettings'), async (req,
       name: row.name,
       filename: row.filename,
       keyFilename: row.key_filename,
+      hasPassphrase: !!row.passphrase,
       isActive: !!row.is_active,
       issuer: row.issuer,
       subject: row.subject,
@@ -256,20 +257,22 @@ router.post('/ssl/upload', requireAuth, requirePermission('manageSettings'), (re
     }
 
     try {
-      const { name } = req.body;
+      const { name, passphrase } = req.body;
       const certName = name || path.basename(certFile.originalname, path.extname(certFile.originalname));
       
       const certInfo = parseCertificate(certFile.path);
       const keyFilename = keyFile ? keyFile.filename : null;
+      const passphraseValue = passphrase ? passphrase : null;
       
       const [result] = await db.execute(
         `INSERT INTO ssl_certificates 
-         (name, filename, key_filename, is_active, issuer, subject, valid_from, valid_to, serial_number, fingerprint, uploaded_at) 
-         VALUES (?, ?, ?, 0, ?, ?, ?, ?, ?, ?, NOW())`,
+         (name, filename, key_filename, passphrase, is_active, issuer, subject, valid_from, valid_to, serial_number, fingerprint, uploaded_at) 
+         VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, NOW())`,
         [
           certName,
           certFile.filename,
           keyFilename,
+          passphraseValue,
           certInfo?.issuer || null,
           certInfo?.subject || null,
           certInfo?.validFrom || null,
@@ -296,7 +299,8 @@ router.post('/ssl/upload', requireAuth, requirePermission('manageSettings'), (re
         subject: certInfo?.subject,
         validFrom: certInfo?.validFrom,
         validTo: certInfo?.validTo,
-        hasKey: !!keyFilename
+        hasKey: !!keyFilename,
+        hasPassphrase: !!passphraseValue
       });
     } catch (dbErr) {
       console.error(dbErr);

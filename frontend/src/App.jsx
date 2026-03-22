@@ -418,7 +418,82 @@ const t = getTheme(darkMode);
     files.forEach((f) => processFile(f, null)); 
   }, [processFile, pdfjsLoaded]);
   const handleDrop = useCallback((e) => { e.preventDefault(); setDragOver(false); handleUploadFiles(e.dataTransfer.files); }, [handleUploadFiles]);
-  const handleFolderDetailDrop = useCallback((e) => { e.preventDefault(); setFolderDetailDragOver(false); if (!activeFolderId) return; Array.from(e.dataTransfer.files).forEach((f) => processFile(f, activeFolderId)); }, [processFile, activeFolderId]);
+
+  const readDirectoryContents = async (directoryEntry, path = "") => {
+    const files = [];
+    const entries = await new Promise((resolve, reject) => {
+      const reader = directoryEntry.createReader();
+      const allEntries = [];
+      const readEntries = () => {
+        reader.readEntries((entries) => {
+          if (entries.length === 0) {
+            resolve(allEntries);
+          } else {
+            allEntries.push(...entries);
+            readEntries();
+          }
+        }, reject);
+      };
+      readEntries();
+    });
+    
+    for (const entry of entries) {
+      const entryPath = path ? `${path}/${entry.name}` : entry.name;
+      if (entry.isFile) {
+        const file = await new Promise((resolve, reject) => {
+          entry.file(resolve, reject);
+        });
+        files.push({ file, path: entryPath, name: entry.name });
+      } else if (entry.isDirectory) {
+        const subFiles = await readDirectoryContents(entry, entryPath);
+        files.push(...subFiles);
+      }
+    }
+    return files;
+  };
+
+  const handleFolderDetailDrop = useCallback(async (e) => {
+    e.preventDefault();
+    setFolderDetailDragOver(false);
+    if (!activeFolderId) return;
+
+    const activeFolderObj = folders.find((f) => f.id === activeFolderId);
+    if (!activeFolderObj) return;
+
+    const items = e.dataTransfer.items;
+    if (!items) {
+      Array.from(e.dataTransfer.files).forEach((f) => processFile(f, activeFolderId));
+      return;
+    }
+
+    for (const item of items) {
+      const entry = item.webkitGetAsEntry?.() || item.getAsEntry?.();
+      if (!entry) continue;
+
+      if (entry.isFile) {
+        const file = await new Promise((resolve, reject) => {
+          entry.file(resolve, reject);
+        });
+        processFile(file, activeFolderId);
+      } else if (entry.isDirectory) {
+        const allFiles = await readDirectoryContents(entry);
+        const folderName = entry.name;
+        
+        try {
+          const created = await api.createFolder(folderName, activeFolderObj.locationId, activeFolderObj.departmentId, activeFolderId);
+          setFolders((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: created.parent_id || created.parentId || null, createdAt: created.created_at }]);
+          addToast("Folder created", `"${folderName}" has been created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""}`, 4000, "create");
+          
+          for (const { file } of allFiles) {
+            processFile(file, created.id);
+          }
+        } catch (err) {
+          console.error("Failed to create folder:", err);
+          addToast("Error", `Failed to create folder "${folderName}"`, 4000, "error");
+        }
+      }
+    }
+  }, [processFile, activeFolderId, folders]);
   const handleFolderDetailFiles = useCallback((fl) => { if (!activeFolderId) return; Array.from(fl).forEach((f) => processFile(f, activeFolderId)); }, [processFile, activeFolderId]);
 
   const removeFile = async (id) => { 
@@ -456,8 +531,13 @@ const t = getTheme(darkMode);
   };
 
   const handleDeleteFolder = (folder) => {
-    const childFolders = subfoldersOf(folder.id); const fileCount = allFilesInFolderRecursive(folder.id);
-    const message = (childFolders.length > 0 || fileCount > 0) ? `Delete "${folder.name}" and everything inside it? This includes ${childFolders.length} subfolder${childFolders.length !== 1 ? "s" : ""} and ${fileCount} file${fileCount !== 1 ? "s" : ""}. This cannot be undone.` : `Delete the folder "${folder.name}"? This cannot be undone.`;
+    const childFolders = subfoldersOf(folder.id);
+    const fileCount = allFilesInFolderRecursive(folder.id);
+    const message = childFolders.length > 0
+      ? `Delete "${folder.name}"? This includes ${childFolders.length} subfolder${childFolders.length !== 1 ? "s" : ""} and ${fileCount} file${fileCount !== 1 ? "s" : ""} will become unsorted. This cannot be undone.`
+      : fileCount > 0
+        ? `Delete "${folder.name}"? ${fileCount} file${fileCount !== 1 ? "s" : ""} inside will become unsorted. This cannot be undone.`
+        : `Delete the folder "${folder.name}"? This cannot be undone.`;
     const doDelete = async () => { 
       try { 
         const getAllDescendants = (pid) => { const ch = subfoldersOf(pid); let all = []; for (const c of ch) { all = [...all, ...getAllDescendants(c.id), c]; } return all; }; 

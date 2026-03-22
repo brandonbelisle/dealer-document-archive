@@ -130,12 +130,12 @@ export default function FolderDetailPage({
               <UploadCloudIcon size={48} />
             </div>
             <div style={{ fontSize: 16, fontWeight: 600, color: t.text }}>
-              Drop files into "{activeFolder.name}"
+              Drop files or folders into "{activeFolder.name}"
             </div>
             <div
               style={{ fontSize: 12, color: t.textMuted, marginTop: 4 }}
             >
-              Files will be added to this folder automatically
+              Folders will be created automatically with their files
             </div>
           </div>
         </div>

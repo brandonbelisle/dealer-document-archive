@@ -9,6 +9,7 @@ const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
 const { createNotificationsForUpload, createNotificationsForUnsortedUpload } = require('./notifications');
 const { extractPdfText } = require('../utils/pdfExtract');
+const socket = require('../socket');
 
 const router = express.Router();
 
@@ -80,6 +81,7 @@ router.put('/:id/move', requireAuth, requirePermission('uploadFiles'), async (re
       await db.execute('UPDATE files SET folder_id = NULL WHERE id = ?', [req.params.id]);
       await logAudit('File Moved', `"${existing[0].name}" → Unsorted`, req.user, req.ip);
     }
+    socket.filesChanged(folderId || existing[0].folder_id);
 
     const [updated] = await db.execute('SELECT * FROM files WHERE id = ?', [req.params.id]);
     res.json(updated[0]);
@@ -208,6 +210,7 @@ router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.sin
       uploadedBy: req.user.id,
       uploadedByName: req.user.displayName || req.user.username || 'Unknown',
     });
+    if (folderId) socket.filesChanged(folderId);
 
     const [rows] = await db.execute('SELECT * FROM files WHERE id = ?', [id]);
     res.status(201).json(rows[0]);
@@ -281,11 +284,12 @@ router.put('/:id/rename', requireAuth, requirePermission('renameFiles'), async (
     const { name } = req.body;
     if (!name?.trim()) return res.status(400).json({ error: 'Name required' });
 
-    const [existing] = await db.execute('SELECT name FROM files WHERE id = ?', [req.params.id]);
+    const [existing] = await db.execute('SELECT name, folder_id FROM files WHERE id = ?', [req.params.id]);
     if (existing.length === 0) return res.status(404).json({ error: 'Not found' });
 
     await db.execute('UPDATE files SET name = ? WHERE id = ?', [name.trim(), req.params.id]);
     await logAudit('File Renamed', `"${existing[0].name}" → "${name.trim()}"`, req.user, req.ip);
+    if (existing[0].folder_id) socket.filesChanged(existing[0].folder_id);
 
     const [rows] = await db.execute('SELECT * FROM files WHERE id = ?', [req.params.id]);
     res.json(rows[0]);
@@ -298,8 +302,10 @@ router.put('/:id/rename', requireAuth, requirePermission('renameFiles'), async (
 // ── DELETE /api/files/:id ─────────────────────────────────
 router.delete('/:id', requireAuth, requirePermission('deleteFiles'), async (req, res) => {
   try {
-    const [existing] = await db.execute('SELECT name, file_storage_path FROM files WHERE id = ?', [req.params.id]);
+    const [existing] = await db.execute('SELECT name, folder_id, file_storage_path FROM files WHERE id = ?', [req.params.id]);
     if (existing.length === 0) return res.status(404).json({ error: 'Not found' });
+
+    const folderId = existing[0].folder_id;
 
     // Delete blob from Azure
     const storagePath = existing[0].file_storage_path;
@@ -310,6 +316,7 @@ router.delete('/:id', requireAuth, requirePermission('deleteFiles'), async (req,
 
     await db.execute('DELETE FROM files WHERE id = ?', [req.params.id]);
     await logAudit('File Deleted', `"${existing[0].name}"`, req.user, req.ip);
+    if (folderId) socket.filesChanged(folderId);
 
     res.json({ success: true });
   } catch (err) {

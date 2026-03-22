@@ -3,6 +3,7 @@ import * as api from "./api";
 import { getTheme } from "./theme";
 import { loadPDFJS, extractTextFromPDF, uid, extractRO, copyText, ACCEPTED_TYPE, ACCEPTED_IMAGE_TYPES, ACCEPTED_EXTENSIONS, isImageFile, isPdfFile, isValidFileType, MAX_FILE_SIZE } from "./utils/helpers";
 import { DEFAULT_LOCATIONS, DEFAULT_DEPARTMENTS } from "./constants";
+import { useSocket } from "./hooks/useSocket";
 import ErrorBoundary from "./components/ErrorBoundary";
 import LoginScreen from "./components/LoginScreen";
 import Navbar from "./components/Navbar";
@@ -390,34 +391,75 @@ const t = getTheme(darkMode);
     api.getSubscriptionsWithDetails().then(setSubscriptions).catch(console.error);
   }, [isLoggedIn]);
 
-  // Poll for notifications
-  const lastNotificationCheck = useRef(0);
-  useEffect(() => {
+  // Socket.io real-time updates
+  const handleLocationsChanged = useCallback(() => {
     if (!isLoggedIn) return;
-    
-    const fetchNotifications = async () => {
-      try {
-        const notifications = await api.getNotifications(true);
-        if (notifications.length > 0) {
-          notifications.forEach((n) => {
-            addToast(
-              `New file uploaded`,
-              `${n.file_name} was uploaded by ${n.created_by_name} to ${n.item_name || 'a subscribed location'}`,
-              7000,
-              "upload"
-            );
-            api.markNotificationRead(n.id).catch(console.error);
-          });
-        }
-      } catch (err) {
-        console.error("Failed to fetch notifications:", err);
-      }
-    };
+    api.getLocations().then((locs) => {
+      const normLocs = locs.map((l) => ({ id: l.id, name: l.name, locationCode: l.location_code || l.locationCode }));
+      setLocations(normLocs);
+    }).catch(console.error);
+  }, [isLoggedIn]);
 
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+  const handleDepartmentsChanged = useCallback(() => {
+    if (!isLoggedIn) return;
+    api.getDepartments().then((depts) => {
+      const normDepts = depts.map((d) => ({ id: d.id, name: d.name, locationId: d.location_id || d.locationId }));
+      setDepartments(normDepts);
+    }).catch(console.error);
+  }, [isLoggedIn]);
+
+  const handleFoldersChanged = useCallback(() => {
+    if (!isLoggedIn || !activeDepartment) return;
+    api.getFolders({ departmentId: activeDepartment }).then((rows) => {
+      const norm = rows.map((f) => ({ id: f.id, name: f.name, locationId: f.location_id || f.locationId, departmentId: f.department_id || f.departmentId, parentId: f.parent_id || f.parentId || null, createdAt: f.created_at, fileCount: Number(f.fileCount || 0), subfolderCount: Number(f.subfolderCount || 0) }));
+      setFolders((prev) => [...prev.filter((f) => f.departmentId !== activeDepartment), ...norm]);
+    }).catch(console.error);
+  }, [isLoggedIn, activeDepartment]);
+
+  const handleFilesChanged = useCallback(() => {
+    if (!isLoggedIn || !activeFolderId) return;
+    api.getFiles(activeFolderId).then((rows) => {
+      const norm = rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: f.folder_id, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 }));
+      setFiles((prev) => [...prev.filter((f) => f.folderId !== activeFolderId), ...norm]);
+    }).catch(console.error);
+  }, [isLoggedIn, activeFolderId]);
+
+  const handleUsersChanged = useCallback(() => {
+    if (!isLoggedIn || page !== "admin" || adminSection !== "users") return;
+    api.getUsers().then((users) => {
+      setAdminUsers(users.map((u) => ({ name: u.display_name, email: u.email, groups: u.groups || [], status: u.status === "active" ? "Active" : "Inactive", id: u.id, groupIds: u.groupIds || [] })));
+    }).catch(console.error);
+  }, [isLoggedIn, page, adminSection]);
+
+  const handleGroupsChanged = useCallback(() => {
+    if (!isLoggedIn) return;
+    api.getGroups().then((data) => {
+      setSecurityGroups(data.groups.map((g) => ({ id: g.id, name: g.name, desc: g.description, permissions: g.permissions, memberCount: g.memberCount })));
+      setTotalPermissionCount(data.totalPermissionCount || 0);
+    }).catch(console.error);
+  }, [isLoggedIn]);
+
+  const handleNotificationCreated = useCallback((data) => {
+    if (!isLoggedIn) return;
+    const notification = data.notification || data;
+    addToast(
+      `New file uploaded`,
+      `${notification.file_name} was uploaded by ${notification.created_by_name} to ${notification.item_name || 'a subscribed location'}`,
+      7000,
+      "upload"
+    );
+    api.markNotificationRead(notification.id).catch(console.error);
   }, [isLoggedIn, addToast]);
+
+  useSocket({
+    onLocationsChanged: handleLocationsChanged,
+    onDepartmentsChanged: handleDepartmentsChanged,
+    onFoldersChanged: handleFoldersChanged,
+    onFilesChanged: handleFilesChanged,
+    onUsersChanged: handleUsersChanged,
+    onGroupsChanged: handleGroupsChanged,
+    onNotificationCreated: handleNotificationCreated,
+  });
 
   // Auto-suggest folders for staged files
   useEffect(() => {

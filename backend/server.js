@@ -208,6 +208,20 @@ async function startServer() {
     ? https.createServer(sslOptions, app)
     : http.createServer(app);
 
+  // Initialize Socket.io for real-time updates
+  const { Server } = require('socket.io');
+  const io = new Server(server, {
+    cors: {
+      origin: process.env.FRONTEND_URL || true,
+      methods: ['GET', 'POST'],
+      credentials: true,
+    },
+  });
+  
+  const socketService = require('./socket');
+  socketService.init(io);
+  console.log('✓ Socket.io initialized');
+
   const PID_FILE = path.resolve(__dirname, 'server.pid');
   const protocol = SSL_ENABLED && sslOptions ? 'https' : 'http';
 

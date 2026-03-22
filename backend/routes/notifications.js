@@ -4,6 +4,7 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../config/db');
 const { requireAuth } = require('../middleware/auth');
+const socket = require('../socket');
 
 const router = express.Router();
 
@@ -205,6 +206,21 @@ async function createNotificationsForUpload(uploadInfo) {
           uploadedByName
         ]
       );
+      
+      // Emit socket event for real-time notification
+      socket.notificationCreated(sub.user_id, {
+        id: notificationId,
+        notification_type: notificationType,
+        item_type: itemType,
+        item_id: sub.subscription_id || folderId,
+        item_name: itemName,
+        location_name: locationName,
+        department_name: departmentName,
+        file_name: fileName,
+        file_id: fileId,
+        created_by_name: uploadedByName,
+        created_at: new Date().toISOString(),
+      });
     }
   } catch (err) {
     console.error('Error creating notifications:', err);

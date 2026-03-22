@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import * as api from "../api";
 import { BellIcon, XIcon, TrashIcon, MapPinIcon, LayersIcon, FolderClosedIcon } from "./Icons";
 import { getTheme } from "../theme";
+import { useSocket } from "../hooks/useSocket";
 
 export default function AlertsDropdown({ darkMode, onNavigate }) {
   const t = getTheme(darkMode);
@@ -9,6 +10,16 @@ export default function AlertsDropdown({ darkMode, onNavigate }) {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const handleNotificationCreated = (data) => {
+    const notification = data.notification || data;
+    setAlerts((prev) => [{ ...notification, read_at: null }, ...prev.slice(0, 99)]);
+    setUnreadCount((prev) => prev + 1);
+  };
+
+  useSocket({
+    onNotificationCreated: handleNotificationCreated,
+  });
 
   useEffect(() => {
     if (showDropdown) {
@@ -18,8 +29,6 @@ export default function AlertsDropdown({ darkMode, onNavigate }) {
 
   useEffect(() => {
     loadUnreadCount();
-    const interval = setInterval(loadUnreadCount, 60000);
-    return () => clearInterval(interval);
   }, []);
 
   const loadAlerts = async () => {

@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const db = require('../config/db');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
+const socket = require('../socket');
 
 const router = express.Router();
 
@@ -47,6 +48,7 @@ router.post('/', requireAuth, requirePermission('manageLocations'), async (req, 
       [id, name.trim(), code, req.user.id]
     );
     await logAudit('Location Created', `"${name.trim()}"${code ? ` (${code})` : ''}`, req.user, req.ip);
+    socket.locationsChanged();
 
     const [rows] = await db.execute('SELECT * FROM locations WHERE id = ?', [id]);
     res.status(201).json(rows[0]);
@@ -88,6 +90,7 @@ router.put('/:id', requireAuth, requirePermission('manageLocations'), async (req
     const oldCode = existing[0].location_code;
     const codeChange = oldCode !== code ? ` (${oldCode || 'none'} → ${code || 'none'})` : '';
     await logAudit('Location Updated', `"${existing[0].name}"${codeChange}`, req.user, req.ip);
+    socket.locationsChanged();
 
     const [rows] = await db.execute('SELECT * FROM locations WHERE id = ?', [req.params.id]);
     res.json(rows[0]);
@@ -105,6 +108,7 @@ router.delete('/:id', requireAuth, requirePermission('manageLocations'), async (
 
     await db.execute('DELETE FROM locations WHERE id = ?', [req.params.id]);
     await logAudit('Location Deleted', `"${existing[0].name}"${existing[0].location_code ? ` (${existing[0].location_code})` : ''}`, req.user, req.ip);
+    socket.locationsChanged();
 
     res.json({ success: true });
   } catch (err) {

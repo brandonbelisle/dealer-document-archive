@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const db = require('../config/db');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
+const socket = require('../socket');
 
 const router = express.Router();
 
@@ -69,6 +70,7 @@ router.post('/', requireAuth, requirePermission('manageUsers'), async (req, res)
     }
 
     await logAudit('User Created', `"${displayName}" (${username})`, req.user, req.ip);
+    socket.usersChanged();
     res.status(201).json({ id, username, email, displayName });
   } catch (err) {
     console.error(err);
@@ -85,6 +87,7 @@ router.put('/:id/status', requireAuth, requirePermission('manageUsers'), async (
     }
     await db.execute('UPDATE users SET status = ? WHERE id = ?', [status, req.params.id]);
     await logAudit('User Status Changed', `User ${req.params.id} → ${status}`, req.user, req.ip);
+    socket.usersChanged();
     res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -122,6 +125,7 @@ router.put('/:id/password', requireAuth, requirePermission('manageUsers'), async
       req.user,
       req.ip
     );
+    socket.usersChanged();
 
     res.json({ success: true, message: `Password set for ${users[0].display_name}` });
   } catch (err) {
@@ -154,6 +158,7 @@ router.put('/:id', requireAuth, requirePermission('manageUsers'), async (req, re
     );
 
     await logAudit('User Updated', `"${displayName}"`, req.user, req.ip);
+    socket.usersChanged();
     
     // Return updated user
     const [users] = await db.execute(
@@ -211,6 +216,7 @@ router.put('/:id/groups', requireAuth, requirePermission('manageUsers'), async (
     }
 
     await logAudit('User Groups Updated', `"${users[0].display_name}" (${users[0].username})`, req.user, req.ip);
+    socket.usersChanged();
     
     res.json({ success: true });
   } catch (err) {
@@ -281,6 +287,7 @@ router.delete('/:id', requireAuth, requirePermission('manageUsers'), async (req,
     await db.execute('DELETE FROM users WHERE id = ?', [req.params.id]);
 
     await logAudit('User Deleted', `"${users[0].display_name}" (${users[0].username})`, req.user, req.ip);
+    socket.usersChanged();
     res.json({ success: true });
   } catch (err) {
     console.error(err);

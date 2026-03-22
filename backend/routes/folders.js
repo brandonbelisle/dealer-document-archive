@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const db = require('../config/db');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
+const socket = require('../socket');
 
 const router = express.Router();
 
@@ -186,6 +187,7 @@ router.post('/', requireAuth, requirePermission('createFolders'), async (req, re
       ? `"${name.trim()}" (subfolder)`
       : `"${name.trim()}"`;
     await logAudit(parentId ? 'Subfolder Created' : 'Folder Created', detail, req.user, req.ip);
+    socket.foldersChanged(departmentId);
 
     const [rows] = await db.execute(
       `SELECT f.*, l.name AS location_name, d.name AS department_name
@@ -203,12 +205,14 @@ router.post('/', requireAuth, requirePermission('createFolders'), async (req, re
 // ── DELETE /api/folders/:id ───────────────────────────────
 router.delete('/:id', requireAuth, requirePermission('deleteFolders'), async (req, res) => {
   try {
-    const [existing] = await db.execute('SELECT name FROM folders WHERE id = ?', [req.params.id]);
+    const [existing] = await db.execute('SELECT name, department_id FROM folders WHERE id = ?', [req.params.id]);
     if (existing.length === 0) return res.status(404).json({ error: 'Not found' });
 
+    const departmentId = existing[0].department_id;
     await db.execute('UPDATE files SET folder_id = NULL WHERE folder_id = ?', [req.params.id]);
     await db.execute('DELETE FROM folders WHERE id = ?', [req.params.id]);
     await logAudit('Folder Deleted', `"${existing[0].name}"`, req.user, req.ip);
+    socket.foldersChanged(departmentId);
 
     res.json({ success: true });
   } catch (err) {

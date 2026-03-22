@@ -473,8 +473,8 @@ function requireReact_production() {
   };
   react_production.useDebugValue = function() {
   };
-  react_production.useDeferredValue = function(value, initialValue) {
-    return ReactSharedInternals.H.useDeferredValue(value, initialValue);
+  react_production.useDeferredValue = function(value2, initialValue) {
+    return ReactSharedInternals.H.useDeferredValue(value2, initialValue);
   };
   react_production.useEffect = function(create, deps) {
     return ReactSharedInternals.H.useEffect(create, deps);
@@ -827,13 +827,13 @@ function requireReactDom_production() {
   hasRequiredReactDom_production = 1;
   var React2 = requireReact();
   function formatProdErrorMessage(code) {
-    var url = "https://react.dev/errors/" + code;
+    var url2 = "https://react.dev/errors/" + code;
     if (1 < arguments.length) {
-      url += "?args[]=" + encodeURIComponent(arguments[1]);
+      url2 += "?args[]=" + encodeURIComponent(arguments[1]);
       for (var i = 2; i < arguments.length; i++)
-        url += "&args[]=" + encodeURIComponent(arguments[i]);
+        url2 += "&args[]=" + encodeURIComponent(arguments[i]);
     }
-    return "Minified React error #" + code + "; visit " + url + " for the full message or use the non-minified dev environment for full errors and additional helpful warnings.";
+    return "Minified React error #" + code + "; visit " + url2 + " for the full message or use the non-minified dev environment for full errors and additional helpful warnings.";
   }
   function noop() {
   }
@@ -1003,13 +1003,13 @@ function requireReactDomClient_production() {
   hasRequiredReactDomClient_production = 1;
   var Scheduler = requireScheduler(), React2 = requireReact(), ReactDOM2 = requireReactDom();
   function formatProdErrorMessage(code) {
-    var url = "https://react.dev/errors/" + code;
+    var url2 = "https://react.dev/errors/" + code;
     if (1 < arguments.length) {
-      url += "?args[]=" + encodeURIComponent(arguments[1]);
+      url2 += "?args[]=" + encodeURIComponent(arguments[1]);
       for (var i = 2; i < arguments.length; i++)
-        url += "&args[]=" + encodeURIComponent(arguments[i]);
+        url2 += "&args[]=" + encodeURIComponent(arguments[i]);
     }
-    return "Minified React error #" + code + "; visit " + url + " for the full message or use the non-minified dev environment for full errors and additional helpful warnings.";
+    return "Minified React error #" + code + "; visit " + url2 + " for the full message or use the non-minified dev environment for full errors and additional helpful warnings.";
   }
   function isValidContainer(node) {
     return !(!node || 1 !== node.nodeType && 9 !== node.nodeType && 11 !== node.nodeType);
@@ -1189,10 +1189,10 @@ function requireReactDomClient_production() {
   function pop(cursor) {
     0 > index || (cursor.current = valueStack[index], valueStack[index] = null, index--);
   }
-  function push(cursor, value) {
+  function push(cursor, value2) {
     index++;
     valueStack[index] = cursor.current;
-    cursor.current = value;
+    cursor.current = value2;
   }
   var contextStackCursor = createCursor(null), contextFiberStackCursor = createCursor(null), rootInstanceStackCursor = createCursor(null), hostTransitionProviderCursor = createCursor(null);
   function pushHostContainer(fiber, nextRootInstance) {
@@ -1685,11 +1685,11 @@ function requireReactDomClient_production() {
     illegalAttributeNameCache[attributeName] = true;
     return false;
   }
-  function setValueForAttribute(node, name, value) {
+  function setValueForAttribute(node, name, value2) {
     if (isAttributeNameSafe(name))
-      if (null === value) node.removeAttribute(name);
+      if (null === value2) node.removeAttribute(name);
       else {
-        switch (typeof value) {
+        switch (typeof value2) {
           case "undefined":
           case "function":
           case "symbol":
@@ -1702,13 +1702,13 @@ function requireReactDomClient_production() {
               return;
             }
         }
-        node.setAttribute(name, "" + value);
+        node.setAttribute(name, "" + value2);
       }
   }
-  function setValueForKnownAttribute(node, name, value) {
-    if (null === value) node.removeAttribute(name);
+  function setValueForKnownAttribute(node, name, value2) {
+    if (null === value2) node.removeAttribute(name);
     else {
-      switch (typeof value) {
+      switch (typeof value2) {
         case "undefined":
         case "function":
         case "symbol":
@@ -1716,13 +1716,13 @@ function requireReactDomClient_production() {
           node.removeAttribute(name);
           return;
       }
-      node.setAttribute(name, "" + value);
+      node.setAttribute(name, "" + value2);
     }
   }
-  function setValueForNamespacedAttribute(node, namespace, name, value) {
-    if (null === value) node.removeAttribute(name);
+  function setValueForNamespacedAttribute(node, namespace, name, value2) {
+    if (null === value2) node.removeAttribute(name);
     else {
-      switch (typeof value) {
+      switch (typeof value2) {
         case "undefined":
         case "function":
         case "symbol":
@@ -1730,19 +1730,19 @@ function requireReactDomClient_production() {
           node.removeAttribute(name);
           return;
       }
-      node.setAttributeNS(namespace, name, "" + value);
+      node.setAttributeNS(namespace, name, "" + value2);
     }
   }
-  function getToStringValue(value) {
-    switch (typeof value) {
+  function getToStringValue(value2) {
+    switch (typeof value2) {
       case "bigint":
       case "boolean":
       case "number":
       case "string":
       case "undefined":
-        return value;
+        return value2;
       case "object":
-        return value;
+        return value2;
       default:
         return "";
     }
@@ -1763,9 +1763,9 @@ function requireReactDomClient_production() {
         get: function() {
           return get.call(this);
         },
-        set: function(value) {
-          currentValue = "" + value;
-          set.call(this, value);
+        set: function(value2) {
+          currentValue = "" + value2;
+          set.call(this, value2);
         }
       });
       Object.defineProperty(node, valueField, {
@@ -1775,8 +1775,8 @@ function requireReactDomClient_production() {
         getValue: function() {
           return currentValue;
         },
-        setValue: function(value) {
-          currentValue = "" + value;
+        setValue: function(value2) {
+          currentValue = "" + value2;
         },
         stopTracking: function() {
           node._valueTracker = null;
@@ -1800,9 +1800,9 @@ function requireReactDomClient_production() {
     var tracker = node._valueTracker;
     if (!tracker) return true;
     var lastValue = tracker.getValue();
-    var value = "";
-    node && (value = isCheckable(node) ? node.checked ? "true" : "false" : node.value);
-    node = value;
+    var value2 = "";
+    node && (value2 = isCheckable(node) ? node.checked ? "true" : "false" : node.value);
+    node = value2;
     return node !== lastValue ? (tracker.setValue(node), true) : false;
   }
   function getActiveElement(doc) {
@@ -1815,41 +1815,41 @@ function requireReactDomClient_production() {
     }
   }
   var escapeSelectorAttributeValueInsideDoubleQuotesRegex = /[\n"\\]/g;
-  function escapeSelectorAttributeValueInsideDoubleQuotes(value) {
-    return value.replace(
+  function escapeSelectorAttributeValueInsideDoubleQuotes(value2) {
+    return value2.replace(
       escapeSelectorAttributeValueInsideDoubleQuotesRegex,
       function(ch) {
         return "\\" + ch.charCodeAt(0).toString(16) + " ";
       }
     );
   }
-  function updateInput(element, value, defaultValue, lastDefaultValue, checked, defaultChecked, type, name) {
+  function updateInput(element, value2, defaultValue, lastDefaultValue, checked, defaultChecked, type, name) {
     element.name = "";
     null != type && "function" !== typeof type && "symbol" !== typeof type && "boolean" !== typeof type ? element.type = type : element.removeAttribute("type");
-    if (null != value)
+    if (null != value2)
       if ("number" === type) {
-        if (0 === value && "" === element.value || element.value != value)
-          element.value = "" + getToStringValue(value);
+        if (0 === value2 && "" === element.value || element.value != value2)
+          element.value = "" + getToStringValue(value2);
       } else
-        element.value !== "" + getToStringValue(value) && (element.value = "" + getToStringValue(value));
+        element.value !== "" + getToStringValue(value2) && (element.value = "" + getToStringValue(value2));
     else
       "submit" !== type && "reset" !== type || element.removeAttribute("value");
-    null != value ? setDefaultValue(element, type, getToStringValue(value)) : null != defaultValue ? setDefaultValue(element, type, getToStringValue(defaultValue)) : null != lastDefaultValue && element.removeAttribute("value");
+    null != value2 ? setDefaultValue(element, type, getToStringValue(value2)) : null != defaultValue ? setDefaultValue(element, type, getToStringValue(defaultValue)) : null != lastDefaultValue && element.removeAttribute("value");
     null == checked && null != defaultChecked && (element.defaultChecked = !!defaultChecked);
     null != checked && (element.checked = checked && "function" !== typeof checked && "symbol" !== typeof checked);
     null != name && "function" !== typeof name && "symbol" !== typeof name && "boolean" !== typeof name ? element.name = "" + getToStringValue(name) : element.removeAttribute("name");
   }
-  function initInput(element, value, defaultValue, checked, defaultChecked, type, name, isHydrating2) {
+  function initInput(element, value2, defaultValue, checked, defaultChecked, type, name, isHydrating2) {
     null != type && "function" !== typeof type && "symbol" !== typeof type && "boolean" !== typeof type && (element.type = type);
-    if (null != value || null != defaultValue) {
-      if (!("submit" !== type && "reset" !== type || void 0 !== value && null !== value)) {
+    if (null != value2 || null != defaultValue) {
+      if (!("submit" !== type && "reset" !== type || void 0 !== value2 && null !== value2)) {
         track(element);
         return;
       }
       defaultValue = null != defaultValue ? "" + getToStringValue(defaultValue) : "";
-      value = null != value ? "" + getToStringValue(value) : defaultValue;
-      isHydrating2 || value === element.value || (element.value = value);
-      element.defaultValue = value;
+      value2 = null != value2 ? "" + getToStringValue(value2) : defaultValue;
+      isHydrating2 || value2 === element.value || (element.value = value2);
+      element.defaultValue = value2;
     }
     checked = null != checked ? checked : defaultChecked;
     checked = "function" !== typeof checked && "symbol" !== typeof checked && !!checked;
@@ -1858,8 +1858,8 @@ function requireReactDomClient_production() {
     null != name && "function" !== typeof name && "symbol" !== typeof name && "boolean" !== typeof name && (element.name = name);
     track(element);
   }
-  function setDefaultValue(node, type, value) {
-    "number" === type && getActiveElement(node.ownerDocument) === node || node.defaultValue === "" + value || (node.defaultValue = "" + value);
+  function setDefaultValue(node, type, value2) {
+    "number" === type && getActiveElement(node.ownerDocument) === node || node.defaultValue === "" + value2 || (node.defaultValue = "" + value2);
   }
   function updateOptions(node, multiple, propValue, setDefaultSelected) {
     node = node.options;
@@ -1883,15 +1883,15 @@ function requireReactDomClient_production() {
       null !== multiple && (multiple.selected = true);
     }
   }
-  function updateTextarea(element, value, defaultValue) {
-    if (null != value && (value = "" + getToStringValue(value), value !== element.value && (element.value = value), null == defaultValue)) {
-      element.defaultValue !== value && (element.defaultValue = value);
+  function updateTextarea(element, value2, defaultValue) {
+    if (null != value2 && (value2 = "" + getToStringValue(value2), value2 !== element.value && (element.value = value2), null == defaultValue)) {
+      element.defaultValue !== value2 && (element.defaultValue = value2);
       return;
     }
     element.defaultValue = null != defaultValue ? "" + getToStringValue(defaultValue) : "";
   }
-  function initTextarea(element, value, defaultValue, children) {
-    if (null == value) {
+  function initTextarea(element, value2, defaultValue, children) {
+    if (null == value2) {
       if (null != children) {
         if (null != defaultValue) throw Error(formatProdErrorMessage(92));
         if (isArrayImpl(children)) {
@@ -1901,9 +1901,9 @@ function requireReactDomClient_production() {
         defaultValue = children;
       }
       null == defaultValue && (defaultValue = "");
-      value = defaultValue;
+      value2 = defaultValue;
     }
-    defaultValue = getToStringValue(value);
+    defaultValue = getToStringValue(value2);
     element.defaultValue = defaultValue;
     children = element.textContent;
     children === defaultValue && "" !== children && null !== children && (element.value = children);
@@ -1924,9 +1924,9 @@ function requireReactDomClient_production() {
       " "
     )
   );
-  function setValueForStyle(style2, styleName, value) {
+  function setValueForStyle(style2, styleName, value2) {
     var isCustomProperty = 0 === styleName.indexOf("--");
-    null == value || "boolean" === typeof value || "" === value ? isCustomProperty ? style2.setProperty(styleName, "") : "float" === styleName ? style2.cssFloat = "" : style2[styleName] = "" : isCustomProperty ? style2.setProperty(styleName, value) : "number" !== typeof value || 0 === value || unitlessNumbers.has(styleName) ? "float" === styleName ? style2.cssFloat = value : style2[styleName] = ("" + value).trim() : style2[styleName] = value + "px";
+    null == value2 || "boolean" === typeof value2 || "" === value2 ? isCustomProperty ? style2.setProperty(styleName, "") : "float" === styleName ? style2.cssFloat = "" : style2[styleName] = "" : isCustomProperty ? style2.setProperty(styleName, value2) : "number" !== typeof value2 || 0 === value2 || unitlessNumbers.has(styleName) ? "float" === styleName ? style2.cssFloat = value2 : style2[styleName] = ("" + value2).trim() : style2[styleName] = value2 + "px";
   }
   function setValueForStyles(node, styles, prevStyles) {
     if (null != styles && "object" !== typeof styles)
@@ -2037,8 +2037,8 @@ function requireReactDomClient_production() {
     ["xmlnsXlink", "xmlns:xlink"],
     ["xHeight", "x-height"]
   ]), isJavaScriptProtocol = /^[\u0000-\u001F ]*j[\r\n\t]*a[\r\n\t]*v[\r\n\t]*a[\r\n\t]*s[\r\n\t]*c[\r\n\t]*r[\r\n\t]*i[\r\n\t]*p[\r\n\t]*t[\r\n\t]*:/i;
-  function sanitizeURL(url) {
-    return isJavaScriptProtocol.test("" + url) ? "javascript:throw new Error('React has blocked a javascript: URL as a security precaution.')" : url;
+  function sanitizeURL(url2) {
+    return isJavaScriptProtocol.test("" + url2) ? "javascript:throw new Error('React has blocked a javascript: URL as a security precaution.')" : url2;
   }
   function noop$1() {
   }
@@ -2844,20 +2844,20 @@ function requireReactDomClient_production() {
     return mode;
   }
   var CapturedStacks = /* @__PURE__ */ new WeakMap();
-  function createCapturedValueAtFiber(value, source) {
-    if ("object" === typeof value && null !== value) {
-      var existing = CapturedStacks.get(value);
+  function createCapturedValueAtFiber(value2, source) {
+    if ("object" === typeof value2 && null !== value2) {
+      var existing = CapturedStacks.get(value2);
       if (void 0 !== existing) return existing;
       source = {
-        value,
+        value: value2,
         source,
         stack: getStackByFiberInDevAndProd(source)
       };
-      CapturedStacks.set(value, source);
+      CapturedStacks.set(value2, source);
       return source;
     }
     return {
-      value,
+      value: value2,
       source,
       stack: getStackByFiberInDevAndProd(source)
     };
@@ -3154,15 +3154,15 @@ function requireReactDomClient_production() {
     return readContextForConsumer(consumer, context);
   }
   function readContextForConsumer(consumer, context) {
-    var value = context._currentValue;
-    context = { context, memoizedValue: value, next: null };
+    var value2 = context._currentValue;
+    context = { context, memoizedValue: value2, next: null };
     if (null === lastContextDependency) {
       if (null === consumer) throw Error(formatProdErrorMessage(308));
       lastContextDependency = context;
       consumer.dependencies = { lanes: 0, firstContext: context };
       consumer.flags |= 524288;
     } else lastContextDependency = lastContextDependency.next = context;
-    return value;
+    return value2;
   }
   var AbortControllerLocal = "undefined" !== typeof AbortController ? AbortController : function() {
     var listeners = [], signal = this.signal = {
@@ -3192,10 +3192,10 @@ function requireReactDomClient_production() {
       refCount: 0
     };
   }
-  function releaseCache(cache) {
-    cache.refCount--;
-    0 === cache.refCount && scheduleCallback$2(NormalPriority, function() {
-      cache.controller.abort();
+  function releaseCache(cache2) {
+    cache2.refCount--;
+    0 === cache2.refCount && scheduleCallback$2(NormalPriority, function() {
+      cache2.controller.abort();
     });
   }
   var currentEntangledListeners = null, currentEntangledPendingCount = 0, currentEntangledLane = 0, currentEntangledActionThenable = null;
@@ -4722,21 +4722,21 @@ function requireReactDomClient_production() {
     hook.memoizedState = [prevState, deps];
     return prevState;
   }
-  function mountDeferredValueImpl(hook, value, initialValue) {
+  function mountDeferredValueImpl(hook, value2, initialValue) {
     if (void 0 === initialValue || 0 !== (renderLanes & 1073741824) && 0 === (workInProgressRootRenderLanes & 261930))
-      return hook.memoizedState = value;
+      return hook.memoizedState = value2;
     hook.memoizedState = initialValue;
     hook = requestDeferredLane();
     currentlyRenderingFiber.lanes |= hook;
     workInProgressRootSkippedLanes |= hook;
     return initialValue;
   }
-  function updateDeferredValueImpl(hook, prevValue, value, initialValue) {
-    if (objectIs(value, prevValue)) return value;
+  function updateDeferredValueImpl(hook, prevValue, value2, initialValue) {
+    if (objectIs(value2, prevValue)) return value2;
     if (null !== currentTreeHiddenStackCursor.current)
-      return hook = mountDeferredValueImpl(hook, value, initialValue), objectIs(hook, prevValue) || (didReceiveUpdate = true), hook;
+      return hook = mountDeferredValueImpl(hook, value2, initialValue), objectIs(hook, prevValue) || (didReceiveUpdate = true), hook;
     if (0 === (renderLanes & 42) || 0 !== (renderLanes & 1073741824) && 0 === (workInProgressRootRenderLanes & 261930))
-      return didReceiveUpdate = true, hook.memoizedState = value;
+      return didReceiveUpdate = true, hook.memoizedState = value2;
     hook = requestDeferredLane();
     currentlyRenderingFiber.lanes |= hook;
     workInProgressRootSkippedLanes |= hook;
@@ -5061,9 +5061,9 @@ function requireReactDomClient_production() {
       return [initialState.memoizedState, dispatch];
     },
     useDebugValue: mountDebugValue,
-    useDeferredValue: function(value, initialValue) {
+    useDeferredValue: function(value2, initialValue) {
       var hook = mountWorkInProgressHook();
-      return mountDeferredValueImpl(hook, value, initialValue);
+      return mountDeferredValueImpl(hook, value2, initialValue);
     },
     useTransition: function() {
       var stateHook = mountStateImpl(false);
@@ -5179,12 +5179,12 @@ function requireReactDomClient_production() {
       return updateReducer(basicStateReducer);
     },
     useDebugValue: mountDebugValue,
-    useDeferredValue: function(value, initialValue) {
+    useDeferredValue: function(value2, initialValue) {
       var hook = updateWorkInProgressHook();
       return updateDeferredValueImpl(
         hook,
         currentHook.memoizedState,
-        value,
+        value2,
         initialValue
       );
     },
@@ -5224,12 +5224,12 @@ function requireReactDomClient_production() {
       return rerenderReducer(basicStateReducer);
     },
     useDebugValue: mountDebugValue,
-    useDeferredValue: function(value, initialValue) {
+    useDeferredValue: function(value2, initialValue) {
       var hook = updateWorkInProgressHook();
-      return null === currentHook ? mountDeferredValueImpl(hook, value, initialValue) : updateDeferredValueImpl(
+      return null === currentHook ? mountDeferredValueImpl(hook, value2, initialValue) : updateDeferredValueImpl(
         hook,
         currentHook.memoizedState,
-        value,
+        value2,
         initialValue
       );
     },
@@ -5381,9 +5381,9 @@ function requireReactDomClient_production() {
       });
     });
   }
-  function throwException(root2, returnFiber, sourceFiber, value, rootRenderLanes) {
+  function throwException(root2, returnFiber, sourceFiber, value2, rootRenderLanes) {
     sourceFiber.flags |= 32768;
-    if (null !== value && "object" === typeof value && "function" === typeof value.then) {
+    if (null !== value2 && "object" === typeof value2 && "function" === typeof value2.then) {
       returnFiber = sourceFiber.alternate;
       null !== returnFiber && propagateParentContextChanges(
         returnFiber,
@@ -5396,48 +5396,48 @@ function requireReactDomClient_production() {
         switch (sourceFiber.tag) {
           case 31:
           case 13:
-            return null === shellBoundary ? renderDidSuspendDelayIfPossible() : null === sourceFiber.alternate && 0 === workInProgressRootExitStatus && (workInProgressRootExitStatus = 3), sourceFiber.flags &= -257, sourceFiber.flags |= 65536, sourceFiber.lanes = rootRenderLanes, value === noopSuspenseyCommitThenable ? sourceFiber.flags |= 16384 : (returnFiber = sourceFiber.updateQueue, null === returnFiber ? sourceFiber.updateQueue = /* @__PURE__ */ new Set([value]) : returnFiber.add(value), attachPingListener(root2, value, rootRenderLanes)), false;
+            return null === shellBoundary ? renderDidSuspendDelayIfPossible() : null === sourceFiber.alternate && 0 === workInProgressRootExitStatus && (workInProgressRootExitStatus = 3), sourceFiber.flags &= -257, sourceFiber.flags |= 65536, sourceFiber.lanes = rootRenderLanes, value2 === noopSuspenseyCommitThenable ? sourceFiber.flags |= 16384 : (returnFiber = sourceFiber.updateQueue, null === returnFiber ? sourceFiber.updateQueue = /* @__PURE__ */ new Set([value2]) : returnFiber.add(value2), attachPingListener(root2, value2, rootRenderLanes)), false;
           case 22:
-            return sourceFiber.flags |= 65536, value === noopSuspenseyCommitThenable ? sourceFiber.flags |= 16384 : (returnFiber = sourceFiber.updateQueue, null === returnFiber ? (returnFiber = {
+            return sourceFiber.flags |= 65536, value2 === noopSuspenseyCommitThenable ? sourceFiber.flags |= 16384 : (returnFiber = sourceFiber.updateQueue, null === returnFiber ? (returnFiber = {
               transitions: null,
               markerInstances: null,
-              retryQueue: /* @__PURE__ */ new Set([value])
-            }, sourceFiber.updateQueue = returnFiber) : (sourceFiber = returnFiber.retryQueue, null === sourceFiber ? returnFiber.retryQueue = /* @__PURE__ */ new Set([value]) : sourceFiber.add(value)), attachPingListener(root2, value, rootRenderLanes)), false;
+              retryQueue: /* @__PURE__ */ new Set([value2])
+            }, sourceFiber.updateQueue = returnFiber) : (sourceFiber = returnFiber.retryQueue, null === sourceFiber ? returnFiber.retryQueue = /* @__PURE__ */ new Set([value2]) : sourceFiber.add(value2)), attachPingListener(root2, value2, rootRenderLanes)), false;
         }
         throw Error(formatProdErrorMessage(435, sourceFiber.tag));
       }
-      attachPingListener(root2, value, rootRenderLanes);
+      attachPingListener(root2, value2, rootRenderLanes);
       renderDidSuspendDelayIfPossible();
       return false;
     }
     if (isHydrating)
-      return returnFiber = suspenseHandlerStackCursor.current, null !== returnFiber ? (0 === (returnFiber.flags & 65536) && (returnFiber.flags |= 256), returnFiber.flags |= 65536, returnFiber.lanes = rootRenderLanes, value !== HydrationMismatchException && (root2 = Error(formatProdErrorMessage(422), { cause: value }), queueHydrationError(createCapturedValueAtFiber(root2, sourceFiber)))) : (value !== HydrationMismatchException && (returnFiber = Error(formatProdErrorMessage(423), {
-        cause: value
+      return returnFiber = suspenseHandlerStackCursor.current, null !== returnFiber ? (0 === (returnFiber.flags & 65536) && (returnFiber.flags |= 256), returnFiber.flags |= 65536, returnFiber.lanes = rootRenderLanes, value2 !== HydrationMismatchException && (root2 = Error(formatProdErrorMessage(422), { cause: value2 }), queueHydrationError(createCapturedValueAtFiber(root2, sourceFiber)))) : (value2 !== HydrationMismatchException && (returnFiber = Error(formatProdErrorMessage(423), {
+        cause: value2
       }), queueHydrationError(
         createCapturedValueAtFiber(returnFiber, sourceFiber)
-      )), root2 = root2.current.alternate, root2.flags |= 65536, rootRenderLanes &= -rootRenderLanes, root2.lanes |= rootRenderLanes, value = createCapturedValueAtFiber(value, sourceFiber), rootRenderLanes = createRootErrorUpdate(
+      )), root2 = root2.current.alternate, root2.flags |= 65536, rootRenderLanes &= -rootRenderLanes, root2.lanes |= rootRenderLanes, value2 = createCapturedValueAtFiber(value2, sourceFiber), rootRenderLanes = createRootErrorUpdate(
         root2.stateNode,
-        value,
+        value2,
         rootRenderLanes
       ), enqueueCapturedUpdate(root2, rootRenderLanes), 4 !== workInProgressRootExitStatus && (workInProgressRootExitStatus = 2)), false;
-    var wrapperError = Error(formatProdErrorMessage(520), { cause: value });
+    var wrapperError = Error(formatProdErrorMessage(520), { cause: value2 });
     wrapperError = createCapturedValueAtFiber(wrapperError, sourceFiber);
     null === workInProgressRootConcurrentErrors ? workInProgressRootConcurrentErrors = [wrapperError] : workInProgressRootConcurrentErrors.push(wrapperError);
     4 !== workInProgressRootExitStatus && (workInProgressRootExitStatus = 2);
     if (null === returnFiber) return true;
-    value = createCapturedValueAtFiber(value, sourceFiber);
+    value2 = createCapturedValueAtFiber(value2, sourceFiber);
     sourceFiber = returnFiber;
     do {
       switch (sourceFiber.tag) {
         case 3:
-          return sourceFiber.flags |= 65536, root2 = rootRenderLanes & -rootRenderLanes, sourceFiber.lanes |= root2, root2 = createRootErrorUpdate(sourceFiber.stateNode, value, root2), enqueueCapturedUpdate(sourceFiber, root2), false;
+          return sourceFiber.flags |= 65536, root2 = rootRenderLanes & -rootRenderLanes, sourceFiber.lanes |= root2, root2 = createRootErrorUpdate(sourceFiber.stateNode, value2, root2), enqueueCapturedUpdate(sourceFiber, root2), false;
         case 1:
           if (returnFiber = sourceFiber.type, wrapperError = sourceFiber.stateNode, 0 === (sourceFiber.flags & 128) && ("function" === typeof returnFiber.getDerivedStateFromError || null !== wrapperError && "function" === typeof wrapperError.componentDidCatch && (null === legacyErrorBoundariesThatAlreadyFailed || !legacyErrorBoundariesThatAlreadyFailed.has(wrapperError))))
             return sourceFiber.flags |= 65536, rootRenderLanes &= -rootRenderLanes, sourceFiber.lanes |= rootRenderLanes, rootRenderLanes = createClassErrorUpdate(rootRenderLanes), initializeClassErrorUpdate(
               rootRenderLanes,
               root2,
               sourceFiber,
-              value
+              value2
             ), enqueueCapturedUpdate(sourceFiber, rootRenderLanes), false;
       }
       sourceFiber = sourceFiber.return;
@@ -8527,21 +8527,21 @@ function requireReactDomClient_production() {
         case 23:
         case 22:
           if (null !== fiber.memoizedState && null !== fiber.memoizedState.cachePool) {
-            var cache = fiber.memoizedState.cachePool.pool;
-            null != cache && cache.refCount++;
+            var cache2 = fiber.memoizedState.cachePool.pool;
+            null != cache2 && cache2.refCount++;
           }
           break;
         case 24:
           releaseCache(fiber.memoizedState.cache);
       }
-      cache = fiber.child;
-      if (null !== cache) cache.return = fiber, nextEffect = cache;
+      cache2 = fiber.child;
+      if (null !== cache2) cache2.return = fiber, nextEffect = cache2;
       else
         a: for (fiber = deletedSubtreeRoot; null !== nextEffect; ) {
-          cache = nextEffect;
-          var sibling = cache.sibling, returnFiber = cache.return;
-          detachFiberAfterEffects(cache);
-          if (cache === fiber) {
+          cache2 = nextEffect;
+          var sibling = cache2.sibling, returnFiber = cache2.return;
+          detachFiberAfterEffects(cache2);
+          if (cache2 === fiber) {
             nextEffect = null;
             break a;
           }
@@ -8556,8 +8556,8 @@ function requireReactDomClient_production() {
   }
   var DefaultAsyncDispatcher = {
     getCacheForType: function(resourceType) {
-      var cache = readContext(CacheContext), cacheForType = cache.data.get(resourceType);
-      void 0 === cacheForType && (cacheForType = resourceType(), cache.data.set(resourceType, cacheForType));
+      var cache2 = readContext(CacheContext), cacheForType = cache2.data.get(resourceType);
+      void 0 === cacheForType && (cacheForType = resourceType(), cache2.data.set(resourceType, cacheForType));
       return cacheForType;
     },
     cacheSignal: function() {
@@ -10228,48 +10228,48 @@ function requireReactDomClient_production() {
     clientText = normalizeMarkupForTextOrAttribute(clientText);
     return normalizeMarkupForTextOrAttribute(serverText) === clientText ? true : false;
   }
-  function setProp(domElement, tag, key, value, props, prevValue) {
+  function setProp(domElement, tag, key, value2, props, prevValue) {
     switch (key) {
       case "children":
-        "string" === typeof value ? "body" === tag || "textarea" === tag && "" === value || setTextContent(domElement, value) : ("number" === typeof value || "bigint" === typeof value) && "body" !== tag && setTextContent(domElement, "" + value);
+        "string" === typeof value2 ? "body" === tag || "textarea" === tag && "" === value2 || setTextContent(domElement, value2) : ("number" === typeof value2 || "bigint" === typeof value2) && "body" !== tag && setTextContent(domElement, "" + value2);
         break;
       case "className":
-        setValueForKnownAttribute(domElement, "class", value);
+        setValueForKnownAttribute(domElement, "class", value2);
         break;
       case "tabIndex":
-        setValueForKnownAttribute(domElement, "tabindex", value);
+        setValueForKnownAttribute(domElement, "tabindex", value2);
         break;
       case "dir":
       case "role":
       case "viewBox":
       case "width":
       case "height":
-        setValueForKnownAttribute(domElement, key, value);
+        setValueForKnownAttribute(domElement, key, value2);
         break;
       case "style":
-        setValueForStyles(domElement, value, prevValue);
+        setValueForStyles(domElement, value2, prevValue);
         break;
       case "data":
         if ("object" !== tag) {
-          setValueForKnownAttribute(domElement, "data", value);
+          setValueForKnownAttribute(domElement, "data", value2);
           break;
         }
       case "src":
       case "href":
-        if ("" === value && ("a" !== tag || "href" !== key)) {
+        if ("" === value2 && ("a" !== tag || "href" !== key)) {
           domElement.removeAttribute(key);
           break;
         }
-        if (null == value || "function" === typeof value || "symbol" === typeof value || "boolean" === typeof value) {
+        if (null == value2 || "function" === typeof value2 || "symbol" === typeof value2 || "boolean" === typeof value2) {
           domElement.removeAttribute(key);
           break;
         }
-        value = sanitizeURL("" + value);
-        domElement.setAttribute(key, value);
+        value2 = sanitizeURL("" + value2);
+        domElement.setAttribute(key, value2);
         break;
       case "action":
       case "formAction":
-        if ("function" === typeof value) {
+        if ("function" === typeof value2) {
           domElement.setAttribute(
             key,
             "javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')"
@@ -10298,27 +10298,27 @@ function requireReactDomClient_production() {
             props,
             null
           )) : (setProp(domElement, tag, "encType", props.encType, props, null), setProp(domElement, tag, "method", props.method, props, null), setProp(domElement, tag, "target", props.target, props, null)));
-        if (null == value || "symbol" === typeof value || "boolean" === typeof value) {
+        if (null == value2 || "symbol" === typeof value2 || "boolean" === typeof value2) {
           domElement.removeAttribute(key);
           break;
         }
-        value = sanitizeURL("" + value);
-        domElement.setAttribute(key, value);
+        value2 = sanitizeURL("" + value2);
+        domElement.setAttribute(key, value2);
         break;
       case "onClick":
-        null != value && (domElement.onclick = noop$1);
+        null != value2 && (domElement.onclick = noop$1);
         break;
       case "onScroll":
-        null != value && listenToNonDelegatedEvent("scroll", domElement);
+        null != value2 && listenToNonDelegatedEvent("scroll", domElement);
         break;
       case "onScrollEnd":
-        null != value && listenToNonDelegatedEvent("scrollend", domElement);
+        null != value2 && listenToNonDelegatedEvent("scrollend", domElement);
         break;
       case "dangerouslySetInnerHTML":
-        if (null != value) {
-          if ("object" !== typeof value || !("__html" in value))
+        if (null != value2) {
+          if ("object" !== typeof value2 || !("__html" in value2))
             throw Error(formatProdErrorMessage(61));
-          key = value.__html;
+          key = value2.__html;
           if (null != key) {
             if (null != props.children) throw Error(formatProdErrorMessage(60));
             domElement.innerHTML = key;
@@ -10326,10 +10326,10 @@ function requireReactDomClient_production() {
         }
         break;
       case "multiple":
-        domElement.multiple = value && "function" !== typeof value && "symbol" !== typeof value;
+        domElement.multiple = value2 && "function" !== typeof value2 && "symbol" !== typeof value2;
         break;
       case "muted":
-        domElement.muted = value && "function" !== typeof value && "symbol" !== typeof value;
+        domElement.muted = value2 && "function" !== typeof value2 && "symbol" !== typeof value2;
         break;
       case "suppressContentEditableWarning":
       case "suppressHydrationWarning":
@@ -10341,11 +10341,11 @@ function requireReactDomClient_production() {
       case "autoFocus":
         break;
       case "xlinkHref":
-        if (null == value || "function" === typeof value || "boolean" === typeof value || "symbol" === typeof value) {
+        if (null == value2 || "function" === typeof value2 || "boolean" === typeof value2 || "symbol" === typeof value2) {
           domElement.removeAttribute("xlink:href");
           break;
         }
-        key = sanitizeURL("" + value);
+        key = sanitizeURL("" + value2);
         domElement.setAttributeNS(
           "http://www.w3.org/1999/xlink",
           "xlink:href",
@@ -10360,7 +10360,7 @@ function requireReactDomClient_production() {
       case "externalResourcesRequired":
       case "focusable":
       case "preserveAlpha":
-        null != value && "function" !== typeof value && "symbol" !== typeof value ? domElement.setAttribute(key, "" + value) : domElement.removeAttribute(key);
+        null != value2 && "function" !== typeof value2 && "symbol" !== typeof value2 ? domElement.setAttribute(key, "" + value2) : domElement.removeAttribute(key);
         break;
       case "inert":
       case "allowFullScreen":
@@ -10385,33 +10385,33 @@ function requireReactDomClient_production() {
       case "scoped":
       case "seamless":
       case "itemScope":
-        value && "function" !== typeof value && "symbol" !== typeof value ? domElement.setAttribute(key, "") : domElement.removeAttribute(key);
+        value2 && "function" !== typeof value2 && "symbol" !== typeof value2 ? domElement.setAttribute(key, "") : domElement.removeAttribute(key);
         break;
       case "capture":
       case "download":
-        true === value ? domElement.setAttribute(key, "") : false !== value && null != value && "function" !== typeof value && "symbol" !== typeof value ? domElement.setAttribute(key, value) : domElement.removeAttribute(key);
+        true === value2 ? domElement.setAttribute(key, "") : false !== value2 && null != value2 && "function" !== typeof value2 && "symbol" !== typeof value2 ? domElement.setAttribute(key, value2) : domElement.removeAttribute(key);
         break;
       case "cols":
       case "rows":
       case "size":
       case "span":
-        null != value && "function" !== typeof value && "symbol" !== typeof value && !isNaN(value) && 1 <= value ? domElement.setAttribute(key, value) : domElement.removeAttribute(key);
+        null != value2 && "function" !== typeof value2 && "symbol" !== typeof value2 && !isNaN(value2) && 1 <= value2 ? domElement.setAttribute(key, value2) : domElement.removeAttribute(key);
         break;
       case "rowSpan":
       case "start":
-        null == value || "function" === typeof value || "symbol" === typeof value || isNaN(value) ? domElement.removeAttribute(key) : domElement.setAttribute(key, value);
+        null == value2 || "function" === typeof value2 || "symbol" === typeof value2 || isNaN(value2) ? domElement.removeAttribute(key) : domElement.setAttribute(key, value2);
         break;
       case "popover":
         listenToNonDelegatedEvent("beforetoggle", domElement);
         listenToNonDelegatedEvent("toggle", domElement);
-        setValueForAttribute(domElement, "popover", value);
+        setValueForAttribute(domElement, "popover", value2);
         break;
       case "xlinkActuate":
         setValueForNamespacedAttribute(
           domElement,
           "http://www.w3.org/1999/xlink",
           "xlink:actuate",
-          value
+          value2
         );
         break;
       case "xlinkArcrole":
@@ -10419,7 +10419,7 @@ function requireReactDomClient_production() {
           domElement,
           "http://www.w3.org/1999/xlink",
           "xlink:arcrole",
-          value
+          value2
         );
         break;
       case "xlinkRole":
@@ -10427,7 +10427,7 @@ function requireReactDomClient_production() {
           domElement,
           "http://www.w3.org/1999/xlink",
           "xlink:role",
-          value
+          value2
         );
         break;
       case "xlinkShow":
@@ -10435,7 +10435,7 @@ function requireReactDomClient_production() {
           domElement,
           "http://www.w3.org/1999/xlink",
           "xlink:show",
-          value
+          value2
         );
         break;
       case "xlinkTitle":
@@ -10443,7 +10443,7 @@ function requireReactDomClient_production() {
           domElement,
           "http://www.w3.org/1999/xlink",
           "xlink:title",
-          value
+          value2
         );
         break;
       case "xlinkType":
@@ -10451,7 +10451,7 @@ function requireReactDomClient_production() {
           domElement,
           "http://www.w3.org/1999/xlink",
           "xlink:type",
-          value
+          value2
         );
         break;
       case "xmlBase":
@@ -10459,7 +10459,7 @@ function requireReactDomClient_production() {
           domElement,
           "http://www.w3.org/XML/1998/namespace",
           "xml:base",
-          value
+          value2
         );
         break;
       case "xmlLang":
@@ -10467,7 +10467,7 @@ function requireReactDomClient_production() {
           domElement,
           "http://www.w3.org/XML/1998/namespace",
           "xml:lang",
-          value
+          value2
         );
         break;
       case "xmlSpace":
@@ -10475,30 +10475,30 @@ function requireReactDomClient_production() {
           domElement,
           "http://www.w3.org/XML/1998/namespace",
           "xml:space",
-          value
+          value2
         );
         break;
       case "is":
-        setValueForAttribute(domElement, "is", value);
+        setValueForAttribute(domElement, "is", value2);
         break;
       case "innerText":
       case "textContent":
         break;
       default:
         if (!(2 < key.length) || "o" !== key[0] && "O" !== key[0] || "n" !== key[1] && "N" !== key[1])
-          key = aliases.get(key) || key, setValueForAttribute(domElement, key, value);
+          key = aliases.get(key) || key, setValueForAttribute(domElement, key, value2);
     }
   }
-  function setPropOnCustomElement(domElement, tag, key, value, props, prevValue) {
+  function setPropOnCustomElement(domElement, tag, key, value2, props, prevValue) {
     switch (key) {
       case "style":
-        setValueForStyles(domElement, value, prevValue);
+        setValueForStyles(domElement, value2, prevValue);
         break;
       case "dangerouslySetInnerHTML":
-        if (null != value) {
-          if ("object" !== typeof value || !("__html" in value))
+        if (null != value2) {
+          if ("object" !== typeof value2 || !("__html" in value2))
             throw Error(formatProdErrorMessage(61));
-          key = value.__html;
+          key = value2.__html;
           if (null != key) {
             if (null != props.children) throw Error(formatProdErrorMessage(60));
             domElement.innerHTML = key;
@@ -10506,16 +10506,16 @@ function requireReactDomClient_production() {
         }
         break;
       case "children":
-        "string" === typeof value ? setTextContent(domElement, value) : ("number" === typeof value || "bigint" === typeof value) && setTextContent(domElement, "" + value);
+        "string" === typeof value2 ? setTextContent(domElement, value2) : ("number" === typeof value2 || "bigint" === typeof value2) && setTextContent(domElement, "" + value2);
         break;
       case "onScroll":
-        null != value && listenToNonDelegatedEvent("scroll", domElement);
+        null != value2 && listenToNonDelegatedEvent("scroll", domElement);
         break;
       case "onScrollEnd":
-        null != value && listenToNonDelegatedEvent("scrollend", domElement);
+        null != value2 && listenToNonDelegatedEvent("scrollend", domElement);
         break;
       case "onClick":
-        null != value && (domElement.onclick = noop$1);
+        null != value2 && (domElement.onclick = noop$1);
         break;
       case "suppressContentEditableWarning":
       case "suppressHydrationWarning":
@@ -10528,12 +10528,12 @@ function requireReactDomClient_production() {
       default:
         if (!registrationNameDependencies.hasOwnProperty(key))
           a: {
-            if ("o" === key[0] && "n" === key[1] && (props = key.endsWith("Capture"), tag = key.slice(2, props ? key.length - 7 : void 0), prevValue = domElement[internalPropsKey] || null, prevValue = null != prevValue ? prevValue[key] : null, "function" === typeof prevValue && domElement.removeEventListener(tag, prevValue, props), "function" === typeof value)) {
+            if ("o" === key[0] && "n" === key[1] && (props = key.endsWith("Capture"), tag = key.slice(2, props ? key.length - 7 : void 0), prevValue = domElement[internalPropsKey] || null, prevValue = null != prevValue ? prevValue[key] : null, "function" === typeof prevValue && domElement.removeEventListener(tag, prevValue, props), "function" === typeof value2)) {
               "function" !== typeof prevValue && null !== prevValue && (key in domElement ? domElement[key] = null : domElement.hasAttribute(key) && domElement.removeAttribute(key));
-              domElement.addEventListener(tag, value, props);
+              domElement.addEventListener(tag, value2, props);
               break a;
             }
-            key in domElement ? domElement[key] = value : true === value ? domElement.setAttribute(key, "") : setValueForAttribute(domElement, key, value);
+            key in domElement ? domElement[key] = value2 : true === value2 ? domElement.setAttribute(key, "") : setValueForAttribute(domElement, key, value2);
           }
     }
   }
@@ -10751,7 +10751,7 @@ function requireReactDomClient_production() {
       case "li":
         break;
       case "input":
-        var name = null, type = null, value = null, defaultValue = null, lastDefaultValue = null, checked = null, defaultChecked = null;
+        var name = null, type = null, value2 = null, defaultValue = null, lastDefaultValue = null, checked = null, defaultChecked = null;
         for (propKey in lastProps) {
           var lastProp = lastProps[propKey];
           if (lastProps.hasOwnProperty(propKey) && null != lastProp)
@@ -10784,7 +10784,7 @@ function requireReactDomClient_production() {
                 defaultChecked = propKey;
                 break;
               case "value":
-                value = propKey;
+                value2 = propKey;
                 break;
               case "defaultValue":
                 defaultValue = propKey;
@@ -10807,7 +10807,7 @@ function requireReactDomClient_production() {
         }
         updateInput(
           domElement,
-          value,
+          value2,
           defaultValue,
           lastDefaultValue,
           checked,
@@ -10817,7 +10817,7 @@ function requireReactDomClient_production() {
         );
         return;
       case "select":
-        propKey = value = defaultValue = propKey$201 = null;
+        propKey = value2 = defaultValue = propKey$201 = null;
         for (type in lastProps)
           if (lastDefaultValue = lastProps[type], lastProps.hasOwnProperty(type) && null != lastDefaultValue)
             switch (type) {
@@ -10845,7 +10845,7 @@ function requireReactDomClient_production() {
                 defaultValue = type;
                 break;
               case "multiple":
-                value = type;
+                value2 = type;
               default:
                 type !== lastDefaultValue && setProp(
                   domElement,
@@ -10857,7 +10857,7 @@ function requireReactDomClient_production() {
                 );
             }
         tag = defaultValue;
-        lastProps = value;
+        lastProps = value2;
         nextProps = propKey;
         null != propKey$201 ? updateOptions(domElement, !!lastProps, propKey$201, false) : !!nextProps !== !!lastProps && (null != tag ? updateOptions(domElement, !!lastProps, tag, true) : updateOptions(domElement, !!lastProps, lastProps ? [] : "", false));
         return;
@@ -10873,9 +10873,9 @@ function requireReactDomClient_production() {
               default:
                 setProp(domElement, tag, defaultValue, null, nextProps, name);
             }
-        for (value in nextProps)
-          if (name = nextProps[value], type = lastProps[value], nextProps.hasOwnProperty(value) && (null != name || null != type))
-            switch (value) {
+        for (value2 in nextProps)
+          if (name = nextProps[value2], type = lastProps[value2], nextProps.hasOwnProperty(value2) && (null != name || null != type))
+            switch (value2) {
               case "value":
                 propKey$201 = name;
                 break;
@@ -10888,7 +10888,7 @@ function requireReactDomClient_production() {
                 if (null != name) throw Error(formatProdErrorMessage(91));
                 break;
               default:
-                name !== type && setProp(domElement, tag, value, name, nextProps, type);
+                name !== type && setProp(domElement, tag, value2, name, nextProps, type);
             }
         updateTextarea(domElement, propKey$201, propKey);
         return;
@@ -11645,24 +11645,24 @@ function requireReactDomClient_production() {
   var tagCaches = null;
   function getHydratableHoistableCache(type, keyAttribute, ownerDocument) {
     if (null === tagCaches) {
-      var cache = /* @__PURE__ */ new Map();
+      var cache2 = /* @__PURE__ */ new Map();
       var caches = tagCaches = /* @__PURE__ */ new Map();
-      caches.set(ownerDocument, cache);
+      caches.set(ownerDocument, cache2);
     } else
-      caches = tagCaches, cache = caches.get(ownerDocument), cache || (cache = /* @__PURE__ */ new Map(), caches.set(ownerDocument, cache));
-    if (cache.has(type)) return cache;
-    cache.set(type, null);
+      caches = tagCaches, cache2 = caches.get(ownerDocument), cache2 || (cache2 = /* @__PURE__ */ new Map(), caches.set(ownerDocument, cache2));
+    if (cache2.has(type)) return cache2;
+    cache2.set(type, null);
     ownerDocument = ownerDocument.getElementsByTagName(type);
     for (caches = 0; caches < ownerDocument.length; caches++) {
       var node = ownerDocument[caches];
       if (!(node[internalHoistableMarker] || node[internalInstanceKey] || "link" === type && "stylesheet" === node.getAttribute("rel")) && "http://www.w3.org/2000/svg" !== node.namespaceURI) {
         var nodeKey = node.getAttribute(keyAttribute) || "";
         nodeKey = type + nodeKey;
-        var existing = cache.get(nodeKey);
-        existing ? existing.push(node) : cache.set(nodeKey, [node]);
+        var existing = cache2.get(nodeKey);
+        existing ? existing.push(node) : cache2.set(nodeKey, [node]);
       }
     }
-    return cache;
+    return cache2;
   }
   function mountHoistable(hoistableRoot, type, instance) {
     hoistableRoot = hoistableRoot.ownerDocument || hoistableRoot;
@@ -12610,11 +12610,11 @@ async function getDashboard() {
 async function getLocations() {
   return request("/locations");
 }
-async function createLocation(name) {
-  return request("/locations", { method: "POST", body: JSON.stringify({ name }) });
+async function createLocation(name, locationCode) {
+  return request("/locations", { method: "POST", body: JSON.stringify({ name, locationCode }) });
 }
-async function updateLocation(id, name) {
-  return request(`/locations/${id}`, { method: "PUT", body: JSON.stringify({ name }) });
+async function updateLocation(id, name, locationCode) {
+  return request(`/locations/${id}`, { method: "PUT", body: JSON.stringify({ name, locationCode }) });
 }
 async function deleteLocation(id) {
   return request(`/locations/${id}`, { method: "DELETE" });
@@ -12791,6 +12791,33 @@ async function uploadLogo(type, file) {
     body: formData
   });
 }
+async function getSslCertificates() {
+  return request("/settings/ssl");
+}
+async function uploadSslCertificate(name, certFile, keyFile, passphrase) {
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("certificate", certFile);
+  if (keyFile) {
+    formData.append("privateKey", keyFile);
+  }
+  if (passphrase) {
+    formData.append("passphrase", passphrase);
+  }
+  return request("/settings/ssl/upload", {
+    method: "POST",
+    body: formData
+  });
+}
+async function deleteSslCertificate(id) {
+  return request(`/settings/ssl/${id}`, { method: "DELETE" });
+}
+async function activateSslCertificate(id) {
+  return request(`/settings/ssl/${id}/activate`, { method: "POST" });
+}
+async function deactivateSslCertificates() {
+  return request("/settings/ssl/deactivate", { method: "POST" });
+}
 async function getSmtpSettings() {
   return request("/smtp/settings");
 }
@@ -12861,6 +12888,24 @@ async function getCustomAppPermissions() {
 }
 async function setCustomAppPermission(appId, groupId, canView) {
   return request(`/custom-apps/permissions/${appId}/${groupId}`, { method: "PUT", body: JSON.stringify({ canView }) });
+}
+async function getDmsSettings() {
+  return request("/dms-settings");
+}
+async function saveDmsSettings(settings) {
+  return request("/dms-settings", { method: "POST", body: JSON.stringify(settings) });
+}
+async function testDmsConnection(settings) {
+  return request("/dms-settings/test", { method: "POST", body: JSON.stringify(settings) });
+}
+async function getDmsSchedules() {
+  return request("/dms-settings/schedules");
+}
+async function updateDmsSchedule(id, data) {
+  return request(`/dms-settings/schedules/${id}`, { method: "PUT", body: JSON.stringify(data) });
+}
+async function runDmsSchedule(id) {
+  return request(`/dms-settings/schedules/${id}/run`, { method: "POST" });
 }
 const darkTheme = {
   bg: "#0f1114",
@@ -13171,6 +13216,10 @@ const SearchIcon = ({ size = 16 }) => I(
   ] }),
   size
 );
+const WrenchIcon = ({ size = 15 }) => I(
+  /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" }),
+  size
+);
 const GearIcon = ({ size = 15 }) => I(
   /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "12", cy: "12", r: "3" }),
@@ -13324,6 +13373,16 @@ const LockIcon = ({ size = 16 }) => I(
   size,
   1.8
 );
+const CalendarIcon = ({ size = 16 }) => I(
+  /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "3", y: "4", width: "18", height: "18", rx: "2", ry: "2" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "16", y1: "2", x2: "16", y2: "6" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "8", y1: "2", x2: "8", y2: "6" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "3", y1: "10", x2: "21", y2: "10" })
+  ] }),
+  size,
+  1.8
+);
 const DEFAULT_LOCATIONS = [];
 const DEFAULT_DEPARTMENTS = [];
 const ADMIN_MENU = [
@@ -13377,6 +13436,12 @@ const ADMIN_MENU = [
     label: "Authentication",
     icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LockIcon, { size: 17 }),
     desc: "Configure SSO and SAML settings"
+  },
+  {
+    id: "dms",
+    label: "DMS Connection",
+    icon: /* @__PURE__ */ jsxRuntimeExports.jsx(WrenchIcon, { size: 17 }),
+    desc: "Connect to Microsoft SQL Server"
   },
   {
     id: "settings",
@@ -13435,89 +13500,3426 @@ const APP_PERMISSIONS = {
     ]
   }
 };
-const PERMISSION_LABELS = {
-  // DDA Documents
-  viewFiles: {
-    label: "View Files",
-    category: "Documents",
-    app: "dda",
-    desc: "Browse and preview uploaded documents"
-  },
-  uploadFiles: {
-    label: "Upload Files",
-    category: "Documents",
-    app: "dda",
-    desc: "Upload new PDF files to folders"
-  },
-  deleteFiles: {
-    label: "Delete Files",
-    category: "Documents",
-    app: "dda",
-    desc: "Remove uploaded files permanently"
-  },
-  renameFiles: {
-    label: "Rename Files",
-    category: "Documents",
-    app: "dda",
-    desc: "Rename uploaded file display names"
-  },
-  // DDA Folders
-  createFolders: {
-    label: "Create Folders",
-    category: "Folders",
-    app: "dda",
-    desc: "Create new folders and subfolders"
-  },
-  deleteFolders: {
-    label: "Delete Folders",
-    category: "Folders",
-    app: "dda",
-    desc: "Remove folders and their contents"
-  },
-  // Admin
-  manageLocations: {
-    label: "Manage Locations",
-    category: "Administration",
-    app: "admin",
-    desc: "Add, edit, and remove dealer locations"
-  },
-  manageDepartments: {
-    label: "Manage Departments",
-    category: "Administration",
-    app: "admin",
-    desc: "Add, edit, and remove departments"
-  },
-  manageUsers: {
-    label: "Manage Users",
-    category: "Administration",
-    app: "admin",
-    desc: "Create, edit, and deactivate user accounts"
-  },
-  manageGroups: {
-    label: "Manage Groups",
-    category: "Administration",
-    app: "admin",
-    desc: "Edit security groups and permissions"
-  },
-  viewAuditLog: {
-    label: "View Audit Log",
-    category: "Audit",
-    app: "admin",
-    desc: "View system activity and change history"
-  },
-  exportAuditLog: {
-    label: "Export Audit Log",
-    category: "Audit",
-    app: "admin",
-    desc: "Download audit log data as CSV"
-  },
-  manageSettings: {
-    label: "Manage Settings",
-    category: "Administration",
-    app: "admin",
-    desc: "Modify application configuration"
+const PACKET_TYPES = /* @__PURE__ */ Object.create(null);
+PACKET_TYPES["open"] = "0";
+PACKET_TYPES["close"] = "1";
+PACKET_TYPES["ping"] = "2";
+PACKET_TYPES["pong"] = "3";
+PACKET_TYPES["message"] = "4";
+PACKET_TYPES["upgrade"] = "5";
+PACKET_TYPES["noop"] = "6";
+const PACKET_TYPES_REVERSE = /* @__PURE__ */ Object.create(null);
+Object.keys(PACKET_TYPES).forEach((key) => {
+  PACKET_TYPES_REVERSE[PACKET_TYPES[key]] = key;
+});
+const ERROR_PACKET = { type: "error", data: "parser error" };
+const withNativeBlob$1 = typeof Blob === "function" || typeof Blob !== "undefined" && Object.prototype.toString.call(Blob) === "[object BlobConstructor]";
+const withNativeArrayBuffer$2 = typeof ArrayBuffer === "function";
+const isView$1 = (obj) => {
+  return typeof ArrayBuffer.isView === "function" ? ArrayBuffer.isView(obj) : obj && obj.buffer instanceof ArrayBuffer;
+};
+const encodePacket = ({ type, data }, supportsBinary, callback) => {
+  if (withNativeBlob$1 && data instanceof Blob) {
+    if (supportsBinary) {
+      return callback(data);
+    } else {
+      return encodeBlobAsBase64(data, callback);
+    }
+  } else if (withNativeArrayBuffer$2 && (data instanceof ArrayBuffer || isView$1(data))) {
+    if (supportsBinary) {
+      return callback(data);
+    } else {
+      return encodeBlobAsBase64(new Blob([data]), callback);
+    }
+  }
+  return callback(PACKET_TYPES[type] + (data || ""));
+};
+const encodeBlobAsBase64 = (data, callback) => {
+  const fileReader = new FileReader();
+  fileReader.onload = function() {
+    const content = fileReader.result.split(",")[1];
+    callback("b" + (content || ""));
+  };
+  return fileReader.readAsDataURL(data);
+};
+function toArray(data) {
+  if (data instanceof Uint8Array) {
+    return data;
+  } else if (data instanceof ArrayBuffer) {
+    return new Uint8Array(data);
+  } else {
+    return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+  }
+}
+let TEXT_ENCODER;
+function encodePacketToBinary(packet, callback) {
+  if (withNativeBlob$1 && packet.data instanceof Blob) {
+    return packet.data.arrayBuffer().then(toArray).then(callback);
+  } else if (withNativeArrayBuffer$2 && (packet.data instanceof ArrayBuffer || isView$1(packet.data))) {
+    return callback(toArray(packet.data));
+  }
+  encodePacket(packet, false, (encoded) => {
+    if (!TEXT_ENCODER) {
+      TEXT_ENCODER = new TextEncoder();
+    }
+    callback(TEXT_ENCODER.encode(encoded));
+  });
+}
+const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const lookup$1 = typeof Uint8Array === "undefined" ? [] : new Uint8Array(256);
+for (let i = 0; i < chars.length; i++) {
+  lookup$1[chars.charCodeAt(i)] = i;
+}
+const decode$1 = (base64) => {
+  let bufferLength = base64.length * 0.75, len = base64.length, i, p = 0, encoded1, encoded2, encoded3, encoded4;
+  if (base64[base64.length - 1] === "=") {
+    bufferLength--;
+    if (base64[base64.length - 2] === "=") {
+      bufferLength--;
+    }
+  }
+  const arraybuffer = new ArrayBuffer(bufferLength), bytes = new Uint8Array(arraybuffer);
+  for (i = 0; i < len; i += 4) {
+    encoded1 = lookup$1[base64.charCodeAt(i)];
+    encoded2 = lookup$1[base64.charCodeAt(i + 1)];
+    encoded3 = lookup$1[base64.charCodeAt(i + 2)];
+    encoded4 = lookup$1[base64.charCodeAt(i + 3)];
+    bytes[p++] = encoded1 << 2 | encoded2 >> 4;
+    bytes[p++] = (encoded2 & 15) << 4 | encoded3 >> 2;
+    bytes[p++] = (encoded3 & 3) << 6 | encoded4 & 63;
+  }
+  return arraybuffer;
+};
+const withNativeArrayBuffer$1 = typeof ArrayBuffer === "function";
+const decodePacket = (encodedPacket, binaryType) => {
+  if (typeof encodedPacket !== "string") {
+    return {
+      type: "message",
+      data: mapBinary(encodedPacket, binaryType)
+    };
+  }
+  const type = encodedPacket.charAt(0);
+  if (type === "b") {
+    return {
+      type: "message",
+      data: decodeBase64Packet(encodedPacket.substring(1), binaryType)
+    };
+  }
+  const packetType = PACKET_TYPES_REVERSE[type];
+  if (!packetType) {
+    return ERROR_PACKET;
+  }
+  return encodedPacket.length > 1 ? {
+    type: PACKET_TYPES_REVERSE[type],
+    data: encodedPacket.substring(1)
+  } : {
+    type: PACKET_TYPES_REVERSE[type]
+  };
+};
+const decodeBase64Packet = (data, binaryType) => {
+  if (withNativeArrayBuffer$1) {
+    const decoded = decode$1(data);
+    return mapBinary(decoded, binaryType);
+  } else {
+    return { base64: true, data };
   }
 };
+const mapBinary = (data, binaryType) => {
+  switch (binaryType) {
+    case "blob":
+      if (data instanceof Blob) {
+        return data;
+      } else {
+        return new Blob([data]);
+      }
+    case "arraybuffer":
+    default:
+      if (data instanceof ArrayBuffer) {
+        return data;
+      } else {
+        return data.buffer;
+      }
+  }
+};
+const SEPARATOR = String.fromCharCode(30);
+const encodePayload = (packets, callback) => {
+  const length = packets.length;
+  const encodedPackets = new Array(length);
+  let count = 0;
+  packets.forEach((packet, i) => {
+    encodePacket(packet, false, (encodedPacket) => {
+      encodedPackets[i] = encodedPacket;
+      if (++count === length) {
+        callback(encodedPackets.join(SEPARATOR));
+      }
+    });
+  });
+};
+const decodePayload = (encodedPayload, binaryType) => {
+  const encodedPackets = encodedPayload.split(SEPARATOR);
+  const packets = [];
+  for (let i = 0; i < encodedPackets.length; i++) {
+    const decodedPacket = decodePacket(encodedPackets[i], binaryType);
+    packets.push(decodedPacket);
+    if (decodedPacket.type === "error") {
+      break;
+    }
+  }
+  return packets;
+};
+function createPacketEncoderStream() {
+  return new TransformStream({
+    transform(packet, controller) {
+      encodePacketToBinary(packet, (encodedPacket) => {
+        const payloadLength = encodedPacket.length;
+        let header;
+        if (payloadLength < 126) {
+          header = new Uint8Array(1);
+          new DataView(header.buffer).setUint8(0, payloadLength);
+        } else if (payloadLength < 65536) {
+          header = new Uint8Array(3);
+          const view = new DataView(header.buffer);
+          view.setUint8(0, 126);
+          view.setUint16(1, payloadLength);
+        } else {
+          header = new Uint8Array(9);
+          const view = new DataView(header.buffer);
+          view.setUint8(0, 127);
+          view.setBigUint64(1, BigInt(payloadLength));
+        }
+        if (packet.data && typeof packet.data !== "string") {
+          header[0] |= 128;
+        }
+        controller.enqueue(header);
+        controller.enqueue(encodedPacket);
+      });
+    }
+  });
+}
+let TEXT_DECODER;
+function totalLength(chunks) {
+  return chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+}
+function concatChunks(chunks, size) {
+  if (chunks[0].length === size) {
+    return chunks.shift();
+  }
+  const buffer = new Uint8Array(size);
+  let j = 0;
+  for (let i = 0; i < size; i++) {
+    buffer[i] = chunks[0][j++];
+    if (j === chunks[0].length) {
+      chunks.shift();
+      j = 0;
+    }
+  }
+  if (chunks.length && j < chunks[0].length) {
+    chunks[0] = chunks[0].slice(j);
+  }
+  return buffer;
+}
+function createPacketDecoderStream(maxPayload, binaryType) {
+  if (!TEXT_DECODER) {
+    TEXT_DECODER = new TextDecoder();
+  }
+  const chunks = [];
+  let state = 0;
+  let expectedLength = -1;
+  let isBinary2 = false;
+  return new TransformStream({
+    transform(chunk, controller) {
+      chunks.push(chunk);
+      while (true) {
+        if (state === 0) {
+          if (totalLength(chunks) < 1) {
+            break;
+          }
+          const header = concatChunks(chunks, 1);
+          isBinary2 = (header[0] & 128) === 128;
+          expectedLength = header[0] & 127;
+          if (expectedLength < 126) {
+            state = 3;
+          } else if (expectedLength === 126) {
+            state = 1;
+          } else {
+            state = 2;
+          }
+        } else if (state === 1) {
+          if (totalLength(chunks) < 2) {
+            break;
+          }
+          const headerArray = concatChunks(chunks, 2);
+          expectedLength = new DataView(headerArray.buffer, headerArray.byteOffset, headerArray.length).getUint16(0);
+          state = 3;
+        } else if (state === 2) {
+          if (totalLength(chunks) < 8) {
+            break;
+          }
+          const headerArray = concatChunks(chunks, 8);
+          const view = new DataView(headerArray.buffer, headerArray.byteOffset, headerArray.length);
+          const n = view.getUint32(0);
+          if (n > Math.pow(2, 53 - 32) - 1) {
+            controller.enqueue(ERROR_PACKET);
+            break;
+          }
+          expectedLength = n * Math.pow(2, 32) + view.getUint32(4);
+          state = 3;
+        } else {
+          if (totalLength(chunks) < expectedLength) {
+            break;
+          }
+          const data = concatChunks(chunks, expectedLength);
+          controller.enqueue(decodePacket(isBinary2 ? data : TEXT_DECODER.decode(data), binaryType));
+          state = 0;
+        }
+        if (expectedLength === 0 || expectedLength > maxPayload) {
+          controller.enqueue(ERROR_PACKET);
+          break;
+        }
+      }
+    }
+  });
+}
+const protocol = 4;
+function Emitter(obj) {
+  if (obj) return mixin(obj);
+}
+function mixin(obj) {
+  for (var key in Emitter.prototype) {
+    obj[key] = Emitter.prototype[key];
+  }
+  return obj;
+}
+Emitter.prototype.on = Emitter.prototype.addEventListener = function(event, fn) {
+  this._callbacks = this._callbacks || {};
+  (this._callbacks["$" + event] = this._callbacks["$" + event] || []).push(fn);
+  return this;
+};
+Emitter.prototype.once = function(event, fn) {
+  function on2() {
+    this.off(event, on2);
+    fn.apply(this, arguments);
+  }
+  on2.fn = fn;
+  this.on(event, on2);
+  return this;
+};
+Emitter.prototype.off = Emitter.prototype.removeListener = Emitter.prototype.removeAllListeners = Emitter.prototype.removeEventListener = function(event, fn) {
+  this._callbacks = this._callbacks || {};
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+  var callbacks = this._callbacks["$" + event];
+  if (!callbacks) return this;
+  if (1 == arguments.length) {
+    delete this._callbacks["$" + event];
+    return this;
+  }
+  var cb;
+  for (var i = 0; i < callbacks.length; i++) {
+    cb = callbacks[i];
+    if (cb === fn || cb.fn === fn) {
+      callbacks.splice(i, 1);
+      break;
+    }
+  }
+  if (callbacks.length === 0) {
+    delete this._callbacks["$" + event];
+  }
+  return this;
+};
+Emitter.prototype.emit = function(event) {
+  this._callbacks = this._callbacks || {};
+  var args = new Array(arguments.length - 1), callbacks = this._callbacks["$" + event];
+  for (var i = 1; i < arguments.length; i++) {
+    args[i - 1] = arguments[i];
+  }
+  if (callbacks) {
+    callbacks = callbacks.slice(0);
+    for (var i = 0, len = callbacks.length; i < len; ++i) {
+      callbacks[i].apply(this, args);
+    }
+  }
+  return this;
+};
+Emitter.prototype.emitReserved = Emitter.prototype.emit;
+Emitter.prototype.listeners = function(event) {
+  this._callbacks = this._callbacks || {};
+  return this._callbacks["$" + event] || [];
+};
+Emitter.prototype.hasListeners = function(event) {
+  return !!this.listeners(event).length;
+};
+const nextTick = (() => {
+  const isPromiseAvailable = typeof Promise === "function" && typeof Promise.resolve === "function";
+  if (isPromiseAvailable) {
+    return (cb) => Promise.resolve().then(cb);
+  } else {
+    return (cb, setTimeoutFn) => setTimeoutFn(cb, 0);
+  }
+})();
+const globalThisShim = (() => {
+  if (typeof self !== "undefined") {
+    return self;
+  } else if (typeof window !== "undefined") {
+    return window;
+  } else {
+    return Function("return this")();
+  }
+})();
+const defaultBinaryType = "arraybuffer";
+function createCookieJar() {
+}
+function pick(obj, ...attr) {
+  return attr.reduce((acc, k) => {
+    if (obj.hasOwnProperty(k)) {
+      acc[k] = obj[k];
+    }
+    return acc;
+  }, {});
+}
+const NATIVE_SET_TIMEOUT = globalThisShim.setTimeout;
+const NATIVE_CLEAR_TIMEOUT = globalThisShim.clearTimeout;
+function installTimerFunctions(obj, opts) {
+  if (opts.useNativeTimers) {
+    obj.setTimeoutFn = NATIVE_SET_TIMEOUT.bind(globalThisShim);
+    obj.clearTimeoutFn = NATIVE_CLEAR_TIMEOUT.bind(globalThisShim);
+  } else {
+    obj.setTimeoutFn = globalThisShim.setTimeout.bind(globalThisShim);
+    obj.clearTimeoutFn = globalThisShim.clearTimeout.bind(globalThisShim);
+  }
+}
+const BASE64_OVERHEAD = 1.33;
+function byteLength(obj) {
+  if (typeof obj === "string") {
+    return utf8Length(obj);
+  }
+  return Math.ceil((obj.byteLength || obj.size) * BASE64_OVERHEAD);
+}
+function utf8Length(str) {
+  let c = 0, length = 0;
+  for (let i = 0, l = str.length; i < l; i++) {
+    c = str.charCodeAt(i);
+    if (c < 128) {
+      length += 1;
+    } else if (c < 2048) {
+      length += 2;
+    } else if (c < 55296 || c >= 57344) {
+      length += 3;
+    } else {
+      i++;
+      length += 4;
+    }
+  }
+  return length;
+}
+function randomString() {
+  return Date.now().toString(36).substring(3) + Math.random().toString(36).substring(2, 5);
+}
+function encode(obj) {
+  let str = "";
+  for (let i in obj) {
+    if (obj.hasOwnProperty(i)) {
+      if (str.length)
+        str += "&";
+      str += encodeURIComponent(i) + "=" + encodeURIComponent(obj[i]);
+    }
+  }
+  return str;
+}
+function decode(qs) {
+  let qry = {};
+  let pairs = qs.split("&");
+  for (let i = 0, l = pairs.length; i < l; i++) {
+    let pair = pairs[i].split("=");
+    qry[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+  }
+  return qry;
+}
+class TransportError extends Error {
+  constructor(reason, description, context) {
+    super(reason);
+    this.description = description;
+    this.context = context;
+    this.type = "TransportError";
+  }
+}
+class Transport extends Emitter {
+  /**
+   * Transport abstract constructor.
+   *
+   * @param {Object} opts - options
+   * @protected
+   */
+  constructor(opts) {
+    super();
+    this.writable = false;
+    installTimerFunctions(this, opts);
+    this.opts = opts;
+    this.query = opts.query;
+    this.socket = opts.socket;
+    this.supportsBinary = !opts.forceBase64;
+  }
+  /**
+   * Emits an error.
+   *
+   * @param {String} reason
+   * @param description
+   * @param context - the error context
+   * @return {Transport} for chaining
+   * @protected
+   */
+  onError(reason, description, context) {
+    super.emitReserved("error", new TransportError(reason, description, context));
+    return this;
+  }
+  /**
+   * Opens the transport.
+   */
+  open() {
+    this.readyState = "opening";
+    this.doOpen();
+    return this;
+  }
+  /**
+   * Closes the transport.
+   */
+  close() {
+    if (this.readyState === "opening" || this.readyState === "open") {
+      this.doClose();
+      this.onClose();
+    }
+    return this;
+  }
+  /**
+   * Sends multiple packets.
+   *
+   * @param {Array} packets
+   */
+  send(packets) {
+    if (this.readyState === "open") {
+      this.write(packets);
+    }
+  }
+  /**
+   * Called upon open
+   *
+   * @protected
+   */
+  onOpen() {
+    this.readyState = "open";
+    this.writable = true;
+    super.emitReserved("open");
+  }
+  /**
+   * Called with data.
+   *
+   * @param {String} data
+   * @protected
+   */
+  onData(data) {
+    const packet = decodePacket(data, this.socket.binaryType);
+    this.onPacket(packet);
+  }
+  /**
+   * Called with a decoded packet.
+   *
+   * @protected
+   */
+  onPacket(packet) {
+    super.emitReserved("packet", packet);
+  }
+  /**
+   * Called upon close.
+   *
+   * @protected
+   */
+  onClose(details) {
+    this.readyState = "closed";
+    super.emitReserved("close", details);
+  }
+  /**
+   * Pauses the transport, in order not to lose packets during an upgrade.
+   *
+   * @param onPause
+   */
+  pause(onPause) {
+  }
+  createUri(schema, query = {}) {
+    return schema + "://" + this._hostname() + this._port() + this.opts.path + this._query(query);
+  }
+  _hostname() {
+    const hostname = this.opts.hostname;
+    return hostname.indexOf(":") === -1 ? hostname : "[" + hostname + "]";
+  }
+  _port() {
+    if (this.opts.port && (this.opts.secure && Number(this.opts.port) !== 443 || !this.opts.secure && Number(this.opts.port) !== 80)) {
+      return ":" + this.opts.port;
+    } else {
+      return "";
+    }
+  }
+  _query(query) {
+    const encodedQuery = encode(query);
+    return encodedQuery.length ? "?" + encodedQuery : "";
+  }
+}
+class Polling extends Transport {
+  constructor() {
+    super(...arguments);
+    this._polling = false;
+  }
+  get name() {
+    return "polling";
+  }
+  /**
+   * Opens the socket (triggers polling). We write a PING message to determine
+   * when the transport is open.
+   *
+   * @protected
+   */
+  doOpen() {
+    this._poll();
+  }
+  /**
+   * Pauses polling.
+   *
+   * @param {Function} onPause - callback upon buffers are flushed and transport is paused
+   * @package
+   */
+  pause(onPause) {
+    this.readyState = "pausing";
+    const pause = () => {
+      this.readyState = "paused";
+      onPause();
+    };
+    if (this._polling || !this.writable) {
+      let total = 0;
+      if (this._polling) {
+        total++;
+        this.once("pollComplete", function() {
+          --total || pause();
+        });
+      }
+      if (!this.writable) {
+        total++;
+        this.once("drain", function() {
+          --total || pause();
+        });
+      }
+    } else {
+      pause();
+    }
+  }
+  /**
+   * Starts polling cycle.
+   *
+   * @private
+   */
+  _poll() {
+    this._polling = true;
+    this.doPoll();
+    this.emitReserved("poll");
+  }
+  /**
+   * Overloads onData to detect payloads.
+   *
+   * @protected
+   */
+  onData(data) {
+    const callback = (packet) => {
+      if ("opening" === this.readyState && packet.type === "open") {
+        this.onOpen();
+      }
+      if ("close" === packet.type) {
+        this.onClose({ description: "transport closed by the server" });
+        return false;
+      }
+      this.onPacket(packet);
+    };
+    decodePayload(data, this.socket.binaryType).forEach(callback);
+    if ("closed" !== this.readyState) {
+      this._polling = false;
+      this.emitReserved("pollComplete");
+      if ("open" === this.readyState) {
+        this._poll();
+      }
+    }
+  }
+  /**
+   * For polling, send a close packet.
+   *
+   * @protected
+   */
+  doClose() {
+    const close = () => {
+      this.write([{ type: "close" }]);
+    };
+    if ("open" === this.readyState) {
+      close();
+    } else {
+      this.once("open", close);
+    }
+  }
+  /**
+   * Writes a packets payload.
+   *
+   * @param {Array} packets - data packets
+   * @protected
+   */
+  write(packets) {
+    this.writable = false;
+    encodePayload(packets, (data) => {
+      this.doWrite(data, () => {
+        this.writable = true;
+        this.emitReserved("drain");
+      });
+    });
+  }
+  /**
+   * Generates uri for connection.
+   *
+   * @private
+   */
+  uri() {
+    const schema = this.opts.secure ? "https" : "http";
+    const query = this.query || {};
+    if (false !== this.opts.timestampRequests) {
+      query[this.opts.timestampParam] = randomString();
+    }
+    if (!this.supportsBinary && !query.sid) {
+      query.b64 = 1;
+    }
+    return this.createUri(schema, query);
+  }
+}
+let value = false;
+try {
+  value = typeof XMLHttpRequest !== "undefined" && "withCredentials" in new XMLHttpRequest();
+} catch (err) {
+}
+const hasCORS = value;
+function empty() {
+}
+class BaseXHR extends Polling {
+  /**
+   * XHR Polling constructor.
+   *
+   * @param {Object} opts
+   * @package
+   */
+  constructor(opts) {
+    super(opts);
+    if (typeof location !== "undefined") {
+      const isSSL = "https:" === location.protocol;
+      let port = location.port;
+      if (!port) {
+        port = isSSL ? "443" : "80";
+      }
+      this.xd = typeof location !== "undefined" && opts.hostname !== location.hostname || port !== opts.port;
+    }
+  }
+  /**
+   * Sends data.
+   *
+   * @param {String} data to send.
+   * @param {Function} called upon flush.
+   * @private
+   */
+  doWrite(data, fn) {
+    const req = this.request({
+      method: "POST",
+      data
+    });
+    req.on("success", fn);
+    req.on("error", (xhrStatus, context) => {
+      this.onError("xhr post error", xhrStatus, context);
+    });
+  }
+  /**
+   * Starts a poll cycle.
+   *
+   * @private
+   */
+  doPoll() {
+    const req = this.request();
+    req.on("data", this.onData.bind(this));
+    req.on("error", (xhrStatus, context) => {
+      this.onError("xhr poll error", xhrStatus, context);
+    });
+    this.pollXhr = req;
+  }
+}
+class Request extends Emitter {
+  /**
+   * Request constructor
+   *
+   * @param {Object} options
+   * @package
+   */
+  constructor(createRequest, uri, opts) {
+    super();
+    this.createRequest = createRequest;
+    installTimerFunctions(this, opts);
+    this._opts = opts;
+    this._method = opts.method || "GET";
+    this._uri = uri;
+    this._data = void 0 !== opts.data ? opts.data : null;
+    this._create();
+  }
+  /**
+   * Creates the XHR object and sends the request.
+   *
+   * @private
+   */
+  _create() {
+    var _a;
+    const opts = pick(this._opts, "agent", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized", "autoUnref");
+    opts.xdomain = !!this._opts.xd;
+    const xhr = this._xhr = this.createRequest(opts);
+    try {
+      xhr.open(this._method, this._uri, true);
+      try {
+        if (this._opts.extraHeaders) {
+          xhr.setDisableHeaderCheck && xhr.setDisableHeaderCheck(true);
+          for (let i in this._opts.extraHeaders) {
+            if (this._opts.extraHeaders.hasOwnProperty(i)) {
+              xhr.setRequestHeader(i, this._opts.extraHeaders[i]);
+            }
+          }
+        }
+      } catch (e) {
+      }
+      if ("POST" === this._method) {
+        try {
+          xhr.setRequestHeader("Content-type", "text/plain;charset=UTF-8");
+        } catch (e) {
+        }
+      }
+      try {
+        xhr.setRequestHeader("Accept", "*/*");
+      } catch (e) {
+      }
+      (_a = this._opts.cookieJar) === null || _a === void 0 ? void 0 : _a.addCookies(xhr);
+      if ("withCredentials" in xhr) {
+        xhr.withCredentials = this._opts.withCredentials;
+      }
+      if (this._opts.requestTimeout) {
+        xhr.timeout = this._opts.requestTimeout;
+      }
+      xhr.onreadystatechange = () => {
+        var _a2;
+        if (xhr.readyState === 3) {
+          (_a2 = this._opts.cookieJar) === null || _a2 === void 0 ? void 0 : _a2.parseCookies(
+            // @ts-ignore
+            xhr.getResponseHeader("set-cookie")
+          );
+        }
+        if (4 !== xhr.readyState)
+          return;
+        if (200 === xhr.status || 1223 === xhr.status) {
+          this._onLoad();
+        } else {
+          this.setTimeoutFn(() => {
+            this._onError(typeof xhr.status === "number" ? xhr.status : 0);
+          }, 0);
+        }
+      };
+      xhr.send(this._data);
+    } catch (e) {
+      this.setTimeoutFn(() => {
+        this._onError(e);
+      }, 0);
+      return;
+    }
+    if (typeof document !== "undefined") {
+      this._index = Request.requestsCount++;
+      Request.requests[this._index] = this;
+    }
+  }
+  /**
+   * Called upon error.
+   *
+   * @private
+   */
+  _onError(err) {
+    this.emitReserved("error", err, this._xhr);
+    this._cleanup(true);
+  }
+  /**
+   * Cleans up house.
+   *
+   * @private
+   */
+  _cleanup(fromError) {
+    if ("undefined" === typeof this._xhr || null === this._xhr) {
+      return;
+    }
+    this._xhr.onreadystatechange = empty;
+    if (fromError) {
+      try {
+        this._xhr.abort();
+      } catch (e) {
+      }
+    }
+    if (typeof document !== "undefined") {
+      delete Request.requests[this._index];
+    }
+    this._xhr = null;
+  }
+  /**
+   * Called upon load.
+   *
+   * @private
+   */
+  _onLoad() {
+    const data = this._xhr.responseText;
+    if (data !== null) {
+      this.emitReserved("data", data);
+      this.emitReserved("success");
+      this._cleanup();
+    }
+  }
+  /**
+   * Aborts the request.
+   *
+   * @package
+   */
+  abort() {
+    this._cleanup();
+  }
+}
+Request.requestsCount = 0;
+Request.requests = {};
+if (typeof document !== "undefined") {
+  if (typeof attachEvent === "function") {
+    attachEvent("onunload", unloadHandler);
+  } else if (typeof addEventListener === "function") {
+    const terminationEvent = "onpagehide" in globalThisShim ? "pagehide" : "unload";
+    addEventListener(terminationEvent, unloadHandler, false);
+  }
+}
+function unloadHandler() {
+  for (let i in Request.requests) {
+    if (Request.requests.hasOwnProperty(i)) {
+      Request.requests[i].abort();
+    }
+  }
+}
+const hasXHR2 = (function() {
+  const xhr = newRequest({
+    xdomain: false
+  });
+  return xhr && xhr.responseType !== null;
+})();
+class XHR extends BaseXHR {
+  constructor(opts) {
+    super(opts);
+    const forceBase64 = opts && opts.forceBase64;
+    this.supportsBinary = hasXHR2 && !forceBase64;
+  }
+  request(opts = {}) {
+    Object.assign(opts, { xd: this.xd }, this.opts);
+    return new Request(newRequest, this.uri(), opts);
+  }
+}
+function newRequest(opts) {
+  const xdomain = opts.xdomain;
+  try {
+    if ("undefined" !== typeof XMLHttpRequest && (!xdomain || hasCORS)) {
+      return new XMLHttpRequest();
+    }
+  } catch (e) {
+  }
+  if (!xdomain) {
+    try {
+      return new globalThisShim[["Active"].concat("Object").join("X")]("Microsoft.XMLHTTP");
+    } catch (e) {
+    }
+  }
+}
+const isReactNative = typeof navigator !== "undefined" && typeof navigator.product === "string" && navigator.product.toLowerCase() === "reactnative";
+class BaseWS extends Transport {
+  get name() {
+    return "websocket";
+  }
+  doOpen() {
+    const uri = this.uri();
+    const protocols = this.opts.protocols;
+    const opts = isReactNative ? {} : pick(this.opts, "agent", "perMessageDeflate", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized", "localAddress", "protocolVersion", "origin", "maxPayload", "family", "checkServerIdentity");
+    if (this.opts.extraHeaders) {
+      opts.headers = this.opts.extraHeaders;
+    }
+    try {
+      this.ws = this.createSocket(uri, protocols, opts);
+    } catch (err) {
+      return this.emitReserved("error", err);
+    }
+    this.ws.binaryType = this.socket.binaryType;
+    this.addEventListeners();
+  }
+  /**
+   * Adds event listeners to the socket
+   *
+   * @private
+   */
+  addEventListeners() {
+    this.ws.onopen = () => {
+      if (this.opts.autoUnref) {
+        this.ws._socket.unref();
+      }
+      this.onOpen();
+    };
+    this.ws.onclose = (closeEvent) => this.onClose({
+      description: "websocket connection closed",
+      context: closeEvent
+    });
+    this.ws.onmessage = (ev) => this.onData(ev.data);
+    this.ws.onerror = (e) => this.onError("websocket error", e);
+  }
+  write(packets) {
+    this.writable = false;
+    for (let i = 0; i < packets.length; i++) {
+      const packet = packets[i];
+      const lastPacket = i === packets.length - 1;
+      encodePacket(packet, this.supportsBinary, (data) => {
+        try {
+          this.doWrite(packet, data);
+        } catch (e) {
+        }
+        if (lastPacket) {
+          nextTick(() => {
+            this.writable = true;
+            this.emitReserved("drain");
+          }, this.setTimeoutFn);
+        }
+      });
+    }
+  }
+  doClose() {
+    if (typeof this.ws !== "undefined") {
+      this.ws.onerror = () => {
+      };
+      this.ws.close();
+      this.ws = null;
+    }
+  }
+  /**
+   * Generates uri for connection.
+   *
+   * @private
+   */
+  uri() {
+    const schema = this.opts.secure ? "wss" : "ws";
+    const query = this.query || {};
+    if (this.opts.timestampRequests) {
+      query[this.opts.timestampParam] = randomString();
+    }
+    if (!this.supportsBinary) {
+      query.b64 = 1;
+    }
+    return this.createUri(schema, query);
+  }
+}
+const WebSocketCtor = globalThisShim.WebSocket || globalThisShim.MozWebSocket;
+class WS extends BaseWS {
+  createSocket(uri, protocols, opts) {
+    return !isReactNative ? protocols ? new WebSocketCtor(uri, protocols) : new WebSocketCtor(uri) : new WebSocketCtor(uri, protocols, opts);
+  }
+  doWrite(_packet, data) {
+    this.ws.send(data);
+  }
+}
+class WT extends Transport {
+  get name() {
+    return "webtransport";
+  }
+  doOpen() {
+    try {
+      this._transport = new WebTransport(this.createUri("https"), this.opts.transportOptions[this.name]);
+    } catch (err) {
+      return this.emitReserved("error", err);
+    }
+    this._transport.closed.then(() => {
+      this.onClose();
+    }).catch((err) => {
+      this.onError("webtransport error", err);
+    });
+    this._transport.ready.then(() => {
+      this._transport.createBidirectionalStream().then((stream) => {
+        const decoderStream = createPacketDecoderStream(Number.MAX_SAFE_INTEGER, this.socket.binaryType);
+        const reader = stream.readable.pipeThrough(decoderStream).getReader();
+        const encoderStream = createPacketEncoderStream();
+        encoderStream.readable.pipeTo(stream.writable);
+        this._writer = encoderStream.writable.getWriter();
+        const read = () => {
+          reader.read().then(({ done, value: value2 }) => {
+            if (done) {
+              return;
+            }
+            this.onPacket(value2);
+            read();
+          }).catch((err) => {
+          });
+        };
+        read();
+        const packet = { type: "open" };
+        if (this.query.sid) {
+          packet.data = `{"sid":"${this.query.sid}"}`;
+        }
+        this._writer.write(packet).then(() => this.onOpen());
+      });
+    });
+  }
+  write(packets) {
+    this.writable = false;
+    for (let i = 0; i < packets.length; i++) {
+      const packet = packets[i];
+      const lastPacket = i === packets.length - 1;
+      this._writer.write(packet).then(() => {
+        if (lastPacket) {
+          nextTick(() => {
+            this.writable = true;
+            this.emitReserved("drain");
+          }, this.setTimeoutFn);
+        }
+      });
+    }
+  }
+  doClose() {
+    var _a;
+    (_a = this._transport) === null || _a === void 0 ? void 0 : _a.close();
+  }
+}
+const transports = {
+  websocket: WS,
+  webtransport: WT,
+  polling: XHR
+};
+const re = /^(?:(?![^:@\/?#]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@\/?#]*)(?::([^:@\/?#]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+const parts = [
+  "source",
+  "protocol",
+  "authority",
+  "userInfo",
+  "user",
+  "password",
+  "host",
+  "port",
+  "relative",
+  "path",
+  "directory",
+  "file",
+  "query",
+  "anchor"
+];
+function parse(str) {
+  if (str.length > 8e3) {
+    throw "URI too long";
+  }
+  const src = str, b = str.indexOf("["), e = str.indexOf("]");
+  if (b != -1 && e != -1) {
+    str = str.substring(0, b) + str.substring(b, e).replace(/:/g, ";") + str.substring(e, str.length);
+  }
+  let m = re.exec(str || ""), uri = {}, i = 14;
+  while (i--) {
+    uri[parts[i]] = m[i] || "";
+  }
+  if (b != -1 && e != -1) {
+    uri.source = src;
+    uri.host = uri.host.substring(1, uri.host.length - 1).replace(/;/g, ":");
+    uri.authority = uri.authority.replace("[", "").replace("]", "").replace(/;/g, ":");
+    uri.ipv6uri = true;
+  }
+  uri.pathNames = pathNames(uri, uri["path"]);
+  uri.queryKey = queryKey(uri, uri["query"]);
+  return uri;
+}
+function pathNames(obj, path) {
+  const regx = /\/{2,9}/g, names = path.replace(regx, "/").split("/");
+  if (path.slice(0, 1) == "/" || path.length === 0) {
+    names.splice(0, 1);
+  }
+  if (path.slice(-1) == "/") {
+    names.splice(names.length - 1, 1);
+  }
+  return names;
+}
+function queryKey(uri, query) {
+  const data = {};
+  query.replace(/(?:^|&)([^&=]*)=?([^&]*)/g, function($0, $1, $2) {
+    if ($1) {
+      data[$1] = $2;
+    }
+  });
+  return data;
+}
+const withEventListeners = typeof addEventListener === "function" && typeof removeEventListener === "function";
+const OFFLINE_EVENT_LISTENERS = [];
+if (withEventListeners) {
+  addEventListener("offline", () => {
+    OFFLINE_EVENT_LISTENERS.forEach((listener) => listener());
+  }, false);
+}
+class SocketWithoutUpgrade extends Emitter {
+  /**
+   * Socket constructor.
+   *
+   * @param {String|Object} uri - uri or options
+   * @param {Object} opts - options
+   */
+  constructor(uri, opts) {
+    super();
+    this.binaryType = defaultBinaryType;
+    this.writeBuffer = [];
+    this._prevBufferLen = 0;
+    this._pingInterval = -1;
+    this._pingTimeout = -1;
+    this._maxPayload = -1;
+    this._pingTimeoutTime = Infinity;
+    if (uri && "object" === typeof uri) {
+      opts = uri;
+      uri = null;
+    }
+    if (uri) {
+      const parsedUri = parse(uri);
+      opts.hostname = parsedUri.host;
+      opts.secure = parsedUri.protocol === "https" || parsedUri.protocol === "wss";
+      opts.port = parsedUri.port;
+      if (parsedUri.query)
+        opts.query = parsedUri.query;
+    } else if (opts.host) {
+      opts.hostname = parse(opts.host).host;
+    }
+    installTimerFunctions(this, opts);
+    this.secure = null != opts.secure ? opts.secure : typeof location !== "undefined" && "https:" === location.protocol;
+    if (opts.hostname && !opts.port) {
+      opts.port = this.secure ? "443" : "80";
+    }
+    this.hostname = opts.hostname || (typeof location !== "undefined" ? location.hostname : "localhost");
+    this.port = opts.port || (typeof location !== "undefined" && location.port ? location.port : this.secure ? "443" : "80");
+    this.transports = [];
+    this._transportsByName = {};
+    opts.transports.forEach((t) => {
+      const transportName = t.prototype.name;
+      this.transports.push(transportName);
+      this._transportsByName[transportName] = t;
+    });
+    this.opts = Object.assign({
+      path: "/engine.io",
+      agent: false,
+      withCredentials: false,
+      upgrade: true,
+      timestampParam: "t",
+      rememberUpgrade: false,
+      addTrailingSlash: true,
+      rejectUnauthorized: true,
+      perMessageDeflate: {
+        threshold: 1024
+      },
+      transportOptions: {},
+      closeOnBeforeunload: false
+    }, opts);
+    this.opts.path = this.opts.path.replace(/\/$/, "") + (this.opts.addTrailingSlash ? "/" : "");
+    if (typeof this.opts.query === "string") {
+      this.opts.query = decode(this.opts.query);
+    }
+    if (withEventListeners) {
+      if (this.opts.closeOnBeforeunload) {
+        this._beforeunloadEventListener = () => {
+          if (this.transport) {
+            this.transport.removeAllListeners();
+            this.transport.close();
+          }
+        };
+        addEventListener("beforeunload", this._beforeunloadEventListener, false);
+      }
+      if (this.hostname !== "localhost") {
+        this._offlineEventListener = () => {
+          this._onClose("transport close", {
+            description: "network connection lost"
+          });
+        };
+        OFFLINE_EVENT_LISTENERS.push(this._offlineEventListener);
+      }
+    }
+    if (this.opts.withCredentials) {
+      this._cookieJar = createCookieJar();
+    }
+    this._open();
+  }
+  /**
+   * Creates transport of the given type.
+   *
+   * @param {String} name - transport name
+   * @return {Transport}
+   * @private
+   */
+  createTransport(name) {
+    const query = Object.assign({}, this.opts.query);
+    query.EIO = protocol;
+    query.transport = name;
+    if (this.id)
+      query.sid = this.id;
+    const opts = Object.assign({}, this.opts, {
+      query,
+      socket: this,
+      hostname: this.hostname,
+      secure: this.secure,
+      port: this.port
+    }, this.opts.transportOptions[name]);
+    return new this._transportsByName[name](opts);
+  }
+  /**
+   * Initializes transport to use and starts probe.
+   *
+   * @private
+   */
+  _open() {
+    if (this.transports.length === 0) {
+      this.setTimeoutFn(() => {
+        this.emitReserved("error", "No transports available");
+      }, 0);
+      return;
+    }
+    const transportName = this.opts.rememberUpgrade && SocketWithoutUpgrade.priorWebsocketSuccess && this.transports.indexOf("websocket") !== -1 ? "websocket" : this.transports[0];
+    this.readyState = "opening";
+    const transport = this.createTransport(transportName);
+    transport.open();
+    this.setTransport(transport);
+  }
+  /**
+   * Sets the current transport. Disables the existing one (if any).
+   *
+   * @private
+   */
+  setTransport(transport) {
+    if (this.transport) {
+      this.transport.removeAllListeners();
+    }
+    this.transport = transport;
+    transport.on("drain", this._onDrain.bind(this)).on("packet", this._onPacket.bind(this)).on("error", this._onError.bind(this)).on("close", (reason) => this._onClose("transport close", reason));
+  }
+  /**
+   * Called when connection is deemed open.
+   *
+   * @private
+   */
+  onOpen() {
+    this.readyState = "open";
+    SocketWithoutUpgrade.priorWebsocketSuccess = "websocket" === this.transport.name;
+    this.emitReserved("open");
+    this.flush();
+  }
+  /**
+   * Handles a packet.
+   *
+   * @private
+   */
+  _onPacket(packet) {
+    if ("opening" === this.readyState || "open" === this.readyState || "closing" === this.readyState) {
+      this.emitReserved("packet", packet);
+      this.emitReserved("heartbeat");
+      switch (packet.type) {
+        case "open":
+          this.onHandshake(JSON.parse(packet.data));
+          break;
+        case "ping":
+          this._sendPacket("pong");
+          this.emitReserved("ping");
+          this.emitReserved("pong");
+          this._resetPingTimeout();
+          break;
+        case "error":
+          const err = new Error("server error");
+          err.code = packet.data;
+          this._onError(err);
+          break;
+        case "message":
+          this.emitReserved("data", packet.data);
+          this.emitReserved("message", packet.data);
+          break;
+      }
+    }
+  }
+  /**
+   * Called upon handshake completion.
+   *
+   * @param {Object} data - handshake obj
+   * @private
+   */
+  onHandshake(data) {
+    this.emitReserved("handshake", data);
+    this.id = data.sid;
+    this.transport.query.sid = data.sid;
+    this._pingInterval = data.pingInterval;
+    this._pingTimeout = data.pingTimeout;
+    this._maxPayload = data.maxPayload;
+    this.onOpen();
+    if ("closed" === this.readyState)
+      return;
+    this._resetPingTimeout();
+  }
+  /**
+   * Sets and resets ping timeout timer based on server pings.
+   *
+   * @private
+   */
+  _resetPingTimeout() {
+    this.clearTimeoutFn(this._pingTimeoutTimer);
+    const delay = this._pingInterval + this._pingTimeout;
+    this._pingTimeoutTime = Date.now() + delay;
+    this._pingTimeoutTimer = this.setTimeoutFn(() => {
+      this._onClose("ping timeout");
+    }, delay);
+    if (this.opts.autoUnref) {
+      this._pingTimeoutTimer.unref();
+    }
+  }
+  /**
+   * Called on `drain` event
+   *
+   * @private
+   */
+  _onDrain() {
+    this.writeBuffer.splice(0, this._prevBufferLen);
+    this._prevBufferLen = 0;
+    if (0 === this.writeBuffer.length) {
+      this.emitReserved("drain");
+    } else {
+      this.flush();
+    }
+  }
+  /**
+   * Flush write buffers.
+   *
+   * @private
+   */
+  flush() {
+    if ("closed" !== this.readyState && this.transport.writable && !this.upgrading && this.writeBuffer.length) {
+      const packets = this._getWritablePackets();
+      this.transport.send(packets);
+      this._prevBufferLen = packets.length;
+      this.emitReserved("flush");
+    }
+  }
+  /**
+   * Ensure the encoded size of the writeBuffer is below the maxPayload value sent by the server (only for HTTP
+   * long-polling)
+   *
+   * @private
+   */
+  _getWritablePackets() {
+    const shouldCheckPayloadSize = this._maxPayload && this.transport.name === "polling" && this.writeBuffer.length > 1;
+    if (!shouldCheckPayloadSize) {
+      return this.writeBuffer;
+    }
+    let payloadSize = 1;
+    for (let i = 0; i < this.writeBuffer.length; i++) {
+      const data = this.writeBuffer[i].data;
+      if (data) {
+        payloadSize += byteLength(data);
+      }
+      if (i > 0 && payloadSize > this._maxPayload) {
+        return this.writeBuffer.slice(0, i);
+      }
+      payloadSize += 2;
+    }
+    return this.writeBuffer;
+  }
+  /**
+   * Checks whether the heartbeat timer has expired but the socket has not yet been notified.
+   *
+   * Note: this method is private for now because it does not really fit the WebSocket API, but if we put it in the
+   * `write()` method then the message would not be buffered by the Socket.IO client.
+   *
+   * @return {boolean}
+   * @private
+   */
+  /* private */
+  _hasPingExpired() {
+    if (!this._pingTimeoutTime)
+      return true;
+    const hasExpired = Date.now() > this._pingTimeoutTime;
+    if (hasExpired) {
+      this._pingTimeoutTime = 0;
+      nextTick(() => {
+        this._onClose("ping timeout");
+      }, this.setTimeoutFn);
+    }
+    return hasExpired;
+  }
+  /**
+   * Sends a message.
+   *
+   * @param {String} msg - message.
+   * @param {Object} options.
+   * @param {Function} fn - callback function.
+   * @return {Socket} for chaining.
+   */
+  write(msg, options, fn) {
+    this._sendPacket("message", msg, options, fn);
+    return this;
+  }
+  /**
+   * Sends a message. Alias of {@link Socket#write}.
+   *
+   * @param {String} msg - message.
+   * @param {Object} options.
+   * @param {Function} fn - callback function.
+   * @return {Socket} for chaining.
+   */
+  send(msg, options, fn) {
+    this._sendPacket("message", msg, options, fn);
+    return this;
+  }
+  /**
+   * Sends a packet.
+   *
+   * @param {String} type: packet type.
+   * @param {String} data.
+   * @param {Object} options.
+   * @param {Function} fn - callback function.
+   * @private
+   */
+  _sendPacket(type, data, options, fn) {
+    if ("function" === typeof data) {
+      fn = data;
+      data = void 0;
+    }
+    if ("function" === typeof options) {
+      fn = options;
+      options = null;
+    }
+    if ("closing" === this.readyState || "closed" === this.readyState) {
+      return;
+    }
+    options = options || {};
+    options.compress = false !== options.compress;
+    const packet = {
+      type,
+      data,
+      options
+    };
+    this.emitReserved("packetCreate", packet);
+    this.writeBuffer.push(packet);
+    if (fn)
+      this.once("flush", fn);
+    this.flush();
+  }
+  /**
+   * Closes the connection.
+   */
+  close() {
+    const close = () => {
+      this._onClose("forced close");
+      this.transport.close();
+    };
+    const cleanupAndClose = () => {
+      this.off("upgrade", cleanupAndClose);
+      this.off("upgradeError", cleanupAndClose);
+      close();
+    };
+    const waitForUpgrade = () => {
+      this.once("upgrade", cleanupAndClose);
+      this.once("upgradeError", cleanupAndClose);
+    };
+    if ("opening" === this.readyState || "open" === this.readyState) {
+      this.readyState = "closing";
+      if (this.writeBuffer.length) {
+        this.once("drain", () => {
+          if (this.upgrading) {
+            waitForUpgrade();
+          } else {
+            close();
+          }
+        });
+      } else if (this.upgrading) {
+        waitForUpgrade();
+      } else {
+        close();
+      }
+    }
+    return this;
+  }
+  /**
+   * Called upon transport error
+   *
+   * @private
+   */
+  _onError(err) {
+    SocketWithoutUpgrade.priorWebsocketSuccess = false;
+    if (this.opts.tryAllTransports && this.transports.length > 1 && this.readyState === "opening") {
+      this.transports.shift();
+      return this._open();
+    }
+    this.emitReserved("error", err);
+    this._onClose("transport error", err);
+  }
+  /**
+   * Called upon transport close.
+   *
+   * @private
+   */
+  _onClose(reason, description) {
+    if ("opening" === this.readyState || "open" === this.readyState || "closing" === this.readyState) {
+      this.clearTimeoutFn(this._pingTimeoutTimer);
+      this.transport.removeAllListeners("close");
+      this.transport.close();
+      this.transport.removeAllListeners();
+      if (withEventListeners) {
+        if (this._beforeunloadEventListener) {
+          removeEventListener("beforeunload", this._beforeunloadEventListener, false);
+        }
+        if (this._offlineEventListener) {
+          const i = OFFLINE_EVENT_LISTENERS.indexOf(this._offlineEventListener);
+          if (i !== -1) {
+            OFFLINE_EVENT_LISTENERS.splice(i, 1);
+          }
+        }
+      }
+      this.readyState = "closed";
+      this.id = null;
+      this.emitReserved("close", reason, description);
+      this.writeBuffer = [];
+      this._prevBufferLen = 0;
+    }
+  }
+}
+SocketWithoutUpgrade.protocol = protocol;
+class SocketWithUpgrade extends SocketWithoutUpgrade {
+  constructor() {
+    super(...arguments);
+    this._upgrades = [];
+  }
+  onOpen() {
+    super.onOpen();
+    if ("open" === this.readyState && this.opts.upgrade) {
+      for (let i = 0; i < this._upgrades.length; i++) {
+        this._probe(this._upgrades[i]);
+      }
+    }
+  }
+  /**
+   * Probes a transport.
+   *
+   * @param {String} name - transport name
+   * @private
+   */
+  _probe(name) {
+    let transport = this.createTransport(name);
+    let failed = false;
+    SocketWithoutUpgrade.priorWebsocketSuccess = false;
+    const onTransportOpen = () => {
+      if (failed)
+        return;
+      transport.send([{ type: "ping", data: "probe" }]);
+      transport.once("packet", (msg) => {
+        if (failed)
+          return;
+        if ("pong" === msg.type && "probe" === msg.data) {
+          this.upgrading = true;
+          this.emitReserved("upgrading", transport);
+          if (!transport)
+            return;
+          SocketWithoutUpgrade.priorWebsocketSuccess = "websocket" === transport.name;
+          this.transport.pause(() => {
+            if (failed)
+              return;
+            if ("closed" === this.readyState)
+              return;
+            cleanup();
+            this.setTransport(transport);
+            transport.send([{ type: "upgrade" }]);
+            this.emitReserved("upgrade", transport);
+            transport = null;
+            this.upgrading = false;
+            this.flush();
+          });
+        } else {
+          const err = new Error("probe error");
+          err.transport = transport.name;
+          this.emitReserved("upgradeError", err);
+        }
+      });
+    };
+    function freezeTransport() {
+      if (failed)
+        return;
+      failed = true;
+      cleanup();
+      transport.close();
+      transport = null;
+    }
+    const onerror = (err) => {
+      const error = new Error("probe error: " + err);
+      error.transport = transport.name;
+      freezeTransport();
+      this.emitReserved("upgradeError", error);
+    };
+    function onTransportClose() {
+      onerror("transport closed");
+    }
+    function onclose() {
+      onerror("socket closed");
+    }
+    function onupgrade(to) {
+      if (transport && to.name !== transport.name) {
+        freezeTransport();
+      }
+    }
+    const cleanup = () => {
+      transport.removeListener("open", onTransportOpen);
+      transport.removeListener("error", onerror);
+      transport.removeListener("close", onTransportClose);
+      this.off("close", onclose);
+      this.off("upgrading", onupgrade);
+    };
+    transport.once("open", onTransportOpen);
+    transport.once("error", onerror);
+    transport.once("close", onTransportClose);
+    this.once("close", onclose);
+    this.once("upgrading", onupgrade);
+    if (this._upgrades.indexOf("webtransport") !== -1 && name !== "webtransport") {
+      this.setTimeoutFn(() => {
+        if (!failed) {
+          transport.open();
+        }
+      }, 200);
+    } else {
+      transport.open();
+    }
+  }
+  onHandshake(data) {
+    this._upgrades = this._filterUpgrades(data.upgrades);
+    super.onHandshake(data);
+  }
+  /**
+   * Filters upgrades, returning only those matching client transports.
+   *
+   * @param {Array} upgrades - server upgrades
+   * @private
+   */
+  _filterUpgrades(upgrades) {
+    const filteredUpgrades = [];
+    for (let i = 0; i < upgrades.length; i++) {
+      if (~this.transports.indexOf(upgrades[i]))
+        filteredUpgrades.push(upgrades[i]);
+    }
+    return filteredUpgrades;
+  }
+}
+let Socket$1 = class Socket extends SocketWithUpgrade {
+  constructor(uri, opts = {}) {
+    const o = typeof uri === "object" ? uri : opts;
+    if (!o.transports || o.transports && typeof o.transports[0] === "string") {
+      o.transports = (o.transports || ["polling", "websocket", "webtransport"]).map((transportName) => transports[transportName]).filter((t) => !!t);
+    }
+    super(uri, o);
+  }
+};
+function url(uri, path = "", loc) {
+  let obj = uri;
+  loc = loc || typeof location !== "undefined" && location;
+  if (null == uri)
+    uri = loc.protocol + "//" + loc.host;
+  if (typeof uri === "string") {
+    if ("/" === uri.charAt(0)) {
+      if ("/" === uri.charAt(1)) {
+        uri = loc.protocol + uri;
+      } else {
+        uri = loc.host + uri;
+      }
+    }
+    if (!/^(https?|wss?):\/\//.test(uri)) {
+      if ("undefined" !== typeof loc) {
+        uri = loc.protocol + "//" + uri;
+      } else {
+        uri = "https://" + uri;
+      }
+    }
+    obj = parse(uri);
+  }
+  if (!obj.port) {
+    if (/^(http|ws)$/.test(obj.protocol)) {
+      obj.port = "80";
+    } else if (/^(http|ws)s$/.test(obj.protocol)) {
+      obj.port = "443";
+    }
+  }
+  obj.path = obj.path || "/";
+  const ipv6 = obj.host.indexOf(":") !== -1;
+  const host = ipv6 ? "[" + obj.host + "]" : obj.host;
+  obj.id = obj.protocol + "://" + host + ":" + obj.port + path;
+  obj.href = obj.protocol + "://" + host + (loc && loc.port === obj.port ? "" : ":" + obj.port);
+  return obj;
+}
+const withNativeArrayBuffer = typeof ArrayBuffer === "function";
+const isView = (obj) => {
+  return typeof ArrayBuffer.isView === "function" ? ArrayBuffer.isView(obj) : obj.buffer instanceof ArrayBuffer;
+};
+const toString = Object.prototype.toString;
+const withNativeBlob = typeof Blob === "function" || typeof Blob !== "undefined" && toString.call(Blob) === "[object BlobConstructor]";
+const withNativeFile = typeof File === "function" || typeof File !== "undefined" && toString.call(File) === "[object FileConstructor]";
+function isBinary(obj) {
+  return withNativeArrayBuffer && (obj instanceof ArrayBuffer || isView(obj)) || withNativeBlob && obj instanceof Blob || withNativeFile && obj instanceof File;
+}
+function hasBinary(obj, toJSON) {
+  if (!obj || typeof obj !== "object") {
+    return false;
+  }
+  if (Array.isArray(obj)) {
+    for (let i = 0, l = obj.length; i < l; i++) {
+      if (hasBinary(obj[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+  if (isBinary(obj)) {
+    return true;
+  }
+  if (obj.toJSON && typeof obj.toJSON === "function" && arguments.length === 1) {
+    return hasBinary(obj.toJSON(), true);
+  }
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key) && hasBinary(obj[key])) {
+      return true;
+    }
+  }
+  return false;
+}
+function deconstructPacket(packet) {
+  const buffers = [];
+  const packetData = packet.data;
+  const pack = packet;
+  pack.data = _deconstructPacket(packetData, buffers);
+  pack.attachments = buffers.length;
+  return { packet: pack, buffers };
+}
+function _deconstructPacket(data, buffers) {
+  if (!data)
+    return data;
+  if (isBinary(data)) {
+    const placeholder = { _placeholder: true, num: buffers.length };
+    buffers.push(data);
+    return placeholder;
+  } else if (Array.isArray(data)) {
+    const newData = new Array(data.length);
+    for (let i = 0; i < data.length; i++) {
+      newData[i] = _deconstructPacket(data[i], buffers);
+    }
+    return newData;
+  } else if (typeof data === "object" && !(data instanceof Date)) {
+    const newData = {};
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        newData[key] = _deconstructPacket(data[key], buffers);
+      }
+    }
+    return newData;
+  }
+  return data;
+}
+function reconstructPacket(packet, buffers) {
+  packet.data = _reconstructPacket(packet.data, buffers);
+  delete packet.attachments;
+  return packet;
+}
+function _reconstructPacket(data, buffers) {
+  if (!data)
+    return data;
+  if (data && data._placeholder === true) {
+    const isIndexValid = typeof data.num === "number" && data.num >= 0 && data.num < buffers.length;
+    if (isIndexValid) {
+      return buffers[data.num];
+    } else {
+      throw new Error("illegal attachments");
+    }
+  } else if (Array.isArray(data)) {
+    for (let i = 0; i < data.length; i++) {
+      data[i] = _reconstructPacket(data[i], buffers);
+    }
+  } else if (typeof data === "object") {
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        data[key] = _reconstructPacket(data[key], buffers);
+      }
+    }
+  }
+  return data;
+}
+const RESERVED_EVENTS$1 = [
+  "connect",
+  // used on the client side
+  "connect_error",
+  // used on the client side
+  "disconnect",
+  // used on both sides
+  "disconnecting",
+  // used on the server side
+  "newListener",
+  // used by the Node.js EventEmitter
+  "removeListener"
+  // used by the Node.js EventEmitter
+];
+var PacketType;
+(function(PacketType2) {
+  PacketType2[PacketType2["CONNECT"] = 0] = "CONNECT";
+  PacketType2[PacketType2["DISCONNECT"] = 1] = "DISCONNECT";
+  PacketType2[PacketType2["EVENT"] = 2] = "EVENT";
+  PacketType2[PacketType2["ACK"] = 3] = "ACK";
+  PacketType2[PacketType2["CONNECT_ERROR"] = 4] = "CONNECT_ERROR";
+  PacketType2[PacketType2["BINARY_EVENT"] = 5] = "BINARY_EVENT";
+  PacketType2[PacketType2["BINARY_ACK"] = 6] = "BINARY_ACK";
+})(PacketType || (PacketType = {}));
+class Encoder {
+  /**
+   * Encoder constructor
+   *
+   * @param {function} replacer - custom replacer to pass down to JSON.parse
+   */
+  constructor(replacer) {
+    this.replacer = replacer;
+  }
+  /**
+   * Encode a packet as a single string if non-binary, or as a
+   * buffer sequence, depending on packet type.
+   *
+   * @param {Object} obj - packet object
+   */
+  encode(obj) {
+    if (obj.type === PacketType.EVENT || obj.type === PacketType.ACK) {
+      if (hasBinary(obj)) {
+        return this.encodeAsBinary({
+          type: obj.type === PacketType.EVENT ? PacketType.BINARY_EVENT : PacketType.BINARY_ACK,
+          nsp: obj.nsp,
+          data: obj.data,
+          id: obj.id
+        });
+      }
+    }
+    return [this.encodeAsString(obj)];
+  }
+  /**
+   * Encode packet as string.
+   */
+  encodeAsString(obj) {
+    let str = "" + obj.type;
+    if (obj.type === PacketType.BINARY_EVENT || obj.type === PacketType.BINARY_ACK) {
+      str += obj.attachments + "-";
+    }
+    if (obj.nsp && "/" !== obj.nsp) {
+      str += obj.nsp + ",";
+    }
+    if (null != obj.id) {
+      str += obj.id;
+    }
+    if (null != obj.data) {
+      str += JSON.stringify(obj.data, this.replacer);
+    }
+    return str;
+  }
+  /**
+   * Encode packet as 'buffer sequence' by removing blobs, and
+   * deconstructing packet into object with placeholders and
+   * a list of buffers.
+   */
+  encodeAsBinary(obj) {
+    const deconstruction = deconstructPacket(obj);
+    const pack = this.encodeAsString(deconstruction.packet);
+    const buffers = deconstruction.buffers;
+    buffers.unshift(pack);
+    return buffers;
+  }
+}
+class Decoder extends Emitter {
+  /**
+   * Decoder constructor
+   */
+  constructor(opts) {
+    super();
+    this.opts = Object.assign({
+      reviver: void 0,
+      maxAttachments: 10
+    }, typeof opts === "function" ? { reviver: opts } : opts);
+  }
+  /**
+   * Decodes an encoded packet string into packet JSON.
+   *
+   * @param {String} obj - encoded packet
+   */
+  add(obj) {
+    let packet;
+    if (typeof obj === "string") {
+      if (this.reconstructor) {
+        throw new Error("got plaintext data when reconstructing a packet");
+      }
+      packet = this.decodeString(obj);
+      const isBinaryEvent = packet.type === PacketType.BINARY_EVENT;
+      if (isBinaryEvent || packet.type === PacketType.BINARY_ACK) {
+        packet.type = isBinaryEvent ? PacketType.EVENT : PacketType.ACK;
+        this.reconstructor = new BinaryReconstructor(packet);
+        if (packet.attachments === 0) {
+          super.emitReserved("decoded", packet);
+        }
+      } else {
+        super.emitReserved("decoded", packet);
+      }
+    } else if (isBinary(obj) || obj.base64) {
+      if (!this.reconstructor) {
+        throw new Error("got binary data when not reconstructing a packet");
+      } else {
+        packet = this.reconstructor.takeBinaryData(obj);
+        if (packet) {
+          this.reconstructor = null;
+          super.emitReserved("decoded", packet);
+        }
+      }
+    } else {
+      throw new Error("Unknown type: " + obj);
+    }
+  }
+  /**
+   * Decode a packet String (JSON data)
+   *
+   * @param {String} str
+   * @return {Object} packet
+   */
+  decodeString(str) {
+    let i = 0;
+    const p = {
+      type: Number(str.charAt(0))
+    };
+    if (PacketType[p.type] === void 0) {
+      throw new Error("unknown packet type " + p.type);
+    }
+    if (p.type === PacketType.BINARY_EVENT || p.type === PacketType.BINARY_ACK) {
+      const start = i + 1;
+      while (str.charAt(++i) !== "-" && i != str.length) {
+      }
+      const buf = str.substring(start, i);
+      if (buf != Number(buf) || str.charAt(i) !== "-") {
+        throw new Error("Illegal attachments");
+      }
+      const n = Number(buf);
+      if (!isInteger(n) || n < 0) {
+        throw new Error("Illegal attachments");
+      } else if (n > this.opts.maxAttachments) {
+        throw new Error("too many attachments");
+      }
+      p.attachments = n;
+    }
+    if ("/" === str.charAt(i + 1)) {
+      const start = i + 1;
+      while (++i) {
+        const c = str.charAt(i);
+        if ("," === c)
+          break;
+        if (i === str.length)
+          break;
+      }
+      p.nsp = str.substring(start, i);
+    } else {
+      p.nsp = "/";
+    }
+    const next = str.charAt(i + 1);
+    if ("" !== next && Number(next) == next) {
+      const start = i + 1;
+      while (++i) {
+        const c = str.charAt(i);
+        if (null == c || Number(c) != c) {
+          --i;
+          break;
+        }
+        if (i === str.length)
+          break;
+      }
+      p.id = Number(str.substring(start, i + 1));
+    }
+    if (str.charAt(++i)) {
+      const payload = this.tryParse(str.substr(i));
+      if (Decoder.isPayloadValid(p.type, payload)) {
+        p.data = payload;
+      } else {
+        throw new Error("invalid payload");
+      }
+    }
+    return p;
+  }
+  tryParse(str) {
+    try {
+      return JSON.parse(str, this.opts.reviver);
+    } catch (e) {
+      return false;
+    }
+  }
+  static isPayloadValid(type, payload) {
+    switch (type) {
+      case PacketType.CONNECT:
+        return isObject(payload);
+      case PacketType.DISCONNECT:
+        return payload === void 0;
+      case PacketType.CONNECT_ERROR:
+        return typeof payload === "string" || isObject(payload);
+      case PacketType.EVENT:
+      case PacketType.BINARY_EVENT:
+        return Array.isArray(payload) && (typeof payload[0] === "number" || typeof payload[0] === "string" && RESERVED_EVENTS$1.indexOf(payload[0]) === -1);
+      case PacketType.ACK:
+      case PacketType.BINARY_ACK:
+        return Array.isArray(payload);
+    }
+  }
+  /**
+   * Deallocates a parser's resources
+   */
+  destroy() {
+    if (this.reconstructor) {
+      this.reconstructor.finishedReconstruction();
+      this.reconstructor = null;
+    }
+  }
+}
+class BinaryReconstructor {
+  constructor(packet) {
+    this.packet = packet;
+    this.buffers = [];
+    this.reconPack = packet;
+  }
+  /**
+   * Method to be called when binary data received from connection
+   * after a BINARY_EVENT packet.
+   *
+   * @param {Buffer | ArrayBuffer} binData - the raw binary data received
+   * @return {null | Object} returns null if more binary data is expected or
+   *   a reconstructed packet object if all buffers have been received.
+   */
+  takeBinaryData(binData) {
+    this.buffers.push(binData);
+    if (this.buffers.length === this.reconPack.attachments) {
+      const packet = reconstructPacket(this.reconPack, this.buffers);
+      this.finishedReconstruction();
+      return packet;
+    }
+    return null;
+  }
+  /**
+   * Cleans up binary packet reconstruction variables.
+   */
+  finishedReconstruction() {
+    this.reconPack = null;
+    this.buffers = [];
+  }
+}
+const isInteger = Number.isInteger || function(value2) {
+  return typeof value2 === "number" && isFinite(value2) && Math.floor(value2) === value2;
+};
+function isObject(value2) {
+  return Object.prototype.toString.call(value2) === "[object Object]";
+}
+const parser = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  Decoder,
+  Encoder,
+  get PacketType() {
+    return PacketType;
+  }
+}, Symbol.toStringTag, { value: "Module" }));
+function on(obj, ev, fn) {
+  obj.on(ev, fn);
+  return function subDestroy() {
+    obj.off(ev, fn);
+  };
+}
+const RESERVED_EVENTS = Object.freeze({
+  connect: 1,
+  connect_error: 1,
+  disconnect: 1,
+  disconnecting: 1,
+  // EventEmitter reserved events: https://nodejs.org/api/events.html#events_event_newlistener
+  newListener: 1,
+  removeListener: 1
+});
+class Socket2 extends Emitter {
+  /**
+   * `Socket` constructor.
+   */
+  constructor(io, nsp, opts) {
+    super();
+    this.connected = false;
+    this.recovered = false;
+    this.receiveBuffer = [];
+    this.sendBuffer = [];
+    this._queue = [];
+    this._queueSeq = 0;
+    this.ids = 0;
+    this.acks = {};
+    this.flags = {};
+    this.io = io;
+    this.nsp = nsp;
+    if (opts && opts.auth) {
+      this.auth = opts.auth;
+    }
+    this._opts = Object.assign({}, opts);
+    if (this.io._autoConnect)
+      this.open();
+  }
+  /**
+   * Whether the socket is currently disconnected
+   *
+   * @example
+   * const socket = io();
+   *
+   * socket.on("connect", () => {
+   *   console.log(socket.disconnected); // false
+   * });
+   *
+   * socket.on("disconnect", () => {
+   *   console.log(socket.disconnected); // true
+   * });
+   */
+  get disconnected() {
+    return !this.connected;
+  }
+  /**
+   * Subscribe to open, close and packet events
+   *
+   * @private
+   */
+  subEvents() {
+    if (this.subs)
+      return;
+    const io = this.io;
+    this.subs = [
+      on(io, "open", this.onopen.bind(this)),
+      on(io, "packet", this.onpacket.bind(this)),
+      on(io, "error", this.onerror.bind(this)),
+      on(io, "close", this.onclose.bind(this))
+    ];
+  }
+  /**
+   * Whether the Socket will try to reconnect when its Manager connects or reconnects.
+   *
+   * @example
+   * const socket = io();
+   *
+   * console.log(socket.active); // true
+   *
+   * socket.on("disconnect", (reason) => {
+   *   if (reason === "io server disconnect") {
+   *     // the disconnection was initiated by the server, you need to manually reconnect
+   *     console.log(socket.active); // false
+   *   }
+   *   // else the socket will automatically try to reconnect
+   *   console.log(socket.active); // true
+   * });
+   */
+  get active() {
+    return !!this.subs;
+  }
+  /**
+   * "Opens" the socket.
+   *
+   * @example
+   * const socket = io({
+   *   autoConnect: false
+   * });
+   *
+   * socket.connect();
+   */
+  connect() {
+    if (this.connected)
+      return this;
+    this.subEvents();
+    if (!this.io["_reconnecting"])
+      this.io.open();
+    if ("open" === this.io._readyState)
+      this.onopen();
+    return this;
+  }
+  /**
+   * Alias for {@link connect()}.
+   */
+  open() {
+    return this.connect();
+  }
+  /**
+   * Sends a `message` event.
+   *
+   * This method mimics the WebSocket.send() method.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/send
+   *
+   * @example
+   * socket.send("hello");
+   *
+   * // this is equivalent to
+   * socket.emit("message", "hello");
+   *
+   * @return self
+   */
+  send(...args) {
+    args.unshift("message");
+    this.emit.apply(this, args);
+    return this;
+  }
+  /**
+   * Override `emit`.
+   * If the event is in `events`, it's emitted normally.
+   *
+   * @example
+   * socket.emit("hello", "world");
+   *
+   * // all serializable datastructures are supported (no need to call JSON.stringify)
+   * socket.emit("hello", 1, "2", { 3: ["4"], 5: Uint8Array.from([6]) });
+   *
+   * // with an acknowledgement from the server
+   * socket.emit("hello", "world", (val) => {
+   *   // ...
+   * });
+   *
+   * @return self
+   */
+  emit(ev, ...args) {
+    var _a, _b, _c;
+    if (RESERVED_EVENTS.hasOwnProperty(ev)) {
+      throw new Error('"' + ev.toString() + '" is a reserved event name');
+    }
+    args.unshift(ev);
+    if (this._opts.retries && !this.flags.fromQueue && !this.flags.volatile) {
+      this._addToQueue(args);
+      return this;
+    }
+    const packet = {
+      type: PacketType.EVENT,
+      data: args
+    };
+    packet.options = {};
+    packet.options.compress = this.flags.compress !== false;
+    if ("function" === typeof args[args.length - 1]) {
+      const id = this.ids++;
+      const ack = args.pop();
+      this._registerAckCallback(id, ack);
+      packet.id = id;
+    }
+    const isTransportWritable = (_b = (_a = this.io.engine) === null || _a === void 0 ? void 0 : _a.transport) === null || _b === void 0 ? void 0 : _b.writable;
+    const isConnected = this.connected && !((_c = this.io.engine) === null || _c === void 0 ? void 0 : _c._hasPingExpired());
+    const discardPacket = this.flags.volatile && !isTransportWritable;
+    if (discardPacket) ;
+    else if (isConnected) {
+      this.notifyOutgoingListeners(packet);
+      this.packet(packet);
+    } else {
+      this.sendBuffer.push(packet);
+    }
+    this.flags = {};
+    return this;
+  }
+  /**
+   * @private
+   */
+  _registerAckCallback(id, ack) {
+    var _a;
+    const timeout = (_a = this.flags.timeout) !== null && _a !== void 0 ? _a : this._opts.ackTimeout;
+    if (timeout === void 0) {
+      this.acks[id] = ack;
+      return;
+    }
+    const timer = this.io.setTimeoutFn(() => {
+      delete this.acks[id];
+      for (let i = 0; i < this.sendBuffer.length; i++) {
+        if (this.sendBuffer[i].id === id) {
+          this.sendBuffer.splice(i, 1);
+        }
+      }
+      ack.call(this, new Error("operation has timed out"));
+    }, timeout);
+    const fn = (...args) => {
+      this.io.clearTimeoutFn(timer);
+      ack.apply(this, args);
+    };
+    fn.withError = true;
+    this.acks[id] = fn;
+  }
+  /**
+   * Emits an event and waits for an acknowledgement
+   *
+   * @example
+   * // without timeout
+   * const response = await socket.emitWithAck("hello", "world");
+   *
+   * // with a specific timeout
+   * try {
+   *   const response = await socket.timeout(1000).emitWithAck("hello", "world");
+   * } catch (err) {
+   *   // the server did not acknowledge the event in the given delay
+   * }
+   *
+   * @return a Promise that will be fulfilled when the server acknowledges the event
+   */
+  emitWithAck(ev, ...args) {
+    return new Promise((resolve, reject) => {
+      const fn = (arg1, arg2) => {
+        return arg1 ? reject(arg1) : resolve(arg2);
+      };
+      fn.withError = true;
+      args.push(fn);
+      this.emit(ev, ...args);
+    });
+  }
+  /**
+   * Add the packet to the queue.
+   * @param args
+   * @private
+   */
+  _addToQueue(args) {
+    let ack;
+    if (typeof args[args.length - 1] === "function") {
+      ack = args.pop();
+    }
+    const packet = {
+      id: this._queueSeq++,
+      tryCount: 0,
+      pending: false,
+      args,
+      flags: Object.assign({ fromQueue: true }, this.flags)
+    };
+    args.push((err, ...responseArgs) => {
+      if (packet !== this._queue[0]) ;
+      const hasError = err !== null;
+      if (hasError) {
+        if (packet.tryCount > this._opts.retries) {
+          this._queue.shift();
+          if (ack) {
+            ack(err);
+          }
+        }
+      } else {
+        this._queue.shift();
+        if (ack) {
+          ack(null, ...responseArgs);
+        }
+      }
+      packet.pending = false;
+      return this._drainQueue();
+    });
+    this._queue.push(packet);
+    this._drainQueue();
+  }
+  /**
+   * Send the first packet of the queue, and wait for an acknowledgement from the server.
+   * @param force - whether to resend a packet that has not been acknowledged yet
+   *
+   * @private
+   */
+  _drainQueue(force = false) {
+    if (!this.connected || this._queue.length === 0) {
+      return;
+    }
+    const packet = this._queue[0];
+    if (packet.pending && !force) {
+      return;
+    }
+    packet.pending = true;
+    packet.tryCount++;
+    this.flags = packet.flags;
+    this.emit.apply(this, packet.args);
+  }
+  /**
+   * Sends a packet.
+   *
+   * @param packet
+   * @private
+   */
+  packet(packet) {
+    packet.nsp = this.nsp;
+    this.io._packet(packet);
+  }
+  /**
+   * Called upon engine `open`.
+   *
+   * @private
+   */
+  onopen() {
+    if (typeof this.auth == "function") {
+      this.auth((data) => {
+        this._sendConnectPacket(data);
+      });
+    } else {
+      this._sendConnectPacket(this.auth);
+    }
+  }
+  /**
+   * Sends a CONNECT packet to initiate the Socket.IO session.
+   *
+   * @param data
+   * @private
+   */
+  _sendConnectPacket(data) {
+    this.packet({
+      type: PacketType.CONNECT,
+      data: this._pid ? Object.assign({ pid: this._pid, offset: this._lastOffset }, data) : data
+    });
+  }
+  /**
+   * Called upon engine or manager `error`.
+   *
+   * @param err
+   * @private
+   */
+  onerror(err) {
+    if (!this.connected) {
+      this.emitReserved("connect_error", err);
+    }
+  }
+  /**
+   * Called upon engine `close`.
+   *
+   * @param reason
+   * @param description
+   * @private
+   */
+  onclose(reason, description) {
+    this.connected = false;
+    delete this.id;
+    this.emitReserved("disconnect", reason, description);
+    this._clearAcks();
+  }
+  /**
+   * Clears the acknowledgement handlers upon disconnection, since the client will never receive an acknowledgement from
+   * the server.
+   *
+   * @private
+   */
+  _clearAcks() {
+    Object.keys(this.acks).forEach((id) => {
+      const isBuffered = this.sendBuffer.some((packet) => String(packet.id) === id);
+      if (!isBuffered) {
+        const ack = this.acks[id];
+        delete this.acks[id];
+        if (ack.withError) {
+          ack.call(this, new Error("socket has been disconnected"));
+        }
+      }
+    });
+  }
+  /**
+   * Called with socket packet.
+   *
+   * @param packet
+   * @private
+   */
+  onpacket(packet) {
+    const sameNamespace = packet.nsp === this.nsp;
+    if (!sameNamespace)
+      return;
+    switch (packet.type) {
+      case PacketType.CONNECT:
+        if (packet.data && packet.data.sid) {
+          this.onconnect(packet.data.sid, packet.data.pid);
+        } else {
+          this.emitReserved("connect_error", new Error("It seems you are trying to reach a Socket.IO server in v2.x with a v3.x client, but they are not compatible (more information here: https://socket.io/docs/v3/migrating-from-2-x-to-3-0/)"));
+        }
+        break;
+      case PacketType.EVENT:
+      case PacketType.BINARY_EVENT:
+        this.onevent(packet);
+        break;
+      case PacketType.ACK:
+      case PacketType.BINARY_ACK:
+        this.onack(packet);
+        break;
+      case PacketType.DISCONNECT:
+        this.ondisconnect();
+        break;
+      case PacketType.CONNECT_ERROR:
+        this.destroy();
+        const err = new Error(packet.data.message);
+        err.data = packet.data.data;
+        this.emitReserved("connect_error", err);
+        break;
+    }
+  }
+  /**
+   * Called upon a server event.
+   *
+   * @param packet
+   * @private
+   */
+  onevent(packet) {
+    const args = packet.data || [];
+    if (null != packet.id) {
+      args.push(this.ack(packet.id));
+    }
+    if (this.connected) {
+      this.emitEvent(args);
+    } else {
+      this.receiveBuffer.push(Object.freeze(args));
+    }
+  }
+  emitEvent(args) {
+    if (this._anyListeners && this._anyListeners.length) {
+      const listeners = this._anyListeners.slice();
+      for (const listener of listeners) {
+        listener.apply(this, args);
+      }
+    }
+    super.emit.apply(this, args);
+    if (this._pid && args.length && typeof args[args.length - 1] === "string") {
+      this._lastOffset = args[args.length - 1];
+    }
+  }
+  /**
+   * Produces an ack callback to emit with an event.
+   *
+   * @private
+   */
+  ack(id) {
+    const self2 = this;
+    let sent = false;
+    return function(...args) {
+      if (sent)
+        return;
+      sent = true;
+      self2.packet({
+        type: PacketType.ACK,
+        id,
+        data: args
+      });
+    };
+  }
+  /**
+   * Called upon a server acknowledgement.
+   *
+   * @param packet
+   * @private
+   */
+  onack(packet) {
+    const ack = this.acks[packet.id];
+    if (typeof ack !== "function") {
+      return;
+    }
+    delete this.acks[packet.id];
+    if (ack.withError) {
+      packet.data.unshift(null);
+    }
+    ack.apply(this, packet.data);
+  }
+  /**
+   * Called upon server connect.
+   *
+   * @private
+   */
+  onconnect(id, pid) {
+    this.id = id;
+    this.recovered = pid && this._pid === pid;
+    this._pid = pid;
+    this.connected = true;
+    this.emitBuffered();
+    this._drainQueue(true);
+    this.emitReserved("connect");
+  }
+  /**
+   * Emit buffered events (received and emitted).
+   *
+   * @private
+   */
+  emitBuffered() {
+    this.receiveBuffer.forEach((args) => this.emitEvent(args));
+    this.receiveBuffer = [];
+    this.sendBuffer.forEach((packet) => {
+      this.notifyOutgoingListeners(packet);
+      this.packet(packet);
+    });
+    this.sendBuffer = [];
+  }
+  /**
+   * Called upon server disconnect.
+   *
+   * @private
+   */
+  ondisconnect() {
+    this.destroy();
+    this.onclose("io server disconnect");
+  }
+  /**
+   * Called upon forced client/server side disconnections,
+   * this method ensures the manager stops tracking us and
+   * that reconnections don't get triggered for this.
+   *
+   * @private
+   */
+  destroy() {
+    if (this.subs) {
+      this.subs.forEach((subDestroy) => subDestroy());
+      this.subs = void 0;
+    }
+    this.io["_destroy"](this);
+  }
+  /**
+   * Disconnects the socket manually. In that case, the socket will not try to reconnect.
+   *
+   * If this is the last active Socket instance of the {@link Manager}, the low-level connection will be closed.
+   *
+   * @example
+   * const socket = io();
+   *
+   * socket.on("disconnect", (reason) => {
+   *   // console.log(reason); prints "io client disconnect"
+   * });
+   *
+   * socket.disconnect();
+   *
+   * @return self
+   */
+  disconnect() {
+    if (this.connected) {
+      this.packet({ type: PacketType.DISCONNECT });
+    }
+    this.destroy();
+    if (this.connected) {
+      this.onclose("io client disconnect");
+    }
+    return this;
+  }
+  /**
+   * Alias for {@link disconnect()}.
+   *
+   * @return self
+   */
+  close() {
+    return this.disconnect();
+  }
+  /**
+   * Sets the compress flag.
+   *
+   * @example
+   * socket.compress(false).emit("hello");
+   *
+   * @param compress - if `true`, compresses the sending data
+   * @return self
+   */
+  compress(compress) {
+    this.flags.compress = compress;
+    return this;
+  }
+  /**
+   * Sets a modifier for a subsequent event emission that the event message will be dropped when this socket is not
+   * ready to send messages.
+   *
+   * @example
+   * socket.volatile.emit("hello"); // the server may or may not receive it
+   *
+   * @returns self
+   */
+  get volatile() {
+    this.flags.volatile = true;
+    return this;
+  }
+  /**
+   * Sets a modifier for a subsequent event emission that the callback will be called with an error when the
+   * given number of milliseconds have elapsed without an acknowledgement from the server:
+   *
+   * @example
+   * socket.timeout(5000).emit("my-event", (err) => {
+   *   if (err) {
+   *     // the server did not acknowledge the event in the given delay
+   *   }
+   * });
+   *
+   * @returns self
+   */
+  timeout(timeout) {
+    this.flags.timeout = timeout;
+    return this;
+  }
+  /**
+   * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
+   * callback.
+   *
+   * @example
+   * socket.onAny((event, ...args) => {
+   *   console.log(`got ${event}`);
+   * });
+   *
+   * @param listener
+   */
+  onAny(listener) {
+    this._anyListeners = this._anyListeners || [];
+    this._anyListeners.push(listener);
+    return this;
+  }
+  /**
+   * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
+   * callback. The listener is added to the beginning of the listeners array.
+   *
+   * @example
+   * socket.prependAny((event, ...args) => {
+   *   console.log(`got event ${event}`);
+   * });
+   *
+   * @param listener
+   */
+  prependAny(listener) {
+    this._anyListeners = this._anyListeners || [];
+    this._anyListeners.unshift(listener);
+    return this;
+  }
+  /**
+   * Removes the listener that will be fired when any event is emitted.
+   *
+   * @example
+   * const catchAllListener = (event, ...args) => {
+   *   console.log(`got event ${event}`);
+   * }
+   *
+   * socket.onAny(catchAllListener);
+   *
+   * // remove a specific listener
+   * socket.offAny(catchAllListener);
+   *
+   * // or remove all listeners
+   * socket.offAny();
+   *
+   * @param listener
+   */
+  offAny(listener) {
+    if (!this._anyListeners) {
+      return this;
+    }
+    if (listener) {
+      const listeners = this._anyListeners;
+      for (let i = 0; i < listeners.length; i++) {
+        if (listener === listeners[i]) {
+          listeners.splice(i, 1);
+          return this;
+        }
+      }
+    } else {
+      this._anyListeners = [];
+    }
+    return this;
+  }
+  /**
+   * Returns an array of listeners that are listening for any event that is specified. This array can be manipulated,
+   * e.g. to remove listeners.
+   */
+  listenersAny() {
+    return this._anyListeners || [];
+  }
+  /**
+   * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
+   * callback.
+   *
+   * Note: acknowledgements sent to the server are not included.
+   *
+   * @example
+   * socket.onAnyOutgoing((event, ...args) => {
+   *   console.log(`sent event ${event}`);
+   * });
+   *
+   * @param listener
+   */
+  onAnyOutgoing(listener) {
+    this._anyOutgoingListeners = this._anyOutgoingListeners || [];
+    this._anyOutgoingListeners.push(listener);
+    return this;
+  }
+  /**
+   * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
+   * callback. The listener is added to the beginning of the listeners array.
+   *
+   * Note: acknowledgements sent to the server are not included.
+   *
+   * @example
+   * socket.prependAnyOutgoing((event, ...args) => {
+   *   console.log(`sent event ${event}`);
+   * });
+   *
+   * @param listener
+   */
+  prependAnyOutgoing(listener) {
+    this._anyOutgoingListeners = this._anyOutgoingListeners || [];
+    this._anyOutgoingListeners.unshift(listener);
+    return this;
+  }
+  /**
+   * Removes the listener that will be fired when any event is emitted.
+   *
+   * @example
+   * const catchAllListener = (event, ...args) => {
+   *   console.log(`sent event ${event}`);
+   * }
+   *
+   * socket.onAnyOutgoing(catchAllListener);
+   *
+   * // remove a specific listener
+   * socket.offAnyOutgoing(catchAllListener);
+   *
+   * // or remove all listeners
+   * socket.offAnyOutgoing();
+   *
+   * @param [listener] - the catch-all listener (optional)
+   */
+  offAnyOutgoing(listener) {
+    if (!this._anyOutgoingListeners) {
+      return this;
+    }
+    if (listener) {
+      const listeners = this._anyOutgoingListeners;
+      for (let i = 0; i < listeners.length; i++) {
+        if (listener === listeners[i]) {
+          listeners.splice(i, 1);
+          return this;
+        }
+      }
+    } else {
+      this._anyOutgoingListeners = [];
+    }
+    return this;
+  }
+  /**
+   * Returns an array of listeners that are listening for any event that is specified. This array can be manipulated,
+   * e.g. to remove listeners.
+   */
+  listenersAnyOutgoing() {
+    return this._anyOutgoingListeners || [];
+  }
+  /**
+   * Notify the listeners for each packet sent
+   *
+   * @param packet
+   *
+   * @private
+   */
+  notifyOutgoingListeners(packet) {
+    if (this._anyOutgoingListeners && this._anyOutgoingListeners.length) {
+      const listeners = this._anyOutgoingListeners.slice();
+      for (const listener of listeners) {
+        listener.apply(this, packet.data);
+      }
+    }
+  }
+}
+function Backoff(opts) {
+  opts = opts || {};
+  this.ms = opts.min || 100;
+  this.max = opts.max || 1e4;
+  this.factor = opts.factor || 2;
+  this.jitter = opts.jitter > 0 && opts.jitter <= 1 ? opts.jitter : 0;
+  this.attempts = 0;
+}
+Backoff.prototype.duration = function() {
+  var ms = this.ms * Math.pow(this.factor, this.attempts++);
+  if (this.jitter) {
+    var rand = Math.random();
+    var deviation = Math.floor(rand * this.jitter * ms);
+    ms = (Math.floor(rand * 10) & 1) == 0 ? ms - deviation : ms + deviation;
+  }
+  return Math.min(ms, this.max) | 0;
+};
+Backoff.prototype.reset = function() {
+  this.attempts = 0;
+};
+Backoff.prototype.setMin = function(min) {
+  this.ms = min;
+};
+Backoff.prototype.setMax = function(max) {
+  this.max = max;
+};
+Backoff.prototype.setJitter = function(jitter) {
+  this.jitter = jitter;
+};
+class Manager extends Emitter {
+  constructor(uri, opts) {
+    var _a;
+    super();
+    this.nsps = {};
+    this.subs = [];
+    if (uri && "object" === typeof uri) {
+      opts = uri;
+      uri = void 0;
+    }
+    opts = opts || {};
+    opts.path = opts.path || "/socket.io";
+    this.opts = opts;
+    installTimerFunctions(this, opts);
+    this.reconnection(opts.reconnection !== false);
+    this.reconnectionAttempts(opts.reconnectionAttempts || Infinity);
+    this.reconnectionDelay(opts.reconnectionDelay || 1e3);
+    this.reconnectionDelayMax(opts.reconnectionDelayMax || 5e3);
+    this.randomizationFactor((_a = opts.randomizationFactor) !== null && _a !== void 0 ? _a : 0.5);
+    this.backoff = new Backoff({
+      min: this.reconnectionDelay(),
+      max: this.reconnectionDelayMax(),
+      jitter: this.randomizationFactor()
+    });
+    this.timeout(null == opts.timeout ? 2e4 : opts.timeout);
+    this._readyState = "closed";
+    this.uri = uri;
+    const _parser = opts.parser || parser;
+    this.encoder = new _parser.Encoder();
+    this.decoder = new _parser.Decoder();
+    this._autoConnect = opts.autoConnect !== false;
+    if (this._autoConnect)
+      this.open();
+  }
+  reconnection(v) {
+    if (!arguments.length)
+      return this._reconnection;
+    this._reconnection = !!v;
+    if (!v) {
+      this.skipReconnect = true;
+    }
+    return this;
+  }
+  reconnectionAttempts(v) {
+    if (v === void 0)
+      return this._reconnectionAttempts;
+    this._reconnectionAttempts = v;
+    return this;
+  }
+  reconnectionDelay(v) {
+    var _a;
+    if (v === void 0)
+      return this._reconnectionDelay;
+    this._reconnectionDelay = v;
+    (_a = this.backoff) === null || _a === void 0 ? void 0 : _a.setMin(v);
+    return this;
+  }
+  randomizationFactor(v) {
+    var _a;
+    if (v === void 0)
+      return this._randomizationFactor;
+    this._randomizationFactor = v;
+    (_a = this.backoff) === null || _a === void 0 ? void 0 : _a.setJitter(v);
+    return this;
+  }
+  reconnectionDelayMax(v) {
+    var _a;
+    if (v === void 0)
+      return this._reconnectionDelayMax;
+    this._reconnectionDelayMax = v;
+    (_a = this.backoff) === null || _a === void 0 ? void 0 : _a.setMax(v);
+    return this;
+  }
+  timeout(v) {
+    if (!arguments.length)
+      return this._timeout;
+    this._timeout = v;
+    return this;
+  }
+  /**
+   * Starts trying to reconnect if reconnection is enabled and we have not
+   * started reconnecting yet
+   *
+   * @private
+   */
+  maybeReconnectOnOpen() {
+    if (!this._reconnecting && this._reconnection && this.backoff.attempts === 0) {
+      this.reconnect();
+    }
+  }
+  /**
+   * Sets the current transport `socket`.
+   *
+   * @param {Function} fn - optional, callback
+   * @return self
+   * @public
+   */
+  open(fn) {
+    if (~this._readyState.indexOf("open"))
+      return this;
+    this.engine = new Socket$1(this.uri, this.opts);
+    const socket2 = this.engine;
+    const self2 = this;
+    this._readyState = "opening";
+    this.skipReconnect = false;
+    const openSubDestroy = on(socket2, "open", function() {
+      self2.onopen();
+      fn && fn();
+    });
+    const onError = (err) => {
+      this.cleanup();
+      this._readyState = "closed";
+      this.emitReserved("error", err);
+      if (fn) {
+        fn(err);
+      } else {
+        this.maybeReconnectOnOpen();
+      }
+    };
+    const errorSub = on(socket2, "error", onError);
+    if (false !== this._timeout) {
+      const timeout = this._timeout;
+      const timer = this.setTimeoutFn(() => {
+        openSubDestroy();
+        onError(new Error("timeout"));
+        socket2.close();
+      }, timeout);
+      if (this.opts.autoUnref) {
+        timer.unref();
+      }
+      this.subs.push(() => {
+        this.clearTimeoutFn(timer);
+      });
+    }
+    this.subs.push(openSubDestroy);
+    this.subs.push(errorSub);
+    return this;
+  }
+  /**
+   * Alias for open()
+   *
+   * @return self
+   * @public
+   */
+  connect(fn) {
+    return this.open(fn);
+  }
+  /**
+   * Called upon transport open.
+   *
+   * @private
+   */
+  onopen() {
+    this.cleanup();
+    this._readyState = "open";
+    this.emitReserved("open");
+    const socket2 = this.engine;
+    this.subs.push(
+      on(socket2, "ping", this.onping.bind(this)),
+      on(socket2, "data", this.ondata.bind(this)),
+      on(socket2, "error", this.onerror.bind(this)),
+      on(socket2, "close", this.onclose.bind(this)),
+      // @ts-ignore
+      on(this.decoder, "decoded", this.ondecoded.bind(this))
+    );
+  }
+  /**
+   * Called upon a ping.
+   *
+   * @private
+   */
+  onping() {
+    this.emitReserved("ping");
+  }
+  /**
+   * Called with data.
+   *
+   * @private
+   */
+  ondata(data) {
+    try {
+      this.decoder.add(data);
+    } catch (e) {
+      this.onclose("parse error", e);
+    }
+  }
+  /**
+   * Called when parser fully decodes a packet.
+   *
+   * @private
+   */
+  ondecoded(packet) {
+    nextTick(() => {
+      this.emitReserved("packet", packet);
+    }, this.setTimeoutFn);
+  }
+  /**
+   * Called upon socket error.
+   *
+   * @private
+   */
+  onerror(err) {
+    this.emitReserved("error", err);
+  }
+  /**
+   * Creates a new socket for the given `nsp`.
+   *
+   * @return {Socket}
+   * @public
+   */
+  socket(nsp, opts) {
+    let socket2 = this.nsps[nsp];
+    if (!socket2) {
+      socket2 = new Socket2(this, nsp, opts);
+      this.nsps[nsp] = socket2;
+    } else if (this._autoConnect && !socket2.active) {
+      socket2.connect();
+    }
+    return socket2;
+  }
+  /**
+   * Called upon a socket close.
+   *
+   * @param socket
+   * @private
+   */
+  _destroy(socket2) {
+    const nsps = Object.keys(this.nsps);
+    for (const nsp of nsps) {
+      const socket3 = this.nsps[nsp];
+      if (socket3.active) {
+        return;
+      }
+    }
+    this._close();
+  }
+  /**
+   * Writes a packet.
+   *
+   * @param packet
+   * @private
+   */
+  _packet(packet) {
+    const encodedPackets = this.encoder.encode(packet);
+    for (let i = 0; i < encodedPackets.length; i++) {
+      this.engine.write(encodedPackets[i], packet.options);
+    }
+  }
+  /**
+   * Clean up transport subscriptions and packet buffer.
+   *
+   * @private
+   */
+  cleanup() {
+    this.subs.forEach((subDestroy) => subDestroy());
+    this.subs.length = 0;
+    this.decoder.destroy();
+  }
+  /**
+   * Close the current socket.
+   *
+   * @private
+   */
+  _close() {
+    this.skipReconnect = true;
+    this._reconnecting = false;
+    this.onclose("forced close");
+  }
+  /**
+   * Alias for close()
+   *
+   * @private
+   */
+  disconnect() {
+    return this._close();
+  }
+  /**
+   * Called when:
+   *
+   * - the low-level engine is closed
+   * - the parser encountered a badly formatted packet
+   * - all sockets are disconnected
+   *
+   * @private
+   */
+  onclose(reason, description) {
+    var _a;
+    this.cleanup();
+    (_a = this.engine) === null || _a === void 0 ? void 0 : _a.close();
+    this.backoff.reset();
+    this._readyState = "closed";
+    this.emitReserved("close", reason, description);
+    if (this._reconnection && !this.skipReconnect) {
+      this.reconnect();
+    }
+  }
+  /**
+   * Attempt a reconnection.
+   *
+   * @private
+   */
+  reconnect() {
+    if (this._reconnecting || this.skipReconnect)
+      return this;
+    const self2 = this;
+    if (this.backoff.attempts >= this._reconnectionAttempts) {
+      this.backoff.reset();
+      this.emitReserved("reconnect_failed");
+      this._reconnecting = false;
+    } else {
+      const delay = this.backoff.duration();
+      this._reconnecting = true;
+      const timer = this.setTimeoutFn(() => {
+        if (self2.skipReconnect)
+          return;
+        this.emitReserved("reconnect_attempt", self2.backoff.attempts);
+        if (self2.skipReconnect)
+          return;
+        self2.open((err) => {
+          if (err) {
+            self2._reconnecting = false;
+            self2.reconnect();
+            this.emitReserved("reconnect_error", err);
+          } else {
+            self2.onreconnect();
+          }
+        });
+      }, delay);
+      if (this.opts.autoUnref) {
+        timer.unref();
+      }
+      this.subs.push(() => {
+        this.clearTimeoutFn(timer);
+      });
+    }
+  }
+  /**
+   * Called upon successful reconnect.
+   *
+   * @private
+   */
+  onreconnect() {
+    const attempt = this.backoff.attempts;
+    this._reconnecting = false;
+    this.backoff.reset();
+    this.emitReserved("reconnect", attempt);
+  }
+}
+const cache = {};
+function lookup(uri, opts) {
+  if (typeof uri === "object") {
+    opts = uri;
+    uri = void 0;
+  }
+  opts = opts || {};
+  const parsed = url(uri, opts.path || "/socket.io");
+  const source = parsed.source;
+  const id = parsed.id;
+  const path = parsed.path;
+  const sameNamespace = cache[id] && path in cache[id]["nsps"];
+  const newConnection = opts.forceNew || opts["force new connection"] || false === opts.multiplex || sameNamespace;
+  let io;
+  if (newConnection) {
+    io = new Manager(source, opts);
+  } else {
+    if (!cache[id]) {
+      cache[id] = new Manager(source, opts);
+    }
+    io = cache[id];
+  }
+  if (parsed.query && !opts.query) {
+    opts.query = parsed.queryKey;
+  }
+  return io.socket(parsed.path, opts);
+}
+Object.assign(lookup, {
+  Manager,
+  Socket: Socket2,
+  io: lookup,
+  connect: lookup
+});
+let socket = null;
+function useSocket({
+  onLocationsChanged,
+  onDepartmentsChanged,
+  onFoldersChanged,
+  onFilesChanged,
+  onUsersChanged,
+  onGroupsChanged,
+  onSettingsChanged,
+  onDmsScheduleChanged,
+  onNotificationCreated
+}) {
+  const reconnectTimeoutRef = reactExports.useRef(null);
+  const handlersRef = reactExports.useRef({
+    onLocationsChanged,
+    onDepartmentsChanged,
+    onFoldersChanged,
+    onFilesChanged,
+    onUsersChanged,
+    onGroupsChanged,
+    onSettingsChanged,
+    onDmsScheduleChanged,
+    onNotificationCreated
+  });
+  reactExports.useEffect(() => {
+    handlersRef.current = {
+      onLocationsChanged,
+      onDepartmentsChanged,
+      onFoldersChanged,
+      onFilesChanged,
+      onUsersChanged,
+      onGroupsChanged,
+      onSettingsChanged,
+      onDmsScheduleChanged,
+      onNotificationCreated
+    };
+  });
+  const connect = reactExports.useCallback(() => {
+    if (socket == null ? void 0 : socket.connected) return;
+    const apiUrl = window.location.origin;
+    socket = lookup(apiUrl, {
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1e3
+    });
+    socket.on("connect", () => {
+      console.log("[Socket] Connected:", socket.id);
+    });
+    socket.on("disconnect", (reason) => {
+      console.log("[Socket] Disconnected:", reason);
+    });
+    socket.on("connect_error", (err) => {
+      console.log("[Socket] Connection error:", err.message);
+    });
+    socket.on("locations:changed", () => {
+      var _a, _b;
+      (_b = (_a = handlersRef.current).onLocationsChanged) == null ? void 0 : _b.call(_a);
+    });
+    socket.on("departments:changed", (data) => {
+      var _a, _b;
+      (_b = (_a = handlersRef.current).onDepartmentsChanged) == null ? void 0 : _b.call(_a, data == null ? void 0 : data.locationId);
+    });
+    socket.on("folders:changed", (data) => {
+      var _a, _b;
+      (_b = (_a = handlersRef.current).onFoldersChanged) == null ? void 0 : _b.call(_a, data == null ? void 0 : data.departmentId);
+    });
+    socket.on("files:changed", (data) => {
+      var _a, _b;
+      (_b = (_a = handlersRef.current).onFilesChanged) == null ? void 0 : _b.call(_a, data == null ? void 0 : data.folderId);
+    });
+    socket.on("users:changed", () => {
+      var _a, _b;
+      (_b = (_a = handlersRef.current).onUsersChanged) == null ? void 0 : _b.call(_a);
+    });
+    socket.on("groups:changed", () => {
+      var _a, _b;
+      (_b = (_a = handlersRef.current).onGroupsChanged) == null ? void 0 : _b.call(_a);
+    });
+    socket.on("settings:changed", () => {
+      var _a, _b;
+      (_b = (_a = handlersRef.current).onSettingsChanged) == null ? void 0 : _b.call(_a);
+    });
+    socket.on("dms:schedule", () => {
+      var _a, _b;
+      (_b = (_a = handlersRef.current).onDmsScheduleChanged) == null ? void 0 : _b.call(_a);
+    });
+    socket.on("notification:created", (data) => {
+      var _a, _b;
+      (_b = (_a = handlersRef.current).onNotificationCreated) == null ? void 0 : _b.call(_a, data);
+    });
+  }, []);
+  reactExports.useEffect(() => {
+    connect();
+    return () => {
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+    };
+  }, [connect]);
+  const disconnect = reactExports.useCallback(() => {
+    if (socket) {
+      socket.disconnect();
+      socket = null;
+    }
+  }, []);
+  return { disconnect };
+}
 class ErrorBoundary extends reactExports.Component {
   constructor(props) {
     super(props);
@@ -13941,6 +17343,14 @@ function AlertsDropdown({ darkMode, onNavigate }) {
   const [alerts, setAlerts] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(false);
   const [unreadCount, setUnreadCount] = reactExports.useState(0);
+  const handleNotificationCreated = (data) => {
+    const notification = data.notification || data;
+    setAlerts((prev) => [{ ...notification, read_at: null }, ...prev.slice(0, 99)]);
+    setUnreadCount((prev) => prev + 1);
+  };
+  useSocket({
+    onNotificationCreated: handleNotificationCreated
+  });
   reactExports.useEffect(() => {
     if (showDropdown) {
       loadAlerts();
@@ -13948,8 +17358,6 @@ function AlertsDropdown({ darkMode, onNavigate }) {
   }, [showDropdown]);
   reactExports.useEffect(() => {
     loadUnreadCount();
-    const interval = setInterval(loadUnreadCount, 6e4);
-    return () => clearInterval(interval);
   }, []);
   const loadAlerts = async () => {
     setLoading(true);
@@ -14010,7 +17418,7 @@ function AlertsDropdown({ darkMode, onNavigate }) {
     }
     setShowDropdown(false);
   };
-  const formatDate2 = (dateStr) => {
+  const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     const now = /* @__PURE__ */ new Date();
     const diff = now - date;
@@ -14189,7 +17597,7 @@ function AlertsDropdown({ darkMode, onNavigate }) {
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 10, color: t.textDim, marginTop: 4 }, children: [
                     alert2.item_name,
                     " • ",
-                    formatDate2(alert2.created_at)
+                    formatDate(alert2.created_at)
                   ] })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -14290,7 +17698,7 @@ function Navbar({
   const [globalSearch$1, setGlobalSearch] = reactExports.useState("");
   const [globalSearchFocused, setGlobalSearchFocused] = reactExports.useState(false);
   const globalSearchRef = reactExports.useRef(null);
-  const [searchResults, setSearchResults] = reactExports.useState({ folders: [], files: [] });
+  const [searchResults, setSearchResults] = reactExports.useState({ folders: [], files: [], ocrFiles: [] });
   const [searchLoading, setSearchLoading] = reactExports.useState(false);
   const searchTimer = reactExports.useRef(null);
   const [showAppsDropdown, setShowAppsDropdown] = reactExports.useState(false);
@@ -14315,20 +17723,23 @@ function Navbar({
       setSelectedFile(null);
       setShowAppsDropdown(false);
     } },
-    { id: "dda", name: "Dealer Document Archive", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${t.accent},${t.accentDark || t.accent})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "DDA" }), onClick: () => {
+    { id: "dda", name: "Dealer Document Archive", permission: "view_dda", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${t.accent},${t.accentDark || t.accent})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "DDA" }), onClick: () => {
       setPage("dashboard");
       setSelectedFile(null);
       setShowAppsDropdown(false);
     } },
-    { id: "cht", name: "Credit Hold Tracker", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "CHT" }), onClick: () => {
+    { id: "cht", name: "Credit Hold Tracker", permission: "view_cht", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "CHT" }), onClick: () => {
       setPage("cht-dashboard");
       setShowAppsDropdown(false);
     } },
-    { id: "help", name: "Submit Help Ticket", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TicketIcon, { size: 14 }) }), onClick: () => {
+    { id: "help", name: "Submit Help Ticket", permission: "view_help", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TicketIcon, { size: 14 }) }), onClick: () => {
       setShowAppsDropdown(false);
       onOpenHelpTicket == null ? void 0 : onOpenHelpTicket();
     } },
-    ...customApps.map((app) => ({
+    ...customApps.filter((app) => {
+      var _a2;
+      return (_a2 = loggedInUser == null ? void 0 : loggedInUser.customAppIds) == null ? void 0 : _a2.includes(app.id);
+    }).map((app) => ({
       id: app.id,
       name: app.name,
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg, #88c0d0, #5b9bd5)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: app.abbreviation || app.name.substring(0, 2).toUpperCase() }),
@@ -14342,7 +17753,10 @@ function Navbar({
       setAdminSection("users");
       setShowAppsDropdown(false);
     } }] : []
-  ];
+  ].filter((app) => {
+    var _a2;
+    return !app.permission || ((_a2 = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a2.includes(app.permission));
+  });
   reactExports.useEffect(() => {
     const handleClickOutside = () => {
       setShowAppsDropdown(false);
@@ -14354,20 +17768,21 @@ function Navbar({
   }, [showAppsDropdown]);
   reactExports.useEffect(() => {
     if (!q) {
-      setSearchResults({ folders: [], files: [] });
+      setSearchResults({ folders: [], files: [], ocrFiles: [] });
       setSearchLoading(false);
       return;
     }
     setSearchLoading(true);
     clearTimeout(searchTimer.current);
     searchTimer.current = setTimeout(() => {
-      globalSearch(q).then((data) => setSearchResults(data)).catch(() => setSearchResults({ folders: [], files: [] })).finally(() => setSearchLoading(false));
+      globalSearch(q).then((data) => setSearchResults(data)).catch(() => setSearchResults({ folders: [], files: [], ocrFiles: [] })).finally(() => setSearchLoading(false));
     }, 250);
     return () => clearTimeout(searchTimer.current);
   }, [q]);
   const folderResults = searchResults.folders || [];
   const fileResults = searchResults.files || [];
-  const hasResults = folderResults.length > 0 || fileResults.length > 0;
+  const ocrResults = searchResults.ocrFiles || [];
+  const hasResults = folderResults.length > 0 || fileResults.length > 0 || ocrResults.length > 0;
   const showDropdown = globalSearchFocused && q.length > 0;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "nav",
@@ -15353,6 +18768,100 @@ function Navbar({
                           ]
                         },
                         file.id
+                      ))
+                    ] }),
+                    (folderResults.length > 0 || fileResults.length > 0) && ocrResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "div",
+                      {
+                        style: { borderTop: `1px solid ${t.border}` }
+                      }
+                    ),
+                    ocrResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "div",
+                        {
+                          style: {
+                            padding: "10px 14px 4px",
+                            fontSize: 10,
+                            fontWeight: 700,
+                            letterSpacing: "0.08em",
+                            textTransform: "uppercase",
+                            color: t.textDim
+                          },
+                          children: "OCR Advanced Search"
+                        }
+                      ),
+                      ocrResults.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "div",
+                        {
+                          onMouseDown: (e) => e.preventDefault(),
+                          onClick: () => {
+                            if (file.folderId) {
+                              if (file.locationId)
+                                setActiveLocation(file.locationId);
+                              if (file.departmentId)
+                                setActiveDepartment(file.departmentId);
+                              setActiveFolderId(file.folderId);
+                            }
+                            setViewingFileId(file.id);
+                            setPage("file-detail");
+                            setGlobalSearch("");
+                            setGlobalSearchFocused(false);
+                          },
+                          className: "folder-select-item",
+                          style: {
+                            padding: "8px 14px",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            fontSize: 13
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "div",
+                              {
+                                style: {
+                                  color: "#8b5cf6",
+                                  flexShrink: 0
+                                },
+                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileDocIcon, { size: 16 })
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                HighlightedName,
+                                {
+                                  name: file.name,
+                                  query: q,
+                                  accentColor: t.accent
+                                }
+                              ) }),
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                "div",
+                                {
+                                  style: {
+                                    fontSize: 10.5,
+                                    color: t.textDim
+                                  },
+                                  children: file.folderId ? `${file.locationName || ""}${file.departmentName ? ` / ${file.departmentName}` : ""}${file.folderName ? ` / ${file.folderName}` : ""}` : "Unsorted"
+                                }
+                              )
+                            ] }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "span",
+                              {
+                                style: {
+                                  fontSize: 10,
+                                  color: t.textDim,
+                                  flexShrink: 0
+                                },
+                                children: fmtSize(file.size)
+                              }
+                            )
+                          ]
+                        },
+                        `ocr-${file.id}`
                       ))
                     ] })
                   ]
@@ -17006,30 +20515,7 @@ function HelpTicketModal({ show, onClose, darkMode, loggedInUser }) {
     }
   ) });
 }
-function getFileTypeInfo(mimeType, fileName) {
-  if (mimeType == null ? void 0 : mimeType.startsWith("image/")) {
-    return { type: "image", label: "Image", icon: ImageIcon };
-  }
-  if (mimeType === "application/pdf" || (fileName == null ? void 0 : fileName.toLowerCase().endsWith(".pdf"))) {
-    return { type: "document", label: "Document", icon: FileDocIcon };
-  }
-  return { type: "other", label: "Other", icon: FileDocIcon };
-}
-function formatDate(dateStr) {
-  if (!dateStr) return "";
-  const date = new Date(dateStr);
-  const now = /* @__PURE__ */ new Date();
-  const diffMs = now - date;
-  const diffMins = Math.floor(diffMs / 6e4);
-  const diffHours = Math.floor(diffMs / 36e5);
-  const diffDays = Math.floor(diffMs / 864e5);
-  if (diffMins < 1) return "Just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-function StatCard({ icon, label, value, color, sub, t }) {
+function StatCard({ icon, label, value: value2, color, sub, t }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -17079,7 +20565,7 @@ function StatCard({ icon, label, value, color, sub, t }) {
               letterSpacing: "-0.03em",
               marginBottom: 2
             },
-            children: value
+            children: value2
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12.5, color: t.textMuted, fontWeight: 500 }, children: label }),
@@ -17091,30 +20577,11 @@ function StatCard({ icon, label, value, color, sub, t }) {
 function DashboardPage({
   dashboardData,
   loggedInUser,
-  setPage,
-  setActiveFolderId,
-  setViewingFileId,
   t,
   darkMode
 }) {
   const dd = dashboardData || {};
-  const totalByLocation = (dd.locationStats || []).map((l) => ({
-    name: l.name,
-    folders: l.folder_count,
-    files: l.file_count
-  }));
-  const recentFiles = (dd.recentFiles || []).map((f) => ({
-    id: f.id,
-    name: f.name,
-    size: Number(f.file_size_bytes || 0),
-    pages: Number(f.page_count || 0),
-    mimeType: f.mime_type,
-    uploadedAt: f.uploaded_at,
-    folderId: f.folder_id,
-    folderName: f.folder_name,
-    locationName: f.location_name,
-    departmentName: f.department_name
-  }));
+  const year = (/* @__PURE__ */ new Date()).getFullYear();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -17198,339 +20665,38 @@ function DashboardPage({
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 28 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "h2",
-            {
-              style: {
-                fontSize: 15,
-                fontWeight: 700,
-                margin: "0 0 12px",
-                letterSpacing: "-0.01em"
-              },
-              children: "Files by Location"
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 6 }, children: totalByLocation.map((loc, i) => {
-            const maxFiles = Math.max(
-              ...totalByLocation.map((l) => l.files),
-              1
-            );
-            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "div",
-              {
-                style: {
-                  background: t.surface,
-                  border: `1px solid ${t.border}`,
-                  borderRadius: 10,
-                  padding: "14px 16px",
-                  animation: `fadeIn 0.25s ease ${i * 0.05}s both`
-                },
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "div",
-                    {
-                      style: {
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        marginBottom: 8
-                      },
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                          "div",
-                          {
-                            style: {
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 8
-                            },
-                            children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(MapPinIcon, { size: 14 }),
-                              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, fontWeight: 600 }, children: loc.name })
-                            ]
-                          }
-                        ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 12, color: t.textMuted }, children: [
-                          loc.files,
-                          " file",
-                          loc.files !== 1 ? "s" : "",
-                          " ·",
-                          " ",
-                          loc.folders,
-                          " folder",
-                          loc.folders !== 1 ? "s" : ""
-                        ] })
-                      ]
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "div",
-                    {
-                      style: {
-                        height: 6,
-                        borderRadius: 3,
-                        background: t.progressBg,
-                        overflow: "hidden"
-                      },
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "div",
-                        {
-                          style: {
-                            height: "100%",
-                            width: `${loc.files / maxFiles * 100}%`,
-                            background: `linear-gradient(90deg, ${t.accent}, ${t.accentDark})`,
-                            borderRadius: 3,
-                            transition: "width 0.5s ease"
-                          }
-                        }
-                      )
-                    }
-                  )
-                ]
-              },
-              i
-            );
-          }) })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "h2",
-            {
-              style: {
-                fontSize: 15,
-                fontWeight: 700,
-                margin: "0 0 12px",
-                letterSpacing: "-0.01em"
-              },
-              children: "Recent Uploads"
-            }
-          ),
-          recentFiles.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "div",
-              {
-                style: {
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "8px 16px",
-                  fontSize: 10.5,
-                  fontWeight: 600,
-                  color: t.textDim,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em"
-                },
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, minWidth: 0 }, children: "File" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 70, textAlign: "center", flexShrink: 0 }, children: "Type" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 70, textAlign: "right", flexShrink: 0 }, children: "Size" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 60, textAlign: "right", flexShrink: 0 }, children: "Pages" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 70, textAlign: "right", flexShrink: 0 }, children: "Uploaded" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 24, flexShrink: 0 } })
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: recentFiles.map((file, idx) => {
-              const typeInfo = getFileTypeInfo(file.mimeType, file.name);
-              const Icon = typeInfo.icon;
-              const isImage = typeInfo.type === "image";
-              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "div",
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            style: {
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: 12
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                StatCard,
                 {
-                  className: "folder-row",
-                  onClick: () => {
-                    setViewingFileId(file.id);
-                    setPage("file-detail");
-                  },
-                  style: {
-                    display: "flex",
-                    alignItems: "center",
-                    background: t.surface,
-                    border: `1px solid ${t.border}`,
-                    borderRadius: 10,
-                    padding: "10px 16px",
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                    animation: `fadeIn 0.25s ease ${idx * 0.03}s both`
-                  },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "div",
-                      {
-                        style: {
-                          flex: 1,
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 10,
-                          minWidth: 0
-                        },
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "div",
-                            {
-                              style: {
-                                width: 32,
-                                height: 32,
-                                borderRadius: 8,
-                                background: isImage ? "rgba(234,179,8,0.15)" : t.successSoft,
-                                color: isImage ? "#eab308" : t.success,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                flexShrink: 0
-                              },
-                              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { size: 16 })
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { minWidth: 0 }, children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "div",
-                              {
-                                style: {
-                                  fontSize: 12.5,
-                                  fontWeight: 600,
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis"
-                                },
-                                children: file.name
-                              }
-                            ),
-                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 10.5, color: t.textDim }, children: [
-                              file.locationName,
-                              " / ",
-                              file.departmentName,
-                              " /",
-                              " ",
-                              file.folderName
-                            ] })
-                          ] })
-                        ]
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "div",
-                      {
-                        style: {
-                          width: 70,
-                          textAlign: "center",
-                          flexShrink: 0
-                        },
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "span",
-                          {
-                            style: {
-                              fontSize: 11,
-                              color: isImage ? "#eab308" : t.textMuted,
-                              fontWeight: 500
-                            },
-                            children: typeInfo.label
-                          }
-                        )
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "div",
-                      {
-                        style: {
-                          width: 70,
-                          textAlign: "right",
-                          fontSize: 11.5,
-                          color: t.textMuted,
-                          flexShrink: 0
-                        },
-                        children: fmtSize(file.size)
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "div",
-                      {
-                        style: {
-                          width: 60,
-                          textAlign: "right",
-                          fontSize: 10.5,
-                          color: t.textDim,
-                          flexShrink: 0
-                        },
-                        children: [
-                          file.pages,
-                          " pg"
-                        ]
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "div",
-                      {
-                        style: {
-                          width: 70,
-                          textAlign: "right",
-                          fontSize: 10.5,
-                          color: t.textDim,
-                          flexShrink: 0
-                        },
-                        children: formatDate(file.uploadedAt)
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "div",
-                      {
-                        style: {
-                          width: 24,
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          color: t.textDim
-                        },
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRightIcon, {})
-                      }
-                    )
-                  ]
-                },
-                file.id
-              );
-            }) })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "div",
-            {
-              style: {
-                background: t.surface,
-                border: `1px solid ${t.border}`,
-                borderRadius: 10,
-                padding: "40px 20px",
-                textAlign: "center",
-                color: t.textDim
-              },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(UploadCloudIcon, { size: 36 }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    style: {
-                      fontSize: 13,
-                      fontWeight: 500,
-                      marginTop: 12,
-                      marginBottom: 6
-                    },
-                    children: "No files uploaded yet"
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, marginBottom: 16 }, children: "Upload your first PDF to get started" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  Btn,
-                  {
-                    primary: true,
-                    darkMode,
-                    t,
-                    onClick: () => setPage("upload"),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(UploadCloudIcon, { size: 15 }),
-                      " Upload Files"
-                    ]
-                  }
-                )
-              ]
-            }
-          )
-        ] })
+                  t,
+                  icon: /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarIcon, { size: 20 }),
+                  label: `Files (${year})`,
+                  value: dd.filesThisYear ?? 0,
+                  color: darkMode ? "rgba(59,130,246,0.12)" : "rgba(59,130,246,0.08)"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                StatCard,
+                {
+                  t,
+                  icon: /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarIcon, { size: 20 }),
+                  label: `Folders (${year})`,
+                  value: dd.foldersThisYear ?? 0,
+                  color: darkMode ? "rgba(34,197,94,0.12)" : "rgba(34,197,94,0.08)"
+                }
+              )
+            ]
+          }
+        )
       ]
     }
   );
@@ -17629,13 +20795,27 @@ function FoldersPage({
   setSubscriptions,
   loggedInUser,
   t,
-  darkMode
+  darkMode,
+  handleDeptDrop,
+  deptDragOver,
+  setDeptDragOver,
+  handleDeptFiles
 }) {
-  var _a;
+  var _a, _b;
   const canDeleteFolders = (_a = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a.includes("deleteFolders");
+  const canUploadFiles = (_b = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _b.includes("uploadFiles");
   const newDeptFolderRef = reactExports.useRef(null);
-  const [sortCol, setSortCol] = reactExports.useState("createdAt");
-  const [sortDir, setSortDir] = reactExports.useState("desc");
+  const deptFileInputRef = reactExports.useRef(null);
+  const [sortCol] = reactExports.useState("createdAt");
+  const [sortDir] = reactExports.useState("desc");
+  const [pageSize] = reactExports.useState(25);
+  const [currentPage] = reactExports.useState(1);
+  const [showPageSizeDropdown] = reactExports.useState(false);
+  const [dateFilterType] = reactExports.useState("all");
+  const [filterYear] = reactExports.useState("");
+  const [filterMonth] = reactExports.useState("");
+  const [filterDay] = reactExports.useState("");
+  const [showDateFilterDropdown] = reactExports.useState(false);
   const handleSubscribe = (newSub) => {
     setSubscriptions((prev) => [...prev, newSub]);
   };
@@ -17646,14 +20826,6 @@ function FoldersPage({
     if (creatingDeptFolder && newDeptFolderRef.current)
       newDeptFolderRef.current.focus();
   }, [creatingDeptFolder]);
-  const toggleSort = (col) => {
-    if (sortCol === col) {
-      setSortDir((d) => d === "asc" ? "desc" : "asc");
-    } else {
-      setSortCol(col);
-      setSortDir("asc");
-    }
-  };
   const q = folderSearch.trim();
   const df = currentDeptFolders.filter((f) => !f.parentId);
   const filtered = q ? df.map((f) => ({ folder: f, ...fuzzyMatch(q, f.name) })).filter((r) => r.match).sort((a, b) => b.score - a.score).map((r) => r.folder) : df;
@@ -17663,26 +20835,9 @@ function FoldersPage({
     _subCount: folder.subfolderCount || 0
   }));
   const sorted = [...withCounts].sort((a, b) => {
-    let cmp = 0;
-    switch (sortCol) {
-      case "name":
-        cmp = (a.name || "").localeCompare(b.name || "", void 0, {
-          sensitivity: "base"
-        });
-        break;
-      case "createdAt": {
-        const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        cmp = da - db;
-        break;
-      }
-      case "files":
-        cmp = a._fileCount - b._fileCount;
-        break;
-      default:
-        cmp = 0;
-    }
-    return sortDir === "asc" ? cmp : -cmp;
+    const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return db - da;
   });
   const totalFiles = df.reduce(
     (s, f) => s + (f.fileCount || 0),
@@ -17701,21 +20856,65 @@ function FoldersPage({
     transition: "color 0.15s",
     textAlign: "left"
   };
-  const SortArrow = ({ col }) => {
-    if (sortCol !== col)
-      return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { opacity: 0.25, marginLeft: 3, fontSize: 9 }, children: "↕" });
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { marginLeft: 3, fontSize: 9, color: t.accent }, children: sortDir === "asc" ? "▲" : "▼" });
-  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
+      onDrop: handleDeptDrop,
+      onDragOver: (e) => {
+        e.preventDefault();
+        setDeptDragOver == null ? void 0 : setDeptDragOver(true);
+      },
+      onDragLeave: (e) => {
+        e.preventDefault();
+        if (!e.currentTarget.contains(e.relatedTarget))
+          setDeptDragOver == null ? void 0 : setDeptDragOver(false);
+      },
       style: {
         maxWidth: 1200,
         margin: "0 auto",
         padding: "36px 28px",
-        animation: "fadeIn 0.35s ease"
+        animation: "fadeIn 0.35s ease",
+        position: "relative",
+        minHeight: "calc(100vh - 55px)"
       },
       children: [
+        deptDragOver && canUploadFiles && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              inset: 0,
+              zIndex: 20,
+              borderRadius: 14,
+              border: `2px dashed ${t.accent}`,
+              background: t.dropzoneActive,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(2px)",
+              pointerEvents: "none"
+            },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: t.accent, marginBottom: 10 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(UploadCloudIcon, { size: 48 }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 16, fontWeight: 600, color: t.text }, children: "Drop files here for Unsorted" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, color: t.textMuted, marginTop: 4 }, children: "Files will be added to Unsorted in this department" })
+            ] })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            ref: deptFileInputRef,
+            type: "file",
+            accept: ".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,image/*",
+            multiple: true,
+            onChange: (e) => {
+              handleDeptFiles == null ? void 0 : handleDeptFiles(e.target.files);
+              e.target.value = "";
+            },
+            style: { display: "none" }
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
@@ -17741,22 +20940,15 @@ function FoldersPage({
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: t.textDim, margin: "0 8px" }, children: "/" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: currentDept == null ? void 0 : currentDept.name })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "p",
-                  {
-                    style: { fontSize: 13, color: t.textMuted, margin: "4px 0 0" },
-                    children: [
-                      df.length,
-                      " folder",
-                      df.length !== 1 ? "s" : "",
-                      " · ",
-                      totalFiles,
-                      " ",
-                      "file",
-                      totalFiles !== 1 ? "s" : ""
-                    ]
-                  }
-                )
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { fontSize: 13, color: t.textMuted, margin: "4px 0 0" }, children: [
+                  df.length,
+                  " folder",
+                  df.length !== 1 ? "s" : "",
+                  " · ",
+                  totalFiles,
+                  " file",
+                  totalFiles !== 1 ? "s" : ""
+                ] })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
                 currentDept && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -17788,56 +20980,6 @@ function FoldersPage({
                   }
                 )
               ] })
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "div",
-          {
-            style: {
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              background: t.surface,
-              border: `1px solid ${t.border}`,
-              borderRadius: 10,
-              padding: "10px 14px",
-              marginBottom: 16
-            },
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SearchIcon, { size: 16 }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  value: folderSearch,
-                  onChange: (e) => setFolderSearch(e.target.value),
-                  placeholder: "Search folders...",
-                  style: {
-                    flex: 1,
-                    background: "transparent",
-                    border: "none",
-                    fontSize: 13.5,
-                    color: t.text,
-                    outline: "none",
-                    fontFamily: "inherit"
-                  }
-                }
-              ),
-              folderSearch && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  onClick: () => setFolderSearch(""),
-                  style: {
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    color: t.textDim,
-                    display: "flex",
-                    padding: 2
-                  },
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { size: 14 })
-                }
-              )
             ]
           }
         ),
@@ -17916,6 +21058,79 @@ function FoldersPage({
             ]
           }
         ),
+        canUploadFiles && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            onClick: () => {
+              var _a2;
+              return (_a2 = deptFileInputRef.current) == null ? void 0 : _a2.click();
+            },
+            style: {
+              border: `2px dashed ${t.border}`,
+              borderRadius: 14,
+              padding: "24px 20px",
+              textAlign: "center",
+              cursor: "pointer",
+              background: t.dropzone,
+              marginBottom: 16,
+              transition: "all 0.2s"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: t.textDim, marginBottom: 8 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(UploadCloudIcon, { size: 28 }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 500, color: t.text, marginBottom: 4 }, children: "Drag & drop files here or click to browse" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, color: t.textMuted }, children: "Files will be added to Unsorted in this department" })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            style: {
+              display: "flex",
+              alignItems: "center",
+              background: t.surface,
+              border: `1px solid ${t.border}`,
+              borderRadius: 10,
+              padding: "10px 14px",
+              marginBottom: 16
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SearchIcon, { size: 16 }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  value: folderSearch,
+                  onChange: (e) => setFolderSearch(e.target.value),
+                  placeholder: "Search folders...",
+                  style: {
+                    flex: 1,
+                    background: "transparent",
+                    border: "none",
+                    fontSize: 13.5,
+                    color: t.text,
+                    outline: "none",
+                    fontFamily: "inherit"
+                  }
+                }
+              ),
+              folderSearch && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: () => setFolderSearch(""),
+                  style: {
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    color: t.textDim,
+                    display: "flex",
+                    padding: 2
+                  },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { size: 14 })
+                }
+              )
+            ]
+          }
+        ),
         sorted.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
           "div",
           {
@@ -17935,49 +21150,37 @@ function FoldersPage({
                 },
                 children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "th",
                       {
                         style: {
                           ...colHeaderStyle,
-                          color: sortCol === "name" ? t.accent : t.textDim
+                          color: t.textDim
                         },
-                        onClick: () => toggleSort("name"),
-                        children: [
-                          "Name ",
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(SortArrow, { col: "name" })
-                        ]
+                        children: "Name"
                       }
                     ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "th",
                       {
                         style: {
                           ...colHeaderStyle,
-                          color: sortCol === "files" ? t.accent : t.textDim,
+                          color: t.textDim,
                           width: 90,
                           textAlign: "center"
                         },
-                        onClick: () => toggleSort("files"),
-                        children: [
-                          "Files ",
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(SortArrow, { col: "files" })
-                        ]
+                        children: "Files"
                       }
                     ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "th",
                       {
                         style: {
                           ...colHeaderStyle,
-                          color: sortCol === "createdAt" ? t.accent : t.textDim,
+                          color: t.textDim,
                           width: 180
                         },
-                        onClick: () => toggleSort("createdAt"),
-                        children: [
-                          "Created ",
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(SortArrow, { col: "createdAt" })
-                        ]
+                        children: "Created"
                       }
                     ),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -18493,7 +21696,7 @@ function FolderDetailPage({
   const subs = subfoldersOf(activeFolderId);
   const breadcrumb = getBreadcrumb(activeFolderId);
   const ddOver = folderDetailDragOver;
-  const getFileTypeInfo2 = (file) => {
+  const getFileTypeInfo = (file) => {
     const mimeType = file.type || "";
     if (mimeType.startsWith("image/")) {
       return { type: "image", label: "Image", icon: ImageIcon };
@@ -18544,7 +21747,7 @@ function FolderDetailPage({
             children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: t.accent, marginBottom: 10 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(UploadCloudIcon, { size: 48 }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 16, fontWeight: 600, color: t.text }, children: [
-                'Drop files into "',
+                'Drop files or folders into "',
                 activeFolder.name,
                 '"'
               ] }),
@@ -18552,7 +21755,7 @@ function FolderDetailPage({
                 "div",
                 {
                   style: { fontSize: 12, color: t.textMuted, marginTop: 4 },
-                  children: "Files will be added to this folder automatically"
+                  children: "Folders will be created automatically with their files"
                 }
               )
             ] })
@@ -19101,7 +22304,7 @@ function FolderDetailPage({
                           },
                           children: [
                             (() => {
-                              const typeInfo = getFileTypeInfo2(file);
+                              const typeInfo = getFileTypeInfo(file);
                               const Icon = typeInfo.icon;
                               const isImage = typeInfo.type === "image";
                               return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -19156,9 +22359,9 @@ function FolderDetailPage({
                           },
                           children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
                             fontSize: 11,
-                            color: getFileTypeInfo2(file).type === "image" ? "#eab308" : t.textMuted,
+                            color: getFileTypeInfo(file).type === "image" ? "#eab308" : t.textMuted,
                             fontWeight: 500
-                          }, children: getFileTypeInfo2(file).label })
+                          }, children: getFileTypeInfo(file).label })
                         }
                       ),
                       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -20108,7 +23311,7 @@ function UnsortedPage({
   const [sortCol, setSortCol] = reactExports.useState("uploadedAt");
   const [sortDir, setSortDir] = reactExports.useState("desc");
   const selectedFile = unsortedFiles.find((f) => f.id === selectedFileId);
-  const getFileTypeInfo2 = (file) => {
+  const getFileTypeInfo = (file) => {
     const mimeType = file.type || "";
     if (mimeType.startsWith("image/")) {
       return { type: "image", label: "Image", icon: ImageIcon };
@@ -20678,7 +23881,7 @@ function UnsortedPage({
                                       },
                                       children: [
                                         (() => {
-                                          const typeInfo = getFileTypeInfo2(file);
+                                          const typeInfo = getFileTypeInfo(file);
                                           const FileTypeIcon = typeInfo.icon;
                                           const isImage2 = typeInfo.type === "image";
                                           return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -20727,9 +23930,9 @@ function UnsortedPage({
                                   },
                                   children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
                                     fontSize: 11,
-                                    color: getFileTypeInfo2(file).type === "image" ? "#eab308" : t.textDim,
+                                    color: getFileTypeInfo(file).type === "image" ? "#eab308" : t.textDim,
                                     fontWeight: 500
-                                  }, children: getFileTypeInfo2(file).label })
+                                  }, children: getFileTypeInfo(file).label })
                                 }
                               ),
                               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -23058,8 +26261,8 @@ function AuthenticationSection({ t, darkMode }) {
   };
   const loadSecurityGroups = async () => {
     try {
-      const groups = await getGroups();
-      setSecurityGroups(groups);
+      const data = await getGroups();
+      setSecurityGroups(data.groups || data);
     } catch (err) {
       console.error("Failed to load security groups:", err);
     }
@@ -23703,7 +26906,7 @@ function AuthenticationSection({ t, darkMode }) {
     ] })
   ] });
 }
-function SettingsSection({ t, darkMode }) {
+function SettingsSection({ t, darkMode, addToast }) {
   const [darkLogo, setDarkLogo] = reactExports.useState(null);
   const [lightLogo, setLightLogo] = reactExports.useState(null);
   const [uploading, setUploading] = reactExports.useState({ dark: false, light: false });
@@ -23731,12 +26934,36 @@ function SettingsSection({ t, darkMode }) {
   const [emailSubjectPrefix, setEmailSubjectPrefix] = reactExports.useState("[Help Ticket]");
   const [emailSettingsSaving, setEmailSettingsSaving] = reactExports.useState(false);
   const [emailSettingsMessage, setEmailSettingsMessage] = reactExports.useState({ type: "", text: "" });
+  const [sslCertificates, setSslCertificates] = reactExports.useState([]);
+  const [sslLoading, setSslLoading] = reactExports.useState(false);
+  const [sslUploading, setSslUploading] = reactExports.useState(false);
+  const [sslDeleting, setSslDeleting] = reactExports.useState(null);
+  const [sslActivating, setSslActivating] = reactExports.useState(null);
+  const [newCertName, setNewCertName] = reactExports.useState("");
+  const [newCertFile, setNewCertFile] = reactExports.useState(null);
+  const [newKeyFile, setNewKeyFile] = reactExports.useState(null);
+  const [newPassphrase, setNewPassphrase] = reactExports.useState("");
+  const [showRestartPrompt, setShowRestartPrompt] = reactExports.useState(false);
+  reactExports.useRef(null);
+  reactExports.useRef(null);
   reactExports.useEffect(() => {
     loadLogos();
     loadSmtpSettings();
     loadSupportEmail();
     loadEmailSettings();
+    loadSslCertificates();
   }, []);
+  const loadSslCertificates = async () => {
+    setSslLoading(true);
+    try {
+      const data = await getSslCertificates();
+      setSslCertificates(data.certificates || []);
+    } catch (err) {
+      console.error("Failed to load SSL certificates:", err);
+    } finally {
+      setSslLoading(false);
+    }
+  };
   const loadLogos = async () => {
     try {
       const logos = await getLogos();
@@ -24394,6 +27621,739 @@ function SettingsSection({ t, darkMode }) {
           children: "Save Email Settings"
         }
       )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 24, marginTop: 40 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }, children: "SSL Certificates" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 13, color: t.textMuted, margin: 0 }, children: "Upload and manage SSL certificates for HTTPS. Both certificate and private key files are required." })
+    ] }),
+    showRestartPrompt && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+      marginBottom: 16,
+      padding: "12px 16px",
+      borderRadius: 8,
+      background: darkMode ? "rgba(234,179,8,0.15)" : "rgba(234,179,8,0.1)",
+      border: `1px solid ${darkMode ? "rgba(234,179,8,0.3)" : "rgba(234,179,8,0.2)"}`,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between"
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 10 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "#eab308" }, children: "⚠️" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 13, color: t.text }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Restart required:" }),
+          " The server must be restarted for certificate changes to take effect."
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          onClick: () => setShowRestartPrompt(false),
+          style: {
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            color: t.textMuted,
+            fontSize: 18,
+            lineHeight: 1
+          },
+          children: "×"
+        }
+      )
+    ] }),
+    sslLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 40, textAlign: "center", color: t.textMuted }, children: "Loading..." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+      background: t.surface,
+      border: `1px solid ${t.border}`,
+      borderRadius: 12,
+      padding: 24,
+      maxWidth: 700
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 24 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }, children: "Upload New Certificate" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginBottom: 12 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            value: newCertName,
+            onChange: (e) => setNewCertName(e.target.value),
+            placeholder: "Certificate name (e.g., domain.com)",
+            style: {
+              width: "100%",
+              padding: "10px 12px",
+              fontSize: 14,
+              border: `1px solid ${t.border}`,
+              borderRadius: 8,
+              background: darkMode ? "#1a1a1a" : "#fff",
+              color: t.text,
+              fontFamily: "inherit",
+              boxSizing: "border-box"
+            }
+          }
+        ) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 12, marginBottom: 12, flexWrap: "wrap" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 200 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 11, fontWeight: 500, color: t.textMuted, display: "block", marginBottom: 4 }, children: "Certificate File *" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "file",
+                accept: ".crt,.pem,.cer",
+                onChange: (e) => setNewCertFile(e.target.files[0] || null),
+                style: {
+                  width: "100%",
+                  padding: "8px 10px",
+                  fontSize: 12,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 6,
+                  background: darkMode ? "#1a1a1a" : "#fff",
+                  color: t.text,
+                  fontFamily: "inherit",
+                  boxSizing: "border-box"
+                }
+              }
+            ),
+            newCertFile && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, color: t.textMuted, marginTop: 4 }, children: [
+              "Selected: ",
+              newCertFile.name
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 200 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 11, fontWeight: 500, color: t.textMuted, display: "block", marginBottom: 4 }, children: "Private Key File *" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "file",
+                accept: ".key,.pem",
+                onChange: (e) => setNewKeyFile(e.target.files[0] || null),
+                style: {
+                  width: "100%",
+                  padding: "8px 10px",
+                  fontSize: 12,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 6,
+                  background: darkMode ? "#1a1a1a" : "#fff",
+                  color: t.text,
+                  fontFamily: "inherit",
+                  boxSizing: "border-box"
+                }
+              }
+            ),
+            newKeyFile && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, color: t.textMuted, marginTop: 4 }, children: [
+              "Selected: ",
+              newKeyFile.name
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 12 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 11, fontWeight: 500, color: t.textMuted, display: "block", marginBottom: 4 }, children: "Private Key Passphrase (optional)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "password",
+              value: newPassphrase,
+              onChange: (e) => setNewPassphrase(e.target.value),
+              placeholder: "Leave empty if key has no passphrase",
+              style: {
+                width: "100%",
+                padding: "10px 12px",
+                fontSize: 14,
+                border: `1px solid ${t.border}`,
+                borderRadius: 8,
+                background: darkMode ? "#1a1a1a" : "#fff",
+                color: t.text,
+                fontFamily: "inherit",
+                boxSizing: "border-box"
+              }
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Btn,
+          {
+            darkMode,
+            t,
+            onClick: async () => {
+              if (!newCertFile || !newKeyFile) {
+                addToast("Missing files", "Both certificate and private key files are required", 5e3, "error");
+                return;
+              }
+              const name = newCertName.trim() || newCertFile.name.replace(/\.[^/.]+$/, "");
+              setSslUploading(true);
+              try {
+                await uploadSslCertificate(name, newCertFile, newKeyFile, newPassphrase || void 0);
+                addToast("Certificate uploaded", `"${name}" has been uploaded successfully`, 4e3, "create");
+                setNewCertName("");
+                setNewCertFile(null);
+                setNewKeyFile(null);
+                setNewPassphrase("");
+                loadSslCertificates();
+              } catch (err) {
+                addToast("Upload failed", err.message || "Failed to upload certificate", 5e3, "error");
+              } finally {
+                setSslUploading(false);
+              }
+            },
+            loading: sslUploading,
+            disabled: !newCertFile || !newKeyFile,
+            style: { fontSize: 12 },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(UploadCloudIcon, { size: 14 }),
+              " Upload Certificate"
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 11, color: t.textDim, margin: "8px 0 0" }, children: "Certificate formats: .crt, .pem, .cer | Key formats: .key, .pem" })
+      ] }),
+      sslCertificates.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 12 }, children: "Uploaded Certificates" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 12 }, children: sslCertificates.map((cert) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            style: {
+              padding: 16,
+              background: cert.isActive ? darkMode ? "rgba(34,197,94,0.1)" : "rgba(34,197,94,0.05)" : darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+              border: `1px solid ${cert.isActive ? "#22c55e" : t.border}`,
+              borderRadius: 8
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                    width: 10,
+                    height: 10,
+                    borderRadius: "50%",
+                    background: cert.isActive ? "#22c55e" : darkMode ? "#444" : "#ccc"
+                  } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 14, fontWeight: 600, color: t.text }, children: [
+                    cert.name,
+                    cert.isActive && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                      marginLeft: 8,
+                      fontSize: 11,
+                      fontWeight: 500,
+                      color: "#22c55e",
+                      background: darkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)",
+                      padding: "2px 8px",
+                      borderRadius: 4
+                    }, children: "Active" }),
+                    !cert.hasKey && !cert.isActive && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                      marginLeft: 8,
+                      fontSize: 11,
+                      fontWeight: 500,
+                      color: "#f97316",
+                      background: darkMode ? "rgba(249,115,22,0.15)" : "rgba(249,115,22,0.1)",
+                      padding: "2px 8px",
+                      borderRadius: 4
+                    }, children: "Missing Key" })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 8 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Btn,
+                    {
+                      darkMode,
+                      t,
+                      onClick: async () => {
+                        if (!cert.hasKey) {
+                          addToast("Cannot activate", "Certificate requires a private key file to activate", 5e3, "error");
+                          return;
+                        }
+                        setSslActivating(cert.id);
+                        try {
+                          if (cert.isActive) {
+                            await deactivateSslCertificates();
+                            addToast("Certificate deactivated", "Reverted to default certificate", 4e3, "update");
+                            setShowRestartPrompt(true);
+                          } else {
+                            const result = await activateSslCertificate(cert.id);
+                            addToast("Certificate activated", `"${cert.name}" is now active. Restart required.`, 4e3, "update");
+                            setShowRestartPrompt(true);
+                          }
+                          loadSslCertificates();
+                        } catch (err) {
+                          addToast("Error", err.message || "Failed to update certificate status", 5e3, "error");
+                        } finally {
+                          setSslActivating(null);
+                        }
+                      },
+                      loading: sslActivating === cert.id,
+                      style: {
+                        fontSize: 11,
+                        padding: "6px 12px",
+                        background: cert.isActive ? "#ef4444" : cert.hasKey ? "#22c55e" : "#9ca3af",
+                        borderColor: cert.isActive ? "#ef4444" : cert.hasKey ? "#22c55e" : "#9ca3af",
+                        color: "#fff",
+                        cursor: cert.hasKey ? "pointer" : "not-allowed"
+                      },
+                      children: cert.isActive ? "Deactivate" : "Activate"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Btn,
+                    {
+                      darkMode,
+                      t,
+                      onClick: async () => {
+                        if (!window.confirm(`Delete certificate "${cert.name}"${cert.isActive ? " (This will revert to default)" : ""}?`)) return;
+                        setSslDeleting(cert.id);
+                        try {
+                          await deleteSslCertificate(cert.id);
+                          addToast("Certificate deleted", `"${cert.name}" has been removed`, 4e3, "delete");
+                          if (cert.isActive) setShowRestartPrompt(true);
+                          loadSslCertificates();
+                        } catch (err) {
+                          addToast("Delete failed", err.message || "Failed to delete certificate", 5e3, "error");
+                        } finally {
+                          setSslDeleting(null);
+                        }
+                      },
+                      loading: sslDeleting === cert.id,
+                      style: { fontSize: 11, padding: "6px 12px" },
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(TrashIcon, { size: 12 })
+                    }
+                  )
+                ] })
+              ] }),
+              cert.subject && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 12, color: t.textMuted, marginBottom: 4 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: "Subject:" }),
+                " ",
+                cert.subject
+              ] }),
+              cert.issuer && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 12, color: t.textMuted, marginBottom: 4 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: "Issuer:" }),
+                " ",
+                cert.issuer
+              ] }),
+              cert.validFrom && cert.validTo && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 12, color: t.textMuted, marginBottom: 4 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: "Valid:" }),
+                " ",
+                new Date(cert.validFrom).toLocaleDateString(),
+                " - ",
+                new Date(cert.validTo).toLocaleDateString(),
+                new Date(cert.validTo) < /* @__PURE__ */ new Date() && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "#ef4444", marginLeft: 8 }, children: " (Expired)" })
+              ] }),
+              cert.fingerprint && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, color: t.textDim, marginBottom: 4 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 500 }, children: "Fingerprint:" }),
+                " ",
+                cert.fingerprint.substring(0, 23),
+                "..."
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, color: t.textDim }, children: [
+                cert.filename,
+                cert.keyFilename && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  " + ",
+                  cert.keyFilename
+                ] }),
+                cert.hasPassphrase && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "#f97316" }, children: " (passphrase protected)" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  " · Uploaded ",
+                  new Date(cert.uploadedAt).toLocaleString()
+                ] })
+              ] })
+            ]
+          },
+          cert.id
+        )) })
+      ] }),
+      sslCertificates.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "24px 0", color: t.textMuted }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(LockIcon, { size: 32 }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 13, margin: "12px 0 0" }, children: "No SSL certificates uploaded" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 12, margin: "8px 0 0" }, children: "Using default certificate bydefault" })
+      ] })
+    ] })
+  ] });
+}
+function DmsSection({ t, darkMode, addToast }) {
+  const [settings, setSettings] = reactExports.useState({
+    server: "",
+    port: 1433,
+    database: "",
+    username: "",
+    password: "",
+    trustCertificate: false,
+    encryptConnection: true,
+    queryIntervalMinutes: 5
+  });
+  const [schedules, setSchedules] = reactExports.useState([]);
+  const [loading, setLoading] = reactExports.useState(true);
+  const [saving, setSaving] = reactExports.useState(false);
+  const [testing, setTesting] = reactExports.useState(false);
+  const [testResult, setTestResult] = reactExports.useState(null);
+  reactExports.useEffect(() => {
+    loadSettings();
+    loadSchedules();
+  }, []);
+  const loadSettings = async () => {
+    setLoading(true);
+    try {
+      const data = await getDmsSettings();
+      setSettings({
+        server: data.server || "",
+        port: data.port || 1433,
+        database: data.database || "",
+        username: data.username || "",
+        password: data.password || "",
+        trustCertificate: data.trustCertificate || false,
+        encryptConnection: data.encryptConnection !== false,
+        queryIntervalMinutes: data.queryIntervalMinutes || 5
+      });
+    } catch (err) {
+      console.error("Failed to load DMS settings:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const loadSchedules = async () => {
+    try {
+      const data = await getDmsSchedules();
+      setSchedules(data);
+    } catch (err) {
+      console.error("Failed to load DMS schedules:", err);
+    }
+  };
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await saveDmsSettings(settings);
+      addToast("Settings saved", "DMS connection settings saved successfully", 4e3, "create");
+    } catch (err) {
+      addToast("Save failed", err.message || "Failed to save settings", 5e3, "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+  const handleTest = async () => {
+    if (!settings.server.trim()) {
+      addToast("Server required", "Please enter a server address", 4e3, "error");
+      return;
+    }
+    setTesting(true);
+    setTestResult(null);
+    try {
+      const result = await testDmsConnection(settings);
+      setTestResult({ success: true, message: result.message || "Connection successful!" });
+      addToast("Connection successful", "Successfully connected to the SQL Server", 4e3, "create");
+    } catch (err) {
+      setTestResult({ success: false, message: err.message || "Connection failed" });
+      addToast("Connection failed", err.message || "Failed to connect to the SQL Server", 5e3, "error");
+    } finally {
+      setTesting(false);
+    }
+  };
+  const handleToggleSchedule = async (scheduleId, enabled) => {
+    try {
+      await updateDmsSchedule(scheduleId, { enabled });
+      setSchedules((prev) => prev.map((s) => s.id === scheduleId ? { ...s, enabled } : s));
+      addToast(enabled ? "Schedule enabled" : "Schedule disabled", `Schedule has been ${enabled ? "enabled" : "disabled"}`, 4e3, "create");
+    } catch (err) {
+      addToast("Error", err.message || "Failed to update schedule", 5e3, "error");
+    }
+  };
+  const handleUpdateInterval = async (scheduleId, intervalMinutes) => {
+    try {
+      await updateDmsSchedule(scheduleId, { intervalMinutes });
+      setSchedules((prev) => prev.map((s) => s.id === scheduleId ? { ...s, intervalMinutes } : s));
+    } catch (err) {
+      addToast("Error", err.message || "Failed to update interval", 5e3, "error");
+    }
+  };
+  const handleRunSchedule = async (scheduleId) => {
+    try {
+      const result = await runDmsSchedule(scheduleId);
+      addToast("Task completed", result.message || "Schedule ran successfully", 4e3, "create");
+      loadSchedules();
+    } catch (err) {
+      addToast("Error", err.message || "Failed to run schedule", 5e3, "error");
+    }
+  };
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "Never";
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "Never";
+    return date.toLocaleString(void 0, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  };
+  const inputStyle = {
+    width: "100%",
+    padding: "10px 12px",
+    fontSize: 14,
+    border: `1px solid ${t.border}`,
+    borderRadius: 8,
+    background: darkMode ? "#1a1a1a" : "#fff",
+    color: t.text,
+    fontFamily: "inherit",
+    boxSizing: "border-box"
+  };
+  const labelStyle = {
+    fontSize: 13,
+    fontWeight: 600,
+    color: t.text,
+    display: "block",
+    marginBottom: 8
+  };
+  if (loading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 40, textAlign: "center", color: t.textMuted }, children: "Loading..." });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 24 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }, children: "DMS Connection" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 13, color: t.textMuted, margin: 0 }, children: "Connect to a Microsoft SQL Server to query documents from your Document Management System." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+      background: t.surface,
+      border: `1px solid ${t.border}`,
+      borderRadius: 12,
+      padding: 24,
+      marginBottom: 24
+    }, children: [
+      testResult && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        marginBottom: 24,
+        padding: "12px 16px",
+        borderRadius: 8,
+        background: testResult.success ? darkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)" : darkMode ? "rgba(239,68,68,0.15)" : "rgba(239,68,68,0.1)",
+        border: `1px solid ${testResult.success ? t.success : t.error}`,
+        color: testResult.success ? t.success : t.error
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600, marginBottom: 4 }, children: testResult.success ? "Connection Successful" : "Connection Failed" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, opacity: 0.9 }, children: testResult.message })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16, marginBottom: 16 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: labelStyle, children: "Server Address" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: settings.server,
+              onChange: (e) => setSettings({ ...settings, server: e.target.value }),
+              placeholder: "e.g., 192.168.1.100 or sqlserver.example.com",
+              style: inputStyle
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: labelStyle, children: "Port" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "number",
+              value: settings.port,
+              onChange: (e) => setSettings({ ...settings, port: parseInt(e.target.value) || 1433 }),
+              style: inputStyle
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: labelStyle, children: "Database Name" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            value: settings.database,
+            onChange: (e) => setSettings({ ...settings, database: e.target.value }),
+            placeholder: "Database name",
+            style: inputStyle
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: labelStyle, children: "Username" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: settings.username,
+              onChange: (e) => setSettings({ ...settings, username: e.target.value }),
+              placeholder: "SQL Server username",
+              style: inputStyle
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: labelStyle, children: "Password" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "password",
+              value: settings.password,
+              onChange: (e) => setSettings({ ...settings, password: e.target.value }),
+              placeholder: "••••••••••••",
+              style: inputStyle
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginBottom: 16 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: settings.encryptConnection,
+            onChange: (e) => setSettings({ ...settings, encryptConnection: e.target.checked }),
+            style: { width: 16, height: 16, cursor: "pointer" }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, color: t.text }, children: "Encrypt connection (recommended)" })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 24 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: settings.trustCertificate,
+              onChange: (e) => setSettings({ ...settings, trustCertificate: e.target.checked }),
+              style: { width: 16, height: 16, cursor: "pointer" }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, color: t.text }, children: "Trust server certificate" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 11, color: t.textMuted, marginTop: 4, marginLeft: 24 }, children: "Enable if your SQL Server uses a self-signed certificate" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 12, flexWrap: "wrap" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Btn,
+          {
+            primary: true,
+            t,
+            darkMode,
+            onClick: handleSave,
+            disabled: saving,
+            children: saving ? "Saving..." : "Save Settings"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Btn,
+          {
+            t,
+            darkMode,
+            onClick: handleTest,
+            disabled: testing || !settings.server.trim(),
+            children: testing ? "Testing..." : "Test Connection"
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 24 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: 16, fontWeight: 700, margin: "0 0 12px" }, children: "Scheduled Tasks" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 13, color: t.textMuted, margin: "0 0 16px" }, children: "Configure automatic data sync from DMS to DDA." }),
+      schedules.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        background: t.surface,
+        border: `1px solid ${t.border}`,
+        borderRadius: 12,
+        padding: 24,
+        textAlign: "center",
+        color: t.textMuted
+      }, children: "No scheduled tasks configured. Run the migration to add default tasks." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 12 }, children: schedules.map((schedule) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          style: {
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 12,
+            padding: 20
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 15, fontWeight: 600, marginBottom: 4 }, children: schedule.name }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, color: t.textMuted }, children: schedule.description })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "center", gap: 12 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "checkbox",
+                    checked: schedule.enabled,
+                    onChange: (e) => handleToggleSchedule(schedule.id, e.target.checked),
+                    style: { width: 16, height: 16, cursor: "pointer" }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, fontWeight: 500, color: schedule.enabled ? t.success : t.textMuted }, children: schedule.enabled ? "Enabled" : "Disabled" })
+              ] }) })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "center", gap: 24, marginBottom: 12, flexWrap: "wrap" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 12, fontWeight: 600, color: t.textMuted }, children: "Interval (minutes):" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "number",
+                  value: schedule.intervalMinutes || 0,
+                  onChange: (e) => handleUpdateInterval(schedule.id, parseInt(e.target.value) || 0),
+                  min: 0,
+                  max: 1440,
+                  disabled: !schedule.enabled,
+                  style: {
+                    width: 80,
+                    padding: "6px 10px",
+                    fontSize: 13,
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 6,
+                    background: schedule.enabled ? darkMode ? "#1a1a1a" : "#fff" : darkMode ? "#2a2a2a" : "#f5f5f5",
+                    color: t.text,
+                    fontFamily: "inherit",
+                    opacity: schedule.enabled ? 1 : 0.5
+                  }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, color: t.textMuted }, children: schedule.intervalMinutes === 0 ? "(manual only)" : "" })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 16, marginBottom: 12 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 12, color: t.textMuted }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600 }, children: "Last run:" }),
+                " ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                  color: schedule.lastRunStatus === "success" ? t.success : schedule.lastRunStatus === "failed" ? t.error : t.textMuted
+                }, children: formatDate(schedule.lastRunAt) })
+              ] }),
+              schedule.lastRunCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 12, color: t.textMuted }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600 }, children: "Created:" }),
+                " ",
+                schedule.lastRunCount,
+                " folders"
+              ] })
+            ] }),
+            schedule.lastRunMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              fontSize: 11,
+              color: schedule.lastRunStatus === "failed" ? t.error : t.textMuted,
+              marginBottom: 12,
+              padding: "8px 12px",
+              background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+              borderRadius: 6,
+              border: `1px solid ${t.border}`
+            }, children: schedule.lastRunMessage }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Btn,
+              {
+                t,
+                darkMode,
+                onClick: () => handleRunSchedule(schedule.id),
+                style: { fontSize: 12 },
+                children: "Run Now"
+              }
+            )
+          ]
+        },
+        schedule.id
+      )) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+      background: darkMode ? "rgba(59,130,246,0.1)" : "rgba(59,130,246,0.05)",
+      border: `1px solid ${darkMode ? "rgba(59,130,246,0.3)" : "rgba(59,130,246,0.2)"}`,
+      borderRadius: 8,
+      padding: 16
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: 14, fontWeight: 600, margin: "0 0 8px", color: "#3b82f6" }, children: "Connection Requirements" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { style: { fontSize: 12, color: t.textMuted, margin: 0, paddingLeft: 20 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: 4 }, children: "The SQL Server must be accessible from this server" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: 4 }, children: "SQL Server Authentication must be enabled (Windows Authentication not supported)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: 4 }, children: "Default port is 1433 - change if your server uses a different port" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "For Azure SQL Database, use the full server name (e.g., myserver.database.windows.net)" })
+      ] })
     ] })
   ] });
 }
@@ -24718,10 +28678,14 @@ function AdminPage({
   setAddingLocation,
   newLocationName,
   setNewLocationName,
+  newLocationCode,
+  setNewLocationCode,
   editingLocationId,
   setEditingLocationId,
   editingLocationName,
   setEditingLocationName,
+  editingLocationCode,
+  setEditingLocationCode,
   foldersInLocation,
   filesInFolder,
   handleDeleteLocation,
@@ -24757,6 +28721,8 @@ function AdminPage({
   // Subscriptions
   subscriptions,
   setSubscriptions,
+  totalPermissionCount,
+  setTotalPermissionCount,
   t,
   darkMode,
   addToast
@@ -24818,11 +28784,12 @@ function AdminPage({
   };
   const loadCustomAppPermissions = async () => {
     try {
-      const perms = await getCustomAppPermissions();
+      const data = await getCustomAppPermissions();
       const permMap = {};
-      perms.forEach((p) => {
-        if (!permMap[p.app_id]) permMap[p.app_id] = {};
-        permMap[p.app_id][p.group_id] = p.can_view;
+      Object.entries(data.permissions || {}).forEach(([key, canView]) => {
+        const [appId, groupId] = key.split(":");
+        if (!permMap[appId]) permMap[appId] = {};
+        permMap[appId][groupId] = canView;
       });
       setCustomAppPerms(permMap);
     } catch (err) {
@@ -24859,12 +28826,12 @@ function AdminPage({
       return updated;
     });
   };
-  const toggleAllInApp = (groupId, appId, value) => {
+  const toggleAllInApp = (groupId, appId, value2) => {
     const appConfig = APP_PERMISSIONS[appId];
     if (!appConfig) return;
     const permsInApp = appConfig.permissions.map((p) => p.key);
     setSecurityGroups((p) => {
-      const updated = p.map((g) => g.id === groupId ? { ...g, permissions: { ...g.permissions, ...Object.fromEntries(permsInApp.map((pk) => [pk, value])) } } : g);
+      const updated = p.map((g) => g.id === groupId ? { ...g, permissions: { ...g.permissions, ...Object.fromEntries(permsInApp.map((pk) => [pk, value2])) } } : g);
       const group = updated.find((g) => g.id === groupId);
       if (group) updateGroupPermissions(groupId, group.permissions).catch(console.error);
       return updated;
@@ -24945,12 +28912,12 @@ function AdminPage({
     });
     const csv = header + "\n" + rows.join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
+    const url2 = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url;
+    a.href = url2;
     a.download = `audit-log-${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}.csv`;
     a.click();
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(url2);
   };
   const selectStyle = { background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 7, padding: "7px 10px", fontSize: 12, color: t.text, outline: "none", fontFamily: "inherit", cursor: "pointer", minWidth: 130 };
   const actionColors = {
@@ -25006,6 +28973,7 @@ function AdminPage({
         adminSection === "locations" && !addingLocation && /* @__PURE__ */ jsxRuntimeExports.jsxs(Btn, { primary: true, darkMode, t, onClick: () => {
           setAddingLocation(true);
           setNewLocationName("");
+          setNewLocationCode("");
         }, style: { fontSize: 12 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(PlusIcon, { size: 13 }),
           " Add Location"
@@ -25090,7 +29058,7 @@ function AdminPage({
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { title: "Permissions enabled", style: { fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: t.successSoft, color: t.success }, children: [
                   g.permCount,
                   "/",
-                  Object.keys(PERMISSION_LABELS).length
+                  totalPermissionCount
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 11, fontWeight: 600, color: g.members > 0 ? t.accent : t.textDim, background: g.members > 0 ? t.accentSoft : "transparent", padding: "2px 9px", borderRadius: 12 }, children: [
                   g.members,
@@ -25134,7 +29102,7 @@ function AdminPage({
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: t.successSoft, color: t.success }, children: [
                   Object.values(editingGroup.permissions).filter(Boolean).length,
                   " of ",
-                  Object.keys(PERMISSION_LABELS).length,
+                  totalPermissionCount,
                   " enabled"
                 ] })
               ] }),
@@ -25163,7 +29131,7 @@ function AdminPage({
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11 }, children: "Create custom apps in App Center to manage visibility" })
             ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: customApps.map((app) => {
               var _a, _b;
-              const canView = ((_a = customAppPerms[app.id]) == null ? void 0 : _a[editingGroupId]) ?? true;
+              const canView = ((_a = customAppPerms[app.id]) == null ? void 0 : _a[editingGroupId]) ?? false;
               return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)", borderRadius: 8, border: `1px solid ${t.border}` }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12 }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 36, height: 36, borderRadius: 8, background: app.color || "#6b7280", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }, children: (app.abbreviation || ((_b = app.name) == null ? void 0 : _b.slice(0, 3)) || "APP").toUpperCase() }),
@@ -25221,64 +29189,51 @@ function AdminPage({
             ' column to restrict locations to specific security groups. Locations set to "All Groups" are visible to everyone.'
           ] })
         ] }),
-        addingLocation && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 10, padding: "14px 16px", marginBottom: 12, display: "flex", alignItems: "center", gap: 12, boxShadow: `0 0 0 3px ${t.accentSoft}` }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: t.accent }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MapPinIcon, { size: 18 }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: addLocRef, value: newLocationName, onChange: (e) => setNewLocationName(e.target.value), onKeyDown: (e) => {
-            if (e.key === "Enter") {
+        addingLocation && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 10, padding: "14px 16px", marginBottom: 12, boxShadow: `0 0 0 3px ${t.accentSoft}` }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: t.accent }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MapPinIcon, { size: 18 }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: addLocRef, value: newLocationName, onChange: (e) => setNewLocationName(e.target.value), placeholder: "Location name...", style: { flex: 1, background: "transparent", border: "none", fontSize: 14, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 500 } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("input", { value: newLocationCode, onChange: (e) => setNewLocationCode(e.target.value.toUpperCase()), placeholder: "R001", maxLength: 4, style: { width: 70, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 6, padding: "5px 8px", fontSize: 13, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 600, textAlign: "center" }, title: "Location Code (e.g., R001)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "flex-end", gap: 8 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { primary: true, darkMode, t, onClick: () => {
               const n = newLocationName.trim();
+              const code = newLocationCode.trim();
+              if (code && !/^R\d{3}$/.test(code)) {
+                addToast("Invalid code", "Location code must be R followed by 3 digits", 4e3, "error");
+                return;
+              }
               if (n) {
-                createLocation(n).then((created) => {
-                  setLocations((p) => [...p, { id: created.id, name: created.name }]);
+                createLocation(n, code || null).then((created) => {
+                  setLocations((p) => [...p, { id: created.id, name: created.name, locationCode: created.location_code }]);
                   setNewLocationName("");
+                  setNewLocationCode("");
                   setAddingLocation(false);
                   addToast("Location created", `"${n}" has been created`, 4e3, "create");
-                }).catch(console.error);
+                }).catch((err) => {
+                  addToast("Error", err.message || "Failed to create location", 5e3, "error");
+                });
               }
-            }
-            if (e.key === "Escape") {
+            }, style: { padding: "6px 14px", fontSize: 12 }, children: "Add Location" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => {
               setAddingLocation(false);
               setNewLocationName("");
-            }
-          }, placeholder: "Location name...", style: { flex: 1, background: "transparent", border: "none", fontSize: 14, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 500 } }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { primary: true, darkMode, t, onClick: () => {
-            const n = newLocationName.trim();
-            if (n) {
-              createLocation(n).then((created) => {
-                setLocations((p) => [...p, { id: created.id, name: created.name }]);
-                setNewLocationName("");
-                setAddingLocation(false);
-                addToast("Location created", `"${n}" has been created`, 4e3, "create");
-              }).catch(console.error);
-            }
-          }, style: { padding: "6px 14px", fontSize: 12 }, children: "Add" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => {
-            setAddingLocation(false);
-            setNewLocationName("");
-          }, style: { background: "transparent", border: "none", cursor: "pointer", color: t.textDim, display: "flex", padding: 4 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { size: 16 }) })
+              setNewLocationCode("");
+            }, style: { background: "transparent", border: `1px solid ${t.border}`, borderRadius: 8, padding: "6px 12px", cursor: "pointer", color: t.textDim, fontFamily: "inherit", fontSize: 12 }, children: "Cancel" })
+          ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: locations.map((loc, idx) => {
           const lf = foldersInLocation(loc.id), lFiles = lf.reduce((s, f) => s + filesInFolder(f.id).length, 0), isEd = editingLocationId === loc.id;
           const locGroups = locationAccess[loc.id] || [];
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "folder-row", style: { display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${isEd ? t.accent : t.border}`, borderRadius: 10, padding: "12px 16px", boxShadow: isEd ? `0 0 0 3px ${t.accentSoft}` : "none", animation: `fadeIn 0.25s ease ${idx * 0.04}s both` }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, display: "flex", alignItems: "center", gap: 10 }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 34, height: 34, borderRadius: 8, background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MapPinIcon, { size: 16 }) }),
-              isEd ? /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: editLocRef, value: editingLocationName, onChange: (e) => setEditingLocationName(e.target.value), onBlur: () => {
-                const n = editingLocationName.trim();
-                if (n && n !== loc.name) {
-                  updateLocation(loc.id, n).then(() => setLocations((p) => p.map((l) => l.id === loc.id ? { ...l, name: n } : l))).catch(console.error);
-                }
-                setEditingLocationId(null);
-              }, onKeyDown: (e) => {
-                if (e.key === "Enter") {
-                  const n = editingLocationName.trim();
-                  if (n && n !== loc.name) {
-                    updateLocation(loc.id, n).then(() => setLocations((p) => p.map((l) => l.id === loc.id ? { ...l, name: n } : l))).catch(console.error);
-                  }
-                  setEditingLocationId(null);
-                }
-                if (e.key === "Escape") setEditingLocationId(null);
-              }, style: { flex: 1, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.accent}`, borderRadius: 6, padding: "5px 10px", fontSize: 13.5, fontWeight: 600, color: t.text, outline: "none", fontFamily: "inherit" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13.5, fontWeight: 600 }, children: loc.name })
-            ] }),
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "folder-row", style: { display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${isEd ? t.accent : t.border}`, borderRadius: 10, padding: isEd ? "10px 16px" : "12px 16px", boxShadow: isEd ? `0 0 0 3px ${t.accentSoft}` : "none", animation: `fadeIn 0.25s ease ${idx * 0.04}s both` }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 34, height: 34, borderRadius: 8, background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MapPinIcon, { size: 16 }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, marginLeft: 10 }, children: isEd ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 10 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: editLocRef, value: editingLocationName, onChange: (e) => setEditingLocationName(e.target.value), placeholder: "Location name", style: { flex: 1, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 6, padding: "5px 10px", fontSize: 13.5, fontWeight: 600, color: t.text, outline: "none", fontFamily: "inherit" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("input", { value: editingLocationCode || "", onChange: (e) => setEditingLocationCode(e.target.value.toUpperCase()), placeholder: "R001", maxLength: 4, style: { width: 70, background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: `1px solid ${t.border}`, borderRadius: 6, padding: "5px 8px", fontSize: 13, color: t.text, outline: "none", fontFamily: "inherit", fontWeight: 600, textAlign: "center" }, title: "Location Code" })
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13.5, fontWeight: 600 }, children: loc.name }),
+              loc.locationCode && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 10.5, fontWeight: 700, color: t.accent, background: t.accentSoft, padding: "2px 8px", borderRadius: 10 }, children: loc.locationCode })
+            ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 80, textAlign: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, fontWeight: 600, color: lf.length > 0 ? t.accent : t.textDim, background: lf.length > 0 ? t.accentSoft : "transparent", padding: "2px 9px", borderRadius: 12 }, children: lf.length }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { width: 70, textAlign: "center", fontSize: 11, color: t.textDim }, children: [
               lFiles,
@@ -25295,10 +29250,29 @@ function AdminPage({
                 darkMode
               }
             ) }),
-            !isEd && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { width: 70, display: "flex", justifyContent: "flex-end", gap: 2 }, children: [
+            isEd ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { width: 120, display: "flex", justifyContent: "flex-end", gap: 6 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { primary: true, darkMode, t, onClick: () => {
+                const n = editingLocationName.trim();
+                const code = (editingLocationCode == null ? void 0 : editingLocationCode.trim()) || null;
+                if (code && !/^R\d{3}$/.test(code)) {
+                  addToast("Invalid code", "Location code must be R followed by 3 digits", 4e3, "error");
+                  return;
+                }
+                if (n) {
+                  updateLocation(loc.id, n, code).then((updated) => {
+                    setLocations((p) => p.map((l) => l.id === loc.id ? { ...l, name: n, locationCode: updated.location_code } : l));
+                    setEditingLocationId(null);
+                  }).catch((err) => {
+                    addToast("Error", err.message || "Failed to update location", 5e3, "error");
+                  });
+                }
+              }, style: { padding: "5px 12px", fontSize: 11.5 }, children: "Save" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setEditingLocationId(null), style: { background: "transparent", border: `1px solid ${t.border}`, borderRadius: 6, padding: "5px 10px", cursor: "pointer", color: t.textDim, fontFamily: "inherit", fontSize: 11.5 }, children: "Cancel" })
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { width: 70, display: "flex", justifyContent: "flex-end", gap: 2 }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { t, title: "Edit", onClick: () => {
                 setEditingLocationId(loc.id);
                 setEditingLocationName(loc.name);
+                setEditingLocationCode(loc.locationCode || "");
               }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(EditIcon, {}) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { t, title: "Remove", onClick: () => handleDeleteLocation(loc), children: /* @__PURE__ */ jsxRuntimeExports.jsx(TrashIcon, { size: 12 }) })
             ] })
@@ -25620,7 +29594,8 @@ function AdminPage({
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13 }, children: "Under development" })
       ] }),
       adminSection === "authentication" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AuthenticationSection, { t, darkMode }) }),
-      adminSection === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsSection, { t, darkMode }) }),
+      adminSection === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsSection, { t, darkMode, addToast }) }),
+      adminSection === "dms" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(DmsSection, { t, darkMode, addToast }) }),
       adminSection === "app-center" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AppCenterSection, { t, darkMode, addToast }) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -25705,8 +29680,8 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
   const [customApps, setCustomApps] = reactExports.useState([]);
   reactExports.useEffect(() => {
     const logoType = darkMode ? "dark" : "light";
-    const url = `/api/settings/logo/${logoType}?t=${Date.now()}`;
-    setLogoUrl(url);
+    const url2 = `/api/settings/logo/${logoType}?t=${Date.now()}`;
+    setLogoUrl(url2);
   }, [darkMode]);
   reactExports.useEffect(() => {
     getCustomApps().then(setCustomApps).catch(console.error);
@@ -25715,6 +29690,7 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
     {
       id: "dda",
       name: "Dealer Document Archive",
+      permission: "view_dda",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
         width: 56,
         height: 56,
@@ -25732,6 +29708,7 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
     {
       id: "cht",
       name: "Credit Hold Tracker",
+      permission: "view_cht",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
         width: 56,
         height: 56,
@@ -25749,6 +29726,7 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
     {
       id: "help",
       name: "Submit Help Ticket",
+      permission: "view_help",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
         width: 56,
         height: 56,
@@ -25763,7 +29741,10 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
         if (onOpenHelpTicket) onOpenHelpTicket();
       }
     },
-    ...customApps.map((app) => ({
+    ...customApps.filter((app) => {
+      var _a2;
+      return (_a2 = loggedInUser == null ? void 0 : loggedInUser.customAppIds) == null ? void 0 : _a2.includes(app.id);
+    }).map((app) => ({
       id: app.id,
       name: app.name,
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
@@ -25797,7 +29778,10 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
       }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, { size: 28 }) }),
       onClick: () => setPage("admin")
     }] : []
-  ];
+  ].filter((app) => {
+    var _a2;
+    return !app.permission || ((_a2 = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a2.includes(app.permission));
+  });
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
     display: "flex",
     flexDirection: "column",
@@ -26897,6 +30881,7 @@ function AppInner() {
   const [stagedFiles, setStagedFiles] = reactExports.useState([]);
   const [dragOver, setDragOver] = reactExports.useState(false);
   const [folderDetailDragOver, setFolderDetailDragOver] = reactExports.useState(false);
+  const [deptDragOver, setDeptDragOver] = reactExports.useState(false);
   const [stagedFolderAssignments, setStagedFolderAssignments] = reactExports.useState({});
   const [stagedSuggestions, setStagedSuggestions] = reactExports.useState({});
   const [folderSearch, setFolderSearch] = reactExports.useState("");
@@ -26908,6 +30893,7 @@ function AppInner() {
   const [renamingFileName, setRenamingFileName] = reactExports.useState("");
   const [viewingFileId, setViewingFileId] = reactExports.useState(null);
   const [securityGroups, setSecurityGroups] = reactExports.useState([]);
+  const [totalPermissionCount, setTotalPermissionCount] = reactExports.useState(0);
   const [adminUsers, setAdminUsers] = reactExports.useState([]);
   const [dashboardData, setDashboardData] = reactExports.useState(null);
   const [editingGroupId, setEditingGroupId] = reactExports.useState(null);
@@ -26916,8 +30902,10 @@ function AppInner() {
   const [newGroupDesc, setNewGroupDesc] = reactExports.useState("");
   const [addingLocation, setAddingLocation] = reactExports.useState(false);
   const [newLocationName, setNewLocationName] = reactExports.useState("");
+  const [newLocationCode, setNewLocationCode] = reactExports.useState("");
   const [editingLocationId, setEditingLocationId] = reactExports.useState(null);
   const [editingLocationName, setEditingLocationName] = reactExports.useState("");
+  const [editingLocationCode, setEditingLocationCode] = reactExports.useState("");
   const [addingDept, setAddingDept] = reactExports.useState(false);
   const [addingDeptLocId, setAddingDeptLocId] = reactExports.useState(null);
   const [newDeptName, setNewDeptName] = reactExports.useState("");
@@ -26953,6 +30941,66 @@ function AppInner() {
   }, []);
   const isPopStateRef = reactExports.useRef(false);
   const isInitialMount = reactExports.useRef(true);
+  const pageToPath = reactExports.useCallback((page2, activeFolderId2, activeLocation2, activeDepartment2, viewingFileId2, adminSection2) => {
+    switch (page2) {
+      case "landing":
+        return "/";
+      case "dashboard":
+        return "/dashboard";
+      case "folders-browse":
+        return "/folders";
+      case "folders":
+        return `/folders/${activeLocation2 || "all"}/${activeDepartment2 || "all"}`;
+      case "folder-detail":
+        return `/folder/${activeFolderId2 || ""}`;
+      case "file-detail":
+        return `/file/${viewingFileId2 || ""}`;
+      case "unsorted":
+        return "/unsorted";
+      case "upload":
+        return "/upload";
+      case "admin":
+        return `/admin/${adminSection2 || "users"}`;
+      case "cht-dashboard":
+        return "/credit-hold";
+      case "cht-detail":
+        return "/credit-hold/detail";
+      default:
+        return "/";
+    }
+  }, []);
+  const pathToPage = reactExports.useCallback((path) => {
+    const parts2 = path.split("/").filter(Boolean);
+    if (parts2.length === 0) return { page: "landing" };
+    const [first, ...rest] = parts2;
+    switch (first) {
+      case "dashboard":
+        return { page: "dashboard" };
+      case "folders":
+        if (rest[0] && rest[1] && rest[0] !== "all" && rest[1] !== "all") {
+          return { page: "folders", activeLocation: rest[0], activeDepartment: rest[1] };
+        }
+        if (rest[0] === "browse" || !rest[0]) return { page: "folders-browse" };
+        return { page: "folders-browse" };
+      case "folder":
+        if (rest[0]) return { page: "folder-detail", activeFolderId: rest[0] };
+        return { page: "folders-browse" };
+      case "file":
+        if (rest[0]) return { page: "file-detail", viewingFileId: rest[0] };
+        return { page: "folders-browse" };
+      case "unsorted":
+        return { page: "unsorted" };
+      case "upload":
+        return { page: "upload" };
+      case "admin":
+        if (rest[0]) return { page: "admin", adminSection: rest[0] };
+        return { page: "admin", adminSection: "users" };
+      case "credit-hold":
+        return { page: "cht-dashboard" };
+      default:
+        return { page: "landing" };
+    }
+  }, []);
   reactExports.useEffect(() => {
     const handlePopState = (e) => {
       isPopStateRef.current = true;
@@ -26964,16 +31012,34 @@ function AppInner() {
         if (e.state.viewingFileId !== void 0) setViewingFileId(e.state.viewingFileId);
         if (e.state.adminSection) setAdminSection(e.state.adminSection);
       } else {
-        setPage("landing");
+        const pathState2 = pathToPage(window.location.pathname);
+        if (pathState2.page) setPage(pathState2.page);
+        if (pathState2.activeLocation) setActiveLocation(pathState2.activeLocation);
+        if (pathState2.activeDepartment) setActiveDepartment(pathState2.activeDepartment);
+        if (pathState2.activeFolderId) setActiveFolderId(pathState2.activeFolderId);
+        if (pathState2.viewingFileId) setViewingFileId(pathState2.viewingFileId);
+        if (pathState2.adminSection) setAdminSection(pathState2.adminSection);
       }
       setTimeout(() => {
         isPopStateRef.current = false;
       }, 0);
     };
     window.addEventListener("popstate", handlePopState);
-    window.history.replaceState({ page }, "");
+    const pathState = pathToPage(window.location.pathname);
+    if (pathState.page && pathState.page !== "landing") {
+      if (pathState.activeLocation) setActiveLocation(pathState.activeLocation);
+      if (pathState.activeDepartment) setActiveDepartment(pathState.activeDepartment);
+      if (pathState.activeFolderId) setActiveFolderId(pathState.activeFolderId);
+      if (pathState.viewingFileId) setViewingFileId(pathState.viewingFileId);
+      if (pathState.adminSection) setAdminSection(pathState.adminSection);
+      if (isAuthenticated()) {
+        setPage(pathState.page);
+      } else {
+        sessionStorage.setItem("redirectAfterLogin", JSON.stringify(pathState));
+      }
+    }
     return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
+  }, [pathToPage]);
   reactExports.useRef(page);
   reactExports.useRef(activeFolderId);
   reactExports.useRef(activeLocation);
@@ -26986,6 +31052,7 @@ function AppInner() {
       return;
     }
     if (!isPopStateRef.current) {
+      const path = pageToPath(page, activeFolderId, activeLocation, activeDepartment, viewingFileId, adminSection);
       window.history.pushState({
         page,
         activeFolderId,
@@ -26993,9 +31060,9 @@ function AppInner() {
         activeDepartment,
         viewingFileId,
         adminSection
-      }, "");
+      }, "", path);
     }
-  }, [page, activeFolderId, activeLocation, activeDepartment, viewingFileId, adminSection]);
+  }, [page, activeFolderId, activeLocation, activeDepartment, viewingFileId, adminSection, pageToPath]);
   const [subscriptions, setSubscriptions] = reactExports.useState([]);
   const [viewingFileIdFromAlert, setViewingFileIdFromAlert] = reactExports.useState(null);
   reactExports.useEffect(() => {
@@ -27024,8 +31091,19 @@ function AppInner() {
   reactExports.useEffect(() => {
     if (isAuthenticated()) {
       getMe().then((user) => {
-        setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl });
+        setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl, customAppIds: user.customAppIds || [] });
         setIsLoggedIn(true);
+        const redirect = sessionStorage.getItem("redirectAfterLogin");
+        if (redirect) {
+          const pathState = JSON.parse(redirect);
+          sessionStorage.removeItem("redirectAfterLogin");
+          if (pathState.page) setPage(pathState.page);
+          if (pathState.activeLocation) setActiveLocation(pathState.activeLocation);
+          if (pathState.activeDepartment) setActiveDepartment(pathState.activeDepartment);
+          if (pathState.activeFolderId) setActiveFolderId(pathState.activeFolderId);
+          if (pathState.viewingFileId) setViewingFileId(pathState.viewingFileId);
+          if (pathState.adminSection) setAdminSection(pathState.adminSection);
+        }
       }).catch(() => {
         logout();
       });
@@ -27034,7 +31112,7 @@ function AppInner() {
   const loadCoreData = reactExports.useCallback(async () => {
     try {
       const [locs, depts, unsorted] = await Promise.all([getLocations(), getDepartments(), getUnsortedFiles()]);
-      const normLocs = locs.map((l) => ({ id: l.id, name: l.name }));
+      const normLocs = locs.map((l) => ({ id: l.id, name: l.name, locationCode: l.location_code || l.locationCode }));
       const normDepts = depts.map((d) => ({ id: d.id, name: d.name, locationId: d.location_id || d.locationId }));
       setLocations(normLocs);
       setDepartments(normDepts);
@@ -27074,8 +31152,9 @@ function AppInner() {
   }, [isLoggedIn, page]);
   reactExports.useEffect(() => {
     if (!isLoggedIn || page !== "admin") return;
-    getGroups().then((groups) => {
-      setSecurityGroups(groups.map((g) => ({ id: g.id, name: g.name, desc: g.description, permissions: g.permissions, memberCount: g.memberCount })));
+    getGroups().then((data) => {
+      setSecurityGroups(data.groups.map((g) => ({ id: g.id, name: g.name, desc: g.description, permissions: g.permissions, memberCount: g.memberCount })));
+      setTotalPermissionCount(data.totalPermissionCount || 0);
     }).catch(console.error);
   }, [isLoggedIn, page]);
   reactExports.useEffect(() => {
@@ -27098,8 +31177,9 @@ function AppInner() {
     if (!isLoggedIn) return;
     const interval = setInterval(() => {
       loadCoreData();
-      getGroups().then((groups) => {
-        setSecurityGroups(groups.map((g) => ({ id: g.id, name: g.name, desc: g.description, permissions: g.permissions, memberCount: g.memberCount })));
+      getGroups().then((data) => {
+        setSecurityGroups(data.groups.map((g) => ({ id: g.id, name: g.name, desc: g.description, permissions: g.permissions, memberCount: g.memberCount })));
+        setTotalPermissionCount(data.totalPermissionCount || 0);
       }).catch(() => {
       });
       getSubscriptionsWithDetails().then(setSubscriptions).catch(() => {
@@ -27151,8 +31231,9 @@ function AppInner() {
     if (!isLoggedIn || page !== "admin") return;
     if (adminSection === "locations" || adminSection === "departments") {
       if (securityGroups.length === 0) {
-        getGroups().then((groups) => {
-          setSecurityGroups(groups.map((g) => ({ id: g.id, name: g.name, desc: g.description, permissions: g.permissions, memberCount: g.memberCount })));
+        getGroups().then((data) => {
+          setSecurityGroups(data.groups.map((g) => ({ id: g.id, name: g.name, desc: g.description, permissions: g.permissions, memberCount: g.memberCount })));
+          setTotalPermissionCount(data.totalPermissionCount || 0);
         }).catch(console.error);
       }
       getLocationAccess().then(setLocationAccess).catch(console.error);
@@ -27163,31 +31244,67 @@ function AppInner() {
     if (!isLoggedIn) return;
     getSubscriptionsWithDetails().then(setSubscriptions).catch(console.error);
   }, [isLoggedIn]);
-  reactExports.useRef(0);
-  reactExports.useEffect(() => {
+  const handleLocationsChanged = reactExports.useCallback(() => {
     if (!isLoggedIn) return;
-    const fetchNotifications = async () => {
-      try {
-        const notifications = await getNotifications(true);
-        if (notifications.length > 0) {
-          notifications.forEach((n) => {
-            addToast(
-              `New file uploaded`,
-              `${n.file_name} was uploaded by ${n.created_by_name} to ${n.item_name || "a subscribed location"}`,
-              7e3,
-              "upload"
-            );
-            markNotificationRead(n.id).catch(console.error);
-          });
-        }
-      } catch (err) {
-        console.error("Failed to fetch notifications:", err);
-      }
-    };
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 3e4);
-    return () => clearInterval(interval);
+    getLocations().then((locs) => {
+      const normLocs = locs.map((l) => ({ id: l.id, name: l.name, locationCode: l.location_code || l.locationCode }));
+      setLocations(normLocs);
+    }).catch(console.error);
+  }, [isLoggedIn]);
+  const handleDepartmentsChanged = reactExports.useCallback(() => {
+    if (!isLoggedIn) return;
+    getDepartments().then((depts) => {
+      const normDepts = depts.map((d) => ({ id: d.id, name: d.name, locationId: d.location_id || d.locationId }));
+      setDepartments(normDepts);
+    }).catch(console.error);
+  }, [isLoggedIn]);
+  const handleFoldersChanged = reactExports.useCallback(() => {
+    if (!isLoggedIn || !activeDepartment) return;
+    getFolders({ departmentId: activeDepartment }).then((rows) => {
+      const norm = rows.map((f) => ({ id: f.id, name: f.name, locationId: f.location_id || f.locationId, departmentId: f.department_id || f.departmentId, parentId: f.parent_id || f.parentId || null, createdAt: f.created_at, fileCount: Number(f.fileCount || 0), subfolderCount: Number(f.subfolderCount || 0) }));
+      setFolders((prev) => [...prev.filter((f) => f.departmentId !== activeDepartment), ...norm]);
+    }).catch(console.error);
+  }, [isLoggedIn, activeDepartment]);
+  const handleFilesChanged = reactExports.useCallback(() => {
+    if (!isLoggedIn || !activeFolderId) return;
+    getFiles(activeFolderId).then((rows) => {
+      const norm = rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: f.folder_id, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 }));
+      setFiles((prev) => [...prev.filter((f) => f.folderId !== activeFolderId), ...norm]);
+    }).catch(console.error);
+  }, [isLoggedIn, activeFolderId]);
+  const handleUsersChanged = reactExports.useCallback(() => {
+    if (!isLoggedIn || page !== "admin" || adminSection !== "users") return;
+    getUsers().then((users) => {
+      setAdminUsers(users.map((u) => ({ name: u.display_name, email: u.email, groups: u.groups || [], status: u.status === "active" ? "Active" : "Inactive", id: u.id, groupIds: u.groupIds || [] })));
+    }).catch(console.error);
+  }, [isLoggedIn, page, adminSection]);
+  const handleGroupsChanged = reactExports.useCallback(() => {
+    if (!isLoggedIn) return;
+    getGroups().then((data) => {
+      setSecurityGroups(data.groups.map((g) => ({ id: g.id, name: g.name, desc: g.description, permissions: g.permissions, memberCount: g.memberCount })));
+      setTotalPermissionCount(data.totalPermissionCount || 0);
+    }).catch(console.error);
+  }, [isLoggedIn]);
+  const handleNotificationCreated = reactExports.useCallback((data) => {
+    if (!isLoggedIn) return;
+    const notification = data.notification || data;
+    addToast(
+      `New file uploaded`,
+      `${notification.file_name} was uploaded by ${notification.created_by_name} to ${notification.item_name || "a subscribed location"}`,
+      7e3,
+      "upload"
+    );
+    markNotificationRead(notification.id).catch(console.error);
   }, [isLoggedIn, addToast]);
+  useSocket({
+    onLocationsChanged: handleLocationsChanged,
+    onDepartmentsChanged: handleDepartmentsChanged,
+    onFoldersChanged: handleFoldersChanged,
+    onFilesChanged: handleFilesChanged,
+    onUsersChanged: handleUsersChanged,
+    onGroupsChanged: handleGroupsChanged,
+    onNotificationCreated: handleNotificationCreated
+  });
   reactExports.useEffect(() => {
     const newSuggestions = {}, newAssignments = {};
     for (const sf of stagedFiles) {
@@ -27252,10 +31369,22 @@ function AppInner() {
     setLoginLoading(true);
     try {
       const user = await login(loginForm.username.trim(), loginForm.password.trim());
-      setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl });
+      setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl, customAppIds: user.customAppIds || [] });
       setIsLoggedIn(true);
-      setPage("landing");
       setLoginForm({ username: "", password: "" });
+      const redirect = sessionStorage.getItem("redirectAfterLogin");
+      if (redirect) {
+        const pathState = JSON.parse(redirect);
+        sessionStorage.removeItem("redirectAfterLogin");
+        if (pathState.page) setPage(pathState.page);
+        if (pathState.activeLocation) setActiveLocation(pathState.activeLocation);
+        if (pathState.activeDepartment) setActiveDepartment(pathState.activeDepartment);
+        if (pathState.activeFolderId) setActiveFolderId(pathState.activeFolderId);
+        if (pathState.viewingFileId) setViewingFileId(pathState.viewingFileId);
+        if (pathState.adminSection) setAdminSection(pathState.adminSection);
+      } else {
+        setPage("landing");
+      }
     } catch (err) {
       setLoginError(err.message || "Login failed");
     } finally {
@@ -27349,16 +31478,86 @@ function AppInner() {
     setDragOver(false);
     handleUploadFiles(e.dataTransfer.files);
   }, [handleUploadFiles]);
-  const handleFolderDetailDrop = reactExports.useCallback((e) => {
+  const readDirectoryContents = async (directoryEntry, path = "") => {
+    const files2 = [];
+    const entries = await new Promise((resolve, reject) => {
+      const reader = directoryEntry.createReader();
+      const allEntries = [];
+      const readEntries = () => {
+        reader.readEntries((entries2) => {
+          if (entries2.length === 0) {
+            resolve(allEntries);
+          } else {
+            allEntries.push(...entries2);
+            readEntries();
+          }
+        }, reject);
+      };
+      readEntries();
+    });
+    for (const entry of entries) {
+      const entryPath = path ? `${path}/${entry.name}` : entry.name;
+      if (entry.isFile) {
+        const file = await new Promise((resolve, reject) => {
+          entry.file(resolve, reject);
+        });
+        files2.push({ file, path: entryPath, name: entry.name });
+      } else if (entry.isDirectory) {
+        const subFiles = await readDirectoryContents(entry, entryPath);
+        files2.push(...subFiles);
+      }
+    }
+    return files2;
+  };
+  const handleFolderDetailDrop = reactExports.useCallback(async (e) => {
+    var _a2, _b;
     e.preventDefault();
     setFolderDetailDragOver(false);
     if (!activeFolderId) return;
-    Array.from(e.dataTransfer.files).forEach((f) => processFile(f, activeFolderId));
-  }, [processFile, activeFolderId]);
+    const activeFolderObj = folders.find((f) => f.id === activeFolderId);
+    if (!activeFolderObj) return;
+    const items = e.dataTransfer.items;
+    if (!items) {
+      Array.from(e.dataTransfer.files).forEach((f) => processFile(f, activeFolderId));
+      return;
+    }
+    for (const item of items) {
+      const entry = ((_a2 = item.webkitGetAsEntry) == null ? void 0 : _a2.call(item)) || ((_b = item.getAsEntry) == null ? void 0 : _b.call(item));
+      if (!entry) continue;
+      if (entry.isFile) {
+        const file = await new Promise((resolve, reject) => {
+          entry.file(resolve, reject);
+        });
+        processFile(file, activeFolderId);
+      } else if (entry.isDirectory) {
+        const allFiles = await readDirectoryContents(entry);
+        const folderName = entry.name;
+        try {
+          const created = await createFolder(folderName, activeFolderObj.locationId, activeFolderObj.departmentId, activeFolderId);
+          setFolders((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: created.parent_id || created.parentId || null, createdAt: created.created_at }]);
+          addToast("Folder created", `"${folderName}" has been created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""}`, 4e3, "create");
+          for (const { file } of allFiles) {
+            processFile(file, created.id);
+          }
+        } catch (err) {
+          console.error("Failed to create folder:", err);
+          addToast("Error", `Failed to create folder "${folderName}"`, 4e3, "error");
+        }
+      }
+    }
+  }, [processFile, activeFolderId, folders]);
   const handleFolderDetailFiles = reactExports.useCallback((fl) => {
     if (!activeFolderId) return;
     Array.from(fl).forEach((f) => processFile(f, activeFolderId));
   }, [processFile, activeFolderId]);
+  const handleDeptDrop = reactExports.useCallback((e) => {
+    e.preventDefault();
+    setDeptDragOver(false);
+    handleUploadFiles(e.dataTransfer.files);
+  }, [handleUploadFiles]);
+  const handleDeptFiles = reactExports.useCallback((fl) => {
+    handleUploadFiles(fl);
+  }, [handleUploadFiles]);
   const removeFile = async (id) => {
     const file = files.find((f) => f.id === id);
     try {
@@ -27431,7 +31630,7 @@ function AppInner() {
   const handleDeleteFolder = (folder) => {
     const childFolders = subfoldersOf(folder.id);
     const fileCount = allFilesInFolderRecursive(folder.id);
-    const message = childFolders.length > 0 || fileCount > 0 ? `Delete "${folder.name}" and everything inside it? This includes ${childFolders.length} subfolder${childFolders.length !== 1 ? "s" : ""} and ${fileCount} file${fileCount !== 1 ? "s" : ""}. This cannot be undone.` : `Delete the folder "${folder.name}"? This cannot be undone.`;
+    const message = childFolders.length > 0 ? `Delete "${folder.name}"? This includes ${childFolders.length} subfolder${childFolders.length !== 1 ? "s" : ""} and ${fileCount} file${fileCount !== 1 ? "s" : ""} will become unsorted. This cannot be undone.` : fileCount > 0 ? `Delete "${folder.name}"? ${fileCount} file${fileCount !== 1 ? "s" : ""} inside will become unsorted. This cannot be undone.` : `Delete the folder "${folder.name}"? This cannot be undone.`;
     const doDelete = async () => {
       try {
         const getAllDescendants = (pid) => {
@@ -27614,12 +31813,12 @@ function AppInner() {
     page === "cht-dashboard" && /* @__PURE__ */ jsxRuntimeExports.jsx(CHTDashboardPage, { loggedInUser, t, darkMode }),
     page === "dashboard" && /* @__PURE__ */ jsxRuntimeExports.jsx(DashboardPage, { dashboardData, loggedInUser, setPage, setActiveFolderId, setViewingFileId, t, darkMode }),
     page === "folders-browse" && /* @__PURE__ */ jsxRuntimeExports.jsx(FoldersBrowsePage, { locations, departments, deptsInLocation, setActiveLocation, setActiveDepartment, setActiveFolderId, setFolderSearch, setSelectedFile, setPage, subscriptions, setSubscriptions, t, darkMode }),
-    page === "folders" && /* @__PURE__ */ jsxRuntimeExports.jsx(FoldersPage, { currentLocation, currentDept, currentDeptFolders, folderSearch, setFolderSearch, creatingDeptFolder, setCreatingDeptFolder, newDeptFolderName, setNewDeptFolderName, createDeptFolder, setActiveFolderId, setPage, setCreatingSubfolder, handleDeleteFolder, subscriptions, setSubscriptions, loggedInUser, t, darkMode }),
+    page === "folders" && /* @__PURE__ */ jsxRuntimeExports.jsx(FoldersPage, { currentLocation, currentDept, currentDeptFolders, folderSearch, setFolderSearch, creatingDeptFolder, setCreatingDeptFolder, newDeptFolderName, setNewDeptFolderName, createDeptFolder, setActiveFolderId, setPage, setCreatingSubfolder, handleDeleteFolder, subscriptions, setSubscriptions, loggedInUser, t, darkMode, handleDeptDrop, deptDragOver, setDeptDragOver, handleDeptFiles }),
     page === "folder-detail" && /* @__PURE__ */ jsxRuntimeExports.jsx(FolderDetailPage, { activeFolder, activeFolderId, filesInFolder, subfoldersOf, allFilesInFolderRecursive, getBreadcrumb, locations, departments, folders, setActiveFolderId, setPage, setSelectedFile, setViewingFileId, setRenamingFileId, setRenamingFileName, copyText, removeFile, handleDeleteFolder, creatingSubfolder, setCreatingSubfolder, newSubfolderName, setNewSubfolderName, createSubfolder, folderDetailDragOver, setFolderDetailDragOver, handleFolderDetailDrop, handleFolderDetailFiles, subscriptions, setSubscriptions, loggedInUser, t, darkMode }),
     page === "file-detail" && /* @__PURE__ */ jsxRuntimeExports.jsx(FileDetailPage, { viewingFileId, files, folders, locations, departments, getBreadcrumb, setViewingFileId, setActiveFolderId, setPage, setRenamingFileId, setRenamingFileName, removeFile, loggedInUser, t, darkMode }),
     page === "unsorted" && /* @__PURE__ */ jsxRuntimeExports.jsx(UnsortedPage, { unsortedFiles, folders, locations, departments, deptsInLocation, handleMoveFile, removeFile, setUnsortedFiles, setWarningModal, loggedInUser, t, darkMode }),
     page === "upload" && /* @__PURE__ */ jsxRuntimeExports.jsx(UploadPage, { stagedFiles, setStagedFiles, stagedFolderAssignments, setStagedFolderAssignments, stagedSuggestions, setStagedSuggestions, folders, locations, departments, deptsInLocation, handleDrop, handleUploadFiles, dragOver, setDragOver, uploadAllStaged, removeStagedFile, t, darkMode }),
-    page === "admin" && /* @__PURE__ */ jsxRuntimeExports.jsx(AdminPage, { adminSection, setAdminSection, setPage, adminUsers, setAdminUsers, setAdminSetPasswordUserId, setAdminSetPasswordForm, setAdminSetPasswordError, setAdminSetPasswordSuccess, securityGroups, setSecurityGroups, editingGroupId, setEditingGroupId, addingGroup, setAddingGroup, newGroupName, setNewGroupName, newGroupDesc, setNewGroupDesc, setWarningModal, loggedInUser, locations, setLocations, addingLocation, setAddingLocation, newLocationName, setNewLocationName, editingLocationId, setEditingLocationId, editingLocationName, setEditingLocationName, foldersInLocation, filesInFolder, handleDeleteLocation, departments, setDepartments, deptsInLocation, foldersInDepartment, addingDept, setAddingDept, addingDeptLocId, setAddingDeptLocId, newDeptName, setNewDeptName, editingDeptId, setEditingDeptId, editingDeptName, setEditingDeptName, handleDeleteDept, auditLog, auditFilterUser, setAuditFilterUser, auditFilterAction, setAuditFilterAction, auditFilterDate, setAuditFilterDate, locationAccess, setLocationAccess, departmentAccess, setDepartmentAccess, subscriptions, setSubscriptions, t, darkMode, addToast }),
+    page === "admin" && /* @__PURE__ */ jsxRuntimeExports.jsx(AdminPage, { adminSection, setAdminSection, setPage, adminUsers, setAdminUsers, setAdminSetPasswordUserId, setAdminSetPasswordForm, setAdminSetPasswordError, setAdminSetPasswordSuccess, securityGroups, setSecurityGroups, editingGroupId, setEditingGroupId, addingGroup, setAddingGroup, newGroupName, setNewGroupName, newGroupDesc, setNewGroupDesc, setWarningModal, loggedInUser, locations, setLocations, addingLocation, setAddingLocation, newLocationName, setNewLocationName, newLocationCode, setNewLocationCode, editingLocationId, setEditingLocationId, editingLocationName, setEditingLocationName, editingLocationCode, setEditingLocationCode, foldersInLocation, filesInFolder, handleDeleteLocation, departments, setDepartments, deptsInLocation, foldersInDepartment, addingDept, setAddingDept, addingDeptLocId, setAddingDeptLocId, newDeptName, setNewDeptName, editingDeptId, setEditingDeptId, editingDeptName, setEditingDeptName, handleDeleteDept, auditLog, auditFilterUser, setAuditFilterUser, auditFilterAction, setAuditFilterAction, auditFilterDate, setAuditFilterDate, locationAccess, setLocationAccess, departmentAccess, setDepartmentAccess, subscriptions, setSubscriptions, totalPermissionCount, setTotalPermissionCount, t, darkMode, addToast }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(RenameModal, { renamingFileId, renamingFileName, setRenamingFileId, setRenamingFileName, renameFile: renameFile$1, t, darkMode }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(WarningModal, { warningModal, setWarningModal, t, darkMode }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(ChangePasswordModal, { show: showChangePassword, form: changePasswordForm, setForm: setChangePasswordForm, error: changePasswordError, setError: setChangePasswordError, success: changePasswordSuccess, setSuccess: setChangePasswordSuccess, loading: changePasswordLoading, onSubmit: handleChangePassword, onClose: () => setShowChangePassword(false), t, darkMode }),
@@ -27635,4 +31834,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-DOorDypc.js.map
+//# sourceMappingURL=index-DFMnkIR3.js.map

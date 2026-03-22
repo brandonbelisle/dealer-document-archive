@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const db = require('../config/db');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
+const socket = require('../socket');
 
 const router = express.Router();
 
@@ -84,6 +85,7 @@ router.post('/', requireAuth, requirePermission('manageGroups'), async (req, res
     }
 
     await logAudit('Group Created', `"${name.trim()}"`, req.user, req.ip);
+    socket.groupsChanged();
 
     // Return the full group with permissions
     const [groups] = await db.execute('SELECT * FROM security_groups WHERE id = ?', [id]);
@@ -122,6 +124,7 @@ router.put('/:id', requireAuth, requirePermission('manageGroups'), async (req, r
       params.push(req.params.id);
       await db.execute(`UPDATE security_groups SET ${updates.join(', ')} WHERE id = ?`, params);
       await logAudit('Group Updated', `"${existing[0].name}" → "${name?.trim() || existing[0].name}"`, req.user, req.ip);
+      socket.groupsChanged();
     }
 
     res.json({ success: true });
@@ -165,6 +168,7 @@ router.put('/:id/permissions', requireAuth, requirePermission('manageGroups'), a
       req.user,
       req.ip
     );
+    socket.groupsChanged();
 
     res.json({ success: true, enabled: enabledKeys.length });
   } catch (err) {
@@ -181,6 +185,7 @@ router.delete('/:id', requireAuth, requirePermission('manageGroups'), async (req
 
     await db.execute('DELETE FROM security_groups WHERE id = ?', [req.params.id]);
     await logAudit('Group Deleted', `"${existing[0].name}"`, req.user, req.ip);
+    socket.groupsChanged();
 
     res.json({ success: true });
   } catch (err) {

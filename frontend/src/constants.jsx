@@ -9,6 +9,7 @@ import {
   AppsIcon,
   TicketIcon,
   WrenchIcon,
+  UploadCloudIcon,
 } from "./components/Icons";
 
 export const DEFAULT_LOCATIONS = [];
@@ -71,6 +72,12 @@ export const ADMIN_MENU = [
     label: "DMS Connection",
     icon: <WrenchIcon size={17} />,
     desc: "Connect to Microsoft SQL Server",
+  },
+  {
+    id: "azure",
+    label: "Azure Storage",
+    icon: <UploadCloudIcon size={17} />,
+    desc: "Configure Azure Blob Storage for file uploads",
   },
   {
     id: "settings",

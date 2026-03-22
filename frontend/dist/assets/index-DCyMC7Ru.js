@@ -12537,21 +12537,41 @@ function requireClient() {
 var clientExports = requireClient();
 const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(clientExports);
 const API_BASE = "/api";
-let authToken = localStorage.getItem("dda_token") || null;
+function getCookieToken() {
+  const match = document.cookie.match(/(?:^|;\s*)dda_token=([^;]*)/);
+  return match ? match[1] : null;
+}
+function setCookieToken(token) {
+  const maxAge = 24 * 60 * 60;
+  document.cookie = `dda_token=${token}; path=/; max-age=${maxAge}; SameSite=Strict${location.protocol === "https:" ? "; Secure" : ""}`;
+}
+function clearCookieToken() {
+  document.cookie = "dda_token=; path=/; max-age=0";
+}
+let authToken = localStorage.getItem("dda_token") || getCookieToken() || null;
 function setToken(token) {
   authToken = token;
-  if (token) localStorage.setItem("dda_token", token);
-  else localStorage.removeItem("dda_token");
+  if (token) {
+    localStorage.setItem("dda_token", token);
+    setCookieToken(token);
+  } else {
+    localStorage.removeItem("dda_token");
+    clearCookieToken();
+  }
+}
+function getToken() {
+  return authToken || getCookieToken();
 }
 async function request(path, options = {}) {
   const headers = { ...options.headers };
-  if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+  const token = getToken();
+  if (token) headers["Authorization"] = `Bearer ${token}`;
   if (!(options.body instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }
   let res;
   try {
-    res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+    res = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: "include" });
   } catch (err) {
     throw new Error(`Network error: ${err.message}`);
   }
@@ -12579,18 +12599,22 @@ async function login(email, password) {
     method: "POST",
     body: JSON.stringify({ email, password })
   });
-  setToken(data.token);
+  if (data.token) setToken(data.token);
   return data.user;
+}
+async function logout() {
+  try {
+    await request("/auth/logout", { method: "POST" });
+  } catch {
+  }
+  setToken(null);
 }
 async function getMe() {
   const data = await request("/auth/me");
   return data.user;
 }
-function logout() {
-  setToken(null);
-}
 function isAuthenticated() {
-  return !!authToken;
+  return !!(authToken || getCookieToken());
 }
 async function changePassword(currentPassword, newPassword) {
   return request("/auth/change-password", {
@@ -12686,9 +12710,9 @@ async function deleteFile(id) {
 function getFileDownloadUrl(id) {
   return `${API_BASE}/files/${id}/download`;
 }
-function getFilePreviewUrl(storagePath) {
-  if (!storagePath) return null;
-  return storagePath;
+async function getFilePreviewUrlByFileId(fileId) {
+  const data = await request(`/files/${fileId}/preview-url`);
+  return data.url;
 }
 async function getGroups() {
   return request("/groups");
@@ -12906,6 +12930,9 @@ async function updateDmsSchedule(id, data) {
 }
 async function runDmsSchedule(id) {
   return request(`/dms-settings/schedules/${id}/run`, { method: "POST" });
+}
+async function getAzureSettings() {
+  return request("/azure/settings");
 }
 const darkTheme = {
   bg: "#0f1114",
@@ -13442,6 +13469,12 @@ const ADMIN_MENU = [
     label: "DMS Connection",
     icon: /* @__PURE__ */ jsxRuntimeExports.jsx(WrenchIcon, { size: 17 }),
     desc: "Connect to Microsoft SQL Server"
+  },
+  {
+    id: "azure",
+    label: "Azure Storage",
+    icon: /* @__PURE__ */ jsxRuntimeExports.jsx(UploadCloudIcon, { size: 17 }),
+    desc: "Configure Azure Blob Storage for file uploads"
   },
   {
     id: "settings",
@@ -22633,7 +22666,33 @@ function FileDetailPage({
   const canDeleteFiles = (_a = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a.includes("deleteFiles");
   const [extracting, setExtracting] = reactExports.useState(false);
   const [vf, setVf] = reactExports.useState(files.find((f) => f.id === viewingFileId));
+  const [previewUrl, setPreviewUrl] = reactExports.useState(null);
+  const [previewLoading, setPreviewLoading] = reactExports.useState(false);
   if (!vf) return null;
+  reactExports.useEffect(() => {
+    let cancelled = false;
+    async function fetchPreviewUrl() {
+      if (!(vf == null ? void 0 : vf.id)) return;
+      setPreviewLoading(true);
+      try {
+        const url2 = await getFilePreviewUrlByFileId(vf.id);
+        if (!cancelled) setPreviewUrl(url2);
+      } catch (err) {
+        console.error("Failed to get preview URL:", err);
+        if (!cancelled) setPreviewUrl(null);
+      } finally {
+        if (!cancelled) setPreviewLoading(false);
+      }
+    }
+    if (vf.fileDataUrl) {
+      setPreviewUrl(vf.fileDataUrl);
+    } else {
+      fetchPreviewUrl();
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [vf == null ? void 0 : vf.id, vf == null ? void 0 : vf.fileDataUrl]);
   const folder = folders.find((f) => f.id === vf.folderId);
   const loc = folder ? locations.find((l) => l.id === folder.locationId) : null;
   const dept = folder ? departments.find((d) => d.id === folder.departmentId) : null;
@@ -23148,7 +23207,9 @@ function FileDetailPage({
                     overflow: "hidden"
                   },
                   children: (() => {
-                    const previewUrl = vf.fileStoragePath ? getFilePreviewUrl(vf.fileStoragePath) : vf.fileDataUrl;
+                    if (previewLoading) {
+                      return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: t.textMuted }, children: "Loading preview..." });
+                    }
                     if (previewUrl) {
                       if (isPdf) {
                         if (vf.fileDataUrl)
@@ -23200,36 +23261,6 @@ function FileDetailPage({
                             )
                           }
                         );
-                      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "div",
-                        {
-                          style: {
-                            textAlign: "center",
-                            color: t.textDim,
-                            padding: 40,
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            height: "100%"
-                          },
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(FileDocIcon, { size: 48 }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "div",
-                              {
-                                style: {
-                                  fontSize: 14,
-                                  fontWeight: 500,
-                                  marginTop: 14
-                                },
-                                children: "No preview available for this file type"
-                              }
-                            ),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, marginTop: 4, color: t.textDim }, children: vf.type || "Unknown type" })
-                          ]
-                        }
-                      );
                     }
                     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                       "div",
@@ -23254,10 +23285,10 @@ function FileDetailPage({
                                 fontWeight: 500,
                                 marginTop: 14
                               },
-                              children: "Preview not available"
+                              children: "No preview available for this file type"
                             }
                           ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, marginTop: 4 }, children: "File data is no longer in memory" })
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, marginTop: 4, color: t.textDim }, children: vf.type || "Unknown type" })
                         ]
                       }
                     );
@@ -26946,12 +26977,22 @@ function SettingsSection({ t, darkMode, addToast }) {
   const [showRestartPrompt, setShowRestartPrompt] = reactExports.useState(false);
   reactExports.useRef(null);
   reactExports.useRef(null);
+  const [azureSettings2, setAzureSettings2] = reactExports.useState({
+    enabled: true,
+    connectionString: "",
+    containerName: "documents"
+  });
+  const [azureLoading2, setAzureLoading] = reactExports.useState(false);
+  const [azureSaving2, setAzureSaving] = reactExports.useState(false);
+  const [azureTesting2, setAzureTesting] = reactExports.useState(false);
+  const [azureMessage2, setAzureMessage] = reactExports.useState({ type: "", text: "" });
   reactExports.useEffect(() => {
     loadLogos();
     loadSmtpSettings();
     loadSupportEmail();
     loadEmailSettings();
     loadSslCertificates();
+    loadAzureSettings();
   }, []);
   const loadSslCertificates = async () => {
     setSslLoading(true);
@@ -27049,6 +27090,21 @@ function SettingsSection({ t, darkMode, addToast }) {
       setSmtpMessage({ type: "error", text: "Failed to send: " + (err.message || "Unknown error") });
     } finally {
       setSmtpTesting(false);
+    }
+  };
+  const loadAzureSettings = async () => {
+    setAzureLoading(true);
+    try {
+      const settings = await getAzureSettings();
+      setAzureSettings2({
+        enabled: settings.enabled !== false,
+        connectionString: settings.hasConnectionString ? "••••••••••••••••" : "",
+        containerName: settings.container_name || "documents"
+      });
+    } catch (err) {
+      console.error("Failed to load Azure settings:", err);
+    } finally {
+      setAzureLoading(false);
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -29588,7 +29644,7 @@ function AdminPage({
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12.5, marginTop: 4 }, children: "File uploads, renames, and folder changes will appear here" })
         ] })
       ] }),
-      !["users", "groups", "app-center", "locations", "departments", "audit", "authentication", "settings"].includes(adminSection) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "60px 0", color: t.textDim }, children: [
+      !["users", "groups", "app-center", "locations", "departments", "audit", "authentication", "settings", "dms", "azure"].includes(adminSection) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "60px 0", color: t.textDim }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: adminActiveMenu == null ? void 0 : adminActiveMenu.icon }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 15, fontWeight: 500, marginTop: 14 }, children: adminActiveMenu == null ? void 0 : adminActiveMenu.label }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13 }, children: "Under development" })
@@ -29596,6 +29652,87 @@ function AdminPage({
       adminSection === "authentication" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AuthenticationSection, { t, darkMode }) }),
       adminSection === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsSection, { t, darkMode, addToast }) }),
       adminSection === "dms" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(DmsSection, { t, darkMode, addToast }) }),
+      adminSection === "azure" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { animation: "fadeIn 0.25s ease" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 24 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }, children: "Azure Storage" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 13, color: t.textMuted, margin: 0 }, children: "Configure Azure Blob Storage for file uploads." })
+        ] }),
+        azureLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: 40, color: t.textMuted }, children: "Loading..." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: "20px 24px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                id: "azure-enabled",
+                checked: azureSettings.enabled,
+                onChange: (e) => setAzureSettings({ ...azureSettings, enabled: e.target.checked }),
+                style: { width: 18, height: 18, cursor: "pointer" }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "azure-enabled", style: { fontSize: 14, fontWeight: 500, color: t.text, cursor: "pointer" }, children: "Enable Azure Storage" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { display: "block", fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6 }, children: "Connection String" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "password",
+                value: azureSettings.connectionString,
+                onChange: (e) => setAzureSettings({ ...azureSettings, connectionString: e.target.value }),
+                placeholder: "DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...;EndpointSuffix=core.windows.net",
+                style: {
+                  width: "100%",
+                  padding: "10px 12px",
+                  fontSize: 13,
+                  fontFamily: "monospace",
+                  background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 8,
+                  color: t.text,
+                  outline: "none",
+                  boxSizing: "border-box"
+                }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 11, color: t.textDim, marginTop: 4 }, children: "Find this in Azure Portal → Storage Account → Access Keys. Leave empty to keep existing value." })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { display: "block", fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6 }, children: "Container Name" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: azureSettings.containerName,
+                onChange: (e) => setAzureSettings({ ...azureSettings, containerName: e.target.value }),
+                placeholder: "documents",
+                style: {
+                  width: "100%",
+                  padding: "10px 12px",
+                  fontSize: 13,
+                  background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 8,
+                  color: t.text,
+                  outline: "none",
+                  boxSizing: "border-box"
+                }
+              }
+            )
+          ] }),
+          azureMessage.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            padding: "10px 14px",
+            borderRadius: 8,
+            marginBottom: 16,
+            background: azureMessage.type === "success" ? t.successSoft : t.errorSoft,
+            color: azureMessage.type === "success" ? t.success : t.error,
+            fontSize: 13
+          }, children: azureMessage.text }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 12, flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { primary: true, darkMode, t, onClick: handleSaveAzure, loading: azureSaving, style: { fontSize: 13 }, children: "Save Settings" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { darkMode, t, onClick: handleTestAzure, loading: azureTesting, style: { fontSize: 13 }, children: "Test Connection" })
+          ] })
+        ] })
+      ] }),
       adminSection === "app-center" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AppCenterSection, { t, darkMode, addToast }) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -31291,7 +31428,7 @@ function AppInner() {
     addToast(
       `New file uploaded`,
       `${notification.file_name} was uploaded by ${notification.created_by_name} to ${notification.item_name || "a subscribed location"}`,
-      7e3,
+      void 0,
       "upload"
     );
     markNotificationRead(notification.id).catch(console.error);
@@ -31876,4 +32013,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-DtGMTHUo.js.map
+//# sourceMappingURL=index-DCyMC7Ru.js.map

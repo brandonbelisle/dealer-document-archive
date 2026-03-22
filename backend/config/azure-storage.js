@@ -1,10 +1,8 @@
 // config/azure-storage.js
 // Azure Blob Storage client for file uploads, downloads, and deletions.
-// Uses @azure/storage-blob SDK with lazy initialization.
+// Reads configuration from database (azure_settings table) instead of env vars.
 
 // ── Polyfill: ensure globalThis.crypto is available ───────
-// Some Node.js environments (especially older 18.x builds) don't
-// expose crypto on globalThis, which the Azure SDK expects.
 if (typeof globalThis.crypto === 'undefined') {
   globalThis.crypto = require('crypto');
 }
@@ -12,56 +10,109 @@ if (typeof globalThis.crypto === 'undefined') {
 const { BlobServiceClient, StorageSharedKeyCredential, BlobSASPermissions, generateBlobSASQueryParameters } = require('@azure/storage-blob');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
-require('dotenv').config();
+const crypto = require('crypto');
 
-const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME || 'documents';
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-32-chars!!';
+const ALGORITHM = 'aes-256-cbc';
 
-// ── Lazy client — only created on first use ───────────────
-let _blobServiceClient = null;
-
-function getClient() {
-  if (_blobServiceClient) return _blobServiceClient;
-
-  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
-  const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
-  const accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY;
-
-  // Skip if still using the placeholder values from .env.example
-  const isPlaceholder = connectionString && (
-    connectionString.includes('youraccount') ||
-    connectionString.includes('yourkey') ||
-    connectionString === 'DefaultEndpointsProtocol=https;AccountName=youraccount;AccountKey=yourkey;EndpointSuffix=core.windows.net'
-  );
-
-  if (isPlaceholder) {
-    throw new Error('Azure connection string still has placeholder values — update .env with your real credentials');
+function decrypt(encrypted) {
+  if (!encrypted || !encrypted.includes(':')) return '';
+  try {
+    const [ivHex, data] = encrypted.split(':');
+    const iv = Buffer.from(ivHex, 'hex');
+    const key = crypto.scryptSync(ENCRYPTION_KEY, 'salt', 32);
+    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+    let decrypted = decipher.update(data, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch (err) {
+    console.error('Failed to decrypt Azure connection string:', err.message);
+    return '';
   }
-
-  if (connectionString) {
-    _blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-  } else if (accountName && accountKey) {
-    const credential = new StorageSharedKeyCredential(accountName, accountKey);
-    _blobServiceClient = new BlobServiceClient(
-      `https://${accountName}.blob.core.windows.net`,
-      credential
-    );
-  } else {
-    throw new Error(
-      'Azure Storage not configured. Set AZURE_STORAGE_CONNECTION_STRING ' +
-      'or AZURE_STORAGE_ACCOUNT_NAME + AZURE_STORAGE_ACCOUNT_KEY in .env'
-    );
-  }
-
-  return _blobServiceClient;
 }
 
-// ── Ensure container exists on startup ────────────────────
+function parseConnectionString(connectionString) {
+  const parts = {};
+  connectionString.split(';').forEach(part => {
+    const [key, ...valueParts] = part.split('=');
+    if (key && valueParts.length > 0) {
+      parts[key.trim()] = valueParts.join('=').trim();
+    }
+  });
+  return {
+    accountName: parts.AccountName || parts.accountname,
+    accountKey: parts.AccountKey || parts.accountkey,
+  };
+}
+
+// ── Cached client and settings ─────────────────────────────
+let _blobServiceClient = null;
+let _containerName = null;
+let _accountName = null;
+let _accountKey = null;
+
+// ── Clear cached client (called when settings change) ───────
+function clearCache() {
+  _blobServiceClient = null;
+  _containerName = null;
+  _accountName = null;
+  _accountKey = null;
+}
+
+// ── Get settings from database and initialize client ──────────
+async function initializeClient() {
+  // Lazy load db to avoid circular dependency
+  const db = require('../config/db');
+  
+  const [rows] = await db.execute('SELECT * FROM azure_settings WHERE id = 1');
+  
+  if (rows.length === 0 || !rows[0].connection_string_encrypted) {
+    throw new Error('Azure Storage not configured. Configure it in Admin Settings.');
+  }
+  
+  const settings = rows[0];
+  const connectionString = decrypt(settings.connection_string_encrypted);
+  const containerName = settings.container_name || 'documents';
+  
+  if (!connectionString) {
+    throw new Error('Azure Storage connection string could not be decrypted.');
+  }
+  
+  // Parse account name/key for SAS URL generation
+  const parsed = parseConnectionString(connectionString);
+  _accountName = parsed.accountName;
+  _accountKey = parsed.accountKey;
+  _containerName = containerName;
+  
+  _blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+  
+  return { client: _blobServiceClient, containerName };
+}
+
+// ── Get client (async) ───────────────────────────────────────
+async function getContainerClient() {
+  if (_blobServiceClient && _containerName) {
+    return {
+      client: _blobServiceClient,
+      containerName: _containerName,
+      containerClient: _blobServiceClient.getContainerClient(_containerName),
+    };
+  }
+  
+  const { client, containerName } = await initializeClient();
+  return {
+    client,
+    containerName,
+    containerClient: client.getContainerClient(containerName),
+  };
+}
+
+// ── Ensure container exists on startup ────────────────────────
 async function ensureContainer() {
   try {
-    const client = getClient();
-    const containerClient = client.getContainerClient(containerName);
+    const { containerClient, containerName } = await getContainerClient();
     const createResponse = await containerClient.createIfNotExists({
-      access: 'blob', // Public read access for blob-level (PDF previews)
+      access: 'blob',
     });
     if (createResponse.succeeded) {
       console.log(`✓ Azure container created: ${containerName}`);
@@ -70,15 +121,13 @@ async function ensureContainer() {
     }
   } catch (err) {
     console.error('✗ Azure container setup failed:', err.message);
-    console.error('  Check your AZURE_STORAGE_CONNECTION_STRING in .env');
+    console.error('  Configure Azure Storage in Admin Settings');
   }
 }
 
-// ── Upload a file buffer to Azure ─────────────────────────
-// Returns { blobName, blobUrl } on success.
+// ── Upload a file buffer to Azure ──────────────────────────
 async function uploadBlob(fileBuffer, originalFilename, mimeType) {
-  const client = getClient();
-  const containerClient = client.getContainerClient(containerName);
+  const { containerClient, containerName } = await getContainerClient();
   const ext = path.extname(originalFilename);
   const blobName = `${uuidv4()}${ext}`;
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
@@ -96,11 +145,9 @@ async function uploadBlob(fileBuffer, originalFilename, mimeType) {
   };
 }
 
-// ── Download a blob as a readable stream ──────────────────
-// Returns { readableStream, contentType, contentLength }
+// ── Download a blob as a readable stream ────────────────────
 async function downloadBlob(blobName) {
-  const client = getClient();
-  const containerClient = client.getContainerClient(containerName);
+  const { containerClient } = await getContainerClient();
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
   const downloadResponse = await blockBlobClient.download(0);
 
@@ -111,11 +158,9 @@ async function downloadBlob(blobName) {
   };
 }
 
-// ── Download a blob as a Buffer ───────────────────────────
-// Returns { buffer, contentType, contentLength }
+// ── Download a blob as a Buffer ─────────────────────────────
 async function downloadBlobBuffer(blobName) {
-  const client = getClient();
-  const containerClient = client.getContainerClient(containerName);
+  const { containerClient } = await getContainerClient();
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
   const downloadResponse = await blockBlobClient.downloadToBuffer();
 
@@ -126,11 +171,10 @@ async function downloadBlobBuffer(blobName) {
   };
 }
 
-// ── Delete a blob ─────────────────────────────────────────
+// ── Delete a blob ───────────────────────────────────────────
 async function deleteBlob(blobName) {
   try {
-    const client = getClient();
-    const containerClient = client.getContainerClient(containerName);
+    const { containerClient } = await getContainerClient();
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
     await blockBlobClient.deleteIfExists({ deleteSnapshots: 'include' });
     return true;
@@ -140,40 +184,19 @@ async function deleteBlob(blobName) {
   }
 }
 
-// ── Parse account name and key from connection string ───────
-function parseConnectionString(connectionString) {
-  const parts = {};
-  connectionString.split(';').forEach(part => {
-    const [key, ...valueParts] = part.split('=');
-    if (key && valueParts.length > 0) {
-      parts[key.trim()] = valueParts.join('=').trim();
-    }
-  });
-  return {
-    accountName: parts.AccountName || parts.accountname,
-    accountKey: parts.AccountKey || parts.accountkey,
-  };
-}
-
-// ── Generate a SAS URL for time-limited access ────────────
-// Useful if container access is set to private instead of blob-level public.
-// Returns a URL valid for `expiresInMinutes` (default 60).
-function generateSasUrl(blobName, expiresInMinutes = 60) {
-  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
-  let accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
-  let accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY;
-
-  // Extract account name/key from connection string if not provided separately
-  if ((!accountName || !accountKey) && connectionString) {
-    const parsed = parseConnectionString(connectionString);
-    accountName = accountName || parsed.accountName;
-    accountKey = accountKey || parsed.accountKey;
+// ── Generate a SAS URL for time-limited access ──────────────
+async function generateSasUrl(blobName, expiresInMinutes = 60) {
+  // Ensure client is initialized
+  if (!_blobServiceClient) {
+    await getContainerClient();
   }
+  
+  let accountName = _accountName;
+  let accountKey = _accountKey;
 
   if (!accountName || !accountKey) {
     // Fall back to public URL (works if container has blob-level public access)
-    const client = getClient();
-    const containerClient = client.getContainerClient(containerName);
+    const { containerClient } = await getContainerClient();
     return containerClient.getBlockBlobClient(blobName).url;
   }
 
@@ -184,7 +207,7 @@ function generateSasUrl(blobName, expiresInMinutes = 60) {
 
   const sasParams = generateBlobSASQueryParameters(
     {
-      containerName,
+      containerName: _containerName,
       blobName,
       permissions: BlobSASPermissions.parse('r'),
       startsOn,
@@ -193,7 +216,7 @@ function generateSasUrl(blobName, expiresInMinutes = 60) {
     credential
   );
 
-  return `https://${accountName}.blob.core.windows.net/${containerName}/${blobName}?${sasParams}`;
+  return `https://${accountName}.blob.core.windows.net/${_containerName}/${blobName}?${sasParams}`;
 }
 
 module.exports = {
@@ -203,4 +226,5 @@ module.exports = {
   downloadBlobBuffer,
   deleteBlob,
   generateSasUrl,
+  clearCache,
 };

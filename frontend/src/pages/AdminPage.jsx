@@ -754,12 +754,24 @@ function SettingsSection({ t, darkMode, addToast }) {
   const sslInputRef = useRef(null);
   const sslKeyInputRef = useRef(null);
 
+  // Azure Storage settings
+  const [azureSettings, setAzureSettings] = useState({
+    enabled: true,
+    connectionString: '',
+    containerName: 'documents',
+  });
+  const [azureLoading, setAzureLoading] = useState(false);
+  const [azureSaving, setAzureSaving] = useState(false);
+  const [azureTesting, setAzureTesting] = useState(false);
+  const [azureMessage, setAzureMessage] = useState({ type: '', text: '' });
+
   useEffect(() => {
     loadLogos();
     loadSmtpSettings();
     loadSupportEmail();
     loadEmailSettings();
     loadSslCertificates();
+    loadAzureSettings();
   }, []);
 
   const loadSslCertificates = async () => {
@@ -865,6 +877,58 @@ function SettingsSection({ t, darkMode, addToast }) {
       setSmtpMessage({ type: 'error', text: 'Failed to send: ' + (err.message || 'Unknown error') });
     } finally {
       setSmtpTesting(false);
+    }
+  };
+
+  // Azure Storage functions
+  const loadAzureSettings = async () => {
+    setAzureLoading(true);
+    try {
+      const settings = await api.getAzureSettings();
+      setAzureSettings({
+        enabled: settings.enabled !== false,
+        connectionString: settings.hasConnectionString ? '••••••••••••••••' : '',
+        containerName: settings.container_name || 'documents',
+      });
+    } catch (err) {
+      console.error('Failed to load Azure settings:', err);
+    } finally {
+      setAzureLoading(false);
+    }
+  };
+
+  const handleSaveAzure = async () => {
+    setAzureSaving(true);
+    setAzureMessage({ type: '', text: '' });
+    try {
+      await api.saveAzureSettings({
+        enabled: azureSettings.enabled,
+        connectionString: azureSettings.connectionString === '••••••••••••••••' ? undefined : azureSettings.connectionString,
+        containerName: azureSettings.containerName,
+      });
+      setAzureMessage({ type: 'success', text: 'Azure settings saved successfully!' });
+      // Reload to update hasConnectionString status
+      await loadAzureSettings();
+    } catch (err) {
+      setAzureMessage({ type: 'error', text: 'Failed to save: ' + (err.message || 'Unknown error') });
+    } finally {
+      setAzureSaving(false);
+    }
+  };
+
+  const handleTestAzure = async () => {
+    setAzureTesting(true);
+    setAzureMessage({ type: '', text: '' });
+    try {
+      const result = await api.testAzureConnection({
+        connectionString: azureSettings.connectionString === '••••••••••••••••' ? undefined : azureSettings.connectionString,
+        containerName: azureSettings.containerName,
+      });
+      setAzureMessage({ type: 'success', text: 'Connection successful! Container ' + (result.containerExists ? 'exists' : 'will be created') });
+    } catch (err) {
+      setAzureMessage({ type: 'error', text: 'Connection failed: ' + (err.message || 'Unknown error') });
+    } finally {
+      setAzureTesting(false);
     }
   };
 
@@ -3447,7 +3511,7 @@ export default function AdminPage({
           )}
 
           {/* Fallback */}
-          {!["users", "groups", "app-center", "locations", "departments", "audit", "authentication", "settings"].includes(adminSection) && (
+          {!["users", "groups", "app-center", "locations", "departments", "audit", "authentication", "settings", "dms", "azure"].includes(adminSection) && (
             <div style={{ textAlign: "center", padding: "60px 0", color: t.textDim }}>
               <span>{adminActiveMenu?.icon}</span>
               <div style={{ fontSize: 15, fontWeight: 500, marginTop: 14 }}>{adminActiveMenu?.label}</div>
@@ -3473,6 +3537,114 @@ export default function AdminPage({
           {adminSection === "dms" && (
             <div style={{ animation: "fadeIn 0.25s ease" }}>
               <DmsSection t={t} darkMode={darkMode} addToast={addToast} />
+            </div>
+          )}
+
+          {/* AZURE STORAGE */}
+          {adminSection === "azure" && (
+            <div style={{ animation: "fadeIn 0.25s ease" }}>
+              <div style={{ marginBottom: 24 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }}>Azure Storage</h2>
+                <p style={{ fontSize: 13, color: t.textMuted, margin: 0 }}>
+                  Configure Azure Blob Storage for file uploads.
+                </p>
+              </div>
+
+              {azureLoading ? (
+                <div style={{ textAlign: "center", padding: 40, color: t.textMuted }}>Loading...</div>
+              ) : (
+                <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: "20px 24px" }}>
+                  {/* Enable/Disable */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                    <input
+                      type="checkbox"
+                      id="azure-enabled"
+                      checked={azureSettings.enabled}
+                      onChange={(e) => setAzureSettings({ ...azureSettings, enabled: e.target.checked })}
+                      style={{ width: 18, height: 18, cursor: "pointer" }}
+                    />
+                    <label htmlFor="azure-enabled" style={{ fontSize: 14, fontWeight: 500, color: t.text, cursor: "pointer" }}>
+                      Enable Azure Storage
+                    </label>
+                  </div>
+
+                  {/* Connection String */}
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6 }}>
+                      Connection String
+                    </label>
+                    <input
+                      type="password"
+                      value={azureSettings.connectionString}
+                      onChange={(e) => setAzureSettings({ ...azureSettings, connectionString: e.target.value })}
+                      placeholder="DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...;EndpointSuffix=core.windows.net"
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        fontSize: 13,
+                        fontFamily: "monospace",
+                        background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 8,
+                        color: t.text,
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                    <p style={{ fontSize: 11, color: t.textDim, marginTop: 4 }}>
+                      Find this in Azure Portal → Storage Account → Access Keys. Leave empty to keep existing value.
+                    </p>
+                  </div>
+
+                  {/* Container Name */}
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6 }}>
+                      Container Name
+                    </label>
+                    <input
+                      type="text"
+                      value={azureSettings.containerName}
+                      onChange={(e) => setAzureSettings({ ...azureSettings, containerName: e.target.value })}
+                      placeholder="documents"
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        fontSize: 13,
+                        background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 8,
+                        color: t.text,
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                  </div>
+
+                  {/* Message */}
+                  {azureMessage.text && (
+                    <div style={{
+                      padding: "10px 14px",
+                      borderRadius: 8,
+                      marginBottom: 16,
+                      background: azureMessage.type === "success" ? t.successSoft : t.errorSoft,
+                      color: azureMessage.type === "success" ? t.success : t.error,
+                      fontSize: 13,
+                    }}>
+                      {azureMessage.text}
+                    </div>
+                  )}
+
+                  {/* Buttons */}
+                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                    <Btn primary darkMode={darkMode} t={t} onClick={handleSaveAzure} loading={azureSaving} style={{ fontSize: 13 }}>
+                      Save Settings
+                    </Btn>
+                    <Btn darkMode={darkMode} t={t} onClick={handleTestAzure} loading={azureTesting} style={{ fontSize: 13 }}>
+                      Test Connection
+                    </Btn>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

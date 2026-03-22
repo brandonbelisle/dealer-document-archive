@@ -101,6 +101,7 @@ app.use('/api/notifications', require('./routes/notifications').router);
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/smtp', require('./routes/smtp').router);
 app.use('/api/saml', require('./routes/saml').router);
+app.use('/api/azure', require('./routes/azure'));
 app.use('/api/custom-apps', require('./routes/custom-apps'));
 app.use('/api/dms-settings', require('./routes/dms'));
 app.use('/api/help-ticket', require('./routes/help-ticket'));
@@ -240,7 +241,7 @@ async function startServer() {
       await ensureContainer();
     } catch (err) {
       console.warn('⚠ Azure Storage not initialized:', err.message);
-      console.warn('  File uploads will fail until Azure is configured in .env');
+      console.warn('  Configure Azure in Admin Settings to enable file uploads.');
     }
   })();
 

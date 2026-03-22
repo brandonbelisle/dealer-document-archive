@@ -502,3 +502,20 @@ export async function updateDmsSchedule(id, data) {
 export async function runDmsSchedule(id) {
   return request(`/dms-settings/schedules/${id}/run`, { method: 'POST' });
 }
+
+// ── Azure Storage Settings ──────────────────────────────────
+export async function getAzureSettings() {
+  return request('/azure/settings');
+}
+export async function saveAzureSettings(settings) {
+  return request('/azure/settings', {
+    method: 'POST',
+    body: JSON.stringify(settings),
+  });
+}
+export async function testAzureConnection(settings) {
+  return request('/azure/test', {
+    method: 'POST',
+    body: JSON.stringify(settings),
+  });
+}

@@ -463,13 +463,13 @@ const t = getTheme(darkMode);
   useEffect(() => {
     const newSuggestions = {}, newAssignments = {};
     for (const sf of stagedFiles) {
-      if (sf.status === "done" && !stagedSuggestions[sf.id]) {
+      if (sf.status === "done" && sf.text && !stagedSuggestions[sf.id]) {
         const suggestion = suggestFolderForFile(sf);
         if (suggestion) { newSuggestions[sf.id] = suggestion; if (suggestion.folder && suggestion.confidence === "exact") newAssignments[sf.id] = suggestion.folder.id; }
       }
     }
     if (Object.keys(newSuggestions).length > 0) { setStagedSuggestions((p) => ({ ...p, ...newSuggestions })); setStagedFolderAssignments((p) => ({ ...p, ...newAssignments })); }
-  }, [stagedFiles.map((f) => f.status).join(",")]);
+  }, [stagedFiles, stagedSuggestions, folders]);
 
   // ── Derived helpers ─────────────────────────────────────
   const filesInFolder = (id) => files.filter((f) => f.folderId === id);

@@ -58293,7 +58293,7 @@ function AppInner() {
   reactExports.useEffect(() => {
     const newSuggestions = {}, newAssignments = {};
     for (const sf of stagedFiles) {
-      if (sf.status === "done" && !stagedSuggestions[sf.id]) {
+      if (sf.status === "done" && sf.text && !stagedSuggestions[sf.id]) {
         const suggestion = suggestFolderForFile(sf);
         if (suggestion) {
           newSuggestions[sf.id] = suggestion;
@@ -58305,7 +58305,7 @@ function AppInner() {
       setStagedSuggestions((p) => ({ ...p, ...newSuggestions }));
       setStagedFolderAssignments((p) => ({ ...p, ...newAssignments }));
     }
-  }, [stagedFiles.map((f) => f.status).join(",")]);
+  }, [stagedFiles, stagedSuggestions, folders]);
   const filesInFolder = (id) => files.filter((f) => f.folderId === id);
   const subfoldersOf = (parentId) => folders.filter((f) => f.parentId === parentId);
   const allFilesInFolderRecursive = (id) => {
@@ -58859,4 +58859,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-DUl_3qC_.js.map
+//# sourceMappingURL=index-DGKHMtZV.js.map

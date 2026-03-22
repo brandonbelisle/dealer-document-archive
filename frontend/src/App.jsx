@@ -445,7 +445,7 @@ const t = getTheme(darkMode);
     addToast(
       `New file uploaded`,
       `${notification.file_name} was uploaded by ${notification.created_by_name} to ${notification.item_name || 'a subscribed location'}`,
-      7000,
+      undefined,
       "upload"
     );
     api.markNotificationRead(notification.id).catch(console.error);

@@ -19,6 +19,7 @@ import {
   FolderClosedIcon,
   UploadCloudIcon,
   LinkIcon,
+  LockIcon,
 } from "../components/Icons";
 
 // Authentication Settings Section
@@ -708,7 +709,7 @@ const loadSecurityGroups = async () => {
   );
 }
 
-function SettingsSection({ t, darkMode }) {
+function SettingsSection({ t, darkMode, addToast }) {
   const [darkLogo, setDarkLogo] = useState(null);
   const [lightLogo, setLightLogo] = useState(null);
   const [uploading, setUploading] = useState({ dark: false, light: false});
@@ -740,12 +741,32 @@ function SettingsSection({ t, darkMode }) {
   const [emailSettingsSaving, setEmailSettingsSaving] = useState(false);
   const [emailSettingsMessage, setEmailSettingsMessage] = useState({ type: '', text: '' });
 
+  const [sslCertificates, setSslCertificates] = useState([]);
+  const [sslLoading, setSslLoading] = useState(false);
+  const [sslUploading, setSslUploading] = useState(false);
+  const [sslDeleting, setSslDeleting] = useState(null);
+  const [newCertName, setNewCertName] = useState('');
+  const sslInputRef = useRef(null);
+
   useEffect(() => {
     loadLogos();
     loadSmtpSettings();
     loadSupportEmail();
     loadEmailSettings();
+    loadSslCertificates();
   }, []);
+
+  const loadSslCertificates = async () => {
+    setSslLoading(true);
+    try {
+      const data = await api.getSslCertificates();
+      setSslCertificates(data.certificates || []);
+    } catch (err) {
+      console.error("Failed to load SSL certificates:", err);
+    } finally {
+      setSslLoading(false);
+    }
+  };
 
   const loadLogos = async () => {
     try {
@@ -1477,6 +1498,149 @@ function SettingsSection({ t, darkMode }) {
           Save Email Settings
         </Btn>
       </div>
+
+      {/* SSL Certificates Section */}
+      <div style={{ marginBottom: 24, marginTop: 40 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }}>SSL Certificates</h2>
+        <p style={{ fontSize: 13, color: t.textMuted, margin: 0 }}>
+          Upload SSL certificates for HTTPS support. Supported formats: .crt, .pem, .key, .p12, .pfx
+        </p>
+      </div>
+
+      {sslLoading ? (
+        <div style={{ padding: 40, textAlign: "center", color: t.textMuted }}>Loading...</div>
+      ) : (
+        <div style={{
+          background: t.surface,
+          border: `1px solid ${t.border}`,
+          borderRadius: 12,
+          padding: 24,
+          maxWidth: 700,
+        }}>
+          {/* Upload new certificate */}
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
+              Upload New Certificate
+            </label>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <input
+                type="text"
+                value={newCertName}
+                onChange={(e) => setNewCertName(e.target.value)}
+                placeholder="Certificate name (e.g., domain.com)"
+                style={{
+                  flex: 1,
+                  minWidth: 200,
+                  padding: "10px 12px",
+                  fontSize: 14,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 8,
+                  background: darkMode ? "#1a1a1a" : "#fff",
+                  color: t.text,
+                  fontFamily: "inherit",
+                }}
+              />
+              <input
+                ref={sslInputRef}
+                type="file"
+                accept=".crt,.pem,.key,.p12,.pfx,.cer"
+                style={{ display: "none" }}
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  const name = newCertName.trim() || file.name.replace(/\.[^/.]+$/, "");
+                  setSslUploading(true);
+                  try {
+                    await api.uploadSslCertificate(name, file);
+                    addToast("Certificate uploaded", `"${name}" has been uploaded successfully`, 4000, "create");
+                    setNewCertName("");
+                    loadSslCertificates();
+                  } catch (err) {
+                    addToast("Upload failed", err.message || "Failed to upload certificate", 5000, "error");
+                  } finally {
+                    setSslUploading(false);
+                    e.target.value = "";
+                  }
+                }}
+              />
+              <Btn
+                darkMode={darkMode}
+                t={t}
+                onClick={() => sslInputRef.current?.click()}
+                loading={sslUploading}
+                style={{ fontSize: 12 }}
+              >
+                <UploadCloudIcon size={14} /> Upload
+              </Btn>
+            </div>
+            <p style={{ fontSize: 11, color: t.textDim, margin: "8px 0 0" }}>
+              For production use, you may need to configure your reverse proxy (nginx, Apache, etc.) to use these certificates.
+            </p>
+          </div>
+
+          {/* Existing certificates */}
+          {sslCertificates.length > 0 && (
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 12 }}>
+                Uploaded Certificates
+              </label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {sslCertificates.map((cert) => (
+                  <div
+                    key={cert.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "12px 16px",
+                      background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>
+                        {cert.name}
+                      </div>
+                      <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>
+                        {cert.filename} · Uploaded {new Date(cert.uploadedAt).toLocaleString()}
+                      </div>
+                    </div>
+                    <Btn
+                      darkMode={darkMode}
+                      t={t}
+                      onClick={async () => {
+                        if (!window.confirm(`Delete certificate "${cert.name}"?`)) return;
+                        setSslDeleting(cert.id);
+                        try {
+                          await api.deleteSslCertificate(cert.id);
+                          addToast("Certificate deleted", `"${cert.name}" has been removed`, 4000, "delete");
+                          loadSslCertificates();
+                        } catch (err) {
+                          addToast("Delete failed", err.message || "Failed to delete certificate", 5000, "error");
+                        } finally {
+                          setSslDeleting(null);
+                        }
+                      }}
+                      loading={sslDeleting === cert.id}
+                      style={{ fontSize: 11, padding: "6px 12px" }}
+                    >
+                      <TrashIcon size={12} /> Delete
+                    </Btn>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {sslCertificates.length === 0 && (
+            <div style={{ textAlign: "center", padding: "24px 0", color: t.textMuted }}>
+              <LockIcon size={32} />
+              <p style={{ fontSize: 13, margin: "12px 0 0" }}>No SSL certificates uploaded</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -3082,7 +3246,7 @@ export default function AdminPage({
           {/* SETTINGS */}
           {adminSection === "settings" && (
             <div style={{ animation: "fadeIn 0.25s ease" }}>
-              <SettingsSection t={t} darkMode={darkMode} />
+              <SettingsSection t={t} darkMode={darkMode} addToast={addToast} />
             </div>
           )}
 

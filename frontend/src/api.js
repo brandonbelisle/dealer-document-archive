@@ -343,6 +343,23 @@ export async function uploadLogo(type, file) {
   });
 }
 
+// ── SSL Certificates ──────────────────────────────────────
+export async function getSslCertificates() {
+  return request('/settings/ssl');
+}
+export async function uploadSslCertificate(name, file) {
+  const formData = new FormData();
+  formData.append('name', name);
+  formData.append('certificate', file);
+  return request('/settings/ssl/upload', {
+    method: 'POST',
+    body: formData,
+  });
+}
+export async function deleteSslCertificate(id) {
+  return request(`/settings/ssl/${id}`, { method: 'DELETE' });
+}
+
 // ── SMTP Settings ────────────────────────────────────────
 export async function getSmtpSettings() {
   return request('/smtp/settings');

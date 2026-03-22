@@ -11,6 +11,7 @@ import {
   ChevronRightIcon,
   TrashIcon,
   ChevronDown,
+  UploadCloudIcon,
 } from "../components/Icons";
 
 function fmtDate(d) {
@@ -47,9 +48,15 @@ export default function FoldersPage({
   loggedInUser,
   t,
   darkMode,
+  handleDeptDrop,
+  deptDragOver,
+  setDeptDragOver,
+  handleDeptFiles,
 }) {
   const canDeleteFolders = loggedInUser?.permissions?.includes("deleteFolders");
+  const canUploadFiles = loggedInUser?.permissions?.includes("uploadFiles");
   const newDeptFolderRef = useRef(null);
+  const deptFileInputRef = useRef(null);
   const [sortCol, setSortCol] = useState("createdAt");
   const [sortDir, setSortDir] = useState("desc");
   const [pageSize, setPageSize] = useState(25);
@@ -226,13 +233,65 @@ export default function FoldersPage({
 
   return (
     <div
+      onDrop={handleDeptDrop}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDeptDragOver?.(true);
+      }}
+      onDragLeave={(e) => {
+        e.preventDefault();
+        if (!e.currentTarget.contains(e.relatedTarget))
+          setDeptDragOver?.(false);
+      }}
       style={{
         maxWidth: 1200,
         margin: "0 auto",
         padding: "36px 28px",
         animation: "fadeIn 0.35s ease",
+        position: "relative",
+        minHeight: "calc(100vh - 55px)",
       }}
     >
+      {deptDragOver && canUploadFiles && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 20,
+            borderRadius: 14,
+            border: `2px dashed ${t.accent}`,
+            background: t.dropzoneActive,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backdropFilter: "blur(2px)",
+            pointerEvents: "none",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <div style={{ color: t.accent, marginBottom: 10 }}>
+              <UploadCloudIcon size={48} />
+            </div>
+            <div style={{ fontSize: 16, fontWeight: 600, color: t.text }}>
+              Drop files here for Unsorted
+            </div>
+            <div style={{ fontSize: 12, color: t.textMuted, marginTop: 4 }}>
+              Files will be added to Unsorted in this department
+            </div>
+          </div>
+        </div>
+      )}
+      <input
+        ref={deptFileInputRef}
+        type="file"
+        accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,image/*"
+        multiple
+        onChange={(e) => {
+          handleDeptFiles?.(e.target.files);
+          e.target.value = "";
+        }}
+        style={{ display: "none" }}
+      />
       <div
         style={{
           display: "flex",
@@ -268,392 +327,36 @@ export default function FoldersPage({
                 file
                 {totalFiles !== 1 ? "s" : ""}
               </>
-            )}
-          </p>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {currentDept && (
-            <SubscribeButton
-              type="department"
-              itemId={currentDept.id}
-              subscriptions={subscriptions || []}
-              onSubscribe={handleSubscribe}
-              onUnsubscribe={handleUnsubscribe}
-              t={t}
-            />
-          )}
-          {!creatingDeptFolder && (
-            <Btn
-              primary
-              darkMode={darkMode}
-              t={t}
-              onClick={() => {
-                setCreatingDeptFolder(true);
-                setNewDeptFolderName("");
-              }}
-              style={{ fontSize: 12 }}
-            >
-              <PlusIcon size={13} /> New Folder
-            </Btn>
-          )}
-        </div>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          background: t.surface,
-          border: `1px solid ${t.border}`,
-          borderRadius: 10,
-          padding: "10px 14px",
-          marginBottom: 16,
-        }}
-      >
-        <SearchIcon size={16} />
-        <input
-          value={folderSearch}
-          onChange={(e) => setFolderSearch(e.target.value)}
-          placeholder="Search folders..."
-          style={{
-            flex: 1,
-            background: "transparent",
-            border: "none",
-            fontSize: 13.5,
-            color: t.text,
-            outline: "none",
-            fontFamily: "inherit",
-          }}
-        />
-        {folderSearch && (
-          <button
-            onClick={() => setFolderSearch("")}
-            style={{
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              color: t.textDim,
-              display: "flex",
-              padding: 2,
-            }}
-          >
-            <XIcon size={14} />
-          </button>
+)}
         )}
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          flexWrap: "wrap",
-          marginBottom: 16,
-        }}
-      >
-        <div style={{ position: "relative" }}>
-          <button
-            onClick={() => setShowDateFilterDropdown(!showDateFilterDropdown)}
+        {canUploadFiles && (
+          <div
+            onClick={() => deptFileInputRef.current?.click()}
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              background: t.surface,
-              border: `1px solid ${t.border}`,
-              borderRadius: 8,
-              padding: "8px 12px",
-              fontSize: 12,
-              color: dateFilterType !== "all" ? t.accent : t.text,
+              border: `2px dashed ${t.border}`,
+              borderRadius: 14,
+              padding: "36px 24px",
+              textAlign: "center",
               cursor: "pointer",
-              fontFamily: "inherit",
+              background: t.dropzone,
+              marginTop: 24,
+              transition: "all 0.2s",
             }}
           >
-            <span>Filter by Date</span>
-            <ChevronDown />
-          </button>
-          {showDateFilterDropdown && (
-            <div
-              style={{
-                position: "absolute",
-                top: "100%",
-                left: 0,
-                marginTop: 4,
-                background: t.surface,
-                border: `1px solid ${t.border}`,
-                borderRadius: 8,
-                boxShadow: darkMode
-                  ? "0 8px 30px rgba(0,0,0,0.4)"
-                  : "0 8px 30px rgba(0,0,0,0.15)",
-                padding: 12,
-                zIndex: 1000,
-                minWidth: 200,
-              }}
-            >
-              <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 8, color: t.textMuted }}>
-                Filter Type
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 12 }}>
-                {[
-                  { value: "all", label: "All Dates" },
-                  { value: "day", label: "Specific Day" },
-                  { value: "month", label: "Specific Month" },
-                  { value: "year", label: "Specific Year" },
-                ].map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => {
-                      setDateFilterType(opt.value);
-                      if (opt.value === "all") setShowDateFilterDropdown(false);
-                    }}
-                    style={{
-                      background: dateFilterType === opt.value ? t.accentSoft : "transparent",
-                      border: "none",
-                      padding: "6px 10px",
-                      borderRadius: 6,
-                      fontSize: 12,
-                      textAlign: "left",
-                      cursor: "pointer",
-                      color: dateFilterType === opt.value ? t.accent : t.text,
-                      fontFamily: "inherit",
-                    }}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-              {dateFilterType === "year" && (
-                <div style={{ marginBottom: 8 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: t.textMuted }}>
-                    Select Year
-                  </div>
-                  <select
-                    value={filterYear}
-                    onChange={(e) => setFilterYear(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "6px 10px",
-                      border: `1px solid ${t.border}`,
-                      borderRadius: 6,
-                      fontSize: 12,
-                      background: t.surface,
-                      color: t.text,
-                      fontFamily: "inherit",
-                    }}
-                  >
-                    <option value="">Choose year...</option>
-                    {availableYears.map((yr) => (
-                      <option key={yr} value={yr}>{yr}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              {dateFilterType === "month" && (
-                <>
-                  <div style={{ marginBottom: 8 }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: t.textMuted }}>
-                      Select Year
-                    </div>
-                    <select
-                      value={filterYear}
-                      onChange={(e) => setFilterYear(e.target.value)}
-                      style={{
-                        width: "100%",
-                        padding: "6px 10px",
-                        border: `1px solid ${t.border}`,
-                        borderRadius: 6,
-                        fontSize: 12,
-                        background: t.surface,
-                        color: t.text,
-                        fontFamily: "inherit",
-                      }}
-                    >
-                      <option value="">Choose year...</option>
-                      {availableYears.map((yr) => (
-                        <option key={yr} value={yr}>{yr}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div style={{ marginBottom: 8 }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: t.textMuted }}>
-                      Select Month
-                    </div>
-                    <select
-                      value={filterMonth}
-                      onChange={(e) => setFilterMonth(e.target.value)}
-                      style={{
-                        width: "100%",
-                        padding: "6px 10px",
-                        border: `1px solid ${t.border}`,
-                        borderRadius: 6,
-                        fontSize: 12,
-                        background: t.surface,
-                        color: t.text,
-                        fontFamily: "inherit",
-                      }}
-                    >
-                      <option value="">Choose month...</option>
-                      {availableMonths.map((m) => (
-                        <option key={m.value} value={m.value}>{m.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </>
-              )}
-              {dateFilterType === "day" && (
-                <>
-                  <div style={{ marginBottom: 8 }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: t.textMuted }}>
-                      Select Year
-                    </div>
-                    <select
-                      value={filterYear}
-                      onChange={(e) => setFilterYear(e.target.value)}
-                      style={{
-                        width: "100%",
-                        padding: "6px 10px",
-                        border: `1px solid ${t.border}`,
-                        borderRadius: 6,
-                        fontSize: 12,
-                        background: t.surface,
-                        color: t.text,
-                        fontFamily: "inherit",
-                      }}
-                    >
-                      <option value="">Choose year...</option>
-                      {availableYears.map((yr) => (
-                        <option key={yr} value={yr}>{yr}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div style={{ marginBottom: 8 }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: t.textMuted }}>
-                      Select Month
-                    </div>
-                    <select
-                      value={filterMonth}
-                      onChange={(e) => setFilterMonth(e.target.value)}
-                      style={{
-                        width: "100%",
-                        padding: "6px 10px",
-                        border: `1px solid ${t.border}`,
-                        borderRadius: 6,
-                        fontSize: 12,
-                        background: t.surface,
-                        color: t.text,
-                        fontFamily: "inherit",
-                      }}
-                    >
-                      <option value="">Choose month...</option>
-                      {availableMonths.map((m) => (
-                        <option key={m.value} value={m.value}>{m.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div style={{ marginBottom: 8 }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: t.textMuted }}>
-                      Select Day
-                    </div>
-                    <select
-                      value={filterDay}
-                      onChange={(e) => setFilterDay(e.target.value)}
-                      style={{
-                        width: "100%",
-                        padding: "6px 10px",
-                        border: `1px solid ${t.border}`,
-                        borderRadius: 6,
-                        fontSize: 12,
-                        background: t.surface,
-                        color: t.text,
-                        fontFamily: "inherit",
-                      }}
-                    >
-                      <option value="">Choose day...</option>
-                      {availableDays.map((d) => (
-                        <option key={d} value={d}>{parseInt(d)}</option>
-                      ))}
-                    </select>
-                  </div>
-                </>
-              )}
-              {dateFilterType !== "all" && (
-                <button
-                  onClick={() => {
-                    setShowDateFilterDropdown(false);
-                  }}
-                  style={{
-                    width: "100%",
-                    padding: "8px 12px",
-                    background: t.accent,
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 6,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                    marginTop: 4,
-                  }}
-                >
-                  Apply Filter
-                </button>
-              )}
+            <div style={{ color: t.textDim, marginBottom: 10 }}>
+              <UploadCloudIcon size={32} />
             </div>
-          )}
-        </div>
-        {dateFilterType !== "all" && (
-          <button
-            onClick={() => {
-              setDateFilterType("all");
-              setFilterYear("");
-              setFilterMonth("");
-              setFilterDay("");
-            }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              background: "transparent",
-              border: `1px solid ${t.border}`,
-              borderRadius: 6,
-              padding: "6px 10px",
-              fontSize: 11,
-              color: t.textMuted,
-              cursor: "pointer",
-              fontFamily: "inherit",
-            }}
-          >
-            Clear Filter
-            <XIcon size={12} />
-          </button>
+            <div style={{ fontSize: 14, fontWeight: 500, color: t.text, marginBottom: 4 }}>
+              Drag & drop files here or click to browse
+            </div>
+            <div style={{ fontSize: 12, color: t.textMuted }}>
+              Files will be added to Unsorted in this department
+            </div>
+          </div>
         )}
       </div>
-      {creatingDeptFolder && (
-        <div
-          style={{
-            background: t.surface,
-            border: `1px solid ${t.accent}`,
-            borderRadius: 10,
-            padding: "12px 14px",
-            marginBottom: 12,
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            boxShadow: `0 0 0 3px ${t.accentSoft}`,
-            animation: "fadeIn 0.2s ease",
-          }}
-        >
-          <div style={{ color: t.accent }}>
-            <FolderClosedIcon size={18} />
-          </div>
-          <input
-            ref={newDeptFolderRef}
-            value={newDeptFolderName}
-            onChange={(e) => setNewDeptFolderName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") createDeptFolder();
-              if (e.key === "Escape") {
-                setCreatingDeptFolder(false);
-                setNewDeptFolderName("");
-              }
+    );
+  }
             }}
             placeholder="Folder name..."
             style={{

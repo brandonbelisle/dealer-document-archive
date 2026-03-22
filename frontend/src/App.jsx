@@ -57,6 +57,7 @@ function AppInner() {
   const [stagedFiles, setStagedFiles] = useState([]);
   const [dragOver, setDragOver] = useState(false);
   const [folderDetailDragOver, setFolderDetailDragOver] = useState(false);
+  const [deptDragOver, setDeptDragOver] = useState(false);
   const [stagedFolderAssignments, setStagedFolderAssignments] = useState({});
   const [stagedSuggestions, setStagedSuggestions] = useState({});
 
@@ -609,6 +610,16 @@ const t = getTheme(darkMode);
   }, [processFile, activeFolderId, folders]);
   const handleFolderDetailFiles = useCallback((fl) => { if (!activeFolderId) return; Array.from(fl).forEach((f) => processFile(f, activeFolderId)); }, [processFile, activeFolderId]);
 
+  const handleDeptDrop = useCallback((e) => {
+    e.preventDefault();
+    setDeptDragOver(false);
+    handleUploadFiles(e.dataTransfer.files);
+  }, [handleUploadFiles]);
+
+  const handleDeptFiles = useCallback((fl) => {
+    handleUploadFiles(fl);
+  }, [handleUploadFiles]);
+
   const removeFile = async (id) => { 
     const file = files.find((f) => f.id === id);
     try { await api.deleteFile(id); } catch (err) { console.error(err); } 
@@ -739,7 +750,7 @@ const t = getTheme(darkMode);
       {page === "cht-dashboard" && <CHTDashboardPage loggedInUser={loggedInUser} t={t} darkMode={darkMode} />}
       {page === "dashboard" && <DashboardPage dashboardData={dashboardData} loggedInUser={loggedInUser} setPage={setPage} setActiveFolderId={setActiveFolderId} setViewingFileId={setViewingFileId} t={t} darkMode={darkMode} />}
       {page === "folders-browse" && <FoldersBrowsePage locations={locations} departments={departments} deptsInLocation={deptsInLocation} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setFolderSearch={setFolderSearch} setSelectedFile={setSelectedFile} setPage={setPage} subscriptions={subscriptions} setSubscriptions={setSubscriptions} t={t} darkMode={darkMode} />}
-      {page === "folders" && <FoldersPage currentLocation={currentLocation} currentDept={currentDept} currentDeptFolders={currentDeptFolders} folderSearch={folderSearch} setFolderSearch={setFolderSearch} creatingDeptFolder={creatingDeptFolder} setCreatingDeptFolder={setCreatingDeptFolder} newDeptFolderName={newDeptFolderName} setNewDeptFolderName={setNewDeptFolderName} createDeptFolder={createDeptFolder} setActiveFolderId={setActiveFolderId} setPage={setPage} setCreatingSubfolder={setCreatingSubfolder} handleDeleteFolder={handleDeleteFolder} subscriptions={subscriptions} setSubscriptions={setSubscriptions} loggedInUser={loggedInUser} t={t} darkMode={darkMode} />}
+      {page === "folders" && <FoldersPage currentLocation={currentLocation} currentDept={currentDept} currentDeptFolders={currentDeptFolders} folderSearch={folderSearch} setFolderSearch={setFolderSearch} creatingDeptFolder={creatingDeptFolder} setCreatingDeptFolder={setCreatingDeptFolder} newDeptFolderName={newDeptFolderName} setNewDeptFolderName={setNewDeptFolderName} createDeptFolder={createDeptFolder} setActiveFolderId={setActiveFolderId} setPage={setPage} setCreatingSubfolder={setCreatingSubfolder} handleDeleteFolder={handleDeleteFolder} subscriptions={subscriptions} setSubscriptions={setSubscriptions} loggedInUser={loggedInUser} t={t} darkMode={darkMode} handleDeptDrop={handleDeptDrop} deptDragOver={deptDragOver} setDeptDragOver={setDeptDragOver} handleDeptFiles={handleDeptFiles} />}
       {page === "folder-detail" && <FolderDetailPage activeFolder={activeFolder} activeFolderId={activeFolderId} filesInFolder={filesInFolder} subfoldersOf={subfoldersOf} allFilesInFolderRecursive={allFilesInFolderRecursive} getBreadcrumb={getBreadcrumb} locations={locations} departments={departments} folders={folders} setActiveFolderId={setActiveFolderId} setPage={setPage} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} copyText={copyText} removeFile={removeFile} handleDeleteFolder={handleDeleteFolder} creatingSubfolder={creatingSubfolder} setCreatingSubfolder={setCreatingSubfolder} newSubfolderName={newSubfolderName} setNewSubfolderName={setNewSubfolderName} createSubfolder={createSubfolder} folderDetailDragOver={folderDetailDragOver} setFolderDetailDragOver={setFolderDetailDragOver} handleFolderDetailDrop={handleFolderDetailDrop} handleFolderDetailFiles={handleFolderDetailFiles} subscriptions={subscriptions} setSubscriptions={setSubscriptions} loggedInUser={loggedInUser} t={t} darkMode={darkMode} />}
       {page === "file-detail" && <FileDetailPage viewingFileId={viewingFileId} files={files} folders={folders} locations={locations} departments={departments} getBreadcrumb={getBreadcrumb} setViewingFileId={setViewingFileId} setActiveFolderId={setActiveFolderId} setPage={setPage} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} removeFile={removeFile} loggedInUser={loggedInUser} t={t} darkMode={darkMode} />}
       {page === "unsorted" && <UnsortedPage unsortedFiles={unsortedFiles} folders={folders} locations={locations} departments={departments} deptsInLocation={deptsInLocation} handleMoveFile={handleMoveFile} removeFile={removeFile} setUnsortedFiles={setUnsortedFiles} setWarningModal={setWarningModal} loggedInUser={loggedInUser} t={t} darkMode={darkMode} />}

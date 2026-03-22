@@ -346,6 +346,128 @@ export default function FoldersPage({
             overflow: "hidden",
           }}
         >
+          {sorted.length > pageSize && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "10px 14px",
+                borderBottom: `1px solid ${t.border}`,
+                fontSize: 12,
+                color: t.textMuted,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span>Rows per page:</span>
+                <div style={{ position: "relative" }}>
+                  <button
+                    onClick={() => setShowPageSizeDropdown(!showPageSizeDropdown)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                      background: "transparent",
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 6,
+                      padding: "4px 8px",
+                      fontSize: 12,
+                      color: t.text,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    {pageSize}
+                    <ChevronDown />
+                  </button>
+                  {showPageSizeDropdown && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "100%",
+                        left: 0,
+                        marginTop: 4,
+                        background: t.surface,
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 6,
+                        boxShadow: darkMode
+                          ? "0 4px 20px rgba(0,0,0,0.4)"
+                          : "0 4px 20px rgba(0,0,0,0.1)",
+                        overflow: "hidden",
+                        zIndex: 1000,
+                      }}
+                    >
+                      {pageSizeOptions.map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => {
+                            setPageSize(size);
+                            setShowPageSizeDropdown(false);
+                          }}
+                          style={{
+                            display: "block",
+                            width: "100%",
+                            padding: "6px 16px",
+                            background: size === pageSize ? t.accentSoft : "transparent",
+                            border: "none",
+                            fontSize: 12,
+                            color: size === pageSize ? t.accent : t.text,
+                            cursor: "pointer",
+                            fontFamily: "inherit",
+                            textAlign: "left",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span>
+                  {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, sorted.length)} of {sorted.length}
+                </span>
+                <div style={{ display: "flex", gap: 4 }}>
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    style={{
+                      background: "transparent",
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 4,
+                      padding: "4px 8px",
+                      fontSize: 11,
+                      color: currentPage === 1 ? t.textDim : t.text,
+                      cursor: currentPage === 1 ? "default" : "pointer",
+                      opacity: currentPage === 1 ? 0.5 : 1,
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    Prev
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    style={{
+                      background: "transparent",
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 4,
+                      padding: "4px 8px",
+                      fontSize: 11,
+                      color: currentPage === totalPages ? t.textDim : t.text,
+                      cursor: currentPage === totalPages ? "default" : "pointer",
+                      opacity: currentPage === totalPages ? 0.5 : 1,
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           <table
             style={{
               width: "100%",
@@ -540,128 +662,6 @@ export default function FoldersPage({
               ))}
             </tbody>
           </table>
-          {sorted.length > pageSize && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "12px 14px",
-                borderTop: `1px solid ${t.border}`,
-                fontSize: 12,
-                color: t.textMuted,
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span>Rows per page:</span>
-                <div style={{ position: "relative" }}>
-                  <button
-                    onClick={() => setShowPageSizeDropdown(!showPageSizeDropdown)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                      background: "transparent",
-                      border: `1px solid ${t.border}`,
-                      borderRadius: 6,
-                      padding: "4px 8px",
-                      fontSize: 12,
-                      color: t.text,
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                    }}
-                  >
-                    {pageSize}
-                    <ChevronDown />
-                  </button>
-                  {showPageSizeDropdown && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        marginTop: 4,
-                        background: t.surface,
-                        border: `1px solid ${t.border}`,
-                        borderRadius: 6,
-                        boxShadow: darkMode
-                          ? "0 4px 20px rgba(0,0,0,0.4)"
-                          : "0 4px 20px rgba(0,0,0,0.1)",
-                        overflow: "hidden",
-                        zIndex: 1000,
-                      }}
-                    >
-                      {pageSizeOptions.map((size) => (
-                        <button
-                          key={size}
-                          onClick={() => {
-                            setPageSize(size);
-                            setShowPageSizeDropdown(false);
-                          }}
-                          style={{
-                            display: "block",
-                            width: "100%",
-                            padding: "6px 16px",
-                            background: size === pageSize ? t.accentSoft : "transparent",
-                            border: "none",
-                            fontSize: 12,
-                            color: size === pageSize ? t.accent : t.text,
-                            cursor: "pointer",
-                            fontFamily: "inherit",
-                            textAlign: "left",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span>
-                  {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, sorted.length)} of {sorted.length}
-                </span>
-                <div style={{ display: "flex", gap: 4 }}>
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    style={{
-                      background: "transparent",
-                      border: `1px solid ${t.border}`,
-                      borderRadius: 4,
-                      padding: "4px 8px",
-                      fontSize: 11,
-                      color: currentPage === 1 ? t.textDim : t.text,
-                      cursor: currentPage === 1 ? "default" : "pointer",
-                      opacity: currentPage === 1 ? 0.5 : 1,
-                      fontFamily: "inherit",
-                    }}
-                  >
-                    Prev
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                    style={{
-                      background: "transparent",
-                      border: `1px solid ${t.border}`,
-                      borderRadius: 4,
-                      padding: "4px 8px",
-                      fontSize: 11,
-                      color: currentPage === totalPages ? t.textDim : t.text,
-                      cursor: currentPage === totalPages ? "default" : "pointer",
-                      opacity: currentPage === totalPages ? 0.5 : 1,
-                      fontFamily: "inherit",
-                    }}
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       ) : (
         !creatingDeptFolder && (

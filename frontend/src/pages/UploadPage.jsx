@@ -73,7 +73,9 @@ export default function UploadPage({
         }}
         onDragLeave={(e) => {
           e.preventDefault();
-          setDragOver(false);
+          if (!e.currentTarget.contains(e.relatedTarget)) {
+            setDragOver(false);
+          }
         }}
         onClick={() => fileInputRef.current?.click()}
         style={{

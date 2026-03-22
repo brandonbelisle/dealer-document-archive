@@ -194,6 +194,15 @@ async function startServer() {
     }
   })();
 
+  // Start DMS scheduler
+  try {
+    const { startScheduler } = require('./scheduler/dmsScheduler');
+    startScheduler(60); // Check every 60 seconds
+    console.log('✓ DMS scheduler started');
+  } catch (err) {
+    console.warn('⚠ DMS scheduler not started:', err.message);
+  }
+
   const sslOptions = await loadSSLOptions();
   const server = SSL_ENABLED && sslOptions
     ? https.createServer(sslOptions, app)

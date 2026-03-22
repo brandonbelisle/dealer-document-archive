@@ -1973,7 +1973,14 @@ function DmsSection({ t, darkMode, addToast }) {
   const formatDate = (dateStr) => {
     if (!dateStr) return 'Never';
     const date = new Date(dateStr);
-    return date.toLocaleString();
+    if (isNaN(date.getTime())) return 'Never';
+    return date.toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   const inputStyle = {

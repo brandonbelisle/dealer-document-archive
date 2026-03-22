@@ -4,11 +4,62 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
 const db = require('../config/db');
 
 const router = express.Router();
+
+function parseCertificate(filePath) {
+  try {
+    const certData = fs.readFileSync(filePath);
+    const cert = new crypto.X509Certificate(certData);
+    
+    let issuerStr = '';
+    let subjectStr = '';
+    
+    try { issuerStr = cert.issuer || ''; } catch {}
+    try { subjectStr = cert.subject || ''; } catch {}
+    
+    const parseDN = (dn) => {
+      if (!dn) return 'Unknown';
+      const parts = dn.split('\n').filter(p => p.trim());
+      const cn = parts.find(p => p.toUpperCase().startsWith('CN='));
+      if (cn) return cn.substring(3).trim();
+      const o = parts.find(p => p.toUpperCase().startsWith('O='));
+      if (o) return o.substring(2).trim();
+      return dn.substring(0, 50);
+    };
+    
+    let validFrom = null;
+    let validTo = null;
+    let serialNumber = null;
+    
+    try { validFrom = new Date(cert.validFrom); } catch {}
+    try { validTo = new Date(cert.validTo); } catch {}
+    try { serialNumber = cert.serialNumber; } catch {}
+    
+    let fingerprint = null;
+    try {
+      const hash = crypto.createHash('sha256');
+      hash.update(certData);
+      fingerprint = hash.digest('hex').toUpperCase().match(/.{1,2}/g).join(':');
+    } catch {}
+    
+    return {
+      issuer: parseDN(issuerStr),
+      subject: parseDN(subjectStr),
+      validFrom: isNaN(validFrom?.getTime()) ? null : validFrom,
+      validTo: isNaN(validTo?.getTime()) ? null : validTo,
+      serialNumber: serialNumber,
+      fingerprint: fingerprint
+    };
+  } catch (err) {
+    console.error('Failed to parse certificate:', err.message);
+    return null;
+  }
+}
 
 // Configure multer for logo uploads
 const storage = multer.diskStorage({
@@ -146,7 +197,7 @@ router.post('/logo/:type', requireAuth, requirePermission('manageSettings'), (re
 router.get('/ssl', requireAuth, requirePermission('manageSettings'), async (req, res) => {
   try {
     const [rows] = await db.execute(
-      'SELECT id, name, filename, uploaded_at FROM ssl_certificates ORDER BY uploaded_at DESC'
+      'SELECT id, name, filename, is_active, issuer, subject, valid_from, valid_to, serial_number, fingerprint, uploaded_at FROM ssl_certificates ORDER BY uploaded_at DESC'
     );
     
     const dir = path.join(__dirname, '../uploads/certificates');
@@ -158,6 +209,13 @@ router.get('/ssl', requireAuth, requirePermission('manageSettings'), async (req,
       id: row.id,
       name: row.name,
       filename: row.filename,
+      isActive: !!row.is_active,
+      issuer: row.issuer,
+      subject: row.subject,
+      validFrom: row.valid_from,
+      validTo: row.valid_to,
+      serialNumber: row.serial_number,
+      fingerprint: row.fingerprint,
       uploadedAt: row.uploaded_at
     }));
 
@@ -188,9 +246,22 @@ router.post('/ssl/upload', requireAuth, requirePermission('manageSettings'), (re
       const { name } = req.body;
       const certName = name || path.basename(req.file.originalname, path.extname(req.file.originalname));
       
+      const certInfo = parseCertificate(req.file.path);
+      
       const [result] = await db.execute(
-        'INSERT INTO ssl_certificates (name, filename, uploaded_at) VALUES (?, ?, NOW())',
-        [certName, req.file.filename]
+        `INSERT INTO ssl_certificates 
+         (name, filename, is_active, issuer, subject, valid_from, valid_to, serial_number, fingerprint, uploaded_at) 
+         VALUES (?, ?, 0, ?, ?, ?, ?, ?, ?, NOW())`,
+        [
+          certName,
+          req.file.filename,
+          certInfo?.issuer || null,
+          certInfo?.subject || null,
+          certInfo?.validFrom || null,
+          certInfo?.validTo || null,
+          certInfo?.serialNumber || null,
+          certInfo?.fingerprint || null
+        ]
       );
 
       logAudit(
@@ -204,11 +275,14 @@ router.post('/ssl/upload', requireAuth, requirePermission('manageSettings'), (re
         success: true,
         id: result.insertId,
         name: certName,
-        filename: req.file.filename
+        filename: req.file.filename,
+        issuer: certInfo?.issuer,
+        subject: certInfo?.subject,
+        validFrom: certInfo?.validFrom,
+        validTo: certInfo?.validTo
       });
     } catch (dbErr) {
       console.error(dbErr);
-      // Clean up uploaded file
       fs.unlinkSync(req.file.path);
       res.status(500).json({ error: 'Failed to save certificate info' });
     }
@@ -231,17 +305,81 @@ router.delete('/ssl/:id', requireAuth, requirePermission('manageSettings'), asyn
     const cert = rows[0];
     const filePath = path.join(__dirname, '../uploads/certificates', cert.filename);
     
-    // Delete file if exists
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
 
-    // Delete from database
     await db.execute('DELETE FROM ssl_certificates WHERE id = ?', [req.params.id]);
 
     logAudit(
       'SSL Certificate Deleted',
       `Certificate "${cert.name}" deleted`,
+      req.user,
+      req.ip
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── POST /api/settings/ssl/:id/activate ──────────────────
+// Activate SSL certificate (deactivates others)
+router.post('/ssl/:id/activate', requireAuth, requirePermission('manageSettings'), async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      'SELECT id, name, filename, issuer, subject, valid_from, valid_to, serial_number, fingerprint FROM ssl_certificates WHERE id = ?',
+      [req.params.id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Certificate not found' });
+    }
+
+    const cert = rows[0];
+    
+    await db.execute('UPDATE ssl_certificates SET is_active = 0');
+    await db.execute('UPDATE ssl_certificates SET is_active = 1 WHERE id = ?', [req.params.id]);
+
+    logAudit(
+      'SSL Certificate Activated',
+      `Certificate "${cert.name}" activated for use`,
+      req.user,
+      req.ip
+    );
+
+    res.json({
+      success: true,
+      certificate: {
+        id: cert.id,
+        name: cert.name,
+        filename: cert.filename,
+        isActive: true,
+        issuer: cert.issuer,
+        subject: cert.subject,
+        validFrom: cert.valid_from,
+        validTo: cert.valid_to,
+        serialNumber: cert.serial_number,
+        fingerprint: cert.fingerprint
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── POST /api/settings/ssl/deactivate ────────────────────
+// Deactivate all SSL certificates (use self-signed)
+router.post('/ssl/deactivate', requireAuth, requirePermission('manageSettings'), async (req, res) => {
+  try {
+    await db.execute('UPDATE ssl_certificates SET is_active = 0');
+
+    logAudit(
+      'SSL Certificate Deactivated',
+      'All certificates deactivated, reverting to self-signed',
       req.user,
       req.ip
     );

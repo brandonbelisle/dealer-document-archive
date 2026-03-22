@@ -359,6 +359,12 @@ export async function uploadSslCertificate(name, file) {
 export async function deleteSslCertificate(id) {
   return request(`/settings/ssl/${id}`, { method: 'DELETE' });
 }
+export async function activateSslCertificate(id) {
+  return request(`/settings/ssl/${id}/activate`, { method: 'POST' });
+}
+export async function deactivateSslCertificates() {
+  return request('/settings/ssl/deactivate', { method: 'POST' });
+}
 
 // ── SMTP Settings ────────────────────────────────────────
 export async function getSmtpSettings() {

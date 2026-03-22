@@ -31478,7 +31478,7 @@ function AppInner() {
     setDragOver(false);
     handleUploadFiles(e.dataTransfer.files);
   }, [handleUploadFiles]);
-  const readDirectoryContents = async (directoryEntry, path = "") => {
+  const readDirectoryContents = async (directoryEntry, path = "", skipCount = { value: 0 }) => {
     const files2 = [];
     const entries = await new Promise((resolve, reject) => {
       const reader = directoryEntry.createReader();
@@ -31495,15 +31495,23 @@ function AppInner() {
       };
       readEntries();
     });
+    const validExtensions = [".pdf", ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"];
     for (const entry of entries) {
       const entryPath = path ? `${path}/${entry.name}` : entry.name;
       if (entry.isFile) {
+        const lowerName = entry.name.toLowerCase();
+        const dotIdx = lowerName.lastIndexOf(".");
+        const ext = dotIdx >= 0 ? lowerName.slice(dotIdx) : "";
+        if (lowerName.startsWith(".") || !validExtensions.includes(ext)) {
+          skipCount.value++;
+          continue;
+        }
         const file = await new Promise((resolve, reject) => {
           entry.file(resolve, reject);
         });
         files2.push({ file, path: entryPath, name: entry.name });
       } else if (entry.isDirectory) {
-        const subFiles = await readDirectoryContents(entry, entryPath);
+        const subFiles = await readDirectoryContents(entry, entryPath, skipCount);
         files2.push(...subFiles);
       }
     }
@@ -31530,12 +31538,14 @@ function AppInner() {
         });
         processFile(file, activeFolderId);
       } else if (entry.isDirectory) {
-        const allFiles = await readDirectoryContents(entry);
+        const skipCount = { value: 0 };
+        const allFiles = await readDirectoryContents(entry, "", skipCount);
         const folderName = entry.name;
         try {
           const created = await createFolder(folderName, activeFolderObj.locationId, activeFolderObj.departmentId, activeFolderId);
           setFolders((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: created.parent_id || created.parentId || null, createdAt: created.created_at }]);
-          addToast("Folder created", `"${folderName}" has been created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""}`, 4e3, "create");
+          const msg = skipCount.value > 0 ? `"${folderName}" created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} (${skipCount.value} skipped)` : `"${folderName}" has been created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""}`;
+          addToast("Folder created", msg, 4e3, "create");
           for (const { file } of allFiles) {
             processFile(file, created.id);
           }
@@ -31569,12 +31579,14 @@ function AppInner() {
         });
         processFile(file, null);
       } else if (entry.isDirectory) {
-        const allFiles = await readDirectoryContents(entry);
+        const skipCount = { value: 0 };
+        const allFiles = await readDirectoryContents(entry, "", skipCount);
         const folderName = entry.name;
         try {
           const created = await createFolder(folderName, activeLocation, activeDepartment, null);
           setFolders((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: null, createdAt: created.created_at }]);
-          addToast("Folder created", `"${folderName}" has been created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""}`, 4e3, "create");
+          const msg = skipCount.value > 0 ? `"${folderName}" created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} (${skipCount.value} skipped)` : `"${folderName}" has been created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""}`;
+          addToast("Folder created", msg, 4e3, "create");
           for (const { file } of allFiles) {
             processFile(file, created.id);
           }
@@ -31864,4 +31876,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-ZRGGf-6B.js.map
+//# sourceMappingURL=index-DtGMTHUo.js.map

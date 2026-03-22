@@ -18,8 +18,14 @@ export const isValidFileType = (file) => {
   return isPdfFile(file) || isImageFile(file);
 };
 
+import * as pdfjsLib from "pdfjs-dist";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
+
 export const extractTextFromPDF = async (file, onProgress) => {
-  const pdfjsLib = window.pdfjsLib;
   const ab = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
   const n = pdf.numPages;
@@ -33,19 +39,7 @@ export const extractTextFromPDF = async (file, onProgress) => {
   return { text: txt.trim(), pages: n };
 };
 
-export const loadPDFJS = () =>
-  new Promise((resolve, reject) => {
-    if (window.pdfjsLib) return resolve();
-    const s = document.createElement("script");
-    s.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
-    s.onload = () => {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-      resolve();
-    };
-    s.onerror = reject;
-    document.head.appendChild(s);
-  });
+export const loadPDFJS = () => Promise.resolve();
 
 export const fmtSize = (b) =>
   b < 1024

@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import * as api from "./api";
 import { getTheme } from "./theme";
-import { loadPDFJS, extractTextFromPDF, uid, extractRO, copyText, ACCEPTED_TYPE, ACCEPTED_IMAGE_TYPES, ACCEPTED_EXTENSIONS, isImageFile, isPdfFile, isValidFileType, MAX_FILE_SIZE } from "./utils/helpers";
+import { extractTextFromPDF, uid, extractRO, copyText, ACCEPTED_TYPE, ACCEPTED_IMAGE_TYPES, ACCEPTED_EXTENSIONS, isImageFile, isPdfFile, isValidFileType, MAX_FILE_SIZE } from "./utils/helpers";
 import { DEFAULT_LOCATIONS, DEFAULT_DEPARTMENTS } from "./constants";
 import { useSocket } from "./hooks/useSocket";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -52,7 +52,6 @@ function AppInner() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [showDeptDropdown, setShowDeptDropdown] = useState(false);
   const [expandedLocations, setExpandedLocations] = useState({});
-  const [pdfjsLoaded, setPdfjsLoaded] = useState(false);
 
   // ── Upload / staged state ───────────────────────────────
   const [stagedFiles, setStagedFiles] = useState([]);
@@ -271,7 +270,6 @@ useEffect(() => {
 const t = getTheme(darkMode);
 
   // ── Effects ─────────────────────────────────────────────
-  useEffect(() => { loadPDFJS().then(() => setPdfjsLoaded(true)).catch(console.error); }, []);
   useEffect(() => { if (!showDeptDropdown) return; const h = () => setShowDeptDropdown(false); window.addEventListener("click", h); return () => window.removeEventListener("click", h); }, [showDeptDropdown]);
   useEffect(() => { if (!showProfileMenu) return; const h = () => setShowProfileMenu(false); window.addEventListener("click", h); return () => window.removeEventListener("click", h); }, [showProfileMenu]);
 
@@ -569,18 +567,8 @@ const t = getTheme(darkMode);
 
   const handleUploadFiles = useCallback((fl) => { 
     const files = Array.from(fl);
-    const pdfFiles = files.filter(isPdfFile);
-    const otherFiles = files.filter(f => !isPdfFile(f));
-    
-    if (pdfFiles.length > 0 && !pdfjsLoaded) {
-      addToast("PDFJS Loading", "PDF processing is still initializing. Please try again in a moment.", 5000, "warning");
-    }
-    
-    otherFiles.forEach((f) => processFile(f, null));
-    if (pdfjsLoaded) {
-      pdfFiles.forEach((f) => processFile(f, null));
-    }
-  }, [processFile, pdfjsLoaded, addToast]);
+    files.forEach((f) => processFile(f, null));
+  }, [processFile]);
   const handleDrop = useCallback((e) => { e.preventDefault(); setDragOver(false); handleUploadFiles(e.dataTransfer.files); }, [handleUploadFiles]);
 
   const readDirectoryContents = async (directoryEntry, path = "", skipCount = { value: 0 }) => {

@@ -137,6 +137,52 @@ const removeToast = useCallback((id) => {
 const isPopStateRef = useRef(false);
 const isInitialMount = useRef(true);
 
+const pageToPath = useCallback((page, activeFolderId, activeLocation, activeDepartment, viewingFileId, adminSection) => {
+  switch (page) {
+    case "landing": return "/";
+    case "dashboard": return "/dashboard";
+    case "folders-browse": return "/folders";
+    case "folders": return `/folders/${activeLocation || "all"}/${activeDepartment || "all"}`;
+    case "folder-detail": return `/folder/${activeFolderId || ""}`;
+    case "file-detail": return `/file/${viewingFileId || ""}`;
+    case "unsorted": return "/unsorted";
+    case "upload": return "/upload";
+    case "admin": return `/admin/${adminSection || "users"}`;
+    case "cht-dashboard": return "/credit-hold";
+    case "cht-detail": return "/credit-hold/detail";
+    default: return "/";
+  }
+}, []);
+
+const pathToPage = useCallback((path) => {
+  const parts = path.split("/").filter(Boolean);
+  if (parts.length === 0) return { page: "landing" };
+  
+  const [first, ...rest] = parts;
+  switch (first) {
+    case "dashboard": return { page: "dashboard" };
+    case "folders": 
+      if (rest[0] && rest[1] && rest[0] !== "all" && rest[1] !== "all") {
+        return { page: "folders", activeLocation: rest[0], activeDepartment: rest[1] };
+      }
+      if (rest[0] === "browse" || !rest[0]) return { page: "folders-browse" };
+      return { page: "folders-browse" };
+    case "folder":
+      if (rest[0]) return { page: "folder-detail", activeFolderId: rest[0] };
+      return { page: "folders-browse" };
+    case "file":
+      if (rest[0]) return { page: "file-detail", viewingFileId: rest[0] };
+      return { page: "folders-browse" };
+    case "unsorted": return { page: "unsorted" };
+    case "upload": return { page: "upload" };
+    case "admin":
+      if (rest[0]) return { page: "admin", adminSection: rest[0] };
+      return { page: "admin", adminSection: "users" };
+    case "credit-hold": return { page: "cht-dashboard" };
+    default: return { page: "landing" };
+  }
+}, []);
+
 useEffect(() => {
   const handlePopState = (e) => {
     isPopStateRef.current = true;
@@ -148,14 +194,35 @@ useEffect(() => {
       if (e.state.viewingFileId !== undefined) setViewingFileId(e.state.viewingFileId);
       if (e.state.adminSection) setAdminSection(e.state.adminSection);
     } else {
-      setPage("landing");
+      const pathState = pathToPage(window.location.pathname);
+      if (pathState.page) setPage(pathState.page);
+      if (pathState.activeLocation) setActiveLocation(pathState.activeLocation);
+      if (pathState.activeDepartment) setActiveDepartment(pathState.activeDepartment);
+      if (pathState.activeFolderId) setActiveFolderId(pathState.activeFolderId);
+      if (pathState.viewingFileId) setViewingFileId(pathState.viewingFileId);
+      if (pathState.adminSection) setAdminSection(pathState.adminSection);
     }
     setTimeout(() => { isPopStateRef.current = false; }, 0);
   };
   window.addEventListener("popstate", handlePopState);
-  window.history.replaceState({ page }, "");
+  
+  // Restore state from URL on initial load
+  const pathState = pathToPage(window.location.pathname);
+  if (pathState.page && pathState.page !== "landing") {
+    if (pathState.activeLocation) setActiveLocation(pathState.activeLocation);
+    if (pathState.activeDepartment) setActiveDepartment(pathState.activeDepartment);
+    if (pathState.activeFolderId) setActiveFolderId(pathState.activeFolderId);
+    if (pathState.viewingFileId) setViewingFileId(pathState.viewingFileId);
+    if (pathState.adminSection) setAdminSection(pathState.adminSection);
+    if (api.isAuthenticated()) {
+      setPage(pathState.page);
+    } else {
+      sessionStorage.setItem("redirectAfterLogin", JSON.stringify(pathState));
+    }
+  }
+  
   return () => window.removeEventListener("popstate", handlePopState);
-}, []);
+}, [pathToPage]);
 
 // Track page changes and update browser history
 const pageRef = useRef(page);
@@ -173,6 +240,7 @@ useEffect(() => {
   }
   
   if (!isPopStateRef.current) {
+    const path = pageToPath(page, activeFolderId, activeLocation, activeDepartment, viewingFileId, adminSection);
     window.history.pushState({
       page,
       activeFolderId,
@@ -180,9 +248,9 @@ useEffect(() => {
       activeDepartment,
       viewingFileId,
       adminSection,
-    }, "");
+    }, "", path);
   }
-}, [page, activeFolderId, activeLocation, activeDepartment, viewingFileId, adminSection]);
+}, [page, activeFolderId, activeLocation, activeDepartment, viewingFileId, adminSection, pageToPath]);
 
 // ── Subscriptions state ────────────────────────────────
 const [subscriptions, setSubscriptions] = useState([]);
@@ -211,6 +279,19 @@ const t = getTheme(darkMode);
       api.getMe().then((user) => {
         setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl, customAppIds: user.customAppIds || [] });
         setIsLoggedIn(true);
+        
+        // Restore redirect after login
+        const redirect = sessionStorage.getItem("redirectAfterLogin");
+        if (redirect) {
+          const pathState = JSON.parse(redirect);
+          sessionStorage.removeItem("redirectAfterLogin");
+          if (pathState.page) setPage(pathState.page);
+          if (pathState.activeLocation) setActiveLocation(pathState.activeLocation);
+          if (pathState.activeDepartment) setActiveDepartment(pathState.activeDepartment);
+          if (pathState.activeFolderId) setActiveFolderId(pathState.activeFolderId);
+          if (pathState.viewingFileId) setViewingFileId(pathState.viewingFileId);
+          if (pathState.adminSection) setAdminSection(pathState.adminSection);
+        }
       }).catch(() => { api.logout(); });
     }
   }, []);
@@ -371,7 +452,39 @@ const t = getTheme(darkMode);
   };
 
   // ── Handlers ────────────────────────────────────────────
-  const handleLogin = async () => { setLoginError(""); if (!loginForm.username.trim() || !loginForm.password.trim()) { setLoginError("Please enter both fields."); return; } setLoginLoading(true); try { const user = await api.login(loginForm.username.trim(), loginForm.password.trim()); setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl, customAppIds: user.customAppIds || [] }); setIsLoggedIn(true); setPage("landing"); setLoginForm({ username: "", password: "" }); } catch (err) { setLoginError(err.message || "Login failed"); } finally { setLoginLoading(false); } };
+  const handleLogin = async () => {
+    setLoginError("");
+    if (!loginForm.username.trim() || !loginForm.password.trim()) {
+      setLoginError("Please enter both fields.");
+      return;
+    }
+    setLoginLoading(true);
+    try {
+      const user = await api.login(loginForm.username.trim(), loginForm.password.trim());
+      setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl, customAppIds: user.customAppIds || [] });
+      setIsLoggedIn(true);
+      setLoginForm({ username: "", password: "" });
+      
+      // Restore redirect after login
+      const redirect = sessionStorage.getItem("redirectAfterLogin");
+      if (redirect) {
+        const pathState = JSON.parse(redirect);
+        sessionStorage.removeItem("redirectAfterLogin");
+        if (pathState.page) setPage(pathState.page);
+        if (pathState.activeLocation) setActiveLocation(pathState.activeLocation);
+        if (pathState.activeDepartment) setActiveDepartment(pathState.activeDepartment);
+        if (pathState.activeFolderId) setActiveFolderId(pathState.activeFolderId);
+        if (pathState.viewingFileId) setViewingFileId(pathState.viewingFileId);
+        if (pathState.adminSection) setAdminSection(pathState.adminSection);
+      } else {
+        setPage("landing");
+      }
+    } catch (err) {
+      setLoginError(err.message || "Login failed");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
   const handleLogout = () => { api.logout(); setIsLoggedIn(false); setLoggedInUser(null); setPage("dashboard"); setSelectedFile(null); setLocations([]); setDepartments([]); setFolders([]); setFiles([]); setActiveLocation(null); setActiveDepartment(null); };
 
   const validateFile = (file) => { 

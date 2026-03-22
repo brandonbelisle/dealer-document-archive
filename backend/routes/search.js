@@ -6,11 +6,11 @@ const { requireAuth } = require('../middleware/auth');
 const router = express.Router();
 const num = (val) => Number(val || 0);
 
-// ── GET /api/search?q=term ──────────────────────────────
+// ── GET /api/search?q=term ──────────────────────────────────
 router.get('/', requireAuth, async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
-    if (!q) return res.json({ folders: [], files: [] });
+    if (!q) return res.json({ folders: [], files: [], ocrFiles: [] });
 
     const like = `%${q}%`;
 
@@ -28,7 +28,7 @@ router.get('/', requireAuth, async (req, res) => {
       [like]
     );
 
-    // Search files
+    // Search files by name
     const [fileRows] = await db.execute(
       `SELECT f.id, f.name, f.file_size_bytes, f.page_count, f.mime_type,
               f.folder_id, f.status, f.uploaded_at,
@@ -45,6 +45,34 @@ router.get('/', requireAuth, async (req, res) => {
        LIMIT 15`,
       [like]
     );
+
+    // OCR Advanced Search - search within document text
+    let ocrRows = [];
+    try {
+      const searchTerms = q.split(/\s+/).filter(term => term.length >= 3).join(' ');
+      if (searchTerms.length >= 3) {
+        [ocrRows] = await db.execute(
+          `SELECT f.id, f.name, f.file_size_bytes, f.page_count, f.mime_type,
+                  f.folder_id, f.status, f.uploaded_at,
+                  fld.name AS folder_name, fld.location_id, fld.department_id,
+                  l.name AS location_name, d.name AS department_name,
+                  u.display_name AS uploaded_by_name
+           FROM files f
+           LEFT JOIN folders fld ON f.folder_id = fld.id
+           LEFT JOIN locations l ON fld.location_id = l.id
+           LEFT JOIN departments d ON fld.department_id = d.id
+           LEFT JOIN users u ON f.uploaded_by = u.id
+           WHERE MATCH(f.extracted_text) AGAINST(? IN BOOLEAN MODE)
+             AND f.status = 'done'
+           ORDER BY f.uploaded_at DESC
+           LIMIT 50`,
+          [searchTerms]
+        );
+      }
+    } catch (err) {
+      // FULLTEXT search may fail if no match or index issues
+      console.error('OCR search error:', err.message);
+    }
 
     const folders = folderRows.map(r => ({
       id: r.id,
@@ -74,7 +102,24 @@ router.get('/', requireAuth, async (req, res) => {
       departmentName: r.department_name || null,
     }));
 
-    res.json({ folders, files });
+    const ocrFiles = ocrRows.map(r => ({
+      id: r.id,
+      name: r.name,
+      size: num(r.file_size_bytes),
+      pages: num(r.page_count),
+      type: r.mime_type || 'application/pdf',
+      folderId: r.folder_id || null,
+      status: r.status,
+      uploadedAt: r.uploaded_at,
+      uploadedBy: r.uploaded_by_name || null,
+      folderName: r.folder_name || null,
+      locationId: r.location_id || null,
+      departmentId: r.department_id || null,
+      locationName: r.location_name || null,
+      departmentName: r.department_name || null,
+    }));
+
+    res.json({ folders, files, ocrFiles });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });

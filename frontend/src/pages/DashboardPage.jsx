@@ -106,6 +106,7 @@ export default function DashboardPage({
   darkMode,
 }) {
   const dd = dashboardData || {};
+  const year = new Date().getFullYear();
   const recentFiles = (dd.recentFiles || []).map((f) => ({
     id: f.id,
     name: f.name,
@@ -197,14 +198,14 @@ export default function DashboardPage({
         <StatCard
           t={t}
           icon={<CalendarIcon size={20} />}
-          label="Files This Year"
+          label={`Files (${year})`}
           value={dd.filesThisYear ?? 0}
           color={darkMode ? "rgba(59,130,246,0.12)" : "rgba(59,130,246,0.08)"}
         />
         <StatCard
           t={t}
           icon={<CalendarIcon size={20} />}
-          label="Folders This Year"
+          label={`Folders (${year})`}
           value={dd.foldersThisYear ?? 0}
           color={darkMode ? "rgba(34,197,94,0.12)" : "rgba(34,197,94,0.08)"}
         />

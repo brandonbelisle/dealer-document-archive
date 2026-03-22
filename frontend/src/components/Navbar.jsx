@@ -74,7 +74,7 @@ export default function Navbar({
   const [globalSearch, setGlobalSearch] = useState("");
   const [globalSearchFocused, setGlobalSearchFocused] = useState(false);
   const globalSearchRef = useRef(null);
-  const [searchResults, setSearchResults] = useState({ folders: [], files: [] });
+  const [searchResults, setSearchResults] = useState({ folders: [], files: [], ocrFiles: [] });
   const [searchLoading, setSearchLoading] = useState(false);
   const searchTimer = useRef(null);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
@@ -140,7 +140,7 @@ const apps = [
   // Debounced API search
   useEffect(() => {
     if (!q) {
-      setSearchResults({ folders: [], files: [] });
+      setSearchResults({ folders: [], files: [], ocrFiles: [] });
       setSearchLoading(false);
       return;
     }
@@ -149,7 +149,7 @@ const apps = [
     searchTimer.current = setTimeout(() => {
       api.globalSearch(q)
         .then((data) => setSearchResults(data))
-        .catch(() => setSearchResults({ folders: [], files: [] }))
+        .catch(() => setSearchResults({ folders: [], files: [], ocrFiles: [] }))
         .finally(() => setSearchLoading(false));
     }, 250);
     return () => clearTimeout(searchTimer.current);
@@ -157,7 +157,8 @@ const apps = [
 
   const folderResults = searchResults.folders || [];
   const fileResults = searchResults.files || [];
-  const hasResults = folderResults.length > 0 || fileResults.length > 0;
+  const ocrResults = searchResults.ocrFiles || [];
+  const hasResults = folderResults.length > 0 || fileResults.length > 0 || ocrResults.length > 0;
   const showDropdown = globalSearchFocused && q.length > 0;
 
   return (
@@ -1025,6 +1026,92 @@ const apps = [
                           <div
                             style={{
                               color: t.success,
+                              flexShrink: 0,
+                            }}
+                          >
+                            <FileDocIcon size={16} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 600 }}>
+                              <HighlightedName
+                                name={file.name}
+                                query={q}
+                                accentColor={t.accent}
+                              />
+                            </div>
+                            <div
+                              style={{
+                                fontSize: 10.5,
+                                color: t.textDim,
+                              }}
+                            >
+                              {file.folderId
+                                ? `${file.locationName || ""}${file.departmentName ? ` / ${file.departmentName}` : ""}${file.folderName ? ` / ${file.folderName}` : ""}`
+                                : "Unsorted"}
+                            </div>
+                          </div>
+                          <span
+                            style={{
+                              fontSize: 10,
+                              color: t.textDim,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {fmtSize(file.size)}
+                          </span>
+                        </div>
+                    ))}
+                  </div>
+                )}
+                {(folderResults.length > 0 || fileResults.length > 0) && ocrResults.length > 0 && (
+                  <div
+                    style={{ borderTop: `1px solid ${t.border}` }}
+                  />
+                )}
+                {ocrResults.length > 0 && (
+                  <div>
+                    <div
+                      style={{
+                        padding: "10px 14px 4px",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        color: t.textDim,
+                      }}
+                    >
+                      OCR Advanced Search
+                    </div>
+                    {ocrResults.map((file) => (
+                        <div
+                          key={`ocr-${file.id}`}
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => {
+                            if (file.folderId) {
+                              if (file.locationId)
+                                setActiveLocation(file.locationId);
+                              if (file.departmentId)
+                                setActiveDepartment(file.departmentId);
+                              setActiveFolderId(file.folderId);
+                            }
+                            setViewingFileId(file.id);
+                            setPage("file-detail");
+                            setGlobalSearch("");
+                            setGlobalSearchFocused(false);
+                          }}
+                          className="folder-select-item"
+                          style={{
+                            padding: "8px 14px",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            fontSize: 13,
+                          }}
+                        >
+                          <div
+                            style={{
+                              color: "#8b5cf6",
                               flexShrink: 0,
                             }}
                           >

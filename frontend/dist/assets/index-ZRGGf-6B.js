@@ -31550,11 +31550,41 @@ function AppInner() {
     if (!activeFolderId) return;
     Array.from(fl).forEach((f) => processFile(f, activeFolderId));
   }, [processFile, activeFolderId]);
-  const handleDeptDrop = reactExports.useCallback((e) => {
+  const handleDeptDrop = reactExports.useCallback(async (e) => {
+    var _a2, _b;
     e.preventDefault();
     setDeptDragOver(false);
-    handleUploadFiles(e.dataTransfer.files);
-  }, [handleUploadFiles]);
+    if (!activeDepartment || !activeLocation) return;
+    const items = e.dataTransfer.items;
+    if (!items) {
+      handleUploadFiles(e.dataTransfer.files);
+      return;
+    }
+    for (const item of items) {
+      const entry = ((_a2 = item.webkitGetAsEntry) == null ? void 0 : _a2.call(item)) || ((_b = item.getAsEntry) == null ? void 0 : _b.call(item));
+      if (!entry) continue;
+      if (entry.isFile) {
+        const file = await new Promise((resolve, reject) => {
+          entry.file(resolve, reject);
+        });
+        processFile(file, null);
+      } else if (entry.isDirectory) {
+        const allFiles = await readDirectoryContents(entry);
+        const folderName = entry.name;
+        try {
+          const created = await createFolder(folderName, activeLocation, activeDepartment, null);
+          setFolders((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: null, createdAt: created.created_at }]);
+          addToast("Folder created", `"${folderName}" has been created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""}`, 4e3, "create");
+          for (const { file } of allFiles) {
+            processFile(file, created.id);
+          }
+        } catch (err) {
+          console.error("Failed to create folder:", err);
+          addToast("Error", `Failed to create folder "${folderName}"`, 4e3, "error");
+        }
+      }
+    }
+  }, [processFile, handleUploadFiles, activeDepartment, activeLocation, addToast, setFolders]);
   const handleDeptFiles = reactExports.useCallback((fl) => {
     handleUploadFiles(fl);
   }, [handleUploadFiles]);
@@ -31834,4 +31864,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-DFMnkIR3.js.map
+//# sourceMappingURL=index-ZRGGf-6B.js.map

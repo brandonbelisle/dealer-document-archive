@@ -652,11 +652,45 @@ const t = getTheme(darkMode);
   }, [processFile, activeFolderId, folders]);
   const handleFolderDetailFiles = useCallback((fl) => { if (!activeFolderId) return; Array.from(fl).forEach((f) => processFile(f, activeFolderId)); }, [processFile, activeFolderId]);
 
-  const handleDeptDrop = useCallback((e) => {
+  const handleDeptDrop = useCallback(async (e) => {
     e.preventDefault();
     setDeptDragOver(false);
-    handleUploadFiles(e.dataTransfer.files);
-  }, [handleUploadFiles]);
+    if (!activeDepartment ||!activeLocation) return;
+
+    const items = e.dataTransfer.items;
+    if (!items) {
+      handleUploadFiles(e.dataTransfer.files);
+      return;
+    }
+
+    for (const item of items) {
+      const entry = item.webkitGetAsEntry?.() || item.getAsEntry?.();
+      if (!entry) continue;
+
+      if (entry.isFile) {
+        const file = await new Promise((resolve, reject) => {
+          entry.file(resolve, reject);
+        });
+        processFile(file, null);
+      } else if (entry.isDirectory) {
+        const allFiles = await readDirectoryContents(entry);
+        const folderName = entry.name;
+        
+        try {
+          const created = await api.createFolder(folderName, activeLocation, activeDepartment, null);
+          setFolders((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: null, createdAt: created.created_at }]);
+          addToast("Folder created", `"${folderName}" has been created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""}`, 4000, "create");
+          
+          for (const { file } of allFiles) {
+            processFile(file, created.id);
+          }
+        } catch (err) {
+          console.error("Failed to create folder:", err);
+          addToast("Error", `Failed to create folder "${folderName}"`, 4000, "error");
+        }
+      }
+    }
+  }, [processFile, handleUploadFiles, activeDepartment, activeLocation, addToast, setFolders]);
 
   const handleDeptFiles = useCallback((fl) => {
     handleUploadFiles(fl);

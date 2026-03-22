@@ -104,6 +104,14 @@ const certUpload = multer({
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 });
 
+const certKeyUpload = multer({
+  storage: certStorage,
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+}).fields([
+  { name: 'certificate', maxCount: 1 },
+  { name: 'privateKey', maxCount: 1 }
+]);
+
 // ── GET /api/settings/logo/:type ─────────────────────────
 // Serve logo file
 router.get('/logo/:type', async (req, res) => {
@@ -197,7 +205,7 @@ router.post('/logo/:type', requireAuth, requirePermission('manageSettings'), (re
 router.get('/ssl', requireAuth, requirePermission('manageSettings'), async (req, res) => {
   try {
     const [rows] = await db.execute(
-      'SELECT id, name, filename, is_active, issuer, subject, valid_from, valid_to, serial_number, fingerprint, uploaded_at FROM ssl_certificates ORDER BY uploaded_at DESC'
+      'SELECT id, name, filename, key_filename, is_active, issuer, subject, valid_from, valid_to, serial_number, fingerprint, uploaded_at FROM ssl_certificates ORDER BY uploaded_at DESC'
     );
     
     const dir = path.join(__dirname, '../uploads/certificates');
@@ -209,6 +217,7 @@ router.get('/ssl', requireAuth, requirePermission('manageSettings'), async (req,
       id: row.id,
       name: row.name,
       filename: row.filename,
+      keyFilename: row.key_filename,
       isActive: !!row.is_active,
       issuer: row.issuer,
       subject: row.subject,
@@ -216,7 +225,8 @@ router.get('/ssl', requireAuth, requirePermission('manageSettings'), async (req,
       validTo: row.valid_to,
       serialNumber: row.serial_number,
       fingerprint: row.fingerprint,
-      uploadedAt: row.uploaded_at
+      uploadedAt: row.uploaded_at,
+      hasKey: !!(row.key_filename && fs.existsSync(path.join(dir, row.key_filename)))
     }));
 
     res.json({ certificates });
@@ -227,9 +237,9 @@ router.get('/ssl', requireAuth, requirePermission('manageSettings'), async (req,
 });
 
 // ── POST /api/settings/ssl/upload ─────────────────────────
-// Upload SSL certificate
+// Upload SSL certificate and optional private key
 router.post('/ssl/upload', requireAuth, requirePermission('manageSettings'), (req, res) => {
-  certUpload.single('certificate')(req, res, async (err) => {
+  certKeyUpload(req, res, async (err) => {
     if (err) {
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({ error: 'File too large. Maximum size is 10MB.' });
@@ -238,23 +248,28 @@ router.post('/ssl/upload', requireAuth, requirePermission('manageSettings'), (re
       return res.status(500).json({ error: 'Internal server error' });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
+    const certFile = req.files?.certificate?.[0];
+    const keyFile = req.files?.privateKey?.[0];
+
+    if (!certFile) {
+      return res.status(400).json({ error: 'Certificate file is required' });
     }
 
     try {
       const { name } = req.body;
-      const certName = name || path.basename(req.file.originalname, path.extname(req.file.originalname));
+      const certName = name || path.basename(certFile.originalname, path.extname(certFile.originalname));
       
-      const certInfo = parseCertificate(req.file.path);
+      const certInfo = parseCertificate(certFile.path);
+      const keyFilename = keyFile ? keyFile.filename : null;
       
       const [result] = await db.execute(
         `INSERT INTO ssl_certificates 
-         (name, filename, is_active, issuer, subject, valid_from, valid_to, serial_number, fingerprint, uploaded_at) 
-         VALUES (?, ?, 0, ?, ?, ?, ?, ?, ?, NOW())`,
+         (name, filename, key_filename, is_active, issuer, subject, valid_from, valid_to, serial_number, fingerprint, uploaded_at) 
+         VALUES (?, ?, ?, 0, ?, ?, ?, ?, ?, ?, NOW())`,
         [
           certName,
-          req.file.filename,
+          certFile.filename,
+          keyFilename,
           certInfo?.issuer || null,
           certInfo?.subject || null,
           certInfo?.validFrom || null,
@@ -266,7 +281,7 @@ router.post('/ssl/upload', requireAuth, requirePermission('manageSettings'), (re
 
       logAudit(
         'SSL Certificate Uploaded',
-        `Certificate "${certName}" uploaded`,
+        `Certificate "${certName}" uploaded${keyFilename ? ' with private key' : ''}`,
         req.user,
         req.ip
       );
@@ -275,15 +290,18 @@ router.post('/ssl/upload', requireAuth, requirePermission('manageSettings'), (re
         success: true,
         id: result.insertId,
         name: certName,
-        filename: req.file.filename,
+        filename: certFile.filename,
+        keyFilename: keyFilename,
         issuer: certInfo?.issuer,
         subject: certInfo?.subject,
         validFrom: certInfo?.validFrom,
-        validTo: certInfo?.validTo
+        validTo: certInfo?.validTo,
+        hasKey: !!keyFilename
       });
     } catch (dbErr) {
       console.error(dbErr);
-      fs.unlinkSync(req.file.path);
+      if (certFile) fs.unlinkSync(certFile.path);
+      if (keyFile) fs.unlinkSync(keyFile.path);
       res.status(500).json({ error: 'Failed to save certificate info' });
     }
   });
@@ -294,7 +312,7 @@ router.post('/ssl/upload', requireAuth, requirePermission('manageSettings'), (re
 router.delete('/ssl/:id', requireAuth, requirePermission('manageSettings'), async (req, res) => {
   try {
     const [rows] = await db.execute(
-      'SELECT id, name, filename FROM ssl_certificates WHERE id = ?',
+      'SELECT id, name, filename, key_filename FROM ssl_certificates WHERE id = ?',
       [req.params.id]
     );
 
@@ -303,10 +321,14 @@ router.delete('/ssl/:id', requireAuth, requirePermission('manageSettings'), asyn
     }
 
     const cert = rows[0];
-    const filePath = path.join(__dirname, '../uploads/certificates', cert.filename);
+    const certPath = path.join(__dirname, '../uploads/certificates', cert.filename);
+    const keyPath = cert.key_filename ? path.join(__dirname, '../uploads/certificates', cert.key_filename) : null;
     
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    if (fs.existsSync(certPath)) {
+      fs.unlinkSync(certPath);
+    }
+    if (keyPath && fs.existsSync(keyPath)) {
+      fs.unlinkSync(keyPath);
     }
 
     await db.execute('DELETE FROM ssl_certificates WHERE id = ?', [req.params.id]);
@@ -330,7 +352,7 @@ router.delete('/ssl/:id', requireAuth, requirePermission('manageSettings'), asyn
 router.post('/ssl/:id/activate', requireAuth, requirePermission('manageSettings'), async (req, res) => {
   try {
     const [rows] = await db.execute(
-      'SELECT id, name, filename, issuer, subject, valid_from, valid_to, serial_number, fingerprint FROM ssl_certificates WHERE id = ?',
+      'SELECT id, name, filename, key_filename, issuer, subject, valid_from, valid_to, serial_number, fingerprint FROM ssl_certificates WHERE id = ?',
       [req.params.id]
     );
 
@@ -339,6 +361,12 @@ router.post('/ssl/:id/activate', requireAuth, requirePermission('manageSettings'
     }
 
     const cert = rows[0];
+    const keyPath = cert.key_filename ? path.join(__dirname, '../uploads/certificates', cert.key_filename) : null;
+    const hasKey = !!(cert.key_filename && fs.existsSync(keyPath));
+
+    if (!hasKey) {
+      return res.status(400).json({ error: 'Cannot activate certificate without a private key file' });
+    }
     
     await db.execute('UPDATE ssl_certificates SET is_active = 0');
     await db.execute('UPDATE ssl_certificates SET is_active = 1 WHERE id = ?', [req.params.id]);
@@ -352,10 +380,12 @@ router.post('/ssl/:id/activate', requireAuth, requirePermission('manageSettings'
 
     res.json({
       success: true,
+      requiresRestart: true,
       certificate: {
         id: cert.id,
         name: cert.name,
         filename: cert.filename,
+        keyFilename: cert.key_filename,
         isActive: true,
         issuer: cert.issuer,
         subject: cert.subject,
@@ -384,7 +414,40 @@ router.post('/ssl/deactivate', requireAuth, requirePermission('manageSettings'),
       req.ip
     );
 
-    res.json({ success: true });
+    res.json({ success: true, requiresRestart: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── GET /api/settings/ssl/active ──────────────────────────
+// Get active SSL certificate (public, for server startup)
+router.get('/ssl/active', async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      'SELECT name, filename, key_filename FROM ssl_certificates WHERE is_active = 1 LIMIT 1'
+    );
+
+    if (rows.length === 0) {
+      return res.json({ active: null });
+    }
+
+    const cert = rows[0];
+    const certPath = path.join(__dirname, '../uploads/certificates', cert.filename);
+    const keyPath = cert.key_filename ? path.join(__dirname, '../uploads/certificates', cert.key_filename) : null;
+
+    if (!fs.existsSync(certPath) || !keyPath || !fs.existsSync(keyPath)) {
+      return res.json({ active: null });
+    }
+
+    res.json({
+      active: {
+        name: cert.name,
+        certPath: certPath,
+        keyPath: keyPath
+      }
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });

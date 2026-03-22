@@ -747,7 +747,11 @@ function SettingsSection({ t, darkMode, addToast }) {
   const [sslDeleting, setSslDeleting] = useState(null);
   const [sslActivating, setSslActivating] = useState(null);
   const [newCertName, setNewCertName] = useState('');
+  const [newCertFile, setNewCertFile] = useState(null);
+  const [newKeyFile, setNewKeyFile] = useState(null);
+  const [showRestartPrompt, setShowRestartPrompt] = useState(false);
   const sslInputRef = useRef(null);
+  const sslKeyInputRef = useRef(null);
 
   useEffect(() => {
     loadLogos();
@@ -1504,9 +1508,42 @@ function SettingsSection({ t, darkMode, addToast }) {
       <div style={{ marginBottom: 24, marginTop: 40 }}>
         <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }}>SSL Certificates</h2>
         <p style={{ fontSize: 13, color: t.textMuted, margin: 0 }}>
-          Upload and manage SSL certificates for HTTPS. Toggle to switch between uploaded certificate and self-signed.
+          Upload and manage SSL certificates for HTTPS. Both certificate and private key files are required.
         </p>
       </div>
+
+      {showRestartPrompt && (
+        <div style={{
+          marginBottom: 16,
+          padding: "12px 16px",
+          borderRadius: 8,
+          background: darkMode ? "rgba(234,179,8,0.15)" : "rgba(234,179,8,0.1)",
+          border: `1px solid ${darkMode ? "rgba(234,179,8,0.3)" : "rgba(234,179,8,0.2)"}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ color: "#eab308" }}>⚠️</span>
+            <span style={{ fontSize: 13, color: t.text }}>
+              <strong>Restart required:</strong> The server must be restarted for certificate changes to take effect.
+            </span>
+          </div>
+          <button
+            onClick={() => setShowRestartPrompt(false)}
+            style={{
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              color: t.textMuted,
+              fontSize: 18,
+              lineHeight: 1,
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {sslLoading ? (
         <div style={{ padding: 40, textAlign: "center", color: t.textMuted }}>Loading...</div>
@@ -1522,15 +1559,14 @@ function SettingsSection({ t, darkMode, addToast }) {
             <label style={{ fontSize: 13, fontWeight: 600, color: t.text, display: "block", marginBottom: 8 }}>
               Upload New Certificate
             </label>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <div style={{ marginBottom: 12 }}>
               <input
                 type="text"
                 value={newCertName}
                 onChange={(e) => setNewCertName(e.target.value)}
                 placeholder="Certificate name (e.g., domain.com)"
                 style={{
-                  flex: 1,
-                  minWidth: 200,
+                  width: "100%",
                   padding: "10px 12px",
                   fontSize: 14,
                   border: `1px solid ${t.border}`,
@@ -1538,43 +1574,95 @@ function SettingsSection({ t, darkMode, addToast }) {
                   background: darkMode ? "#1a1a1a" : "#fff",
                   color: t.text,
                   fontFamily: "inherit",
+                  boxSizing: "border-box",
                 }}
               />
-              <input
-                ref={sslInputRef}
-                type="file"
-                accept=".crt,.pem,.key,.p12,.pfx,.cer"
-                style={{ display: " none" }}
-                onChange={async (e) => {
-                  const file = e.target.files[0];
-                  if (!file) return;
-                  const name = newCertName.trim() || file.name.replace(/\.[^/.]+$/, "");
-                  setSslUploading(true);
-                  try {
-                    await api.uploadSslCertificate(name, file);
-                    addToast("Certificate uploaded", `"${name}" has been uploaded successfully`, 4000, "create");
-                    setNewCertName("");
-                    loadSslCertificates();
-                  } catch (err) {
-                    addToast("Upload failed", err.message || "Failed to upload certificate", 5000, "error");
-                  } finally {
-                    setSslUploading(false);
-                    e.target.value = "";
-                  }
-                }}
-              />
-              <Btn
-                darkMode={darkMode}
-                t={t}
-                onClick={() => sslInputRef.current?.click()}
-                loading={sslUploading}
-                style={{ fontSize: 12 }}
-              >
-                <UploadCloudIcon size={14} /> Upload
-              </Btn>
             </div>
+            <div style={{ display: "flex", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <label style={{ fontSize: 11, fontWeight: 500, color: t.textMuted, display: "block", marginBottom: 4 }}>
+                  Certificate File *
+                </label>
+                <input
+                  type="file"
+                  accept=".crt,.pem,.cer"
+                  onChange={(e) => setNewCertFile(e.target.files[0] || null)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    fontSize: 12,
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 6,
+                    background: darkMode ? "#1a1a1a" : "#fff",
+                    color: t.text,
+                    fontFamily: "inherit",
+                    boxSizing: "border-box",
+                  }}
+                />
+                {newCertFile && (
+                  <div style={{ fontSize: 11, color: t.textMuted, marginTop: 4 }}>
+                    Selected: {newCertFile.name}
+                  </div>
+                )}
+              </div>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <label style={{ fontSize: 11, fontWeight: 500, color: t.textMuted, display: "block", marginBottom: 4 }}>
+                  Private Key File *
+                </label>
+                <input
+                  type="file"
+                  accept=".key,.pem"
+                  onChange={(e) => setNewKeyFile(e.target.files[0] || null)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    fontSize: 12,
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 6,
+                    background: darkMode ? "#1a1a1a" : "#fff",
+                    color: t.text,
+                    fontFamily: "inherit",
+                    boxSizing: "border-box",
+                  }}
+                />
+                {newKeyFile && (
+                  <div style={{ fontSize: 11, color: t.textMuted, marginTop: 4 }}>
+                    Selected: {newKeyFile.name}
+                  </div>
+                )}
+              </div>
+            </div>
+            <Btn
+              darkMode={darkMode}
+              t={t}
+              onClick={async () => {
+                if (!newCertFile || !newKeyFile) {
+                  addToast("Missing files", "Both certificate and private key files are required", 5000, "error");
+                  return;
+                }
+                const name = newCertName.trim() || newCertFile.name.replace(/\.[^/.]+$/, "");
+                setSslUploading(true);
+                try {
+                  await api.uploadSslCertificate(name, newCertFile, newKeyFile);
+                  addToast("Certificate uploaded", `"${name}" has been uploaded successfully`, 4000, "create");
+                  setNewCertName("");
+                  setNewCertFile(null);
+                  setNewKeyFile(null);
+                  loadSslCertificates();
+                } catch (err) {
+                  addToast("Upload failed", err.message || "Failed to upload certificate", 5000, "error");
+                } finally {
+                  setSslUploading(false);
+                }
+              }}
+              loading={sslUploading}
+              disabled={!newCertFile || !newKeyFile}
+              style={{ fontSize: 12 }}
+            >
+              <UploadCloudIcon size={14} /> Upload Certificate
+            </Btn>
             <p style={{ fontSize: 11, color: t.textDim, margin: "8px 0 0" }}>
-              Supported formats: .crt, .pem, .key, .p12, .pfx, .cer
+              Certificate formats: .crt, .pem, .cer | Key formats: .key, .pem
             </p>
           </div>
 
@@ -1619,6 +1707,19 @@ function SettingsSection({ t, darkMode, addToast }) {
                               Active
                             </span>
                           )}
+                          {!cert.hasKey && !cert.isActive && (
+                            <span style={{
+                              marginLeft: 8,
+                              fontSize: 11,
+                              fontWeight: 500,
+                              color: "#f97316",
+                              background: darkMode ? "rgba(249,115,22,0.15)" : "rgba(249,115,22,0.1)",
+                              padding: "2px 8px",
+                              borderRadius: 4,
+                            }}>
+                              Missing Key
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div style={{ display: "flex", gap: 8 }}>
@@ -1626,14 +1727,20 @@ function SettingsSection({ t, darkMode, addToast }) {
                           darkMode={darkMode}
                           t={t}
                           onClick={async () => {
+                            if (!cert.hasKey) {
+                              addToast("Cannot activate", "Certificate requires a private key file to activate", 5000, "error");
+                              return;
+                            }
                             setSslActivating(cert.id);
                             try {
                               if (cert.isActive) {
                                 await api.deactivateSslCertificates();
-                                addToast("Certificate deactivated", "Reverted to self-signed certificate", 4000, "update");
+                                addToast("Certificate deactivated", "Reverted to default certificate", 4000, "update");
+                                setShowRestartPrompt(true);
                               } else {
-                                await api.activateSslCertificate(cert.id);
-                                addToast("Certificate activated", `"${cert.name}" is now active`, 4000, "update");
+                                const result = await api.activateSslCertificate(cert.id);
+                                addToast("Certificate activated", `"${cert.name}" is now active. Restart required.`, 4000, "update");
+                                setShowRestartPrompt(true);
                               }
                               loadSslCertificates();
                             } catch (err) {
@@ -1646,9 +1753,10 @@ function SettingsSection({ t, darkMode, addToast }) {
                           style={{
                             fontSize: 11,
                             padding: "6px 12px",
-                            background: cert.isActive ? "#ef4444" : "#22c55e",
-                            borderColor: cert.isActive ? "#ef4444" : "#22c55e",
+                            background: cert.isActive ? "#ef4444" : (cert.hasKey ? "#22c55e" : "#9ca3af"),
+                            borderColor: cert.isActive ? "#ef4444" : (cert.hasKey ? "#22c55e" : "#9ca3af"),
                             color: "#fff",
+                            cursor: cert.hasKey ? "pointer" : "not-allowed",
                           }}
                         >
                           {cert.isActive ? "Deactivate" : "Activate"}
@@ -1657,11 +1765,12 @@ function SettingsSection({ t, darkMode, addToast }) {
                           darkMode={darkMode}
                           t={t}
                           onClick={async () => {
-                            if (!window.confirm(`Delete certificate "${cert.name}"${cert.isActive ? " (This will revert to self-signed)" : ""}?`)) return;
+                            if (!window.confirm(`Delete certificate "${cert.name}"${cert.isActive ? " (This will revert to default)" : ""}?`)) return;
                             setSslDeleting(cert.id);
                             try {
                               await api.deleteSslCertificate(cert.id);
                               addToast("Certificate deleted", `"${cert.name}" has been removed`, 4000, "delete");
+                              if (cert.isActive) setShowRestartPrompt(true);
                               loadSslCertificates();
                             } catch (err) {
                               addToast("Delete failed", err.message || "Failed to delete certificate", 5000, "error");
@@ -1700,7 +1809,9 @@ function SettingsSection({ t, darkMode, addToast }) {
                       </div>
                     )}
                     <div style={{ fontSize: 11, color: t.textDim }}>
-                      {cert.filename} · Uploaded {new Date(cert.uploadedAt).toLocaleString()}
+                      {cert.filename}
+                      {cert.keyFilename && <span> + {cert.keyFilename}</span>}
+                      <span> · Uploaded {new Date(cert.uploadedAt).toLocaleString()}</span>
                     </div>
                   </div>
                 ))}
@@ -1712,7 +1823,7 @@ function SettingsSection({ t, darkMode, addToast }) {
             <div style={{ textAlign: "center", padding: "24px 0", color: t.textMuted }}>
               <LockIcon size={32} />
               <p style={{ fontSize: 13, margin: "12px 0 0" }}>No SSL certificates uploaded</p>
-              <p style={{ fontSize: 12, margin: "8px 0 0" }}>Using self-signed certificate by default</p>
+              <p style={{ fontSize: 12, margin: "8px 0 0" }}>Using default certificate bydefault</p>
             </div>
           )}
         </div>

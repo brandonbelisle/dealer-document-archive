@@ -347,10 +347,13 @@ export async function uploadLogo(type, file) {
 export async function getSslCertificates() {
   return request('/settings/ssl');
 }
-export async function uploadSslCertificate(name, file) {
+export async function uploadSslCertificate(name, certFile, keyFile) {
   const formData = new FormData();
   formData.append('name', name);
-  formData.append('certificate', file);
+  formData.append('certificate', certFile);
+  if (keyFile) {
+    formData.append('privateKey', keyFile);
+  }
   return request('/settings/ssl/upload', {
     method: 'POST',
     body: formData,

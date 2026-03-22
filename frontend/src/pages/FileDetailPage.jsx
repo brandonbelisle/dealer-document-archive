@@ -553,35 +553,6 @@ export default function FileDetailPage({
                   </div>
                 );
             }
-              return (
-                <div
-                  style={{
-                    textAlign: "center",
-                    color: t.textDim,
-                    padding: 40,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    height: "100%",
-                  }}
-                >
-                  <FileDocIcon size={48} />
-                  <div
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 500,
-                      marginTop: 14,
-                    }}
-                  >
-                    No preview available for this file type
-                  </div>
-                  <div style={{ fontSize: 12, marginTop: 4, color: t.textDim }}>
-                    {vf.type || "Unknown type"}
-                  </div>
-                </div>
-              );
-            }
             return (
               <div
                 style={{
@@ -603,10 +574,10 @@ export default function FileDetailPage({
                     marginTop: 14,
                   }}
                 >
-                  Preview not available
+                  No preview available for this file type
                 </div>
-                <div style={{ fontSize: 12, marginTop: 4 }}>
-                  File data is no longer in memory
+                <div style={{ fontSize: 12, marginTop: 4, color: t.textDim }}>
+                  {vf.type || "Unknown type"}
                 </div>
               </div>
             );

@@ -279,9 +279,26 @@ router.put('/schedules/:id', requireAuth, requirePermission('manageSettings'), a
     const { id } = req.params;
     const { enabled, intervalMinutes } = req.body;
 
+    const updates = [];
+    const params = [];
+
+    if (enabled !== undefined) {
+      updates.push('enabled = ?');
+      params.push(enabled ? 1 : 0);
+    }
+    if (intervalMinutes !== undefined) {
+      updates.push('interval_minutes = ?');
+      params.push(intervalMinutes);
+    }
+
+    if (updates.length === 0) {
+      return res.json({ success: true });
+    }
+
+    params.push(id);
     await db.execute(
-      'UPDATE dms_schedules SET enabled = ?, interval_minutes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [enabled ? 1 : 0, intervalMinutes || 0, id]
+      `UPDATE dms_schedules SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+      params
     );
 
     await logAudit('DMS Schedule Updated', `Schedule ID: ${id}`, req.user, req.ip);

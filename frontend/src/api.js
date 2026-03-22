@@ -1,31 +1,51 @@
 // src/api.js
 // API client for the Dealer Document Archive backend
-// Import this in App.jsx and use the named exports.
+// Supports both httpOnly cookie auth and Authorization header
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
-let authToken = localStorage.getItem('dda_token') || null;
+function getCookieToken() {
+  const match = document.cookie.match(/(?:^|;\s*)dda_token=([^;]*)/);
+  return match ? match[1] : null;
+}
+
+function setCookieToken(token) {
+  const maxAge = 24 * 60 * 60; // 24 hours
+  document.cookie = `dda_token=${token}; path=/; max-age=${maxAge}; SameSite=Strict${location.protocol === 'https:' ? '; Secure' : ''}`;
+}
+
+function clearCookieToken() {
+  document.cookie = 'dda_token=; path=/; max-age=0';
+}
+
+let authToken = localStorage.getItem('dda_token') ||getCookieToken() || null;
 
 function setToken(token) {
   authToken = token;
-  if (token) localStorage.setItem('dda_token', token);
-  else localStorage.removeItem('dda_token');
+  if (token) {
+    localStorage.setItem('dda_token', token);
+    setCookieToken(token);
+  } else {
+    localStorage.removeItem('dda_token');
+    clearCookieToken();
+  }
 }
 
 function getToken() {
-  return authToken;
+  return authToken || getCookieToken();
 }
 
 async function request(path, options = {}) {
   const headers = { ...options.headers };
-  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
   if (!(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
 
   let res;
   try {
-    res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+    res = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'include' });
   } catch (err) {
     throw new Error(`Network error: ${err.message}`);
   }
@@ -56,8 +76,17 @@ export async function login(email, password) {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
-  setToken(data.token);
+  if (data.token) setToken(data.token);
   return data.user;
+}
+
+export async function logout() {
+  try {
+    await request('/auth/logout', { method: 'POST' });
+  } catch {
+    // Ignore errors on logout
+  }
+  setToken(null);
 }
 
 export async function register(username, email, password, displayName) {
@@ -65,7 +94,7 @@ export async function register(username, email, password, displayName) {
     method: 'POST',
     body: JSON.stringify({ username, email, password, displayName }),
   });
-  setToken(data.token);
+  // Registration returns user data but not a token (admin creates users now)
   return data.user;
 }
 
@@ -74,12 +103,8 @@ export async function getMe() {
   return data.user;
 }
 
-export function logout() {
-  setToken(null);
-}
-
 export function isAuthenticated() {
-  return !!authToken;
+  return !!(authToken || getCookieToken());
 }
 
 export async function changePassword(currentPassword, newPassword) {

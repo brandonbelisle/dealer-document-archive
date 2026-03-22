@@ -9,6 +9,15 @@ const socket = require('../socket');
 
 const router = express.Router();
 
+function validatePassword(password) {
+  const errors = [];
+  if (password.length < 8) errors.push('at least 8 characters');
+  if (!/[A-Z]/.test(password)) errors.push('one uppercase letter');
+  if (!/[a-z]/.test(password)) errors.push('one lowercase letter');
+  if (!/[0-9]/.test(password)) errors.push('one number');
+  return errors;
+}
+
 // ── GET /api/users ────────────────────────────────────────
 router.get('/', requireAuth, requirePermission('manageUsers'), async (req, res) => {
   try {
@@ -42,6 +51,13 @@ router.post('/', requireAuth, requirePermission('manageUsers'), async (req, res)
     const { username, email, password, displayName, groupIds } = req.body;
     if (!username || !email || !password || !displayName) {
       return res.status(400).json({ error: 'All fields required' });
+    }
+
+    const passwordErrors = validatePassword(password);
+    if (passwordErrors.length > 0) {
+      return res.status(400).json({ 
+        error: `Password must contain: ${passwordErrors.join(', ')}` 
+      });
     }
 
     const [existing] = await db.execute(
@@ -103,8 +119,11 @@ router.put('/:id/password', requireAuth, requirePermission('manageUsers'), async
     if (!newPassword) {
       return res.status(400).json({ error: 'New password is required' });
     }
-    if (newPassword.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    const passwordErrors = validatePassword(newPassword);
+    if (passwordErrors.length > 0) {
+      return res.status(400).json({ 
+        error: `Password must contain: ${passwordErrors.join(', ')}` 
+      });
     }
 
     // Verify user exists

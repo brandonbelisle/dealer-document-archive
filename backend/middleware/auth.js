@@ -3,7 +3,11 @@
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('✗ JWT_SECRET environment variable is required');
+  process.exit(1);
+}
 
 // ── Generate a JWT for a user ──────────────────────────────
 function signToken(user) {
@@ -12,6 +16,15 @@ function signToken(user) {
     JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
   );
+}
+
+// ── Check if token is blacklisted ──────────────────────────
+async function isTokenBlacklisted(token) {
+  const [rows] = await db.execute(
+    'SELECT id FROM token_blacklist WHERE token = ? AND expires_at > NOW()',
+    [token]
+  );
+  return rows.length > 0;
 }
 
 // ── Middleware: require a valid JWT ────────────────────────
@@ -25,16 +38,33 @@ async function requireAuth(req, res, next) {
     const token = header.split(' ')[1];
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    // Fetch full user record + groups + permissions
-    const [users] = await db.execute(
-      'SELECT id, username, email, display_name, status FROM users WHERE id = ? AND status = ?',
-      [decoded.userId, 'active']
-    );
-    if (users.length === 0) {
-      return res.status(401).json({ error: 'User not found or inactive' });
+    // Check if token is blacklisted
+    if (await isTokenBlacklisted(token)) {
+      return res.status(401).json({ error: 'Token has been invalidated' });
     }
 
+    // Fetch full user record + groups + permissions
+    const [users] = await db.execute(
+      'SELECT id, username, email, display_name, status, locked_until FROM users WHERE id = ?',
+      [decoded.userId]
+    );
+    if (users.length === 0) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+    
     const user = users[0];
+    
+    if (user.status !== 'active') {
+      return res.status(401).json({ error: 'Account is inactive' });
+    }
+    
+    // Check if account is locked
+    if (user.locked_until && new Date(user.locked_until) > new Date()) {
+      const remaining = Math.ceil((new Date(user.locked_until) - new Date()) / 60000);
+      return res.status(401).json({ 
+        error: `Account is temporarily locked. Try again in ${remaining} minute(s).` 
+      });
+    }
 
     // Get group names
     const [groups] = await db.execute(
@@ -94,4 +124,38 @@ function requirePermission(...keys) {
   };
 }
 
-module.exports = { signToken, requireAuth, requirePermission };
+// ── Blacklist a token (for logout) ────────────────────────
+async function blacklistToken(token, userId = null) {
+  try {
+    const decoded = jwt.decode(token);
+    if (!decoded || !decoded.exp) return;
+    
+    const expiresAt = new Date(decoded.exp * 1000);
+    await db.execute(
+      'INSERT IGNORE INTO token_blacklist (token, user_id, expires_at) VALUES (?, ?, ?)',
+      [token, userId, expiresAt]
+    );
+  } catch (err) {
+    // Token might be invalid, just ignore
+  }
+}
+
+// ── Clean up expired blacklisted tokens ────────────────────
+async function cleanupBlacklist() {
+  await db.execute('DELETE FROM token_blacklist WHERE expires_at < NOW()');
+}
+
+// ── Clean up old failed login attempts────────────────────
+async function cleanupFailedAttempts() {
+  await db.execute("DELETE FROM failed_login_attempts WHERE attempted_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)");
+}
+
+module.exports = { 
+  signToken, 
+  requireAuth, 
+  requirePermission,
+  blacklistToken,
+  isTokenBlacklisted,
+  cleanupBlacklist,
+  cleanupFailedAttempts
+};

@@ -7,17 +7,56 @@ const express = require('express');
 const http = require('http');
 const https = require('https');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const passport = require('passport');
 
+// ── Security: Validate required environment variables ───────
+const isProduction = process.env.NODE_ENV === 'production';
+const requiredEnvVars = ['JWT_SECRET'];
+if (isProduction) {
+  requiredEnvVars.push('FRONTEND_URL', 'DB_HOST', 'DB_USER', 'DB_NAME');
+}
+const missing = requiredEnvVars.filter(v => !process.env[v]);
+if (missing.length > 0) {
+  console.error(`✗Missing required environment variables: ${missing.join(', ')}`);
+  console.error('  Set these in your .env file or environment.');
+  process.exit(1);
+}
+if (process.env.JWT_SECRET === 'dev-secret-change-me') {
+  console.error('✗ JWT_SECRET must be changed from default value in production.');
+  process.exit(1);
+}
+
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
 const HOST = process.env.HOST || '0.0.0.0';
 
-// ── CORS ──────────────────────────────────────────────────
+// ── Security Headers ───────────────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      fontSrc: ["'self'"],
+      connectSrc: ["'self'"],
+      frameAncestors: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
+
+// ── CORS (failsecure)─────────────────────────────────────
 const frontendUrl = process.env.FRONTEND_URL;
+if (isProduction &&!frontendUrl) {
+  console.error('✗ FRONTEND_URL must be set in production mode.');
+  process.exit(1);
+}
 app.use(cors(
   frontendUrl
     ? { origin: frontendUrl, credentials: true }
@@ -26,6 +65,17 @@ app.use(cors(
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// ── Rate Limiting ───────────────────────────────────────────
+const authLimiter = rateLimit({
+  windowMs: 15 * 60* 1000,
+  max: 10,
+  message: { error: 'Too many attempts, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 
 // ── HTTP → HTTPS redirect (optional) ─────────────────────
 const SSL_ENABLED = process.env.SSL_ENABLED === 'true';

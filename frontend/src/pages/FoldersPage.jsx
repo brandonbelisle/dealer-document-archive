@@ -305,6 +305,32 @@ export default function FoldersPage({
         </div>
       )}
 
+      {canUploadFiles && (
+        <div
+          onClick={() => deptFileInputRef.current?.click()}
+          style={{
+            border: `2px dashed ${t.border}`,
+            borderRadius: 14,
+            padding: "24px 20px",
+            textAlign: "center",
+            cursor: "pointer",
+            background: t.dropzone,
+            marginBottom: 16,
+            transition: "all 0.2s",
+          }}
+        >
+          <div style={{ color: t.textDim, marginBottom: 8 }}>
+            <UploadCloudIcon size={28} />
+          </div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: t.text, marginBottom: 4 }}>
+            Drag & drop files here or click to browse
+          </div>
+          <div style={{ fontSize: 11, color: t.textMuted }}>
+            Files will be added to Unsorted in this department
+          </div>
+        </div>
+      )}
+
       <div
         style={{
           display: "flex",
@@ -588,32 +614,6 @@ export default function FoldersPage({
             )}
           </div>
         )
-      )}
-
-      {canUploadFiles && (
-        <div
-          onClick={() => deptFileInputRef.current?.click()}
-          style={{
-            border: `2px dashed ${t.border}`,
-            borderRadius: 14,
-            padding: "36px 24px",
-            textAlign: "center",
-            cursor: "pointer",
-            background: t.dropzone,
-            marginTop: 24,
-            transition: "all 0.2s",
-          }}
-        >
-          <div style={{ color: t.textDim, marginBottom: 10 }}>
-            <UploadCloudIcon size={32} />
-          </div>
-          <div style={{ fontSize: 14, fontWeight: 500, color: t.text, marginBottom: 4 }}>
-            Drag & drop files here or click to browse
-          </div>
-          <div style={{ fontSize: 12, color: t.textMuted }}>
-            Files will be added to Unsorted in this department
-          </div>
-        </div>
       )}
     </div>
   );

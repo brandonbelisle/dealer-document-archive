@@ -569,10 +569,18 @@ const t = getTheme(darkMode);
 
   const handleUploadFiles = useCallback((fl) => { 
     const files = Array.from(fl);
-    const hasPdf = files.some(f => isPdfFile(f));
-    if (hasPdf && !pdfjsLoaded) return;
-    files.forEach((f) => processFile(f, null)); 
-  }, [processFile, pdfjsLoaded]);
+    const pdfFiles = files.filter(isPdfFile);
+    const otherFiles = files.filter(f => !isPdfFile(f));
+    
+    if (pdfFiles.length > 0 && !pdfjsLoaded) {
+      addToast("PDFJS Loading", "PDF processing is still initializing. Please try again in a moment.", 5000, "warning");
+    }
+    
+    otherFiles.forEach((f) => processFile(f, null));
+    if (pdfjsLoaded) {
+      pdfFiles.forEach((f) => processFile(f, null));
+    }
+  }, [processFile, pdfjsLoaded, addToast]);
   const handleDrop = useCallback((e) => { e.preventDefault(); setDragOver(false); handleUploadFiles(e.dataTransfer.files); }, [handleUploadFiles]);
 
   const readDirectoryContents = async (directoryEntry, path = "", skipCount = { value: 0 }) => {

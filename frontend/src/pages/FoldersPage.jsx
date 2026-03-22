@@ -588,7 +588,7 @@ export default function FoldersPage({
                           ? "0 4px 20px rgba(0,0,0,0.4)"
                           : "0 4px 20px rgba(0,0,0,0.1)",
                         overflow: "hidden",
-                        zIndex: 10,
+                        zIndex: 1000,
                       }}
                     >
                       {pageSizeOptions.map((size) => (

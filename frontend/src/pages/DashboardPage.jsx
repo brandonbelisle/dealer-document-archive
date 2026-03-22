@@ -259,10 +259,14 @@ export default function DashboardPage({
                   <div
                     key={file.id}
                     className="folder-row"
-                    onClick={() => {
-                      setViewingFileId(file.id);
-                      setPage("file-detail");
-                    }}
+onClick={() => {
+                       if (file.folderId && file.locationId && file.departmentId) {
+                         setActiveLocation(file.locationId);
+                         setActiveDepartment(file.departmentId);
+                         setActiveFolderId(file.folderId);
+                         setPage("folder-detail");
+                       }
+                     }}
                     style={{
                       display: "flex",
                       alignItems: "center",

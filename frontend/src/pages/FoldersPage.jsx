@@ -55,6 +55,11 @@ export default function FoldersPage({
   const [pageSize, setPageSize] = useState(25);
   const [currentPage, setCurrentPage] = useState(1);
   const [showPageSizeDropdown, setShowPageSizeDropdown] = useState(false);
+  const [dateFilterType, setDateFilterType] = useState("all");
+  const [filterYear, setFilterYear] = useState("");
+  const [filterMonth, setFilterMonth] = useState("");
+  const [filterDay, setFilterDay] = useState("");
+  const [showDateFilterDropdown, setShowDateFilterDropdown] = useState(false);
 
   const handleSubscribe = (newSub) => {
     setSubscriptions((prev) => [...prev, newSub]);
@@ -118,15 +123,73 @@ export default function FoldersPage({
     return sortDir === "asc" ? cmp : -cmp;
   });
 
-  const totalPages = Math.ceil(sorted.length / pageSize);
-  const paginated = sorted.slice(
+  const availableYears = [...new Set(withCounts.map(f => f.createdAt ? new Date(f.createdAt).getFullYear() : null).filter(Boolean))].sort((a, b) => b - a);
+  const availableMonths = [
+    { value: "01", label: "January" },
+    { value: "02", label: "February" },
+    { value: "03", label: "March" },
+    { value: "04", label: "April" },
+    { value: "05", label: "May" },
+    { value: "06", label: "June" },
+    { value: "07", label: "July" },
+    { value: "08", label: "August" },
+    { value: "09", label: "September" },
+    { value: "10", label: "October" },
+    { value: "11", label: "November" },
+    { value: "12", label: "December" },
+  ];
+
+  const getDaysInMonth = (year, month) => {
+    if (!year || !month) return31;
+    return new Date(parseInt(year), parseInt(month), 0).getDate();
+  };
+
+  const daysInSelectedMonth = filterYear && filterMonth ? getDaysInMonth(filterYear, filterMonth) : 31;
+  const availableDays = Array.from({ length: daysInSelectedMonth }, (_, i) => String(i + 1).padStart(2, "0"));
+
+  const dateFiltered = sorted.filter((folder) => {
+    if (dateFilterType === "all") return true;
+    if (!folder.createdAt) return false;
+
+    const date = new Date(folder.createdAt);
+    const folderYear = date.getFullYear().toString();
+    const folderMonth = String(date.getMonth() + 1).padStart(2, "0");
+    const folderDay = String(date.getDate()).padStart(2, "0");
+
+    if (dateFilterType === "year" && filterYear) {
+      return folderYear === filterYear;
+    }
+    if (dateFilterType === "month" && filterMonth && filterYear) {
+      return folderYear === filterYear && folderMonth === filterMonth;
+    }
+    if (dateFilterType === "day" && filterDay && filterMonth && filterYear) {
+      return folderYear === filterYear && folderMonth === filterMonth && folderDay === filterDay;
+    }
+    return true;
+  });
+
+  const totalPages = Math.ceil(dateFiltered.length / pageSize);
+  const paginated = dateFiltered.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [folderSearch, pageSize]);
+  }, [folderSearch, pageSize, dateFilterType, filterYear, filterMonth, filterDay]);
+
+  useEffect(() => {
+    if (dateFilterType === "all") {
+      setFilterYear("");
+      setFilterMonth("");
+      setFilterDay("");
+    } else if (dateFilterType === "year") {
+      setFilterMonth("");
+      setFilterDay("");
+    } else if (dateFilterType === "month") {
+      setFilterDay("");
+    }
+  }, [dateFilterType]);
 
   const pageSizeOptions = [25, 50, 100, 150];
 
@@ -194,9 +257,18 @@ export default function FoldersPage({
           <p
             style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}
           >
-            {df.length} folder{df.length !== 1 ? "s" : ""} · {totalFiles}{" "}
-            file
-            {totalFiles !== 1 ? "s" : ""}
+            {dateFilterType !== "all" ? (
+              <>
+                {dateFiltered.length} of {df.length} folder{df.length !== 1 ? "s" : ""} ·{" "}
+                {totalFiles} file{totalFiles !== 1 ? "s" : ""}
+              </>
+            ) : (
+              <>
+                {df.length} folder{df.length !== 1 ? "s" : ""} · {totalFiles}{" "}
+                file
+                {totalFiles !== 1 ? "s" : ""}
+              </>
+            )}
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -269,6 +341,291 @@ export default function FoldersPage({
           </button>
         )}
       </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          flexWrap: "wrap",
+          marginBottom: 16,
+        }}
+      >
+        <div style={{ position: "relative" }}>
+          <button
+            onClick={() => setShowDateFilterDropdown(!showDateFilterDropdown)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              background: t.surface,
+              border: `1px solid ${t.border}`,
+              borderRadius: 8,
+              padding: "8px 12px",
+              fontSize: 12,
+              color: dateFilterType !== "all" ? t.accent : t.text,
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            <span>Filter by Date</span>
+            <ChevronDown />
+          </button>
+          {showDateFilterDropdown && (
+            <div
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                marginTop: 4,
+                background: t.surface,
+                border: `1px solid ${t.border}`,
+                borderRadius: 8,
+                boxShadow: darkMode
+                  ? "0 8px 30px rgba(0,0,0,0.4)"
+                  : "0 8px 30px rgba(0,0,0,0.15)",
+                padding: 12,
+                zIndex: 1000,
+                minWidth: 200,
+              }}
+            >
+              <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 8, color: t.textMuted }}>
+                Filter Type
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 12 }}>
+                {[
+                  { value: "all", label: "All Dates" },
+                  { value: "day", label: "Specific Day" },
+                  { value: "month", label: "Specific Month" },
+                  { value: "year", label: "Specific Year" },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => {
+                      setDateFilterType(opt.value);
+                      if (opt.value === "all") setShowDateFilterDropdown(false);
+                    }}
+                    style={{
+                      background: dateFilterType === opt.value ? t.accentSoft : "transparent",
+                      border: "none",
+                      padding: "6px 10px",
+                      borderRadius: 6,
+                      fontSize: 12,
+                      textAlign: "left",
+                      cursor: "pointer",
+                      color: dateFilterType === opt.value ? t.accent : t.text,
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              {dateFilterType === "year" && (
+                <div style={{ marginBottom: 8 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: t.textMuted }}>
+                    Select Year
+                  </div>
+                  <select
+                    value={filterYear}
+                    onChange={(e) => setFilterYear(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "6px 10px",
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 6,
+                      fontSize: 12,
+                      background: t.surface,
+                      color: t.text,
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    <option value="">Choose year...</option>
+                    {availableYears.map((yr) => (
+                      <option key={yr} value={yr}>{yr}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {dateFilterType === "month" && (
+                <>
+                  <div style={{ marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: t.textMuted }}>
+                      Select Year
+                    </div>
+                    <select
+                      value={filterYear}
+                      onChange={(e) => setFilterYear(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "6px 10px",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 6,
+                        fontSize: 12,
+                        background: t.surface,
+                        color: t.text,
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      <option value="">Choose year...</option>
+                      {availableYears.map((yr) => (
+                        <option key={yr} value={yr}>{yr}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div style={{ marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: t.textMuted }}>
+                      Select Month
+                    </div>
+                    <select
+                      value={filterMonth}
+                      onChange={(e) => setFilterMonth(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "6px 10px",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 6,
+                        fontSize: 12,
+                        background: t.surface,
+                        color: t.text,
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      <option value="">Choose month...</option>
+                      {availableMonths.map((m) => (
+                        <option key={m.value} value={m.value}>{m.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
+              {dateFilterType === "day" && (
+                <>
+                  <div style={{ marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: t.textMuted }}>
+                      Select Year
+                    </div>
+                    <select
+                      value={filterYear}
+                      onChange={(e) => setFilterYear(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "6px 10px",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 6,
+                        fontSize: 12,
+                        background: t.surface,
+                        color: t.text,
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      <option value="">Choose year...</option>
+                      {availableYears.map((yr) => (
+                        <option key={yr} value={yr}>{yr}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div style={{ marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: t.textMuted }}>
+                      Select Month
+                    </div>
+                    <select
+                      value={filterMonth}
+                      onChange={(e) => setFilterMonth(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "6px 10px",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 6,
+                        fontSize: 12,
+                        background: t.surface,
+                        color: t.text,
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      <option value="">Choose month...</option>
+                      {availableMonths.map((m) => (
+                        <option key={m.value} value={m.value}>{m.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div style={{ marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: t.textMuted }}>
+                      Select Day
+                    </div>
+                    <select
+                      value={filterDay}
+                      onChange={(e) => setFilterDay(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "6px 10px",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 6,
+                        fontSize: 12,
+                        background: t.surface,
+                        color: t.text,
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      <option value="">Choose day...</option>
+                      {availableDays.map((d) => (
+                        <option key={d} value={d}>{parseInt(d)}</option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
+              {dateFilterType !== "all" && (
+                <button
+                  onClick={() => {
+                    setShowDateFilterDropdown(false);
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    background: t.accent,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    marginTop: 4,
+                  }}
+                >
+                  Apply Filter
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+        {dateFilterType !== "all" && (
+          <button
+            onClick={() => {
+              setDateFilterType("all");
+              setFilterYear("");
+              setFilterMonth("");
+              setFilterDay("");
+            }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              background: "transparent",
+              border: `1px solid ${t.border}`,
+              borderRadius: 6,
+              padding: "6px 10px",
+              fontSize: 11,
+              color: t.textMuted,
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            Clear Filter
+            <XIcon size={12} />
+          </button>
+        )}
+      </div>
       {creatingDeptFolder && (
         <div
           style={{
@@ -337,7 +694,7 @@ export default function FoldersPage({
           </button>
         </div>
       )}
-      {sorted.length > 0 ? (
+      {dateFiltered.length > 0 ? (
         <div
           style={{
             background: t.surface,
@@ -346,7 +703,7 @@ export default function FoldersPage({
             overflow: "hidden",
           }}
         >
-          {sorted.length > pageSize && (
+          {dateFiltered.length > pageSize && (
             <div
               style={{
                 display: "flex",
@@ -427,7 +784,7 @@ export default function FoldersPage({
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <span>
-                  {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, sorted.length)} of {sorted.length}
+                  {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, dateFiltered.length)} of {dateFiltered.length}
                 </span>
                 <div style={{ display: "flex", gap: 4 }}>
                   <button
@@ -540,7 +897,7 @@ export default function FoldersPage({
                     style={{
                       padding: "12px 14px",
                       borderBottom:
-                        idx < sorted.length - 1
+                        idx < paginated.length - 1
                           ? `1px solid ${t.border}`
                           : "none",
                     }}
@@ -595,7 +952,7 @@ export default function FoldersPage({
                     style={{
                       padding: "12px 14px",
                       borderBottom:
-                        idx < sorted.length - 1
+                        idx < paginated.length - 1
                           ? `1px solid ${t.border}`
                           : "none",
                       textAlign: "center",
@@ -624,7 +981,7 @@ export default function FoldersPage({
                     style={{
                       padding: "12px 14px",
                       borderBottom:
-                        idx < sorted.length - 1
+                        idx < paginated.length - 1
                           ? `1px solid ${t.border}`
                           : "none",
                       fontSize: 11.5,
@@ -638,7 +995,7 @@ export default function FoldersPage({
                     style={{
                       padding: "12px 8px",
                       borderBottom:
-                        idx < sorted.length - 1
+                        idx < paginated.length - 1
                           ? `1px solid ${t.border}`
                           : "none",
                       textAlign: "center",

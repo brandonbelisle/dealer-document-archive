@@ -12934,6 +12934,18 @@ async function runDmsSchedule(id) {
 async function getAzureSettings() {
   return request("/azure/settings");
 }
+async function saveAzureSettings(settings) {
+  return request("/azure/settings", {
+    method: "POST",
+    body: JSON.stringify(settings)
+  });
+}
+async function testAzureConnection(settings) {
+  return request("/azure/test", {
+    method: "POST",
+    body: JSON.stringify(settings)
+  });
+}
 const darkTheme = {
   bg: "#0f1114",
   pageBg: "#131619",
@@ -26977,22 +26989,12 @@ function SettingsSection({ t, darkMode, addToast }) {
   const [showRestartPrompt, setShowRestartPrompt] = reactExports.useState(false);
   reactExports.useRef(null);
   reactExports.useRef(null);
-  const [azureSettings2, setAzureSettings2] = reactExports.useState({
-    enabled: true,
-    connectionString: "",
-    containerName: "documents"
-  });
-  const [azureLoading2, setAzureLoading] = reactExports.useState(false);
-  const [azureSaving2, setAzureSaving] = reactExports.useState(false);
-  const [azureTesting2, setAzureTesting] = reactExports.useState(false);
-  const [azureMessage2, setAzureMessage] = reactExports.useState({ type: "", text: "" });
   reactExports.useEffect(() => {
     loadLogos();
     loadSmtpSettings();
     loadSupportEmail();
     loadEmailSettings();
     loadSslCertificates();
-    loadAzureSettings();
   }, []);
   const loadSslCertificates = async () => {
     setSslLoading(true);
@@ -27090,21 +27092,6 @@ function SettingsSection({ t, darkMode, addToast }) {
       setSmtpMessage({ type: "error", text: "Failed to send: " + (err.message || "Unknown error") });
     } finally {
       setSmtpTesting(false);
-    }
-  };
-  const loadAzureSettings = async () => {
-    setAzureLoading(true);
-    try {
-      const settings = await getAzureSettings();
-      setAzureSettings2({
-        enabled: settings.enabled !== false,
-        connectionString: settings.hasConnectionString ? "••••••••••••••••" : "",
-        containerName: settings.container_name || "documents"
-      });
-    } catch (err) {
-      console.error("Failed to load Azure settings:", err);
-    } finally {
-      setAzureLoading(false);
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -28791,6 +28778,15 @@ function AdminPage({
   const [permTab, setPermTab] = reactExports.useState("dda");
   const [customApps, setCustomApps] = reactExports.useState([]);
   const [customAppPerms, setCustomAppPerms] = reactExports.useState({});
+  const [azureSettings, setAzureSettings] = reactExports.useState({
+    enabled: true,
+    connectionString: "",
+    containerName: "documents"
+  });
+  const [azureLoading, setAzureLoading] = reactExports.useState(false);
+  const [azureSaving, setAzureSaving] = reactExports.useState(false);
+  const [azureTesting, setAzureTesting] = reactExports.useState(false);
+  const [azureMessage, setAzureMessage] = reactExports.useState({ type: "", text: "" });
   const editLocRef = reactExports.useRef(null);
   const addLocRef = reactExports.useRef(null);
   const editDeptRef = reactExports.useRef(null);
@@ -28866,6 +28862,58 @@ function AdminPage({
       console.error("Failed to update custom app permission:", err);
     }
   };
+  const loadAzureSettings = async () => {
+    setAzureLoading(true);
+    try {
+      const settings = await getAzureSettings();
+      setAzureSettings({
+        enabled: settings.enabled !== false,
+        connectionString: settings.hasConnectionString ? "••••••••••••••••" : "",
+        containerName: settings.container_name || "documents"
+      });
+    } catch (err) {
+      console.error("Failed to load Azure settings:", err);
+    } finally {
+      setAzureLoading(false);
+    }
+  };
+  const handleSaveAzure = async () => {
+    setAzureSaving(true);
+    setAzureMessage({ type: "", text: "" });
+    try {
+      await saveAzureSettings({
+        enabled: azureSettings.enabled,
+        connectionString: azureSettings.connectionString === "••••••••••••••••" ? void 0 : azureSettings.connectionString,
+        containerName: azureSettings.containerName
+      });
+      setAzureMessage({ type: "success", text: "Azure settings saved successfully!" });
+      await loadAzureSettings();
+    } catch (err) {
+      setAzureMessage({ type: "error", text: "Failed to save: " + (err.message || "Unknown error") });
+    } finally {
+      setAzureSaving(false);
+    }
+  };
+  const handleTestAzure = async () => {
+    setAzureTesting(true);
+    setAzureMessage({ type: "", text: "" });
+    try {
+      const result = await testAzureConnection({
+        connectionString: azureSettings.connectionString === "••••••••••••••••" ? void 0 : azureSettings.connectionString,
+        containerName: azureSettings.containerName
+      });
+      setAzureMessage({ type: "success", text: "Connection successful! Container " + (result.containerExists ? "exists" : "will be created") });
+    } catch (err) {
+      setAzureMessage({ type: "error", text: "Connection failed: " + (err.message || "Unknown error") });
+    } finally {
+      setAzureTesting(false);
+    }
+  };
+  reactExports.useEffect(() => {
+    if (adminSection === "azure") {
+      loadAzureSettings();
+    }
+  }, [adminSection]);
   const adminActiveMenu = ADMIN_MENU.find((m) => m.id === adminSection);
   const demoUsers = adminUsers;
   const demoGroups = securityGroups.map((g) => ({
@@ -32013,4 +32061,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-DCyMC7Ru.js.map
+//# sourceMappingURL=index-DD04qBT9.js.map

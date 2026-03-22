@@ -754,24 +754,12 @@ function SettingsSection({ t, darkMode, addToast }) {
   const sslInputRef = useRef(null);
   const sslKeyInputRef = useRef(null);
 
-  // Azure Storage settings
-  const [azureSettings, setAzureSettings] = useState({
-    enabled: true,
-    connectionString: '',
-    containerName: 'documents',
-  });
-  const [azureLoading, setAzureLoading] = useState(false);
-  const [azureSaving, setAzureSaving] = useState(false);
-  const [azureTesting, setAzureTesting] = useState(false);
-  const [azureMessage, setAzureMessage] = useState({ type: '', text: '' });
-
   useEffect(() => {
     loadLogos();
     loadSmtpSettings();
     loadSupportEmail();
     loadEmailSettings();
     loadSslCertificates();
-    loadAzureSettings();
   }, []);
 
   const loadSslCertificates = async () => {
@@ -877,58 +865,6 @@ function SettingsSection({ t, darkMode, addToast }) {
       setSmtpMessage({ type: 'error', text: 'Failed to send: ' + (err.message || 'Unknown error') });
     } finally {
       setSmtpTesting(false);
-    }
-  };
-
-  // Azure Storage functions
-  const loadAzureSettings = async () => {
-    setAzureLoading(true);
-    try {
-      const settings = await api.getAzureSettings();
-      setAzureSettings({
-        enabled: settings.enabled !== false,
-        connectionString: settings.hasConnectionString ? '••••••••••••••••' : '',
-        containerName: settings.container_name || 'documents',
-      });
-    } catch (err) {
-      console.error('Failed to load Azure settings:', err);
-    } finally {
-      setAzureLoading(false);
-    }
-  };
-
-  const handleSaveAzure = async () => {
-    setAzureSaving(true);
-    setAzureMessage({ type: '', text: '' });
-    try {
-      await api.saveAzureSettings({
-        enabled: azureSettings.enabled,
-        connectionString: azureSettings.connectionString === '••••••••••••••••' ? undefined : azureSettings.connectionString,
-        containerName: azureSettings.containerName,
-      });
-      setAzureMessage({ type: 'success', text: 'Azure settings saved successfully!' });
-      // Reload to update hasConnectionString status
-      await loadAzureSettings();
-    } catch (err) {
-      setAzureMessage({ type: 'error', text: 'Failed to save: ' + (err.message || 'Unknown error') });
-    } finally {
-      setAzureSaving(false);
-    }
-  };
-
-  const handleTestAzure = async () => {
-    setAzureTesting(true);
-    setAzureMessage({ type: '', text: '' });
-    try {
-      const result = await api.testAzureConnection({
-        connectionString: azureSettings.connectionString === '••••••••••••••••' ? undefined : azureSettings.connectionString,
-        containerName: azureSettings.containerName,
-      });
-      setAzureMessage({ type: 'success', text: 'Connection successful! Container ' + (result.containerExists ? 'exists' : 'will be created') });
-    } catch (err) {
-      setAzureMessage({ type: 'error', text: 'Connection failed: ' + (err.message || 'Unknown error') });
-    } finally {
-      setAzureTesting(false);
     }
   };
 
@@ -2737,6 +2673,17 @@ export default function AdminPage({
   const [customApps, setCustomApps] = useState([]);
   const [customAppPerms, setCustomAppPerms] = useState({});
 
+  // Azure Storage settings
+  const [azureSettings, setAzureSettings] = useState({
+    enabled: true,
+    connectionString: '',
+    containerName: 'documents',
+  });
+  const [azureLoading, setAzureLoading] = useState(false);
+  const [azureSaving, setAzureSaving] = useState(false);
+  const [azureTesting, setAzureTesting] = useState(false);
+  const [azureMessage, setAzureMessage] = useState({ type: '', text: '' });
+
   const editLocRef = useRef(null);
   const addLocRef = useRef(null);
   const editDeptRef = useRef(null);
@@ -2810,6 +2757,63 @@ export default function AdminPage({
       console.error("Failed to update custom app permission:", err);
     }
   };
+
+  // Azure Storage functions
+  const loadAzureSettings = async () => {
+    setAzureLoading(true);
+    try {
+      const settings = await api.getAzureSettings();
+      setAzureSettings({
+        enabled: settings.enabled !== false,
+        connectionString: settings.hasConnectionString ? '••••••••••••••••' : '',
+        containerName: settings.container_name || 'documents',
+      });
+    } catch (err) {
+      console.error('Failed to load Azure settings:', err);
+    } finally {
+      setAzureLoading(false);
+    }
+  };
+
+  const handleSaveAzure = async () => {
+    setAzureSaving(true);
+    setAzureMessage({ type: '', text: '' });
+    try {
+      await api.saveAzureSettings({
+        enabled: azureSettings.enabled,
+        connectionString: azureSettings.connectionString === '••••••••••••••••' ? undefined : azureSettings.connectionString,
+        containerName: azureSettings.containerName,
+      });
+      setAzureMessage({ type: 'success', text: 'Azure settings saved successfully!' });
+      await loadAzureSettings();
+    } catch (err) {
+      setAzureMessage({ type: 'error', text: 'Failed to save: ' + (err.message || 'Unknown error') });
+    } finally {
+      setAzureSaving(false);
+    }
+  };
+
+  const handleTestAzure = async () => {
+    setAzureTesting(true);
+    setAzureMessage({ type: '', text: '' });
+    try {
+      const result = await api.testAzureConnection({
+        connectionString: azureSettings.connectionString === '••••••••••••••••' ? undefined : azureSettings.connectionString,
+        containerName: azureSettings.containerName,
+      });
+      setAzureMessage({ type: 'success', text: 'Connection successful! Container ' + (result.containerExists ? 'exists' : 'will be created') });
+    } catch (err) {
+      setAzureMessage({ type: 'error', text: 'Connection failed: ' + (err.message || 'Unknown error') });
+    } finally {
+      setAzureTesting(false);
+    }
+  };
+
+  useEffect(() => {
+    if (adminSection === 'azure') {
+      loadAzureSettings();
+    }
+  }, [adminSection]);
 
   const adminActiveMenu = ADMIN_MENU.find((m) => m.id === adminSection);
   const demoUsers = adminUsers;

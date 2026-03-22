@@ -206,6 +206,7 @@ router.delete('/:id', requireAuth, requirePermission('deleteFolders'), async (re
     const [existing] = await db.execute('SELECT name FROM folders WHERE id = ?', [req.params.id]);
     if (existing.length === 0) return res.status(404).json({ error: 'Not found' });
 
+    await db.execute('UPDATE files SET folder_id = NULL WHERE folder_id = ?', [req.params.id]);
     await db.execute('DELETE FROM folders WHERE id = ?', [req.params.id]);
     await logAudit('Folder Deleted', `"${existing[0].name}"`, req.user, req.ip);
 

@@ -140,15 +140,38 @@ async function deleteBlob(blobName) {
   }
 }
 
+// ── Parse account name and key from connection string ───────
+function parseConnectionString(connectionString) {
+  const parts = {};
+  connectionString.split(';').forEach(part => {
+    const [key, ...valueParts] = part.split('=');
+    if (key && valueParts.length > 0) {
+      parts[key.trim()] = valueParts.join('=').trim();
+    }
+  });
+  return {
+    accountName: parts.AccountName || parts.accountname,
+    accountKey: parts.AccountKey || parts.accountkey,
+  };
+}
+
 // ── Generate a SAS URL for time-limited access ────────────
 // Useful if container access is set to private instead of blob-level public.
 // Returns a URL valid for `expiresInMinutes` (default 60).
 function generateSasUrl(blobName, expiresInMinutes = 60) {
-  const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
-  const accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY;
+  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+  let accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+  let accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY;
+
+  // Extract account name/key from connection string if not provided separately
+  if ((!accountName || !accountKey) && connectionString) {
+    const parsed = parseConnectionString(connectionString);
+    accountName = accountName || parsed.accountName;
+    accountKey = accountKey || parsed.accountKey;
+  }
 
   if (!accountName || !accountKey) {
-    // If using connection string only, fall back to public URL
+    // Fall back to public URL (works if container has blob-level public access)
     const client = getClient();
     const containerClient = client.getContainerClient(containerName);
     return containerClient.getBlockBlobClient(blobName).url;

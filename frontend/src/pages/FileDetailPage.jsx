@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { fmtSize, copyText } from "../utils/helpers";
 import { Btn } from "../components/ui/Btn";
 import {
@@ -35,8 +35,35 @@ export default function FileDetailPage({
   const canDeleteFiles = loggedInUser?.permissions?.includes("deleteFiles");
   const [extracting, setExtracting] = useState(false);
   const [vf, setVf] = useState(files.find((f) => f.id === viewingFileId));
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   
   if (!vf) return null;
+
+  // Fetch fresh preview URL when file changes
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchPreviewUrl() {
+      if (!vf?.id) return;
+      setPreviewLoading(true);
+      try {
+        const url = await api.getFilePreviewUrlByFileId(vf.id);
+        if (!cancelled) setPreviewUrl(url);
+      } catch (err) {
+        console.error("Failed to get preview URL:", err);
+        if (!cancelled) setPreviewUrl(null);
+      } finally {
+        if (!cancelled) setPreviewLoading(false);
+      }
+    }
+    // If fileDataUrl is available (extracted text for PDF), use that instead
+    if (vf.fileDataUrl) {
+      setPreviewUrl(vf.fileDataUrl);
+    } else {
+      fetchPreviewUrl();
+    }
+    return () => { cancelled = true; };
+  }, [vf?.id, vf?.fileDataUrl]);
 
   const folder = folders.find((f) => f.id === vf.folderId);
   const loc = folder
@@ -472,9 +499,13 @@ export default function FileDetailPage({
           }}
         >
           {(() => {
-            const previewUrl = vf.fileStoragePath
-              ? api.getFilePreviewUrl(vf.fileStoragePath)
-              : vf.fileDataUrl;
+            if (previewLoading) {
+              return (
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: t.textMuted }}>
+                  Loading preview...
+                </div>
+              );
+            }
             if (previewUrl) {
               if (isPdf) {
                 if (vf.fileDataUrl)
@@ -521,6 +552,7 @@ export default function FileDetailPage({
                     />
                   </div>
                 );
+            }
               return (
                 <div
                   style={{

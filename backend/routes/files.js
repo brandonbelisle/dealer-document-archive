@@ -4,7 +4,7 @@ const express = require('express');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../config/db');
-const { uploadBlob, downloadBlob, downloadBlobBuffer, deleteBlob } = require('../config/azure-storage');
+const { uploadBlob, downloadBlob, downloadBlobBuffer, deleteBlob, generateSasUrl } = require('../config/azure-storage');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
 const { createNotificationsForUpload, createNotificationsForUnsortedUpload } = require('./notifications');
@@ -113,7 +113,7 @@ router.get('/:id/download', requireAuth, async (req, res) => {
     const storagePath = rows[0].file_storage_path;
     if (!storagePath) return res.status(404).json({ error: 'No file stored' });
 
-    // Extract blob name from full Azure URL
+    // Extract blob name (handles both old URL format and new blob name format)
     const blobName = storagePath.includes('/') ? storagePath.split('/').pop().split('?')[0] : storagePath;
 
     const { readableStream, contentType, contentLength } = await downloadBlob(blobName);
@@ -126,6 +126,29 @@ router.get('/:id/download', requireAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to download file' });
+  }
+});
+
+// ── GET /api/files/:id/preview-url ────────────────────────
+// Returns a fresh SAS URL for previewing the file (URLs expire after some time)
+router.get('/:id/preview-url', requireAuth, async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT name, file_storage_path FROM files WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+
+    const storagePath = rows[0].file_storage_path;
+    if (!storagePath) return res.status(404).json({ error: 'No file stored' });
+
+    // Extract blob name (handles both old URL format and new blob name format)
+    const blobName = storagePath.includes('/') ? storagePath.split('/').pop().split('?')[0] : storagePath;
+
+    // Generate fresh SAS URL valid for 1 hour
+    const previewUrl = generateSasUrl(blobName, 60);
+
+    res.json({ url: previewUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to generate preview URL' });
   }
 });
 
@@ -175,7 +198,7 @@ router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.sin
 
     const status = (isImage || finalExtractedText) ? 'done' : 'processing';
 
-    // file_storage_path stores the full Azure blob URL for direct browser access
+    // Store only the blob name (not full URL) - SAS URLs are generated on demand
     await db.execute(
       `INSERT INTO files (id, name, original_name, folder_id, mime_type, file_size_bytes,
         page_count, extracted_text, file_storage_path, status, uploaded_by)
@@ -189,7 +212,7 @@ router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.sin
         req.file.size,
         finalPageCount,
         finalExtractedText,
-        blobUrl,
+        blobName,
         status,
         req.user.id,
       ]

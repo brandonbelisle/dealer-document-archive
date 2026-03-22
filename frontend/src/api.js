@@ -229,6 +229,10 @@ export function getFilePreviewUrl(storagePath) {
   if (!storagePath) return null;
   return storagePath;
 }
+export async function getFilePreviewUrlByFileId(fileId) {
+  const data = await request(`/files/${fileId}/preview-url`);
+  return data.url;
+}
 
 // ── Groups & Permissions ──────────────────────────────────
 export async function getGroups() {

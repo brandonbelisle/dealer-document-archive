@@ -22,9 +22,10 @@ CREATE TABLE IF NOT EXISTS failed_login_attempts (
     INDEX idx_failed_time (attempted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Add locked_until column to users table
-ALTER TABLE users ADD COLUMN IF NOT EXISTS locked_until DATETIME NULL;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_attempts INT NOT NULL DEFAULT 0;
+-- Add locked_until and failed_attempts columns to users table
+-- Note: If you get "Duplicate column name" errors, the columns already exist - that's fine
+ALTER TABLE users ADD COLUMN locked_until DATETIME NULL;
+ALTER TABLE users ADD COLUMN failed_attempts INT NOT NULL DEFAULT 0;
 
--- Create index for locked_until
-CREATE INDEX IF NOT EXISTS idx_users_locked ON users (locked_until);
+-- Create index for locked_until (ignore error if exists)
+CREATE INDEX idx_users_locked ON users (locked_until);

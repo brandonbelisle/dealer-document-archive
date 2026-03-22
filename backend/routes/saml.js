@@ -334,15 +334,15 @@ async function processSamlUser(profile, settings) {
   if (existingUsers.length > 0) {
     const user = existingUsers[0];
     
-    // Update last login, external_id, and avatar if provided
+    // Update last login, external_id, avatar, and clear any account lockout from failed local login attempts
     if (avatarUrl) {
       await db.execute(
-        'UPDATE users SET last_login_at = NOW(), external_id = ?, avatar_url = ? WHERE id = ?',
+        'UPDATE users SET last_login_at = NOW(), external_id = ?, avatar_url = ?, failed_attempts = 0, locked_until = NULL WHERE id = ?',
         [nameId || email, avatarUrl, user.id]
       );
     } else {
       await db.execute(
-        'UPDATE users SET last_login_at = NOW(), external_id = ? WHERE id = ?',
+        'UPDATE users SET last_login_at = NOW(), external_id = ?, failed_attempts = 0, locked_until = NULL WHERE id = ?',
         [nameId || email, user.id]
       );
     }

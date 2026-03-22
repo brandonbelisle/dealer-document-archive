@@ -125,15 +125,33 @@ async function loadSSLOptions() {
         : null;
 
       if (fs.existsSync(certPath) && keyPath && fs.existsSync(keyPath)) {
-        console.log('✓ Using active SSL certificate:', cert.name);
-        return {
-          key: fs.readFileSync(keyPath),
-          cert: fs.readFileSync(certPath),
-        };
+        console.log(`Loading active SSL certificate: ${cert.name}`);
+        try {
+          const keyContent = fs.readFileSync(keyPath, 'utf8');
+          const certContent = fs.readFileSync(certPath, 'utf8');
+          
+          // Verify they look like PEM files
+          if (!keyContent.includes('-----BEGIN') || !certContent.includes('-----BEGIN CERTIFICATE')) {
+            console.warn('⚠ Certificate or key file does not appear to be in PEM format');
+            console.warn('  Falling back to environment variable certificates');
+          } else {
+            console.log('✓ Using active SSL certificate:', cert.name);
+            return {
+              key: keyContent,
+              cert: certContent,
+            };
+          }
+        } catch (readErr) {
+          console.warn('⚠ Failed to read certificate files:', readErr.message);
+          console.warn('  Falling back to environment variable certificates');
+        }
       }
     }
   } catch (err) {
     // Database not available or no active cert, fall through to env vars
+    if (err.code !== 'ECONNREFUSED') {
+      console.warn('⚠ Could not check for active SSL certificate:', err.message);
+    }
   }
 
   // Fall back to environment variable paths

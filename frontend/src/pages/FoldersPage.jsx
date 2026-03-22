@@ -57,16 +57,16 @@ export default function FoldersPage({
   const canUploadFiles = loggedInUser?.permissions?.includes("uploadFiles");
   const newDeptFolderRef = useRef(null);
   const deptFileInputRef = useRef(null);
-  const [sortCol, setSortCol] = useState("createdAt");
-  const [sortDir, setSortDir] = useState("desc");
-  const [pageSize, setPageSize] = useState(25);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showPageSizeDropdown, setShowPageSizeDropdown] = useState(false);
-  const [dateFilterType, setDateFilterType] = useState("all");
-  const [filterYear, setFilterYear] = useState("");
-  const [filterMonth, setFilterMonth] = useState("");
-  const [filterDay, setFilterDay] = useState("");
-  const [showDateFilterDropdown, setShowDateFilterDropdown] = useState(false);
+  const [sortCol] = useState("createdAt");
+  const [sortDir] = useState("desc");
+  const [pageSize] = useState(25);
+  const [currentPage] = useState(1);
+  const [showPageSizeDropdown] = useState(false);
+  const [dateFilterType] = useState("all");
+  const [filterYear] = useState("");
+  const [filterMonth] = useState("");
+  const [filterDay] = useState("");
+  const [showDateFilterDropdown] = useState(false);
 
   const handleSubscribe = (newSub) => {
     setSubscriptions((prev) => [...prev, newSub]);
@@ -81,15 +81,6 @@ export default function FoldersPage({
       newDeptFolderRef.current.focus();
   }, [creatingDeptFolder]);
 
-  const toggleSort = (col) => {
-    if (sortCol === col) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortCol(col);
-      setSortDir("asc");
-    }
-  };
-
   const q = folderSearch.trim();
   const df = currentDeptFolders.filter((f) => !f.parentId);
   const filtered = q
@@ -100,7 +91,6 @@ export default function FoldersPage({
         .map((r) => r.folder)
     : df;
 
-  // Build sortable list with counts from API
   const withCounts = filtered.map((folder) => ({
     ...folder,
     _fileCount: folder.fileCount || 0,
@@ -108,97 +98,10 @@ export default function FoldersPage({
   }));
 
   const sorted = [...withCounts].sort((a, b) => {
-    let cmp = 0;
-    switch (sortCol) {
-      case "name":
-        cmp = (a.name || "").localeCompare(b.name || "", undefined, {
-          sensitivity: "base",
-        });
-        break;
-      case "createdAt": {
-        const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        cmp = da - db;
-        break;
-      }
-      case "files":
-        cmp = a._fileCount - b._fileCount;
-        break;
-      default:
-        cmp = 0;
-    }
-    return sortDir === "asc" ? cmp : -cmp;
+    const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return db - da;
   });
-
-  const availableYears = [...new Set(withCounts.map(f => f.createdAt ? new Date(f.createdAt).getFullYear() : null).filter(Boolean))].sort((a, b) => b - a);
-  const availableMonths = [
-    { value: "01", label: "January" },
-    { value: "02", label: "February" },
-    { value: "03", label: "March" },
-    { value: "04", label: "April" },
-    { value: "05", label: "May" },
-    { value: "06", label: "June" },
-    { value: "07", label: "July" },
-    { value: "08", label: "August" },
-    { value: "09", label: "September" },
-    { value: "10", label: "October" },
-    { value: "11", label: "November" },
-    { value: "12", label: "December" },
-  ];
-
-  const getDaysInMonth = (year, month) => {
-    if (!year || !month) return31;
-    return new Date(parseInt(year), parseInt(month), 0).getDate();
-  };
-
-  const daysInSelectedMonth = filterYear && filterMonth ? getDaysInMonth(filterYear, filterMonth) : 31;
-  const availableDays = Array.from({ length: daysInSelectedMonth }, (_, i) => String(i + 1).padStart(2, "0"));
-
-  const dateFiltered = sorted.filter((folder) => {
-    if (dateFilterType === "all") return true;
-    if (!folder.createdAt) return false;
-
-    const date = new Date(folder.createdAt);
-    const folderYear = date.getFullYear().toString();
-    const folderMonth = String(date.getMonth() + 1).padStart(2, "0");
-    const folderDay = String(date.getDate()).padStart(2, "0");
-
-    if (dateFilterType === "year" && filterYear) {
-      return folderYear === filterYear;
-    }
-    if (dateFilterType === "month" && filterMonth && filterYear) {
-      return folderYear === filterYear && folderMonth === filterMonth;
-    }
-    if (dateFilterType === "day" && filterDay && filterMonth && filterYear) {
-      return folderYear === filterYear && folderMonth === filterMonth && folderDay === filterDay;
-    }
-    return true;
-  });
-
-  const totalPages = Math.ceil(dateFiltered.length / pageSize);
-  const paginated = dateFiltered.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [folderSearch, pageSize, dateFilterType, filterYear, filterMonth, filterDay]);
-
-  useEffect(() => {
-    if (dateFilterType === "all") {
-      setFilterYear("");
-      setFilterMonth("");
-      setFilterDay("");
-    } else if (dateFilterType === "year") {
-      setFilterMonth("");
-      setFilterDay("");
-    } else if (dateFilterType === "month") {
-      setFilterDay("");
-    }
-  }, [dateFilterType]);
-
-  const pageSizeOptions = [25, 50, 100, 150];
 
   const totalFiles = df.reduce(
     (s, f) => s + (f.fileCount || 0),
@@ -217,18 +120,6 @@ export default function FoldersPage({
     cursor: "pointer",
     transition: "color 0.15s",
     textAlign: "left",
-  };
-
-  const SortArrow = ({ col }) => {
-    if (sortCol !== col)
-      return (
-        <span style={{ opacity: 0.25, marginLeft: 3, fontSize: 9 }}>↕</span>
-      );
-    return (
-      <span style={{ marginLeft: 3, fontSize: 9, color: t.accent }}>
-        {sortDir === "asc" ? "▲" : "▼"}
-      </span>
-    );
   };
 
   return (
@@ -313,50 +204,66 @@ export default function FoldersPage({
             <span style={{ color: t.textDim, margin: "0 8px" }}>/</span>
             <span>{currentDept?.name}</span>
           </h1>
-          <p
-            style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}
-          >
-            {dateFilterType !== "all" ? (
-              <>
-                {dateFiltered.length} of {df.length} folder{df.length !== 1 ? "s" : ""} ·{" "}
-                {totalFiles} file{totalFiles !== 1 ? "s" : ""}
-              </>
-            ) : (
-              <>
-                {df.length} folder{df.length !== 1 ? "s" : ""} · {totalFiles}{" "}
-                file
-                {totalFiles !== 1 ? "s" : ""}
-              </>
-)}
-        )}
-        {canUploadFiles && (
-          <div
-            onClick={() => deptFileInputRef.current?.click()}
-            style={{
-              border: `2px dashed ${t.border}`,
-              borderRadius: 14,
-              padding: "36px 24px",
-              textAlign: "center",
-              cursor: "pointer",
-              background: t.dropzone,
-              marginTop: 24,
-              transition: "all 0.2s",
-            }}
-          >
-            <div style={{ color: t.textDim, marginBottom: 10 }}>
-              <UploadCloudIcon size={32} />
-            </div>
-            <div style={{ fontSize: 14, fontWeight: 500, color: t.text, marginBottom: 4 }}>
-              Drag & drop files here or click to browse
-            </div>
-            <div style={{ fontSize: 12, color: t.textMuted }}>
-              Files will be added to Unsorted in this department
-            </div>
-          </div>
-        )}
+          <p style={{ fontSize: 13, color: t.textMuted, margin: "4px 0 0" }}>
+            {df.length} folder{df.length !== 1 ? "s" : ""} · {totalFiles} file{totalFiles !== 1 ? "s" : ""}
+          </p>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {currentDept && (
+            <SubscribeButton
+              type="department"
+              itemId={currentDept.id}
+              subscriptions={subscriptions || []}
+              onSubscribe={handleSubscribe}
+              onUnsubscribe={handleUnsubscribe}
+              t={t}
+            />
+          )}
+          {!creatingDeptFolder && (
+            <Btn
+              primary
+              darkMode={darkMode}
+              t={t}
+              onClick={() => {
+                setCreatingDeptFolder(true);
+                setNewDeptFolderName("");
+              }}
+              style={{ fontSize: 12 }}
+            >
+              <PlusIcon size={13} /> New Folder
+            </Btn>
+          )}
+        </div>
       </div>
-    );
-  }
+
+      {creatingDeptFolder && (
+        <div
+          style={{
+            background: t.surface,
+            border: `1px solid ${t.accent}`,
+            borderRadius: 10,
+            padding: "12px 14px",
+            marginBottom: 12,
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            boxShadow: `0 0 0 3px ${t.accentSoft}`,
+            animation: "fadeIn 0.2s ease",
+          }}
+        >
+          <div style={{ color: t.accent }}>
+            <FolderClosedIcon size={18} />
+          </div>
+          <input
+            ref={newDeptFolderRef}
+            value={newDeptFolderName}
+            onChange={(e) => setNewDeptFolderName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") createDeptFolder();
+              if (e.key === "Escape") {
+                setCreatingDeptFolder(false);
+                setNewDeptFolderName("");
+              }
             }}
             placeholder="Folder name..."
             style={{
@@ -397,7 +304,51 @@ export default function FoldersPage({
           </button>
         </div>
       )}
-      {dateFiltered.length > 0 ? (
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          background: t.surface,
+          border: `1px solid ${t.border}`,
+          borderRadius: 10,
+          padding: "10px 14px",
+          marginBottom: 16,
+        }}
+      >
+        <SearchIcon size={16} />
+        <input
+          value={folderSearch}
+          onChange={(e) => setFolderSearch(e.target.value)}
+          placeholder="Search folders..."
+          style={{
+            flex: 1,
+            background: "transparent",
+            border: "none",
+            fontSize: 13.5,
+            color: t.text,
+            outline: "none",
+            fontFamily: "inherit",
+          }}
+        />
+        {folderSearch && (
+          <button
+            onClick={() => setFolderSearch("")}
+            style={{
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              color: t.textDim,
+              display: "flex",
+              padding: 2,
+            }}
+          >
+            <XIcon size={14} />
+          </button>
+        )}
+      </div>
+
+      {sorted.length > 0 ? (
         <div
           style={{
             background: t.surface,
@@ -406,128 +357,6 @@ export default function FoldersPage({
             overflow: "hidden",
           }}
         >
-          {dateFiltered.length > pageSize && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "10px 14px",
-                borderBottom: `1px solid ${t.border}`,
-                fontSize: 12,
-                color: t.textMuted,
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span>Rows per page:</span>
-                <div style={{ position: "relative" }}>
-                  <button
-                    onClick={() => setShowPageSizeDropdown(!showPageSizeDropdown)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                      background: "transparent",
-                      border: `1px solid ${t.border}`,
-                      borderRadius: 6,
-                      padding: "4px 8px",
-                      fontSize: 12,
-                      color: t.text,
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                    }}
-                  >
-                    {pageSize}
-                    <ChevronDown />
-                  </button>
-                  {showPageSizeDropdown && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        marginTop: 4,
-                        background: t.surface,
-                        border: `1px solid ${t.border}`,
-                        borderRadius: 6,
-                        boxShadow: darkMode
-                          ? "0 4px 20px rgba(0,0,0,0.4)"
-                          : "0 4px 20px rgba(0,0,0,0.1)",
-                        overflow: "hidden",
-                        zIndex: 1000,
-                      }}
-                    >
-                      {pageSizeOptions.map((size) => (
-                        <button
-                          key={size}
-                          onClick={() => {
-                            setPageSize(size);
-                            setShowPageSizeDropdown(false);
-                          }}
-                          style={{
-                            display: "block",
-                            width: "100%",
-                            padding: "6px 16px",
-                            background: size === pageSize ? t.accentSoft : "transparent",
-                            border: "none",
-                            fontSize: 12,
-                            color: size === pageSize ? t.accent : t.text,
-                            cursor: "pointer",
-                            fontFamily: "inherit",
-                            textAlign: "left",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span>
-                  {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, dateFiltered.length)} of {dateFiltered.length}
-                </span>
-                <div style={{ display: "flex", gap: 4 }}>
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    style={{
-                      background: "transparent",
-                      border: `1px solid ${t.border}`,
-                      borderRadius: 4,
-                      padding: "4px 8px",
-                      fontSize: 11,
-                      color: currentPage === 1 ? t.textDim : t.text,
-                      cursor: currentPage === 1 ? "default" : "pointer",
-                      opacity: currentPage === 1 ? 0.5 : 1,
-                      fontFamily: "inherit",
-                    }}
-                  >
-                    Prev
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                    style={{
-                      background: "transparent",
-                      border: `1px solid ${t.border}`,
-                      borderRadius: 4,
-                      padding: "4px 8px",
-                      fontSize: 11,
-                      color: currentPage === totalPages ? t.textDim : t.text,
-                      cursor: currentPage === totalPages ? "default" : "pointer",
-                      opacity: currentPage === totalPages ? 0.5 : 1,
-                      fontFamily: "inherit",
-                    }}
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
           <table
             style={{
               width: "100%",
@@ -540,33 +369,29 @@ export default function FoldersPage({
                 <th
                   style={{
                     ...colHeaderStyle,
-                    color: sortCol === "name" ? t.accent : t.textDim,
+                    color: t.textDim,
                   }}
-                  onClick={() => toggleSort("name")}
                 >
-                  Name <SortArrow col="name" />
+                  Name
                 </th>
                 <th
                   style={{
                     ...colHeaderStyle,
-                    color: sortCol === "files" ? t.accent : t.textDim,
+                    color: t.textDim,
                     width: 90,
                     textAlign: "center",
                   }}
-                  onClick={() => toggleSort("files")}
                 >
-                  Files <SortArrow col="files" />
+                  Files
                 </th>
                 <th
                   style={{
                     ...colHeaderStyle,
-                    color:
-                      sortCol === "createdAt" ? t.accent : t.textDim,
+                    color: t.textDim,
                     width: 180,
                   }}
-                  onClick={() => toggleSort("createdAt")}
                 >
-                  Created <SortArrow col="createdAt" />
+                  Created
                 </th>
                 <th
                   style={{
@@ -581,7 +406,7 @@ export default function FoldersPage({
               </tr>
             </thead>
             <tbody>
-              {paginated.map((folder, idx) => (
+              {sorted.map((folder, idx) => (
                 <tr
                   key={folder.id}
                   className="folder-row"
@@ -600,7 +425,7 @@ export default function FoldersPage({
                     style={{
                       padding: "12px 14px",
                       borderBottom:
-                        idx < paginated.length - 1
+                        idx < sorted.length - 1
                           ? `1px solid ${t.border}`
                           : "none",
                     }}
@@ -655,7 +480,7 @@ export default function FoldersPage({
                     style={{
                       padding: "12px 14px",
                       borderBottom:
-                        idx < paginated.length - 1
+                        idx < sorted.length - 1
                           ? `1px solid ${t.border}`
                           : "none",
                       textAlign: "center",
@@ -684,7 +509,7 @@ export default function FoldersPage({
                     style={{
                       padding: "12px 14px",
                       borderBottom:
-                        idx < paginated.length - 1
+                        idx < sorted.length - 1
                           ? `1px solid ${t.border}`
                           : "none",
                       fontSize: 11.5,
@@ -698,7 +523,7 @@ export default function FoldersPage({
                     style={{
                       padding: "12px 8px",
                       borderBottom:
-                        idx < paginated.length - 1
+                        idx < sorted.length - 1
                           ? `1px solid ${t.border}`
                           : "none",
                       textAlign: "center",
@@ -763,6 +588,32 @@ export default function FoldersPage({
             )}
           </div>
         )
+      )}
+
+      {canUploadFiles && (
+        <div
+          onClick={() => deptFileInputRef.current?.click()}
+          style={{
+            border: `2px dashed ${t.border}`,
+            borderRadius: 14,
+            padding: "36px 24px",
+            textAlign: "center",
+            cursor: "pointer",
+            background: t.dropzone,
+            marginTop: 24,
+            transition: "all 0.2s",
+          }}
+        >
+          <div style={{ color: t.textDim, marginBottom: 10 }}>
+            <UploadCloudIcon size={32} />
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: t.text, marginBottom: 4 }}>
+            Drag & drop files here or click to browse
+          </div>
+          <div style={{ fontSize: 12, color: t.textMuted }}>
+            Files will be added to Unsorted in this department
+          </div>
+        </div>
       )}
     </div>
   );

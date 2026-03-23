@@ -1126,28 +1126,26 @@ const apps = [
                           >
                             {fmtSize(file.size)}
                           </span>
-                        </div>
-                    ))}
+                    </div>
                   </div>
                 )}
               </div>
-            )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Right: profile + dark mode */}
-      {!isMobile && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            flexShrink: 0,
-            position: "relative",
-            zIndex: 2,
-          }}
-        >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          flexShrink: 0,
+          position: "relative",
+          zIndex: 2,
+        }}
+      >
         {loggedInUser && (
           <div style={{ position: "relative" }}>
             <div
@@ -1388,36 +1386,35 @@ const apps = [
               </div>
             </div>
           )}
-        </div>
-        <AlertsDropdown darkMode={darkMode} onNavigate={(alert) => {
-            if (alert.file_id) {
-              setActiveFolderId(alert.folder_id || null);
-              if (alert.folder_id) {
-                setPage("folders");
-              } else {
-                setPage("unsorted");
+          <AlertsDropdown darkMode={darkMode} onNavigate={(alert) => {
+              if (alert.file_id) {
+                setActiveFolderId(alert.folder_id || null);
+                if (alert.folder_id) {
+                  setPage("folders");
+                } else {
+                  setPage("unsorted");
+                }
+                setTimeout(() => {
+                  setViewingFileIdFromAlert(alert.file_id);
+                }, 100);
               }
-              setTimeout(() => {
-                setViewingFileIdFromAlert(alert.file_id);
-              }, 100);
-            }
-          }} />
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          style={{
-            background: t.surface,
-            border: `1px solid ${t.border}`,
-            borderRadius: 7,
-            padding: 6,
-            cursor: "pointer",
-            color: t.textMuted,
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          {darkMode ? <SunIcon /> : <MoonIcon />}
-        </button>
-      </div>
+            }} />
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            style={{
+              background: t.surface,
+              border: `1px solid ${t.border}`,
+              borderRadius: 7,
+              padding: 6,
+              cursor: "pointer",
+              color: t.textMuted,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            {darkMode ? <SunIcon /> : <MoonIcon />}
+          </button>
+        </div>
       )}
     </nav>
   );

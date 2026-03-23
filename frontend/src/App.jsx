@@ -303,11 +303,13 @@ const t = getTheme(darkMode);
   // Load core data
   const loadCoreData = useCallback(async () => {
     try {
-      const [locs, depts, unsorted] = await Promise.all([api.getLocations(), api.getDepartments(), api.getUnsortedFiles()]);
+      const [locs, depts, unsorted, allFolders] = await Promise.all([api.getLocations(), api.getDepartments(), api.getUnsortedFiles(), api.getFolders({})]);
       const normLocs = locs.map((l) => ({ id: l.id, name: l.name, locationCode: l.location_code || l.locationCode }));
       const normDepts = depts.map((d) => ({ id: d.id, name: d.name, locationId: d.location_id || d.locationId }));
+      const normFolders = allFolders.map((f) => ({ id: f.id, name: f.name, locationId: f.location_id || f.locationId, departmentId: f.department_id || f.departmentId, parentId: f.parent_id || f.parentId || null, createdAt: f.created_at, fileCount: Number(f.fileCount || 0), subfolderCount: Number(f.subfolderCount || 0) }));
       setLocations(normLocs);
       setDepartments(normDepts);
+      setFolders(normFolders);
       setUnsortedFiles(unsorted.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: null, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 })));
       if (normLocs.length > 0 && !activeLocation) {
         setActiveLocation(normLocs[0].id);
@@ -320,6 +322,8 @@ const t = getTheme(darkMode);
 
   useEffect(() => { if (isLoggedIn) loadCoreData(); }, [isLoggedIn]);
   useEffect(() => { if (!isLoggedIn || !activeDepartment) return; api.getFolders({ departmentId: activeDepartment }).then((rows) => { const norm = rows.map((f) => ({ id: f.id, name: f.name, locationId: f.location_id || f.locationId, departmentId: f.department_id || f.departmentId, parentId: f.parent_id || f.parentId || null, createdAt: f.created_at, fileCount: Number(f.fileCount || 0), subfolderCount: Number(f.subfolderCount || 0) })); setFolders((prev) => [...prev.filter((f) => f.departmentId !== activeDepartment), ...norm]); }).catch(console.error); }, [isLoggedIn, activeDepartment]);
+  // Load ALL folders for the Upload page dropdown
+  useEffect(() => { if (!isLoggedIn || page !== "upload") return; api.getFolders({}).then((rows) => { const norm = rows.map((f) => ({ id: f.id, name: f.name, locationId: f.location_id || f.locationId, departmentId: f.department_id || f.departmentId, parentId: f.parent_id || f.parentId || null, createdAt: f.created_at, fileCount: Number(f.fileCount || 0), subfolderCount: Number(f.subfolderCount || 0) })); setFolders(norm); }).catch(console.error); }, [isLoggedIn, page]);
   useEffect(() => { if (!isLoggedIn || !activeFolderId) return; api.getFiles(activeFolderId).then((rows) => { const norm = rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: f.folder_id, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 })); setFiles((prev) => [...prev.filter((f) => f.folderId !== activeFolderId), ...norm]); }).catch(console.error); }, [isLoggedIn, activeFolderId]);
   useEffect(() => { if (!isLoggedIn || page !== "unsorted") return; api.getUnsortedFiles().then((rows) => { setUnsortedFiles(rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: null, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 }))); }).catch(console.error); }, [isLoggedIn, page]);
   useEffect(() => { if (!isLoggedIn || page !== "admin") return; api.getGroups().then((data) => { setSecurityGroups(data.groups.map((g) => ({ id: g.id, name: g.name, desc: g.description, permissions: g.permissions, memberCount: g.memberCount }))); setTotalPermissionCount(data.totalPermissionCount || 0); }).catch(console.error); }, [isLoggedIn, page]);

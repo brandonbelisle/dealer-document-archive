@@ -252,8 +252,11 @@ const apps = [
             </span>
           )}
         </div>
-        {!isMobile && (
-          <div style={{ display: "flex", gap: 2, marginLeft: 8 }}>
+      </div>
+
+      {/* Center: Tabs */}
+      {!isMobile && (
+        <div style={{ display: "flex", gap: 2, marginLeft: 24 }}>
           {/* Dashboard tab */}
           <button
             onClick={() => {

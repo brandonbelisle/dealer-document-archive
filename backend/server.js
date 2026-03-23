@@ -138,6 +138,7 @@ app.use('/api/azure', require('./routes/azure'));
 app.use('/api/custom-apps', require('./routes/custom-apps'));
 app.use('/api/dms-settings', require('./routes/dms'));
 app.use('/api/help-ticket', require('./routes/help-ticket'));
+app.use('/api/cht', require('./routes/cht'));
 
 // ── Health check ──────────────────────────────────────────
 app.get('/api/health', (req, res) => {

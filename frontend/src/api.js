@@ -538,3 +538,14 @@ export async function saveSecuritySettings(settings) {
     body: JSON.stringify(settings),
   });
 }
+
+export async function getCreditHoldInquiries() {
+  return request('/cht/inquiries');
+}
+
+export async function createCreditHoldInquiry(invoiceNumber, notes) {
+  return request('/cht/inquiries', {
+    method: 'POST',
+    body: JSON.stringify({ invoiceNumber, notes }),
+  });
+}

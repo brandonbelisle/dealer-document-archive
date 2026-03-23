@@ -118,6 +118,8 @@ export const APP_PERMISSIONS = {
     color: "#f59e0b",
     permissions: [
       { key: "view_cht", label: "View App", desc: "Access Credit Hold Tracker" },
+      { key: "cht_inquiry_submit", label: "Submit Inquiries", desc: "Submit credit hold inquiries" },
+      { key: "cht_inquiry_view", label: "View Inquiries", desc: "View credit hold inquiries" },
     ],
   },
   help: {

@@ -12702,18 +12702,28 @@ async function getFiles(folderId) {
 async function getUnsortedFiles() {
   return request("/files?unsorted=true");
 }
-async function uploadFile(file, folderId, extractedText, pageCount) {
+async function getFile(id) {
+  return request(`/files/${id}`);
+}
+async function uploadFile(file, folderId, extractedText, pageCount, skipNotification = false) {
   const form = new FormData();
   form.append("file", file);
   if (folderId) form.append("folderId", folderId);
   if (extractedText) form.append("extractedText", extractedText);
   if (pageCount) form.append("pageCount", String(pageCount));
+  if (skipNotification) form.append("skipNotification", "true");
   return request("/files/upload", { method: "POST", body: form });
 }
 async function moveFile(id, folderId) {
   return request(`/files/${id}/move`, {
     method: "PUT",
     body: JSON.stringify({ folderId: folderId || null })
+  });
+}
+async function createBatchUploadNotification(fileIds, folderId) {
+  return request("/notifications/batch-upload", {
+    method: "POST",
+    body: JSON.stringify({ fileIds, folderId })
   });
 }
 async function extractFileText(id) {
@@ -12729,10 +12739,6 @@ async function deleteFile(id) {
 }
 function getFileDownloadUrl(id) {
   return `${API_BASE}/files/${id}/download`;
-}
-async function getFilePreviewUrlByFileId(fileId) {
-  const data = await request(`/files/${fileId}/preview-url`);
-  return data.url;
 }
 async function getGroups() {
   return request("/groups");
@@ -12963,6 +12969,15 @@ async function saveAzureSettings(settings) {
 async function testAzureConnection(settings) {
   return request("/azure/test", {
     method: "POST",
+    body: JSON.stringify(settings)
+  });
+}
+async function getSecuritySettings() {
+  return request("/settings/security");
+}
+async function saveSecuritySettings(settings) {
+  return request("/settings/security", {
+    method: "PUT",
     body: JSON.stringify(settings)
   });
 }
@@ -39866,6 +39881,8 @@ const extractRO = (text, filename) => {
   for (const src of sources) {
     const rMatch = src.match(/\b(R\d{9})\b/);
     if (rMatch) return rMatch[1];
+    const r10Match = src.match(/\b(R10\d{7})\b/);
+    if (r10Match) return r10Match[1];
   }
   if (text) {
     const patterns = [
@@ -40279,6 +40296,12 @@ const ADMIN_MENU = [
     desc: "Configure SSO and SAML settings"
   },
   {
+    id: "security",
+    label: "Security",
+    icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, { size: 17 }),
+    desc: "Configure security settings like allowed iframe domains"
+  },
+  {
     id: "dms",
     label: "DMS Connection",
     icon: /* @__PURE__ */ jsxRuntimeExports.jsx(WrenchIcon, { size: 17 }),
@@ -40305,6 +40328,7 @@ const APP_PERMISSIONS = {
     color: "#0891b2",
     permissions: [
       { key: "view_dda", label: "View App", desc: "Access Dealer Document Archive" },
+      { key: "viewLocations", label: "View Locations", desc: "View locations and departments in navigation" },
       { key: "viewFiles", label: "View Files", desc: "Browse and preview uploaded documents" },
       { key: "uploadFiles", label: "Upload Files", desc: "Upload new PDF files to folders" },
       { key: "deleteFiles", label: "Delete Files", desc: "Remove uploaded files permanently" },
@@ -44518,6 +44542,7 @@ function Navbar({
   setActiveDepartment,
   setActiveFolderId,
   setSelectedFile,
+  dashboardData,
   setViewingFileId,
   setFolderSearch,
   expandedLocations,
@@ -44541,7 +44566,7 @@ function Navbar({
   onOpenHelpTicket,
   t
 }) {
-  var _a2, _b;
+  var _a2, _b, _c, _d;
   const [globalSearch$1, setGlobalSearch] = reactExports.useState("");
   const [globalSearchFocused, setGlobalSearchFocused] = reactExports.useState(false);
   const globalSearchRef = reactExports.useRef(null);
@@ -44564,6 +44589,7 @@ function Navbar({
   }, []);
   const q = globalSearch$1.trim();
   const isAdmin2 = (_a2 = loggedInUser == null ? void 0 : loggedInUser.groups) == null ? void 0 : _a2.includes("Administrator");
+  const canViewLocations = ((_b = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _b.includes("viewLocations")) || ((_c = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _c.includes("viewFiles"));
   const apps = [
     { id: "home", name: "Home", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(HomeIcon, { size: 20 }), onClick: () => {
       setPage("landing");
@@ -44638,7 +44664,7 @@ function Navbar({
         borderBottom: `1px solid ${t.border}`,
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: "center",
         padding: "0 24px",
         height: 54,
         backdropFilter: "blur(12px)",
@@ -44652,11 +44678,11 @@ function Navbar({
           "div",
           {
             style: {
+              position: "absolute",
+              left: 24,
               display: "flex",
               alignItems: "center",
-              gap: isMobile ? 8 : 24,
-              flexShrink: 0,
-              position: "relative",
+              gap: isMobile ? 8 : 16,
               zIndex: 2
             },
             children: [
@@ -44724,8 +44750,22 @@ function Navbar({
                     )
                   ]
                 }
-              ),
-              !isMobile && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 2, marginLeft: 8 }, children: [
+              )
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            style: {
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flex: 1,
+              gap: 8
+            },
+            children: [
+              !isMobile && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 2 }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "button",
                   {
@@ -44755,7 +44795,7 @@ function Navbar({
                     ]
                   }
                 ),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                canViewLocations && /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "div",
                   {
                     style: { position: "relative" },
@@ -44820,6 +44860,7 @@ function Navbar({
                                 animation: "fadeIn 0.15s ease"
                               },
                               children: locations.map((loc) => {
+                                var _a3;
                                 const le = expandedLocations[loc.id];
                                 return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                                   /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -44845,81 +44886,56 @@ function Navbar({
                                         /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronIcon, { open: le }),
                                         /* @__PURE__ */ jsxRuntimeExports.jsx(MapPinIcon, { size: 14 }),
                                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1 }, children: loc.name }),
-                                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                                          "span",
-                                          {
-                                            style: { fontSize: 9.5, color: t.textDim },
-                                            children: [
-                                              foldersInLocation(loc.id).length,
-                                              " folders"
-                                            ]
-                                          }
-                                        )
+                                        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 9.5, color: t.textDim }, children: [
+                                          ((_a3 = dashboardData == null ? void 0 : dashboardData.locationFolderCounts) == null ? void 0 : _a3[loc.id]) ?? 0,
+                                          " folders"
+                                        ] })
                                       ]
                                     }
                                   ),
-                                  le && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                    "div",
-                                    {
-                                      style: { paddingLeft: 12, marginBottom: 4 },
-                                      children: deptsInLocation(loc.id).map((dept) => {
-                                        const df = foldersInDepartment(dept.id);
-                                        const isAct = activeLocation === loc.id && activeDepartment === dept.id && (page === "folders" || page === "folder-detail");
-                                        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                                          "div",
-                                          {
-                                            onClick: () => {
-                                              setActiveLocation(loc.id);
-                                              setActiveDepartment(dept.id);
-                                              setPage("folders");
-                                              setActiveFolderId(null);
-                                              setSelectedFile(null);
-                                              setFolderSearch("");
-                                              setShowDeptDropdown(false);
-                                            },
-                                            className: "folder-select-item",
-                                            style: {
-                                              padding: "7px 12px",
-                                              borderRadius: 6,
-                                              cursor: "pointer",
-                                              fontSize: 12.5,
-                                              display: "flex",
-                                              alignItems: "center",
-                                              gap: 9,
-                                              background: isAct ? t.accentSoft : "transparent",
-                                              color: isAct ? t.accent : t.textMuted,
-                                              fontWeight: 500
-                                            },
-                                            children: [
-                                              /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 14 }),
-                                              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1 }, children: dept.name }),
-                                              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                                                "span",
-                                                {
-                                                  style: {
-                                                    fontSize: 9.5,
-                                                    color: t.textDim
-                                                  },
-                                                  children: [
-                                                    df.length,
-                                                    " ·",
-                                                    " ",
-                                                    df.reduce(
-                                                      (s, f) => s + filesInFolder(f.id).length,
-                                                      0
-                                                    ),
-                                                    " ",
-                                                    "files"
-                                                  ]
-                                                }
-                                              )
-                                            ]
-                                          },
-                                          dept.id
-                                        );
-                                      })
-                                    }
-                                  )
+                                  le && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { paddingLeft: 12, marginBottom: 4 }, children: deptsInLocation(loc.id).map((dept) => {
+                                    var _a4;
+                                    const deptData = ((_a4 = dashboardData == null ? void 0 : dashboardData.deptCounts) == null ? void 0 : _a4[dept.id]) || { folderCount: 0, fileCount: 0 };
+                                    const isAct = activeLocation === loc.id && activeDepartment === dept.id && (page === "folders" || page === "folder-detail");
+                                    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                                      "div",
+                                      {
+                                        onClick: () => {
+                                          setActiveLocation(loc.id);
+                                          setActiveDepartment(dept.id);
+                                          setPage("folders");
+                                          setActiveFolderId(null);
+                                          setSelectedFile(null);
+                                          setFolderSearch("");
+                                          setShowDeptDropdown(false);
+                                        },
+                                        className: "folder-select-item",
+                                        style: {
+                                          padding: "7px 12px",
+                                          borderRadius: 6,
+                                          cursor: "pointer",
+                                          fontSize: 12.5,
+                                          display: "flex",
+                                          alignItems: "center",
+                                          gap: 9,
+                                          background: isAct ? t.accentSoft : "transparent",
+                                          color: isAct ? t.accent : t.textMuted,
+                                          fontWeight: 500
+                                        },
+                                        children: [
+                                          /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 14 }),
+                                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1 }, children: dept.name }),
+                                          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 9.5, color: t.textDim }, children: [
+                                            deptData.folderCount,
+                                            " · ",
+                                            deptData.fileCount,
+                                            " files"
+                                          ] })
+                                        ]
+                                      },
+                                      dept.id
+                                    );
+                                  }) })
                                 ] }, loc.id);
                               })
                             }
@@ -45323,409 +45339,406 @@ function Navbar({
                     ] })
                   ]
                 }
-              )
-            ]
-          }
-        ),
-        isLoggedIn && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            style: {
-              position: "absolute",
-              left: isMobile ? 60 : "50%",
-              right: isMobile ? 16 : "auto",
-              transform: isMobile ? "none" : "translateX(-50%)",
-              width: isMobile ? "auto" : "100%",
-              maxWidth: isMobile ? "none" : 520,
-              zIndex: 1,
-              pointerEvents: "none"
-            },
-            children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { pointerEvents: "auto", position: "relative" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              ),
+              isLoggedIn && /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "div",
                 {
                   style: {
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
-                    border: `1px solid ${showDropdown && hasResults ? t.accent : t.border}`,
-                    borderRadius: 9,
-                    padding: "6px 12px",
-                    transition: "border-color 0.2s"
+                    flex: 1,
+                    maxWidth: 480,
+                    minWidth: 180
                   },
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(SearchIcon, { size: 15 }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "input",
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "div",
                       {
-                        ref: globalSearchRef,
-                        value: globalSearch$1,
-                        onChange: (e) => setGlobalSearch(e.target.value),
-                        onFocus: () => setGlobalSearchFocused(true),
-                        onBlur: () => setTimeout(() => setGlobalSearchFocused(false), 200),
-                        onKeyDown: (e) => {
-                          var _a3;
-                          if (e.key === "Escape") {
-                            setGlobalSearch("");
-                            (_a3 = globalSearchRef.current) == null ? void 0 : _a3.blur();
-                          }
-                        },
-                        placeholder: "Search folders & files...",
                         style: {
-                          flex: 1,
-                          background: "transparent",
-                          border: "none",
-                          fontSize: 13,
-                          color: t.text,
-                          outline: "none",
-                          fontFamily: "inherit"
-                        }
+                          width: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
+                          border: `1px solid ${showDropdown && hasResults ? t.accent : t.border}`,
+                          borderRadius: 9,
+                          padding: "6px 12px",
+                          transition: "border-color 0.2s"
+                        },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(SearchIcon, { size: 15 }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "input",
+                            {
+                              ref: globalSearchRef,
+                              value: globalSearch$1,
+                              onChange: (e) => setGlobalSearch(e.target.value),
+                              onFocus: () => setGlobalSearchFocused(true),
+                              onBlur: () => setTimeout(() => setGlobalSearchFocused(false), 200),
+                              onKeyDown: (e) => {
+                                var _a3;
+                                if (e.key === "Escape") {
+                                  setGlobalSearch("");
+                                  (_a3 = globalSearchRef.current) == null ? void 0 : _a3.blur();
+                                }
+                              },
+                              placeholder: "Search folders & files...",
+                              style: {
+                                flex: 1,
+                                background: "transparent",
+                                border: "none",
+                                fontSize: 13,
+                                color: t.text,
+                                outline: "none",
+                                fontFamily: "inherit"
+                              }
+                            }
+                          ),
+                          q && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "button",
+                            {
+                              onClick: () => setGlobalSearch(""),
+                              style: {
+                                background: "transparent",
+                                border: "none",
+                                cursor: "pointer",
+                                color: t.textDim,
+                                display: "flex",
+                                padding: 2
+                              },
+                              children: /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { size: 13 })
+                            }
+                          )
+                        ]
                       }
                     ),
-                    q && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "button",
+                    showDropdown && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "div",
                       {
-                        onClick: () => setGlobalSearch(""),
                         style: {
-                          background: "transparent",
-                          border: "none",
-                          cursor: "pointer",
-                          color: t.textDim,
-                          display: "flex",
-                          padding: 2
+                          position: "absolute",
+                          top: "calc(100% + 6px)",
+                          left: 0,
+                          right: 0,
+                          zIndex: 300,
+                          background: t.surface,
+                          border: `1px solid ${t.border}`,
+                          borderRadius: 12,
+                          boxShadow: darkMode ? "0 12px 40px rgba(0,0,0,0.5)" : "0 12px 40px rgba(0,0,0,0.15)",
+                          overflow: "hidden",
+                          animation: "fadeIn 0.15s ease",
+                          maxHeight: 420,
+                          overflowY: "auto"
                         },
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { size: 13 })
+                        children: [
+                          !hasResults && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "div",
+                            {
+                              style: {
+                                padding: "20px 16px",
+                                textAlign: "center",
+                                color: t.textDim,
+                                fontSize: 12.5
+                              },
+                              children: searchLoading ? "Searching..." : `No results for "${q}"`
+                            }
+                          ),
+                          folderResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "div",
+                              {
+                                style: {
+                                  padding: "10px 14px 4px",
+                                  fontSize: 10,
+                                  fontWeight: 700,
+                                  letterSpacing: "0.08em",
+                                  textTransform: "uppercase",
+                                  color: t.textDim
+                                },
+                                children: "Folders"
+                              }
+                            ),
+                            folderResults.map((folder) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                              "div",
+                              {
+                                onMouseDown: (e) => e.preventDefault(),
+                                onClick: () => {
+                                  if (folder.locationId)
+                                    setActiveLocation(folder.locationId);
+                                  if (folder.departmentId)
+                                    setActiveDepartment(folder.departmentId);
+                                  setActiveFolderId(folder.id);
+                                  setPage("folder-detail");
+                                  setGlobalSearch("");
+                                  setGlobalSearchFocused(false);
+                                },
+                                className: "folder-select-item",
+                                style: {
+                                  padding: "8px 14px",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 10,
+                                  fontSize: 13
+                                },
+                                children: [
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                    "div",
+                                    {
+                                      style: {
+                                        color: t.accent,
+                                        flexShrink: 0
+                                      },
+                                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 16 })
+                                    }
+                                  ),
+                                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+                                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                      HighlightedName,
+                                      {
+                                        name: folder.name,
+                                        query: q,
+                                        accentColor: t.accent
+                                      }
+                                    ) }),
+                                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                                      "div",
+                                      {
+                                        style: {
+                                          fontSize: 10.5,
+                                          color: t.textDim
+                                        },
+                                        children: [
+                                          folder.locationName || "",
+                                          folder.departmentName ? ` / ${folder.departmentName}` : ""
+                                        ]
+                                      }
+                                    )
+                                  ] }),
+                                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                                    "span",
+                                    {
+                                      style: {
+                                        fontSize: 10,
+                                        color: t.textDim,
+                                        flexShrink: 0
+                                      },
+                                      children: [
+                                        folder.fileCount,
+                                        " files"
+                                      ]
+                                    }
+                                  )
+                                ]
+                              },
+                              folder.id
+                            ))
+                          ] }),
+                          folderResults.length > 0 && fileResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "div",
+                            {
+                              style: { borderTop: `1px solid ${t.border}` }
+                            }
+                          ),
+                          fileResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "div",
+                              {
+                                style: {
+                                  padding: "10px 14px 4px",
+                                  fontSize: 10,
+                                  fontWeight: 700,
+                                  letterSpacing: "0.08em",
+                                  textTransform: "uppercase",
+                                  color: t.textDim
+                                },
+                                children: "Files"
+                              }
+                            ),
+                            fileResults.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                              "div",
+                              {
+                                onMouseDown: (e) => e.preventDefault(),
+                                onClick: () => {
+                                  if (file.folderId) {
+                                    if (file.locationId)
+                                      setActiveLocation(file.locationId);
+                                    if (file.departmentId)
+                                      setActiveDepartment(file.departmentId);
+                                    setActiveFolderId(file.folderId);
+                                  }
+                                  setViewingFileId(file.id);
+                                  setPage("file-detail");
+                                  setGlobalSearch("");
+                                  setGlobalSearchFocused(false);
+                                },
+                                className: "folder-select-item",
+                                style: {
+                                  padding: "8px 14px",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 10,
+                                  fontSize: 13
+                                },
+                                children: [
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                    "div",
+                                    {
+                                      style: {
+                                        color: t.success,
+                                        flexShrink: 0
+                                      },
+                                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileDocIcon, { size: 16 })
+                                    }
+                                  ),
+                                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+                                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                      HighlightedName,
+                                      {
+                                        name: file.name,
+                                        query: q,
+                                        accentColor: t.accent
+                                      }
+                                    ) }),
+                                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                      "div",
+                                      {
+                                        style: {
+                                          fontSize: 10.5,
+                                          color: t.textDim
+                                        },
+                                        children: file.folderId ? `${file.locationName || ""}${file.departmentName ? ` / ${file.departmentName}` : ""}${file.folderName ? ` / ${file.folderName}` : ""}` : "Unsorted"
+                                      }
+                                    )
+                                  ] }),
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                    "span",
+                                    {
+                                      style: {
+                                        fontSize: 10,
+                                        color: t.textDim,
+                                        flexShrink: 0
+                                      },
+                                      children: fmtSize(file.size)
+                                    }
+                                  )
+                                ]
+                              },
+                              file.id
+                            ))
+                          ] }),
+                          (folderResults.length > 0 || fileResults.length > 0) && ocrResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "div",
+                            {
+                              style: { borderTop: `1px solid ${t.border}` }
+                            }
+                          ),
+                          ocrResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "div",
+                              {
+                                style: {
+                                  padding: "10px 14px 4px",
+                                  fontSize: 10,
+                                  fontWeight: 700,
+                                  letterSpacing: "0.08em",
+                                  textTransform: "uppercase",
+                                  color: t.textDim
+                                },
+                                children: "OCR Advanced Search"
+                              }
+                            ),
+                            ocrResults.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                              "div",
+                              {
+                                onMouseDown: (e) => e.preventDefault(),
+                                onClick: () => {
+                                  if (file.folderId) {
+                                    if (file.locationId)
+                                      setActiveLocation(file.locationId);
+                                    if (file.departmentId)
+                                      setActiveDepartment(file.departmentId);
+                                    setActiveFolderId(file.folderId);
+                                  }
+                                  setViewingFileId(file.id);
+                                  setPage("file-detail");
+                                  setGlobalSearch("");
+                                  setGlobalSearchFocused(false);
+                                },
+                                className: "folder-select-item",
+                                style: {
+                                  padding: "8px 14px",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 10,
+                                  fontSize: 13
+                                },
+                                children: [
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                    "div",
+                                    {
+                                      style: {
+                                        color: "#8b5cf6",
+                                        flexShrink: 0
+                                      },
+                                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileDocIcon, { size: 16 })
+                                    }
+                                  ),
+                                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+                                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                      HighlightedName,
+                                      {
+                                        name: file.name,
+                                        query: q,
+                                        accentColor: t.accent
+                                      }
+                                    ) }),
+                                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                      "div",
+                                      {
+                                        style: {
+                                          fontSize: 10.5,
+                                          color: t.textDim
+                                        },
+                                        children: file.folderId ? `${file.locationName || ""}${file.departmentName ? ` / ${file.departmentName}` : ""}${file.folderName ? ` / ${file.folderName}` : ""}` : "Unsorted"
+                                      }
+                                    )
+                                  ] }),
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                    "span",
+                                    {
+                                      style: {
+                                        fontSize: 10,
+                                        color: t.textDim,
+                                        flexShrink: 0
+                                      },
+                                      children: fmtSize(file.size)
+                                    }
+                                  )
+                                ]
+                              },
+                              `ocr-${file.id}`
+                            ))
+                          ] })
+                        ]
                       }
                     )
                   ]
                 }
-              ),
-              showDropdown && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "div",
-                {
-                  style: {
-                    position: "absolute",
-                    top: "calc(100% + 6px)",
-                    left: 0,
-                    right: 0,
-                    zIndex: 300,
-                    background: t.surface,
-                    border: `1px solid ${t.border}`,
-                    borderRadius: 12,
-                    boxShadow: darkMode ? "0 12px 40px rgba(0,0,0,0.5)" : "0 12px 40px rgba(0,0,0,0.15)",
-                    overflow: "hidden",
-                    animation: "fadeIn 0.15s ease",
-                    maxHeight: 420,
-                    overflowY: "auto"
-                  },
-                  children: [
-                    !hasResults && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "div",
-                      {
-                        style: {
-                          padding: "20px 16px",
-                          textAlign: "center",
-                          color: t.textDim,
-                          fontSize: 12.5
-                        },
-                        children: searchLoading ? "Searching..." : `No results for "${q}"`
-                      }
-                    ),
-                    folderResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "div",
-                        {
-                          style: {
-                            padding: "10px 14px 4px",
-                            fontSize: 10,
-                            fontWeight: 700,
-                            letterSpacing: "0.08em",
-                            textTransform: "uppercase",
-                            color: t.textDim
-                          },
-                          children: "Folders"
-                        }
-                      ),
-                      folderResults.map((folder) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "div",
-                        {
-                          onMouseDown: (e) => e.preventDefault(),
-                          onClick: () => {
-                            if (folder.locationId)
-                              setActiveLocation(folder.locationId);
-                            if (folder.departmentId)
-                              setActiveDepartment(folder.departmentId);
-                            setActiveFolderId(folder.id);
-                            setPage("folder-detail");
-                            setGlobalSearch("");
-                            setGlobalSearchFocused(false);
-                          },
-                          className: "folder-select-item",
-                          style: {
-                            padding: "8px 14px",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 10,
-                            fontSize: 13
-                          },
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "div",
-                              {
-                                style: {
-                                  color: t.accent,
-                                  flexShrink: 0
-                                },
-                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 16 })
-                              }
-                            ),
-                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                HighlightedName,
-                                {
-                                  name: folder.name,
-                                  query: q,
-                                  accentColor: t.accent
-                                }
-                              ) }),
-                              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                                "div",
-                                {
-                                  style: {
-                                    fontSize: 10.5,
-                                    color: t.textDim
-                                  },
-                                  children: [
-                                    folder.locationName || "",
-                                    folder.departmentName ? ` / ${folder.departmentName}` : ""
-                                  ]
-                                }
-                              )
-                            ] }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                              "span",
-                              {
-                                style: {
-                                  fontSize: 10,
-                                  color: t.textDim,
-                                  flexShrink: 0
-                                },
-                                children: [
-                                  folder.fileCount,
-                                  " files"
-                                ]
-                              }
-                            )
-                          ]
-                        },
-                        folder.id
-                      ))
-                    ] }),
-                    folderResults.length > 0 && fileResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "div",
-                      {
-                        style: { borderTop: `1px solid ${t.border}` }
-                      }
-                    ),
-                    fileResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "div",
-                        {
-                          style: {
-                            padding: "10px 14px 4px",
-                            fontSize: 10,
-                            fontWeight: 700,
-                            letterSpacing: "0.08em",
-                            textTransform: "uppercase",
-                            color: t.textDim
-                          },
-                          children: "Files"
-                        }
-                      ),
-                      fileResults.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "div",
-                        {
-                          onMouseDown: (e) => e.preventDefault(),
-                          onClick: () => {
-                            if (file.folderId) {
-                              if (file.locationId)
-                                setActiveLocation(file.locationId);
-                              if (file.departmentId)
-                                setActiveDepartment(file.departmentId);
-                              setActiveFolderId(file.folderId);
-                            }
-                            setViewingFileId(file.id);
-                            setPage("file-detail");
-                            setGlobalSearch("");
-                            setGlobalSearchFocused(false);
-                          },
-                          className: "folder-select-item",
-                          style: {
-                            padding: "8px 14px",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 10,
-                            fontSize: 13
-                          },
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "div",
-                              {
-                                style: {
-                                  color: t.success,
-                                  flexShrink: 0
-                                },
-                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileDocIcon, { size: 16 })
-                              }
-                            ),
-                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                HighlightedName,
-                                {
-                                  name: file.name,
-                                  query: q,
-                                  accentColor: t.accent
-                                }
-                              ) }),
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                "div",
-                                {
-                                  style: {
-                                    fontSize: 10.5,
-                                    color: t.textDim
-                                  },
-                                  children: file.folderId ? `${file.locationName || ""}${file.departmentName ? ` / ${file.departmentName}` : ""}${file.folderName ? ` / ${file.folderName}` : ""}` : "Unsorted"
-                                }
-                              )
-                            ] }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "span",
-                              {
-                                style: {
-                                  fontSize: 10,
-                                  color: t.textDim,
-                                  flexShrink: 0
-                                },
-                                children: fmtSize(file.size)
-                              }
-                            )
-                          ]
-                        },
-                        file.id
-                      ))
-                    ] }),
-                    (folderResults.length > 0 || fileResults.length > 0) && ocrResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "div",
-                      {
-                        style: { borderTop: `1px solid ${t.border}` }
-                      }
-                    ),
-                    ocrResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "div",
-                        {
-                          style: {
-                            padding: "10px 14px 4px",
-                            fontSize: 10,
-                            fontWeight: 700,
-                            letterSpacing: "0.08em",
-                            textTransform: "uppercase",
-                            color: t.textDim
-                          },
-                          children: "OCR Advanced Search"
-                        }
-                      ),
-                      ocrResults.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "div",
-                        {
-                          onMouseDown: (e) => e.preventDefault(),
-                          onClick: () => {
-                            if (file.folderId) {
-                              if (file.locationId)
-                                setActiveLocation(file.locationId);
-                              if (file.departmentId)
-                                setActiveDepartment(file.departmentId);
-                              setActiveFolderId(file.folderId);
-                            }
-                            setViewingFileId(file.id);
-                            setPage("file-detail");
-                            setGlobalSearch("");
-                            setGlobalSearchFocused(false);
-                          },
-                          className: "folder-select-item",
-                          style: {
-                            padding: "8px 14px",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 10,
-                            fontSize: 13
-                          },
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "div",
-                              {
-                                style: {
-                                  color: "#8b5cf6",
-                                  flexShrink: 0
-                                },
-                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileDocIcon, { size: 16 })
-                              }
-                            ),
-                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
-                              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                HighlightedName,
-                                {
-                                  name: file.name,
-                                  query: q,
-                                  accentColor: t.accent
-                                }
-                              ) }),
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                "div",
-                                {
-                                  style: {
-                                    fontSize: 10.5,
-                                    color: t.textDim
-                                  },
-                                  children: file.folderId ? `${file.locationName || ""}${file.departmentName ? ` / ${file.departmentName}` : ""}${file.folderName ? ` / ${file.folderName}` : ""}` : "Unsorted"
-                                }
-                              )
-                            ] }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "span",
-                              {
-                                style: {
-                                  fontSize: 10,
-                                  color: t.textDim,
-                                  flexShrink: 0
-                                },
-                                children: fmtSize(file.size)
-                              }
-                            )
-                          ]
-                        },
-                        `ocr-${file.id}`
-                      ))
-                    ] })
-                  ]
-                }
               )
-            ] })
+            ]
           }
         ),
         !isMobile && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
             style: {
+              position: "absolute",
+              right: 24,
               display: "flex",
               alignItems: "center",
               gap: 10,
               flexShrink: 0,
-              position: "relative",
               zIndex: 2
             },
             children: [
@@ -45832,7 +45845,7 @@ function Navbar({
                                   color: t.textDim,
                                   marginTop: 2
                                 },
-                                children: (_b = loggedInUser.groups) == null ? void 0 : _b.join(", ")
+                                children: (_d = loggedInUser.groups) == null ? void 0 : _d.join(", ")
                               }
                             )
                           ]
@@ -46033,6 +46046,7 @@ function Navbar({
 }
 function WarningModal({ warningModal, setWarningModal, t, darkMode }) {
   if (!warningModal) return null;
+  const showThreeOptions = warningModal.onConfirmUnlink && warningModal.onConfirmDeleteAll;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -46064,7 +46078,7 @@ function WarningModal({ warningModal, setWarningModal, t, darkMode }) {
             style: {
               position: "relative",
               width: "100%",
-              maxWidth: 420,
+              maxWidth: 480,
               background: t.surface,
               border: `1px solid ${t.border}`,
               borderRadius: 14,
@@ -46127,12 +46141,260 @@ function WarningModal({ warningModal, setWarningModal, t, darkMode }) {
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "div",
                 {
-                  style: { display: "flex", justifyContent: "flex-end", gap: 8 },
+                  style: { display: "flex", flexDirection: showThreeOptions ? "column" : "row", gap: 8 },
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "button",
                       {
                         onClick: () => setWarningModal(null),
+                        style: {
+                          background: t.surface,
+                          border: `1px solid ${t.border}`,
+                          borderRadius: 8,
+                          padding: "10px 18px",
+                          fontSize: 13,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          color: t.text,
+                          fontFamily: "inherit",
+                          flex: showThreeOptions ? "none" : 1
+                        },
+                        children: "Cancel"
+                      }
+                    ),
+                    showThreeOptions ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          onClick: () => {
+                            warningModal.onConfirmUnlink();
+                            setWarningModal(null);
+                          },
+                          style: {
+                            background: t.warnSoft,
+                            border: `1px solid ${t.warn}`,
+                            borderRadius: 8,
+                            padding: "10px 18px",
+                            fontSize: 13,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            color: t.warn,
+                            fontFamily: "inherit"
+                          },
+                          children: "Delete Folder Only"
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          onClick: () => {
+                            if (warningModal.onDeleteAllClick) {
+                              warningModal.onDeleteAllClick();
+                            } else if (warningModal.onConfirmDeleteAll) {
+                              warningModal.onConfirmDeleteAll();
+                              setWarningModal(null);
+                            }
+                          },
+                          style: {
+                            background: t.error,
+                            border: "none",
+                            borderRadius: 8,
+                            padding: "10px 18px",
+                            fontSize: 13,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            color: "#fff",
+                            fontFamily: "inherit"
+                          },
+                          children: "Delete Folder and Files"
+                        }
+                      )
+                    ] }) : warningModal.onConfirmUnlink ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        onClick: () => {
+                          warningModal.onConfirmUnlink();
+                          setWarningModal(null);
+                        },
+                        style: {
+                          background: t.warnSoft,
+                          border: `1px solid ${t.warn}`,
+                          borderRadius: 8,
+                          padding: "8px 18px",
+                          fontSize: 13,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          color: t.warn,
+                          fontFamily: "inherit"
+                        },
+                        children: "Yes, Unlink Files"
+                      }
+                    ) : warningModal.onConfirm && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        onClick: () => {
+                          warningModal.onConfirm();
+                          setWarningModal(null);
+                        },
+                        style: {
+                          background: t.error,
+                          border: "none",
+                          borderRadius: 8,
+                          padding: "8px 18px",
+                          fontSize: 13,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          color: "#fff",
+                          fontFamily: "inherit"
+                        },
+                        children: "Confirm"
+                      }
+                    )
+                  ]
+                }
+              )
+            ]
+          }
+        )
+      ]
+    }
+  );
+}
+function ConfirmDeleteModal({
+  isOpen,
+  onClose,
+  title,
+  message,
+  itemCount,
+  itemType,
+  onConfirm,
+  confirmText = "Delete",
+  t,
+  darkMode
+}) {
+  if (!isOpen) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      style: {
+        position: "fixed",
+        inset: 0,
+        zIndex: 400,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.6)",
+              backdropFilter: "blur(4px)"
+            },
+            onClick: onClose
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            style: {
+              position: "relative",
+              width: "100%",
+              maxWidth: 440,
+              background: t.surface,
+              border: `1px solid ${t.border}`,
+              borderRadius: 14,
+              padding: "28px 24px",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.4)",
+              animation: "modalIn 0.2s ease"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  style: {
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 14,
+                    marginBottom: 20
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "div",
+                      {
+                        style: {
+                          width: 42,
+                          height: 42,
+                          borderRadius: 10,
+                          flexShrink: 0,
+                          background: darkMode ? "rgba(239,68,68,0.15)" : "rgba(220,38,38,0.1)",
+                          color: t.error,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center"
+                        },
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTriangleIcon, { size: 22 })
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "div",
+                        {
+                          style: {
+                            fontSize: 16,
+                            fontWeight: 700,
+                            marginBottom: 6,
+                            color: t.text
+                          },
+                          children: title
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "div",
+                        {
+                          style: { fontSize: 13, color: t.textMuted, lineHeight: 1.5 },
+                          children: message
+                        }
+                      ),
+                      itemCount !== void 0 && itemCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "div",
+                        {
+                          style: {
+                            marginTop: 12,
+                            padding: "10px 14px",
+                            background: darkMode ? "rgba(239,68,68,0.1)" : "rgba(220,38,38,0.08)",
+                            borderRadius: 8,
+                            border: `1px solid ${t.error}33`
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 13, fontWeight: 600, color: t.error }, children: [
+                              itemCount,
+                              " ",
+                              itemType || "item",
+                              itemCount !== 1 ? "s" : "",
+                              " will be permanently deleted"
+                            ] }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, color: t.textDim, marginTop: 4 }, children: "This action cannot be undone." })
+                          ]
+                        }
+                      )
+                    ] })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  style: { display: "flex", justifyContent: "flex-end", gap: 8 },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        onClick: onClose,
                         style: {
                           background: t.surface,
                           border: `1px solid ${t.border}`,
@@ -46151,8 +46413,8 @@ function WarningModal({ warningModal, setWarningModal, t, darkMode }) {
                       "button",
                       {
                         onClick: () => {
-                          warningModal.onConfirm();
-                          setWarningModal(null);
+                          onConfirm();
+                          onClose();
                         },
                         style: {
                           background: t.error,
@@ -46165,7 +46427,7 @@ function WarningModal({ warningModal, setWarningModal, t, darkMode }) {
                           color: "#fff",
                           fontFamily: "inherit"
                         },
-                        children: "Yes, Unlink Files"
+                        children: confirmText
                       }
                     )
                   ]
@@ -47424,11 +47686,23 @@ function StatCard({ icon, label, value: value2, color, sub, t }) {
 function DashboardPage({
   dashboardData,
   loggedInUser,
+  locations,
+  departments,
   t,
-  darkMode
+  darkMode,
+  setPage,
+  setActiveFolderId,
+  setActiveLocation,
+  setActiveDepartment
 }) {
+  var _a2, _b;
   const dd = dashboardData || {};
   const year = (/* @__PURE__ */ new Date()).getFullYear();
+  const canViewLocations = ((_a2 = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a2.includes("viewLocations")) || ((_b = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _b.includes("viewFiles"));
+  const locationsWithDepts = locations.map((loc) => ({
+    ...loc,
+    departments: departments.filter((d) => d.locationId === loc.id)
+  }));
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -47518,7 +47792,8 @@ function DashboardPage({
             style: {
               display: "grid",
               gridTemplateColumns: "repeat(2, 1fr)",
-              gap: 12
+              gap: 12,
+              marginBottom: 28
             },
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -47543,7 +47818,149 @@ function DashboardPage({
               )
             ]
           }
-        )
+        ),
+        canViewLocations && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "h2",
+            {
+              style: {
+                fontSize: 18,
+                fontWeight: 700,
+                margin: "0 0 16px 0",
+                letterSpacing: "-0.02em"
+              },
+              children: "Locations & Departments"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              style: {
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                gap: 16
+              },
+              children: locationsWithDepts.map((loc) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  style: {
+                    background: t.surface,
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 12,
+                    padding: "16px 18px",
+                    animation: "fadeIn 0.3s ease"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "div",
+                      {
+                        style: {
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                          marginBottom: 12
+                        },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "div",
+                            {
+                              style: {
+                                width: 32,
+                                height: 32,
+                                borderRadius: 8,
+                                background: darkMode ? "rgba(210,153,34,0.15)" : "rgba(180,83,9,0.1)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: darkMode ? "#d2992e" : "#b45309"
+                              },
+                              children: /* @__PURE__ */ jsxRuntimeExports.jsx(MapPinIcon, { size: 16 })
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 600 }, children: loc.name }),
+                            loc.code && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, color: t.textDim }, children: loc.code })
+                          ] })
+                        ]
+                      }
+                    ),
+                    loc.departments.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "div",
+                      {
+                        style: {
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 4
+                        },
+                        children: loc.departments.map((dept) => {
+                          var _a3;
+                          const deptData = ((_a3 = dashboardData == null ? void 0 : dashboardData.deptCounts) == null ? void 0 : _a3[dept.id]) || { folderCount: 0, fileCount: 0 };
+                          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                            "div",
+                            {
+                              onClick: () => {
+                                setActiveLocation(loc.id);
+                                setActiveDepartment(dept.id);
+                                setActiveFolderId(null);
+                                setPage("folders");
+                              },
+                              style: {
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                padding: "8px 12px",
+                                background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                                borderRadius: 8,
+                                cursor: "pointer",
+                                transition: "background 0.15s"
+                              },
+                              onMouseEnter: (e) => {
+                                e.currentTarget.style.background = t.accentSoft;
+                              },
+                              onMouseLeave: (e) => {
+                                e.currentTarget.style.background = darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)";
+                              },
+                              children: [
+                                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx(LayersIcon, { size: 14, style: { color: t.accent } }),
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, fontWeight: 500 }, children: dept.name })
+                                ] }),
+                                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 10, color: t.textDim }, children: [
+                                    deptData.folderCount,
+                                    " folder",
+                                    deptData.folderCount !== 1 ? "s" : "",
+                                    " · ",
+                                    deptData.fileCount,
+                                    " file",
+                                    deptData.fileCount !== 1 ? "s" : ""
+                                  ] }),
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRightIcon, { size: 14, style: { color: t.textDim } })
+                                ] })
+                              ]
+                            },
+                            dept.id
+                          );
+                        })
+                      }
+                    ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "div",
+                      {
+                        style: {
+                          fontSize: 11,
+                          color: t.textDim,
+                          fontStyle: "italic"
+                        },
+                        children: "No departments"
+                      }
+                    )
+                  ]
+                },
+                loc.id
+              ))
+            }
+          )
+        ] })
       ]
     }
   );
@@ -49479,40 +49896,89 @@ function FileDetailPage({
   var _a2, _b;
   const canDeleteFiles = (_a2 = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a2.includes("deleteFiles");
   const [extracting, setExtracting] = reactExports.useState(false);
-  const [vf, setVf] = reactExports.useState(files.find((f) => f.id === viewingFileId));
+  const currentFile = files.find((f) => f.id === viewingFileId);
+  const [vf, setVf] = reactExports.useState(currentFile);
   const [previewUrl, setPreviewUrl] = reactExports.useState(null);
   const [previewLoading, setPreviewLoading] = reactExports.useState(false);
-  if (!vf) return null;
+  const [textExpanded, setTextExpanded] = reactExports.useState(false);
   reactExports.useEffect(() => {
-    let cancelled = false;
-    async function fetchPreviewUrl() {
-      if (!(vf == null ? void 0 : vf.id)) return;
-      setPreviewLoading(true);
-      try {
-        const url2 = await getFilePreviewUrlByFileId(vf.id);
-        if (!cancelled) setPreviewUrl(url2);
-      } catch (err) {
-        console.error("Failed to get preview URL:", err);
-        if (!cancelled) setPreviewUrl(null);
-      } finally {
-        if (!cancelled) setPreviewLoading(false);
-      }
+    const newFile = files.find((f) => f.id === viewingFileId);
+    if (newFile && newFile.id !== (vf == null ? void 0 : vf.id)) {
+      setVf(newFile);
+      setPreviewUrl(null);
+      setTextExpanded(false);
     }
-    if (vf.fileDataUrl) {
-      setPreviewUrl(vf.fileDataUrl);
-    } else {
-      fetchPreviewUrl();
-    }
-    return () => {
-      cancelled = true;
-    };
-  }, [vf == null ? void 0 : vf.id, vf == null ? void 0 : vf.fileDataUrl]);
+  }, [viewingFileId, files]);
+  reactExports.useEffect(() => {
+    if (!viewingFileId) return;
+    getFile(viewingFileId).then((fileData) => {
+      setVf((prev) => ({
+        ...prev,
+        ...fileData,
+        text: fileData.extracted_text || fileData.text
+      }));
+    }).catch((err) => console.error("Failed to fetch file details:", err));
+  }, [viewingFileId]);
+  if (!vf) return null;
   const folder = folders.find((f) => f.id === vf.folderId);
   const loc = folder ? locations.find((l) => l.id === folder.locationId) : null;
   const dept = folder ? departments.find((d) => d.id === folder.departmentId) : null;
   const breadcrumb = folder ? getBreadcrumb(folder.id) : [];
   const isPdf = vf.type === "application/pdf" || vf.name.toLowerCase().endsWith(".pdf");
   const isImage = (_b = vf.type) == null ? void 0 : _b.startsWith("image/");
+  reactExports.useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+    async function fetchPreviewUrl() {
+      if (!(vf == null ? void 0 : vf.id)) return;
+      if (vf.fileDataUrl) return;
+      setPreviewLoading(true);
+      try {
+        const token = localStorage.getItem("dda_token");
+        const response = await fetch(`/api/files/${vf.id}/preview`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          signal: controller.signal
+        });
+        if (!response.ok) throw new Error("Failed to load preview");
+        const blob = await response.blob();
+        if (cancelled) return;
+        if (isImage) {
+          const url2 = URL.createObjectURL(blob);
+          setPreviewUrl(url2);
+        } else {
+          const reader = new FileReader();
+          reader.onload = () => {
+            if (!cancelled) {
+              setPreviewUrl(reader.result);
+            }
+          };
+          reader.onerror = () => {
+            if (!cancelled) setPreviewUrl(null);
+          };
+          reader.readAsDataURL(blob);
+        }
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.error("Failed to get preview URL:", err);
+          if (!cancelled) setPreviewUrl(null);
+        }
+      } finally {
+        if (!cancelled) setPreviewLoading(false);
+      }
+    }
+    fetchPreviewUrl();
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [vf == null ? void 0 : vf.id, vf == null ? void 0 : vf.fileDataUrl, isImage]);
+  reactExports.useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
   const FileTypeIcon = isImage ? ImageIcon : FileDocIcon;
   const fileIconBg = isImage ? "rgba(234,179,8,0.15)" : t.successSoft;
   const fileIconColor = isImage ? "#eab308" : t.success;
@@ -49950,7 +50416,7 @@ function FileDetailPage({
                       {
                         style: {
                           flex: 1,
-                          padding: "0 20px 20px",
+                          padding: "0 20px 10px",
                           margin: 0,
                           fontSize: 11,
                           lineHeight: 1.75,
@@ -49960,9 +50426,30 @@ function FileDetailPage({
                           wordBreak: "break-word",
                           overflowY: "auto"
                         },
-                        children: vf.text || "(No extractable text found)"
+                        children: vf.text ? textExpanded || vf.text.length <= 2e3 ? vf.text : vf.text.substring(0, 2e3) + "..." : "(No extractable text found)"
                       }
-                    )
+                    ),
+                    vf.text && vf.text.length > 2e3 && !textExpanded && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "0 20px 15px", flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        onClick: () => setTextExpanded(true),
+                        style: {
+                          background: t.accentSoft,
+                          color: t.accent,
+                          border: "none",
+                          borderRadius: 6,
+                          padding: "6px 14px",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: "pointer"
+                        },
+                        children: [
+                          "Load More (",
+                          vf.text.length - 2e3,
+                          " more chars)"
+                        ]
+                      }
+                    ) })
                   ]
                 }
               )
@@ -50008,7 +50495,53 @@ function FileDetailPage({
                         ]
                       }
                     ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, color: t.textDim }, children: vf.name })
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, color: t.textDim }, children: vf.name }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          onClick: async () => {
+                            if (previewUrl && previewUrl.startsWith("blob:")) {
+                              URL.revokeObjectURL(previewUrl);
+                            }
+                            setPreviewLoading(true);
+                            try {
+                              const token = localStorage.getItem("dda_token");
+                              const response = await fetch(`/api/files/${vf.id}/preview`, {
+                                headers: token ? { Authorization: `Bearer ${token}` } : {}
+                              });
+                              if (!response.ok) throw new Error("Failed to load preview");
+                              const blob = await response.blob();
+                              if (isImage) {
+                                setPreviewUrl(URL.createObjectURL(blob));
+                              } else {
+                                const reader = new FileReader();
+                                reader.onload = () => setPreviewUrl(reader.result);
+                                reader.onerror = () => setPreviewUrl(null);
+                                reader.readAsDataURL(blob);
+                              }
+                            } catch (err) {
+                              console.error("Failed to refresh preview:", err);
+                              setPreviewUrl(null);
+                            } finally {
+                              setPreviewLoading(false);
+                            }
+                          },
+                          style: {
+                            background: "transparent",
+                            border: "none",
+                            cursor: "pointer",
+                            color: t.textDim,
+                            padding: 4,
+                            display: "flex",
+                            alignItems: "center",
+                            borderRadius: 4
+                          },
+                          title: "Refresh preview",
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshIcon, { size: 14 })
+                        }
+                      )
+                    ] })
                   ]
                 }
               ),
@@ -50026,24 +50559,12 @@ function FileDetailPage({
                     }
                     if (previewUrl) {
                       if (isPdf) {
-                        if (vf.fileDataUrl)
-                          return /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            PdfCanvasPreview,
-                            {
-                              dataUrl: vf.fileDataUrl,
-                              darkMode
-                            }
-                          );
+                        const pdfDataUrl = vf.fileDataUrl || previewUrl;
                         return /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "iframe",
+                          PdfCanvasPreview,
                           {
-                            src: previewUrl,
-                            style: {
-                              width: "100%",
-                              height: "100%",
-                              border: "none"
-                            },
-                            title: "PDF Preview"
+                            dataUrl: pdfDataUrl,
+                            darkMode
                           }
                         );
                       }
@@ -50143,8 +50664,9 @@ function UnsortedPage({
   t,
   darkMode
 }) {
-  var _a2, _b;
+  var _a2, _b, _c, _d;
   const canDeleteFiles = (_a2 = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a2.includes("deleteFiles");
+  const canViewLocations = ((_b = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _b.includes("viewLocations")) || ((_c = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _c.includes("viewFiles"));
   const [movingFileId, setMovingFileId] = reactExports.useState(null);
   const [moveTargetFolderId, setMoveTargetFolderId] = reactExports.useState("");
   const [showMoveSelect, setShowMoveSelect] = reactExports.useState(false);
@@ -50298,7 +50820,7 @@ function UnsortedPage({
     );
   }
   const isPdf = selectedFile ? selectedFile.type === "application/pdf" || selectedFile.name.toLowerCase().endsWith(".pdf") : false;
-  const isImage = (_b = selectedFile == null ? void 0 : selectedFile.type) == null ? void 0 : _b.startsWith("image/");
+  const isImage = (_d = selectedFile == null ? void 0 : selectedFile.type) == null ? void 0 : _d.startsWith("image/");
   const colHeaderStyle = {
     fontSize: 9.5,
     fontWeight: 700,
@@ -50840,7 +51362,7 @@ function UnsortedPage({
                                         justifyContent: "center"
                                       },
                                       children: [
-                                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                        canViewLocations && /* @__PURE__ */ jsxRuntimeExports.jsx(
                                           SmallBtn,
                                           {
                                             t,
@@ -51264,7 +51786,7 @@ function UploadPage({
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "div",
             {
-              style: { border: `1px solid ${t.border}`, borderRadius: 10 },
+              style: { border: `1px solid ${t.border}`, borderRadius: 10, overflow: "visible" },
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "div",
@@ -51328,7 +51850,8 @@ function UploadPage({
                         padding: "10px 14px",
                         borderBottom: idx < stagedFiles.length - 1 ? `1px solid ${t.border}` : "none",
                         animation: `fadeIn 0.2s ease ${idx * 0.03}s both`,
-                        position: "relative"
+                        position: "relative",
+                        zIndex: isOpen ? 1e3 : 1
                       },
                       children: [
                         sf.status === "processing" && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -51532,7 +52055,7 @@ function UploadPage({
                                     alignItems: "center",
                                     gap: 6,
                                     fontSize: 12,
-                                    background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)"
+                                    background: darkMode ? "rgba(30,35,42,0.95)" : "rgba(255,255,255,0.95)"
                                   },
                                   children: [
                                     /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 13 }),
@@ -51576,27 +52099,7 @@ function UploadPage({
                                 }
                               ),
                               isOpen && (() => {
-                                const sq = stagedDropdownSearch.trim();
-                                const dff = sq ? folders.map((f) => ({
-                                  ...f,
-                                  ...fuzzyMatch(sq, f.name)
-                                })).filter((r) => r.match).sort((a, b) => b.score - a.score) : folders;
                                 return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                    "div",
-                                    {
-                                      onClick: (e) => {
-                                        e.stopPropagation();
-                                        setOpenStagedDropdown(null);
-                                        setStagedDropdownSearch("");
-                                      },
-                                      style: {
-                                        position: "fixed",
-                                        inset: 0,
-                                        zIndex: 499
-                                      }
-                                    }
-                                  ),
                                   /* @__PURE__ */ jsxRuntimeExports.jsxs(
                                     "div",
                                     {
@@ -51605,176 +52108,212 @@ function UploadPage({
                                         top: "100%",
                                         left: 0,
                                         right: 0,
-                                        zIndex: 500,
-                                        background: darkMode ? "#1a1d23" : "#ffffff",
+                                        zIndex: 999,
+                                        background: darkMode ? "#1e232a" : "#ffffff",
                                         border: `1px solid ${t.border}`,
                                         borderRadius: 10,
-                                        boxShadow: darkMode ? "0 12px 40px rgba(0,0,0,0.6)" : "0 12px 40px rgba(0,0,0,0.2)",
+                                        boxShadow: darkMode ? "0 16px 48px rgba(0,0,0,0.7)" : "0 16px 48px rgba(0,0,0,0.25)",
                                         marginTop: 4
                                       },
                                       children: [
-                                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                                        /* @__PURE__ */ jsxRuntimeExports.jsx(
                                           "div",
                                           {
                                             style: {
-                                              padding: "6px 8px",
-                                              borderBottom: `1px solid ${t.border}`,
-                                              display: "flex",
-                                              alignItems: "center",
-                                              gap: 6
+                                              padding: "8px",
+                                              borderBottom: `1px solid ${t.border}`
                                             },
-                                            children: [
-                                              /* @__PURE__ */ jsxRuntimeExports.jsx(SearchIcon, { size: 13 }),
-                                              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                                "input",
-                                                {
-                                                  autoFocus: true,
-                                                  value: stagedDropdownSearch,
-                                                  onChange: (e) => setStagedDropdownSearch(
-                                                    e.target.value
-                                                  ),
-                                                  onClick: (e) => e.stopPropagation(),
-                                                  onKeyDown: (e) => {
-                                                    if (e.key === "Escape")
-                                                      setOpenStagedDropdown(null);
-                                                  },
-                                                  placeholder: "Search folders...",
-                                                  style: {
-                                                    flex: 1,
-                                                    background: "transparent",
-                                                    border: "none",
-                                                    fontSize: 12,
-                                                    color: t.text,
-                                                    outline: "none",
-                                                    fontFamily: "inherit"
-                                                  }
-                                                }
-                                              )
-                                            ]
-                                          }
-                                        ),
-                                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                                          "div",
-                                          {
-                                            style: {
-                                              maxHeight: 220,
-                                              overflowY: "auto",
-                                              padding: 3
-                                            },
-                                            children: [
-                                              locations.map((loc) => {
-                                                const li = dff.filter(
-                                                  (f) => f.locationId === loc.id
-                                                );
-                                                if (!li.length) return null;
-                                                return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                                            children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                                              "div",
+                                              {
+                                                style: {
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  gap: 6,
+                                                  background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                                                  border: `1px solid ${t.border}`,
+                                                  borderRadius: 6,
+                                                  padding: "6px 10px"
+                                                },
+                                                children: [
+                                                  /* @__PURE__ */ jsxRuntimeExports.jsx(SearchIcon, { size: 14, style: { color: t.textDim, flexShrink: 0 } }),
                                                   /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                                    "div",
+                                                    "input",
                                                     {
-                                                      style: {
-                                                        padding: "4px 8px 2px",
-                                                        fontSize: 9,
-                                                        fontWeight: 700,
-                                                        letterSpacing: "0.06em",
-                                                        textTransform: "uppercase",
-                                                        color: t.textMuted
+                                                      autoFocus: true,
+                                                      value: stagedDropdownSearch,
+                                                      onChange: (e) => setStagedDropdownSearch(
+                                                        e.target.value
+                                                      ),
+                                                      onClick: (e) => e.stopPropagation(),
+                                                      onKeyDown: (e) => {
+                                                        if (e.key === "Escape")
+                                                          setOpenStagedDropdown(null);
                                                       },
-                                                      children: loc.name
+                                                      placeholder: "Search folders by name...",
+                                                      style: {
+                                                        flex: 1,
+                                                        background: "transparent",
+                                                        border: "none",
+                                                        fontSize: 12,
+                                                        color: t.text,
+                                                        outline: "none",
+                                                        fontFamily: "inherit"
+                                                      }
                                                     }
                                                   ),
-                                                  deptsInLocation(
-                                                    loc.id
-                                                  ).map((dept) => {
-                                                    const di = li.filter(
-                                                      (f) => f.departmentId === dept.id
-                                                    );
-                                                    if (!di.length)
-                                                      return null;
-                                                    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                                                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                                        "div",
-                                                        {
-                                                          style: {
-                                                            padding: "2px 8px 2px 14px",
-                                                            fontSize: 8.5,
-                                                            fontWeight: 600,
-                                                            color: t.textDim
-                                                          },
-                                                          children: dept.name
-                                                        }
-                                                      ),
-                                                      di.map(
-                                                        (folder) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                                                          "div",
-                                                          {
-                                                            onClick: () => {
-                                                              setStagedFolderAssignments(
-                                                                (p) => ({
-                                                                  ...p,
-                                                                  [sf.id]: folder.id
-                                                                })
-                                                              );
-                                                              setOpenStagedDropdown(
-                                                                null
-                                                              );
-                                                              setStagedDropdownSearch(
-                                                                ""
-                                                              );
-                                                            },
-                                                            className: "folder-select-item",
-                                                            style: {
-                                                              padding: "5px 8px 5px 22px",
-                                                              borderRadius: 5,
-                                                              cursor: "pointer",
-                                                              fontSize: 11.5,
-                                                              display: "flex",
-                                                              alignItems: "center",
-                                                              gap: 7,
-                                                              background: assignedFolderId === folder.id ? t.accentSoft : "transparent",
-                                                              color: assignedFolderId === folder.id ? t.accent : t.text,
-                                                              fontWeight: 500
-                                                            },
-                                                            children: [
-                                                              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                                                FolderClosedIcon,
-                                                                {
-                                                                  size: 12
-                                                                }
-                                                              ),
-                                                              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                                                "span",
-                                                                {
-                                                                  style: {
-                                                                    flex: 1
-                                                                  },
-                                                                  children: folder.name
-                                                                }
-                                                              )
-                                                            ]
-                                                          },
-                                                          folder.id
-                                                        )
-                                                      )
-                                                    ] }, dept.id);
-                                                  })
-                                                ] }, loc.id);
-                                              }),
-                                              dff.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                                "div",
-                                                {
-                                                  style: {
-                                                    padding: "10px",
-                                                    fontSize: 11,
-                                                    color: t.textDim,
-                                                    textAlign: "center"
-                                                  },
-                                                  children: "No folders found"
+                                                  stagedDropdownSearch && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                                    "button",
+                                                    {
+                                                      onClick: (e) => {
+                                                        e.stopPropagation();
+                                                        setStagedDropdownSearch("");
+                                                      },
+                                                      style: {
+                                                        background: "transparent",
+                                                        border: "none",
+                                                        cursor: "pointer",
+                                                        color: t.textDim,
+                                                        padding: 0,
+                                                        display: "flex"
+                                                      },
+                                                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { size: 12 })
+                                                    }
+                                                  )
+                                                ]
+                                              }
+                                            )
+                                          }
+                                        ),
+                                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                          "div",
+                                          {
+                                            style: {
+                                              maxHeight: 300,
+                                              overflowY: "auto",
+                                              padding: "4px 0"
+                                            },
+                                            children: (() => {
+                                              const searchQuery = stagedDropdownSearch.trim();
+                                              const searchLower = searchQuery.toLowerCase();
+                                              let filtered = [];
+                                              if (folders && folders.length > 0) {
+                                                if (searchQuery) {
+                                                  filtered = folders.filter(
+                                                    (f) => f.name && f.name.toLowerCase().includes(searchLower)
+                                                  );
+                                                } else {
+                                                  filtered = [...folders];
                                                 }
-                                              )
-                                            ]
+                                              }
+                                              const displayFolders = searchQuery ? filtered.slice(0, 10) : filtered.slice(0, 10);
+                                              const totalMatches = filtered.length;
+                                              if (!folders || folders.length === 0) {
+                                                return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                                  "div",
+                                                  {
+                                                    style: {
+                                                      padding: "12px",
+                                                      fontSize: 11,
+                                                      color: t.textDim,
+                                                      textAlign: "center"
+                                                    },
+                                                    children: "No folders exist yet. Create folders in the Locations section."
+                                                  }
+                                                );
+                                              }
+                                              if (displayFolders.length === 0 && searchQuery) {
+                                                return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                                                  "div",
+                                                  {
+                                                    style: {
+                                                      padding: "12px",
+                                                      fontSize: 11,
+                                                      color: t.textDim,
+                                                      textAlign: "center"
+                                                    },
+                                                    children: [
+                                                      'No folders match "',
+                                                      searchQuery,
+                                                      '"'
+                                                    ]
+                                                  }
+                                                );
+                                              }
+                                              return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                                                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                                  "div",
+                                                  {
+                                                    style: {
+                                                      padding: "4px 8px 2px",
+                                                      fontSize: 9,
+                                                      fontWeight: 700,
+                                                      letterSpacing: "0.06em",
+                                                      textTransform: "uppercase",
+                                                      color: t.textMuted
+                                                    },
+                                                    children: searchQuery ? `Results for "${searchQuery}" (${totalMatches} found)` : `All Folders (${displayFolders.length})`
+                                                  }
+                                                ),
+                                                displayFolders.map((folder) => {
+                                                  const loc = locations.find((l) => l.id === folder.locationId);
+                                                  const dept = departments.find((d) => d.id === folder.departmentId);
+                                                  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                                                    "div",
+                                                    {
+                                                      onClick: () => {
+                                                        setStagedFolderAssignments((p) => ({
+                                                          ...p,
+                                                          [sf.id]: folder.id
+                                                        }));
+                                                        setOpenStagedDropdown(null);
+                                                        setStagedDropdownSearch("");
+                                                      },
+                                                      className: "folder-select-item",
+                                                      style: {
+                                                        padding: "6px 8px",
+                                                        borderRadius: 5,
+                                                        cursor: "pointer",
+                                                        fontSize: 11.5,
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: 7,
+                                                        background: assignedFolderId === folder.id ? t.accentSoft : "transparent",
+                                                        color: assignedFolderId === folder.id ? t.accent : t.text,
+                                                        fontWeight: 500
+                                                      },
+                                                      children: [
+                                                        /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 12 }),
+                                                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1 }, children: folder.name }),
+                                                        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 9.5, color: t.textDim }, children: [
+                                                          loc == null ? void 0 : loc.name,
+                                                          " / ",
+                                                          dept == null ? void 0 : dept.name
+                                                        ] })
+                                                      ]
+                                                    },
+                                                    folder.id
+                                                  );
+                                                })
+                                              ] });
+                                            })()
                                           }
                                         )
                                       ]
+                                    }
+                                  ),
+                                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                    "div",
+                                    {
+                                      onClick: () => {
+                                        setOpenStagedDropdown(null);
+                                        setStagedDropdownSearch("");
+                                      },
+                                      style: {
+                                        position: "fixed",
+                                        inset: 0,
+                                        zIndex: 998
+                                      }
                                     }
                                   )
                                 ] });
@@ -55591,6 +56130,12 @@ function AdminPage({
   const [azureSaving, setAzureSaving] = reactExports.useState(false);
   const [azureTesting, setAzureTesting] = reactExports.useState(false);
   const [azureMessage, setAzureMessage] = reactExports.useState({ type: "", text: "" });
+  const [securitySettings, setSecuritySettings] = reactExports.useState({
+    allowedIframeDomains: "*.blob.core.windows.net"
+  });
+  const [securityLoading, setSecurityLoading] = reactExports.useState(false);
+  const [securitySaving, setSecuritySaving] = reactExports.useState(false);
+  const [securityMessage, setSecurityMessage] = reactExports.useState({ type: "", text: "" });
   const editLocRef = reactExports.useRef(null);
   const addLocRef = reactExports.useRef(null);
   const editDeptRef = reactExports.useRef(null);
@@ -55713,9 +56258,39 @@ function AdminPage({
       setAzureTesting(false);
     }
   };
+  const loadSecuritySettings = async () => {
+    setSecurityLoading(true);
+    try {
+      const settings = await getSecuritySettings();
+      setSecuritySettings({
+        allowedIframeDomains: settings.allowedIframeDomains || "*.blob.core.windows.net"
+      });
+    } catch (err) {
+      console.error("Failed to load security settings:", err);
+    } finally {
+      setSecurityLoading(false);
+    }
+  };
+  const handleSaveSecurity = async () => {
+    setSecuritySaving(true);
+    setSecurityMessage({ type: "", text: "" });
+    try {
+      await saveSecuritySettings({
+        allowedIframeDomains: securitySettings.allowedIframeDomains
+      });
+      setSecurityMessage({ type: "success", text: "Security settings saved successfully!" });
+    } catch (err) {
+      setSecurityMessage({ type: "error", text: "Failed to save: " + (err.message || "Unknown error") });
+    } finally {
+      setSecuritySaving(false);
+    }
+  };
   reactExports.useEffect(() => {
     if (adminSection === "azure") {
       loadAzureSettings();
+    }
+    if (adminSection === "security") {
+      loadSecuritySettings();
     }
   }, [adminSection]);
   const adminActiveMenu = ADMIN_MENU.find((m) => m.id === adminSection);
@@ -56583,6 +57158,49 @@ function AdminPage({
             /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { primary: true, darkMode, t, onClick: handleSaveAzure, loading: azureSaving, style: { fontSize: 13 }, children: "Save Settings" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { darkMode, t, onClick: handleTestAzure, loading: azureTesting, style: { fontSize: 13 }, children: "Test Connection" })
           ] })
+        ] })
+      ] }),
+      adminSection === "security" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { animation: "fadeIn 0.25s ease" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 24 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }, children: "Security Settings" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 13, color: t.textMuted, margin: 0 }, children: "Configure security policies for the application." })
+        ] }),
+        securityLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: 40, color: t.textMuted }, children: "Loading..." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: "20px 24px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { display: "block", fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6 }, children: "Allowed Iframe Domains" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "textarea",
+              {
+                value: securitySettings.allowedIframeDomains,
+                onChange: (e) => setSecuritySettings({ ...securitySettings, allowedIframeDomains: e.target.value }),
+                placeholder: "*.blob.core.windows.net, *.azureedge.net",
+                rows: 3,
+                style: {
+                  width: "100%",
+                  padding: "10px 12px",
+                  fontSize: 13,
+                  fontFamily: "monospace",
+                  background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 8,
+                  color: t.text,
+                  outline: "none",
+                  boxSizing: "border-box",
+                  resize: "vertical"
+                }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 11, color: t.textDim, marginTop: 4 }, children: "Comma-separated list of domains allowed in iframes (for file previews). Default: *.blob.core.windows.net" })
+          ] }),
+          securityMessage.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            padding: "10px 14px",
+            borderRadius: 8,
+            marginBottom: 16,
+            background: securityMessage.type === "success" ? t.successSoft : t.errorSoft,
+            color: securityMessage.type === "success" ? t.success : t.error,
+            fontSize: 13
+          }, children: securityMessage.text }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: 12, flexWrap: "wrap" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { primary: true, darkMode, t, onClick: handleSaveSecurity, loading: securitySaving, style: { fontSize: 13 }, children: "Save Settings" }) })
         ] })
       ] }),
       adminSection === "app-center" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AppCenterSection, { t, darkMode, addToast }) })
@@ -57872,6 +58490,8 @@ function AppInner() {
   const [deptDragOver, setDeptDragOver] = reactExports.useState(false);
   const [stagedFolderAssignments, setStagedFolderAssignments] = reactExports.useState({});
   const [stagedSuggestions, setStagedSuggestions] = reactExports.useState({});
+  const [pendingUploads, setPendingUploads] = reactExports.useState({});
+  reactExports.useRef(null);
   const [folderSearch, setFolderSearch] = reactExports.useState("");
   const [creatingSubfolder, setCreatingSubfolder] = reactExports.useState(false);
   const [newSubfolderName, setNewSubfolderName] = reactExports.useState("");
@@ -57900,6 +58520,7 @@ function AppInner() {
   const [editingDeptId, setEditingDeptId] = reactExports.useState(null);
   const [editingDeptName, setEditingDeptName] = reactExports.useState("");
   const [warningModal, setWarningModal] = reactExports.useState(null);
+  const [deleteConfirmModal, setDeleteConfirmModal] = reactExports.useState(null);
   const [auditLog, setAuditLog] = reactExports.useState([]);
   const [auditFilterUser, setAuditFilterUser] = reactExports.useState("");
   const [auditFilterAction, setAuditFilterAction] = reactExports.useState("");
@@ -58096,11 +58717,13 @@ function AppInner() {
   }, []);
   const loadCoreData = reactExports.useCallback(async () => {
     try {
-      const [locs, depts, unsorted] = await Promise.all([getLocations(), getDepartments(), getUnsortedFiles()]);
+      const [locs, depts, unsorted, allFolders] = await Promise.all([getLocations(), getDepartments(), getUnsortedFiles(), getFolders({})]);
       const normLocs = locs.map((l) => ({ id: l.id, name: l.name, locationCode: l.location_code || l.locationCode }));
       const normDepts = depts.map((d) => ({ id: d.id, name: d.name, locationId: d.location_id || d.locationId }));
+      const normFolders = allFolders.map((f) => ({ id: f.id, name: f.name, locationId: f.location_id || f.locationId, departmentId: f.department_id || f.departmentId, parentId: f.parent_id || f.parentId || null, createdAt: f.created_at, fileCount: Number(f.fileCount || 0), subfolderCount: Number(f.subfolderCount || 0) }));
       setLocations(normLocs);
       setDepartments(normDepts);
+      setFolders(normFolders);
       setUnsortedFiles(unsorted.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: null, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 })));
       if (normLocs.length > 0 && !activeLocation) {
         setActiveLocation(normLocs[0].id);
@@ -58122,6 +58745,13 @@ function AppInner() {
       setFolders((prev) => [...prev.filter((f) => f.departmentId !== activeDepartment), ...norm]);
     }).catch(console.error);
   }, [isLoggedIn, activeDepartment]);
+  reactExports.useEffect(() => {
+    if (!isLoggedIn || page !== "upload") return;
+    getFolders({}).then((rows) => {
+      const norm = rows.map((f) => ({ id: f.id, name: f.name, locationId: f.location_id || f.locationId, departmentId: f.department_id || f.departmentId, parentId: f.parent_id || f.parentId || null, createdAt: f.created_at, fileCount: Number(f.fileCount || 0), subfolderCount: Number(f.subfolderCount || 0) }));
+      setFolders(norm);
+    }).catch(console.error);
+  }, [isLoggedIn, page]);
   reactExports.useEffect(() => {
     if (!isLoggedIn || !activeFolderId) return;
     getFiles(activeFolderId).then((rows) => {
@@ -58343,7 +58973,39 @@ function AppInner() {
       const numMatch = folders.find((f) => f.name === numPart || f.name.includes(numPart));
       if (numMatch) return { folder: numMatch, ro, confidence: "partial" };
     }
+    if (/^R10\d{7}$/.test(ro)) {
+      const numMatch = folders.find((f) => f.name === ro || f.name.includes(ro));
+      if (numMatch) return { folder: numMatch, ro, confidence: "partial" };
+      const numPart = ro.slice(3);
+      const numOnlyMatch = folders.find((f) => f.name === numPart || f.name.includes(numPart));
+      if (numOnlyMatch) return { folder: numOnlyMatch, ro, confidence: "partial" };
+    }
     return { folder: null, ro, confidence: "none" };
+  };
+  const trackSuccessfulUpload = (fileId, folderId) => {
+    if (!folderId) return;
+    setPendingUploads((prev) => {
+      const existing = prev[folderId];
+      if (existing == null ? void 0 : existing.timer) {
+        clearTimeout(existing.timer);
+      }
+      const allFileIds = existing ? [...existing.fileIds, fileId] : [fileId];
+      const timer = setTimeout(() => {
+        setPendingUploads((current) => {
+          const batchData = current[folderId];
+          if (batchData && batchData.fileIds.length > 0) {
+            createBatchUploadNotification(batchData.fileIds, folderId).catch(console.error);
+          }
+          const updated = { ...current };
+          delete updated[folderId];
+          return updated;
+        });
+      }, 2e3);
+      return {
+        ...prev,
+        [folderId]: { fileIds: allFileIds, timer }
+      };
+    });
   };
   const handleLogin = async () => {
     setLoginError("");
@@ -58423,9 +59085,10 @@ function AppInner() {
         });
         if (folderId) {
           try {
-            const uploaded = await uploadFile(rawFile, folderId, r.text, r.pages);
+            const uploaded = await uploadFile(rawFile, folderId, r.text, r.pages, true);
             const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || "application/pdf", pages: Number(uploaded.page_count || 0), status: "done", text: uploaded.extracted_text, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, uploadedAt: uploaded.uploaded_at || (/* @__PURE__ */ new Date()).toISOString(), uploadedBy: uploaded.uploaded_by_name || (loggedInUser == null ? void 0 : loggedInUser.name) || null, progress: 100 };
             setFiles((p) => p.map((f) => f.id === id ? norm : f));
+            trackSuccessfulUpload(uploaded.id, uploaded.folder_id);
           } catch (err) {
             setFiles((p) => p.map((f) => f.id === id ? { ...f, status: "error", error: err.message } : f));
           }
@@ -58439,9 +59102,10 @@ function AppInner() {
         };
         updateProgress(50);
         try {
-          const uploaded = await uploadFile(rawFile, folderId, null, 0);
+          const uploaded = await uploadFile(rawFile, folderId, null, 0, true);
           const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || rawFile.type, pages: 0, status: "done", text: null, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, uploadedAt: uploaded.uploaded_at || (/* @__PURE__ */ new Date()).toISOString(), uploadedBy: uploaded.uploaded_by_name || (loggedInUser == null ? void 0 : loggedInUser.name) || null, progress: 100 };
           setFiles((p) => p.map((f) => f.id === id ? norm : f));
+          trackSuccessfulUpload(uploaded.id, uploaded.folder_id);
         } catch (err) {
           setFiles((p) => p.map((f) => f.id === id ? { ...f, status: "error", error: err.message } : f));
         }
@@ -58451,7 +59115,7 @@ function AppInner() {
       if (folderId) setFiles(up);
       else setStagedFiles(up);
     }
-  }, []);
+  }, [trackSuccessfulUpload]);
   const handleUploadFiles = reactExports.useCallback((fl) => {
     const files2 = Array.from(fl);
     files2.forEach((f) => processFile(f, null));
@@ -58653,28 +59317,31 @@ function AppInner() {
     setCreatingDeptFolder(false);
   };
   const handleDeleteFolder = (folder) => {
-    const childFolders = subfoldersOf(folder.id);
+    subfoldersOf(folder.id);
     const fileCount = allFilesInFolderRecursive(folder.id);
-    const message = childFolders.length > 0 ? `Delete "${folder.name}"? This includes ${childFolders.length} subfolder${childFolders.length !== 1 ? "s" : ""} and ${fileCount} file${fileCount !== 1 ? "s" : ""} will become unsorted. This cannot be undone.` : fileCount > 0 ? `Delete "${folder.name}"? ${fileCount} file${fileCount !== 1 ? "s" : ""} inside will become unsorted. This cannot be undone.` : `Delete the folder "${folder.name}"? This cannot be undone.`;
-    const doDelete = async () => {
+    const hasFiles = fileCount > 0;
+    const message = hasFiles ? `"${folder.name}" contains ${fileCount} file${fileCount !== 1 ? "s" : ""}. What would you like to do with the files?` : `Delete the folder "${folder.name}"? This cannot be undone.`;
+    const getAllDescendants = (pid) => {
+      const ch = subfoldersOf(pid);
+      let all = [];
+      for (const c of ch) {
+        all = [...all, ...getAllDescendants(c.id), c];
+      }
+      return all;
+    };
+    const descendants = getAllDescendants(folder.id);
+    const allFolderIds = /* @__PURE__ */ new Set([folder.id, ...descendants.map((d) => d.id)]);
+    const doUnlink = async () => {
       try {
-        const getAllDescendants = (pid) => {
-          const ch = subfoldersOf(pid);
-          let all = [];
-          for (const c of ch) {
-            all = [...all, ...getAllDescendants(c.id), c];
-          }
-          return all;
-        };
-        const descendants = getAllDescendants(folder.id);
-        const allIds = /* @__PURE__ */ new Set([folder.id, ...descendants.map((d) => d.id)]);
-        setFiles((p) => p.filter((f) => !allIds.has(f.folderId)));
         for (const desc of descendants) {
           await deleteFolder(desc.id).catch(console.error);
         }
         await deleteFolder(folder.id);
-        setFolders((p) => p.filter((f) => !allIds.has(f.id)));
-        if (activeFolderId === folder.id || allIds.has(activeFolderId)) {
+        setFiles((p) => p.map(
+          (f) => allFolderIds.has(f.folderId) ? { ...f, folderId: null } : f
+        ));
+        setFolders((p) => p.filter((f) => !allFolderIds.has(f.id)));
+        if (activeFolderId === folder.id || allFolderIds.has(activeFolderId)) {
           if (folder.parentId) setActiveFolderId(folder.parentId);
           else {
             setActiveFolderId(null);
@@ -58685,9 +59352,48 @@ function AppInner() {
       } catch (err) {
         console.error(err);
       }
-      setWarningModal(null);
     };
-    setWarningModal({ title: "Delete Folder", message, onConfirm: doDelete });
+    const doDeleteAll = async () => {
+      try {
+        const filesToDelete = files.filter((f) => allFolderIds.has(f.folderId));
+        for (const file of filesToDelete) {
+          await deleteFile(file.id).catch(console.error);
+        }
+        for (const desc of descendants) {
+          await deleteFolder(desc.id).catch(console.error);
+        }
+        await deleteFolder(folder.id);
+        setFiles((p) => p.filter((f) => !allFolderIds.has(f.folderId)));
+        setFolders((p) => p.filter((f) => !allFolderIds.has(f.id)));
+        if (activeFolderId === folder.id || allFolderIds.has(activeFolderId)) {
+          if (folder.parentId) setActiveFolderId(folder.parentId);
+          else {
+            setActiveFolderId(null);
+            setPage("folders");
+          }
+        }
+        addToast("Folder and files deleted", `"${folder.name}" and ${filesToDelete.length} file${filesToDelete.length !== 1 ? "s" : ""} have been deleted`, 4e3, "delete");
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    const handleDeleteAllClick = () => {
+      const filesToDelete = files.filter((f) => allFolderIds.has(f.folderId));
+      setDeleteConfirmModal({
+        title: "Confirm Delete",
+        message: `Are you sure you want to permanently delete "${folder.name}" and all its contents?`,
+        itemCount: filesToDelete.length,
+        itemType: "file",
+        onConfirm: doDeleteAll
+      });
+    };
+    setWarningModal({
+      title: "Delete Folder",
+      message,
+      onConfirmUnlink: hasFiles ? doUnlink : void 0,
+      onConfirmDeleteAll: doDeleteAll,
+      onDeleteAllClick: handleDeleteAllClick
+    });
   };
   const handleDeleteLocation = (loc) => {
     const lf = foldersInLocation(loc.id), lFiles = lf.reduce((s, f) => s + filesInFolder(f.id).length, 0);
@@ -58833,10 +59539,10 @@ function AppInner() {
     page === "landing" && /* @__PURE__ */ jsxRuntimeExports.jsx(LandingNavbar, { darkMode, setDarkMode, loggedInUser, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal }),
     page === "admin" && /* @__PURE__ */ jsxRuntimeExports.jsx(AdminNavbar, { darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket: () => setShowHelpTicketModal(true) }),
     page.startsWith("cht-") && /* @__PURE__ */ jsxRuntimeExports.jsx(CHTNavbar, { darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket: () => setShowHelpTicketModal(true) }),
-    page !== "landing" && page !== "admin" && !page.startsWith("cht-") && /* @__PURE__ */ jsxRuntimeExports.jsx(Navbar, { page, setPage, darkMode, setDarkMode, isLoggedIn, loggedInUser, locations, departments, folders, files, unsortedFiles, stagedFiles, activeLocation, setActiveLocation, activeDepartment, setActiveDepartment, setActiveFolderId, setSelectedFile, setViewingFileId, setFolderSearch, expandedLocations, setExpandedLocations, showDeptDropdown, setShowDeptDropdown, showProfileMenu, setShowProfileMenu, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, setAdminSection, handleLogout, foldersInLocation, foldersInDepartment, deptsInLocation, filesInFolder, setShowSubscriptionsModal, setViewingFileIdFromAlert, onOpenHelpTicket: () => setShowHelpTicketModal(true), t }),
+    page !== "landing" && page !== "admin" && !page.startsWith("cht-") && /* @__PURE__ */ jsxRuntimeExports.jsx(Navbar, { page, setPage, darkMode, setDarkMode, isLoggedIn, loggedInUser, locations, departments, folders, files, unsortedFiles, stagedFiles, activeLocation, setActiveLocation, activeDepartment, setActiveDepartment, setActiveFolderId, setSelectedFile, setViewingFileId, setFolderSearch, expandedLocations, setExpandedLocations, showDeptDropdown, setShowDeptDropdown, showProfileMenu, setShowProfileMenu, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, setAdminSection, handleLogout, foldersInLocation, foldersInDepartment, deptsInLocation, filesInFolder, setShowSubscriptionsModal, setViewingFileIdFromAlert, onOpenHelpTicket: () => setShowHelpTicketModal(true), dashboardData, t }),
     page === "landing" && /* @__PURE__ */ jsxRuntimeExports.jsx(LandingPage, { setPage, t, darkMode, loggedInUser, onOpenHelpTicket: () => setShowHelpTicketModal(true) }),
     page === "cht-dashboard" && /* @__PURE__ */ jsxRuntimeExports.jsx(CHTDashboardPage, { loggedInUser, t, darkMode }),
-    page === "dashboard" && /* @__PURE__ */ jsxRuntimeExports.jsx(DashboardPage, { dashboardData, loggedInUser, setPage, setActiveFolderId, setViewingFileId, t, darkMode }),
+    page === "dashboard" && /* @__PURE__ */ jsxRuntimeExports.jsx(DashboardPage, { dashboardData, loggedInUser, locations, departments, setPage, setActiveFolderId, setActiveLocation, setActiveDepartment, setViewingFileId, t, darkMode }),
     page === "folders-browse" && /* @__PURE__ */ jsxRuntimeExports.jsx(FoldersBrowsePage, { locations, departments, deptsInLocation, setActiveLocation, setActiveDepartment, setActiveFolderId, setFolderSearch, setSelectedFile, setPage, subscriptions, setSubscriptions, t, darkMode }),
     page === "folders" && /* @__PURE__ */ jsxRuntimeExports.jsx(FoldersPage, { currentLocation, currentDept, currentDeptFolders, folderSearch, setFolderSearch, creatingDeptFolder, setCreatingDeptFolder, newDeptFolderName, setNewDeptFolderName, createDeptFolder, setActiveFolderId, setPage, setCreatingSubfolder, handleDeleteFolder, subscriptions, setSubscriptions, loggedInUser, t, darkMode, handleDeptDrop, deptDragOver, setDeptDragOver, handleDeptFiles }),
     page === "folder-detail" && /* @__PURE__ */ jsxRuntimeExports.jsx(FolderDetailPage, { activeFolder, activeFolderId, filesInFolder, subfoldersOf, allFilesInFolderRecursive, getBreadcrumb, locations, departments, folders, setActiveFolderId, setPage, setSelectedFile, setViewingFileId, setRenamingFileId, setRenamingFileName, copyText, removeFile, handleDeleteFolder, creatingSubfolder, setCreatingSubfolder, newSubfolderName, setNewSubfolderName, createSubfolder, folderDetailDragOver, setFolderDetailDragOver, handleFolderDetailDrop, handleFolderDetailFiles, subscriptions, setSubscriptions, loggedInUser, t, darkMode }),
@@ -58846,6 +59552,21 @@ function AppInner() {
     page === "admin" && /* @__PURE__ */ jsxRuntimeExports.jsx(AdminPage, { adminSection, setAdminSection, setPage, adminUsers, setAdminUsers, setAdminSetPasswordUserId, setAdminSetPasswordForm, setAdminSetPasswordError, setAdminSetPasswordSuccess, securityGroups, setSecurityGroups, editingGroupId, setEditingGroupId, addingGroup, setAddingGroup, newGroupName, setNewGroupName, newGroupDesc, setNewGroupDesc, setWarningModal, loggedInUser, locations, setLocations, addingLocation, setAddingLocation, newLocationName, setNewLocationName, newLocationCode, setNewLocationCode, editingLocationId, setEditingLocationId, editingLocationName, setEditingLocationName, editingLocationCode, setEditingLocationCode, foldersInLocation, filesInFolder, handleDeleteLocation, departments, setDepartments, deptsInLocation, foldersInDepartment, addingDept, setAddingDept, addingDeptLocId, setAddingDeptLocId, newDeptName, setNewDeptName, editingDeptId, setEditingDeptId, editingDeptName, setEditingDeptName, handleDeleteDept, auditLog, auditFilterUser, setAuditFilterUser, auditFilterAction, setAuditFilterAction, auditFilterDate, setAuditFilterDate, locationAccess, setLocationAccess, departmentAccess, setDepartmentAccess, subscriptions, setSubscriptions, totalPermissionCount, setTotalPermissionCount, t, darkMode, addToast }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(RenameModal, { renamingFileId, renamingFileName, setRenamingFileId, setRenamingFileName, renameFile: renameFile$1, t, darkMode }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(WarningModal, { warningModal, setWarningModal, t, darkMode }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ConfirmDeleteModal,
+      {
+        isOpen: !!deleteConfirmModal,
+        onClose: () => setDeleteConfirmModal(null),
+        title: (deleteConfirmModal == null ? void 0 : deleteConfirmModal.title) || "Confirm Delete",
+        message: (deleteConfirmModal == null ? void 0 : deleteConfirmModal.message) || "",
+        itemCount: deleteConfirmModal == null ? void 0 : deleteConfirmModal.itemCount,
+        itemType: deleteConfirmModal == null ? void 0 : deleteConfirmModal.itemType,
+        onConfirm: deleteConfirmModal == null ? void 0 : deleteConfirmModal.onConfirm,
+        confirmText: "Delete All",
+        t,
+        darkMode
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(ChangePasswordModal, { show: showChangePassword, form: changePasswordForm, setForm: setChangePasswordForm, error: changePasswordError, setError: setChangePasswordError, success: changePasswordSuccess, setSuccess: setChangePasswordSuccess, loading: changePasswordLoading, onSubmit: handleChangePassword, onClose: () => setShowChangePassword(false), t, darkMode }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(AdminSetPasswordModal, { userId: adminSetPasswordUserId, userName: (_a2 = adminUsers.find((u) => u.id === adminSetPasswordUserId)) == null ? void 0 : _a2.name, form: adminSetPasswordForm, setForm: setAdminSetPasswordForm, error: adminSetPasswordError, setError: setAdminSetPasswordError, success: adminSetPasswordSuccess, setSuccess: setAdminSetPasswordSuccess, loading: adminSetPasswordLoading, onSubmit: handleAdminSetPassword, onClose: () => setAdminSetPasswordUserId(null), t, darkMode }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(SubscriptionsModal, { show: showSubscriptionsModal, onClose: () => setShowSubscriptionsModal(false), subscriptions, setSubscriptions, t, darkMode }),
@@ -58859,4 +59580,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-DGKHMtZV.js.map
+//# sourceMappingURL=index-BKmLJzVX.js.map

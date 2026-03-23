@@ -1138,18 +1138,19 @@ const apps = [
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Right: profile + dark mode */}
       {!isMobile && (
         <div
           style={{
+            position: "absolute",
+            right: 24,
             display: "flex",
             alignItems: "center",
             gap: 10,
             flexShrink: 0,
-            position: "relative",
             zIndex: 2,
           }}
         >
@@ -1424,7 +1425,7 @@ const apps = [
         </button>
       </div>
       )}
-      </div>
     </nav>
   );
 }
+

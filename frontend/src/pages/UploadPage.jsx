@@ -228,6 +228,7 @@ export default function UploadPage({
                         : "none",
                     animation: `fadeIn 0.2s ease ${idx * 0.03}s both`,
                     position: "relative",
+                    zIndex: isOpen ? 1000 : 1,
                   }}
                 >
                   {sf.status === "processing" && (
@@ -484,16 +485,6 @@ export default function UploadPage({
                         </div>
                         {isOpen &&
                           (() => {
-                            const sq = stagedDropdownSearch.trim();
-                            const dff = sq
-                              ? folders
-                                  .map((f) => ({
-                                    ...f,
-                                    ...fuzzyMatch(sq, f.name),
-                                  }))
-                                  .filter((r) => r.match)
-                                  .sort((a, b) => b.score - a.score)
-                              : folders;
                             return (
                               <>
                                 <div
@@ -505,7 +496,8 @@ export default function UploadPage({
                                   style={{
                                     position: "fixed",
                                     inset: 0,
-                                    zIndex: 999,
+                                    zIndex: 998,
+                                    background: "transparent",
                                   }}
                                 />
                                 <div
@@ -514,7 +506,7 @@ export default function UploadPage({
                                     top: "100%",
                                     left: 0,
                                     right: 0,
-                                    zIndex: 1000,
+                                    zIndex: 999,
                                     background: darkMode
                                       ? "#1e232a"
                                       : "#ffffff",
@@ -571,17 +563,28 @@ export default function UploadPage({
                                     }}
                                   >
                                     {(() => {
-                                      const sq = stagedDropdownSearch.trim();
+                                      const sq = stagedDropdownSearch.trim().toLowerCase();
+                                      const allFolders = folders || [];
                                       const displayFolders = sq
-                                        ? folders
-                                            .map((f) => ({
-                                              ...f,
-                                              ...fuzzyMatch(sq, f.name),
-                                            }))
-                                            .filter((r) => r.match)
-                                            .sort((a, b) => b.score - a.score)
+                                        ? allFolders
+                                            .filter((f) => f.name && f.name.toLowerCase().includes(sq))
                                             .slice(0, 10)
-                                        : folders.slice(0, 10);
+                                        : allFolders.slice(0, 10);
+                                      
+                                      if (allFolders.length === 0) {
+                                        return (
+                                          <div
+                                            style={{
+                                              padding: "12px",
+                                              fontSize: 11,
+                                              color: t.textDim,
+                                              textAlign: "center",
+                                            }}
+                                          >
+                                            No folders exist yet
+                                          </div>
+                                        );
+                                      }
                                       
                                       if (displayFolders.length === 0) {
                                         return (
@@ -593,7 +596,7 @@ export default function UploadPage({
                                               textAlign: "center",
                                             }}
                                           >
-                                            {sq ? `No folders match "${sq}"` : "No folders available"}
+                                            {sq ? `No folders match "${stagedDropdownSearch}"` : "No folders available"}
                                           </div>
                                         );
                                       }
@@ -610,7 +613,7 @@ export default function UploadPage({
                                               color: t.textMuted,
                                             }}
                                           >
-                                            {sq ? `Search Results (${displayFolders.length})` : "Folders"}
+                                            {sq ? `Search Results (${displayFolders.length})` : `Folders (${displayFolders.length})`}
                                           </div>
                                           {displayFolders.map((folder) => {
                                             const loc = locations.find((l) => l.id === folder.locationId);

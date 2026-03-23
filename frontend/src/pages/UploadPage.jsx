@@ -488,19 +488,6 @@ export default function UploadPage({
                             return (
                               <>
                                 <div
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenStagedDropdown(null);
-                                    setStagedDropdownSearch("");
-                                  }}
-                                  style={{
-                                    position: "fixed",
-                                    inset: 0,
-                                    zIndex: 998,
-                                    background: "transparent",
-                                  }}
-                                />
-                                <div
                                   style={{
                                     position: "absolute",
                                     top: "100%",
@@ -520,58 +507,96 @@ export default function UploadPage({
                                 >
                                   <div
                                     style={{
-                                      padding: "6px 8px",
+                                      padding: "8px",
                                       borderBottom: `1px solid ${t.border}`,
-                                      display: "flex",
-                                      alignItems: "center",
-                                      gap: 6,
                                     }}
                                   >
-                                    <SearchIcon size={13} style={{ color: t.textDim, flexShrink: 0 }} />
-                                    <input
-                                      autoFocus
-                                      value={stagedDropdownSearch}
-                                      onChange={(e) =>
-                                        setStagedDropdownSearch(
-                                          e.target.value
-                                        )
-                                      }
-                                      onClick={(e) =>
-                                        e.stopPropagation()
-                                      }
-                                      onKeyDown={(e) => {
-                                        if (e.key === "Escape")
-                                          setOpenStagedDropdown(null);
-                                      }}
-                                      placeholder="Search folders..."
+                                    <div
                                       style={{
-                                        flex: 1,
-                                        background: "transparent",
-                                        border: "none",
-                                        fontSize: 12,
-                                        color: t.text,
-                                        outline: "none",
-                                        fontFamily: "inherit",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 6,
+                                        background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                                        border: `1px solid ${t.border}`,
+                                        borderRadius: 6,
+                                        padding: "6px 10px",
                                       }}
-                                    />
+                                    >
+                                      <SearchIcon size={14} style={{ color: t.textDim, flexShrink: 0 }} />
+                                      <input
+                                        autoFocus
+                                        value={stagedDropdownSearch}
+                                        onChange={(e) =>
+                                          setStagedDropdownSearch(
+                                            e.target.value
+                                          )
+                                        }
+                                        onClick={(e) =>
+                                          e.stopPropagation()
+                                        }
+                                        onKeyDown={(e) => {
+                                          if (e.key === "Escape")
+                                            setOpenStagedDropdown(null);
+                                        }}
+                                        placeholder="Search folders by name..."
+                                        style={{
+                                          flex: 1,
+                                          background: "transparent",
+                                          border: "none",
+                                          fontSize: 12,
+                                          color: t.text,
+                                          outline: "none",
+                                          fontFamily: "inherit",
+                                        }}
+                                      />
+                                      {stagedDropdownSearch && (
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setStagedDropdownSearch("");
+                                          }}
+                                          style={{
+                                            background: "transparent",
+                                            border: "none",
+                                            cursor: "pointer",
+                                            color: t.textDim,
+                                            padding: 0,
+                                            display: "flex",
+                                          }}
+                                        >
+                                          <XIcon size={12} />
+                                        </button>
+                                      )}
+                                    </div>
                                   </div>
                                   <div
                                     style={{
                                       maxHeight: 300,
                                       overflowY: "auto",
-                                      padding: 3,
+                                      padding: "4px 0",
                                     }}
                                   >
                                     {(() => {
-                                      const sq = stagedDropdownSearch.trim().toLowerCase();
-                                      const allFolders = folders || [];
-                                      const displayFolders = sq
-                                        ? allFolders
-                                            .filter((f) => f.name && f.name.toLowerCase().includes(sq))
-                                            .slice(0, 10)
-                                        : allFolders.slice(0, 10);
+                                      const searchQuery = stagedDropdownSearch.trim();
+                                      const searchLower = searchQuery.toLowerCase();
                                       
-                                      if (allFolders.length === 0) {
+                                      // Filter folders - search by name
+                                      let filtered = [];
+                                      if (folders && folders.length > 0) {
+                                        if (searchQuery) {
+                                          filtered = folders.filter((f) => 
+                                            f.name && f.name.toLowerCase().includes(searchLower)
+                                          );
+                                        } else {
+                                          filtered = [...folders];
+                                        }
+                                      }
+                                      
+                                      // Show max 10 results when searching
+                                      const displayFolders = searchQuery ? filtered.slice(0, 10) : filtered.slice(0, 10);
+                                      const totalMatches = filtered.length;
+                                      
+                                      if (!folders || folders.length === 0) {
                                         return (
                                           <div
                                             style={{
@@ -581,12 +606,12 @@ export default function UploadPage({
                                               textAlign: "center",
                                             }}
                                           >
-                                            No folders exist yet
+                                            No folders exist yet. Create folders in the Locations section.
                                           </div>
                                         );
                                       }
                                       
-                                      if (displayFolders.length === 0) {
+                                      if (displayFolders.length === 0 && searchQuery) {
                                         return (
                                           <div
                                             style={{
@@ -596,7 +621,7 @@ export default function UploadPage({
                                               textAlign: "center",
                                             }}
                                           >
-                                            {sq ? `No folders match "${stagedDropdownSearch}"` : "No folders available"}
+                                            No folders match "{searchQuery}"
                                           </div>
                                         );
                                       }
@@ -613,7 +638,9 @@ export default function UploadPage({
                                               color: t.textMuted,
                                             }}
                                           >
-                                            {sq ? `Search Results (${displayFolders.length})` : `Folders (${displayFolders.length})`}
+                                            {searchQuery 
+                                              ? `Results for "${searchQuery}" (${totalMatches} found)`
+                                              : `All Folders (${displayFolders.length})`}
                                           </div>
                                           {displayFolders.map((folder) => {
                                             const loc = locations.find((l) => l.id === folder.locationId);
@@ -662,6 +689,18 @@ export default function UploadPage({
                                     })()}
                                   </div>
                                 </div>
+                                {/* Backdrop - click to close */}
+                                <div
+                                  onClick={() => {
+                                    setOpenStagedDropdown(null);
+                                    setStagedDropdownSearch("");
+                                  }}
+                                  style={{
+                                    position: "fixed",
+                                    inset: 0,
+                                    zIndex: 998,
+                                  }}
+                                />
                               </>
                             );
                           })()}

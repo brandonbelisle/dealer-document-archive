@@ -1197,8 +1197,11 @@ const handleStatusUpdate = async () => {
                         </div>
                       ))}
                     </div>
-)}
-            </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {canAcceptInquiries && !selectedInquiry.assigned_to && !showStatusUpdate && !selectedInquiry.decision_at && (
                 <button

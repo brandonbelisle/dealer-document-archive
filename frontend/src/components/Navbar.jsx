@@ -107,7 +107,7 @@ const apps = [
     ), onClick: () => { setPage("dashboard"); setSelectedFile(null); setShowAppsDropdown(false); } },
     { id: "cht", name: "Credit Hold Tracker", permission: "view_cht", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
-    ), onClick: () => { setPage("cht-dashboard"); setShowAppsDropdown(false); } },
+    ), onClick: () => { setPage("cht"); setShowAppsDropdown(false); } },
     { id: "help", name: "Submit Help Ticket", permission: "view_help", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
         <TicketIcon size={14} />
@@ -1400,7 +1400,7 @@ const apps = [
             const isCHT = alert.type === "cht_inquiry_assigned" || alert.type === "cht_inquiry_updated" ||
                           alert.notification_type === "cht_inquiry_assigned" || alert.notification_type === "cht_inquiry_updated";
             if (isCHT) {
-              setPage("cht-dashboard");
+              setPage("cht");
             } else if (alert.file_id) {
               setActiveFolderId(alert.folder_id || null);
               if (alert.folder_id) {

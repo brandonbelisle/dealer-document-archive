@@ -48,7 +48,7 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
           CHT
         </div>
       ),
-      onClick: () => setPage("cht-dashboard"),
+      onClick: () => setPage("cht"),
     },
     {
       id: "help",

@@ -25,7 +25,7 @@ export default function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page,
     ), onClick: () => { setPage("dashboard"); setShowAppsDropdown(false); } },
     { id: "cht", name: "Credit Hold Tracker", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
-    ), onClick: () => { setPage("cht-dashboard"); setShowAppsDropdown(false); } },
+    ), onClick: () => { setPage("cht"); setShowAppsDropdown(false); } },
     { id: "help", name: "Submit Help Ticket", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
         <TicketIcon size={14} />

@@ -248,39 +248,47 @@ export default function DashboardPage({
                     gap: 4,
                   }}
                 >
-                  {loc.departments.map((dept) => (
-                    <div
-                      key={dept.id}
-                      onClick={() => {
-                        setActiveLocation(loc.id);
-                        setActiveDepartment(dept.id);
-                        setActiveFolderId(null);
-                        setPage("folders");
-                      }}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "8px 12px",
-                        background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
-                        borderRadius: 8,
-                        cursor: "pointer",
-                        transition: "background 0.15s",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = t.accentSoft;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)";
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <LayersIcon size={14} style={{ color: t.accent }} />
-                        <span style={{ fontSize: 13, fontWeight: 500 }}>{dept.name}</span>
+                  {loc.departments.map((dept) => {
+                    const deptData = dashboardData?.deptCounts?.[dept.id] || { folderCount: 0, fileCount: 0 };
+                    return (
+                      <div
+                        key={dept.id}
+                        onClick={() => {
+                          setActiveLocation(loc.id);
+                          setActiveDepartment(dept.id);
+                          setActiveFolderId(null);
+                          setPage("folders");
+                        }}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "8px 12px",
+                          background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                          borderRadius: 8,
+                          cursor: "pointer",
+                          transition: "background 0.15s",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = t.accentSoft;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)";
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <LayersIcon size={14} style={{ color: t.accent }} />
+                          <span style={{ fontSize: 13, fontWeight: 500 }}>{dept.name}</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ fontSize: 10, color: t.textDim }}>
+                            {deptData.folderCount} folder{deptData.folderCount !== 1 ? "s" : ""} · {deptData.fileCount} file{deptData.fileCount !== 1 ? "s" : ""}
+                          </span>
+                          <ChevronRightIcon size={14} style={{ color: t.textDim }} />
+                        </div>
                       </div>
-                      <ChevronRightIcon size={14} style={{ color: t.textDim }} />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div

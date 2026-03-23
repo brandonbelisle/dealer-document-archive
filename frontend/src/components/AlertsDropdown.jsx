@@ -84,7 +84,9 @@ export default function AlertsDropdown({ darkMode, onNavigate }) {
 
   const handleAlertClick = async (alert) => {
     try {
-      await api.markNotificationRead(alert.id);
+      if (alert.id) {
+        await api.markNotificationRead(alert.id);
+      }
       setAlerts((prev) => prev.map((a) => a.id === alert.id ? { ...a, read_at: new Date().toISOString() } : a));
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (err) {
@@ -115,7 +117,30 @@ export default function AlertsDropdown({ darkMode, onNavigate }) {
   const getTypeIcon = (type) => {
     if (type === "location") return <MapPinIcon size={14} />;
     if (type === "department") return <LayersIcon size={14} />;
+    if (type === "cht_inquiry_assigned" || type === "cht_inquiry_updated") {
+      return (
+        <div style={{
+          width: 18,
+          height: 18,
+          borderRadius: 4,
+          background: "linear-gradient(135deg, #f59e0b, #d97706)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          fontSize: 8,
+          fontWeight: 800,
+        }}>
+          CHT
+        </div>
+      );
+    }
     return <FolderClosedIcon size={14} />;
+  };
+
+  const isCHTNotification = (alert) => {
+    return alert.type === "cht_inquiry_assigned" || alert.type === "cht_inquiry_updated" || 
+           alert.notification_type === "cht_inquiry_assigned" || alert.notification_type === "cht_inquiry_updated";
   };
 
   return (
@@ -251,9 +276,9 @@ export default function AlertsDropdown({ darkMode, onNavigate }) {
                 <div style={{ marginTop: 8, fontSize: 13 }}>No alerts yet</div>
               </div>
             ) : (
-              alerts.map((alert) => (
+              alerts.map((alert, idx) => (
                 <div
-                  key={alert.id}
+                  key={alert.id || idx}
                   onClick={() => handleAlertClick(alert)}
                   style={{
                     padding: "12px 14px",
@@ -266,19 +291,40 @@ export default function AlertsDropdown({ darkMode, onNavigate }) {
                     gap: 10,
                   }}
                 >
-                  <div style={{ color: t.accent, marginTop: 2, flexShrink: 0 }}>
-                    {getTypeIcon(alert.item_type)}
+                  <div style={{ color: isCHTNotification(alert) ? "#f59e0b" : t.accent, marginTop: 2, flexShrink: 0 }}>
+                    {getTypeIcon(alert.type || alert.notification_type || alert.item_type)}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>
-                      {alert.file_name}
-                    </div>
-                    <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>
-                      Uploaded by {alert.created_by_name}
-                    </div>
-                    <div style={{ fontSize: 10, color: t.textDim, marginTop: 4 }}>
-                      {alert.item_name} • {formatDate(alert.created_at)}
-                    </div>
+                    {isCHTNotification(alert) ? (
+                      <>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>
+                          Credit Hold Tracker
+                        </div>
+                        <div style={{ fontSize: 12, color: t.text, marginTop: 2 }}>
+                          {alert.title || alert.message}
+                        </div>
+                        {alert.message && alert.title && (
+                          <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>
+                            {alert.message}
+                          </div>
+                        )}
+                        <div style={{ fontSize: 10, color: t.textDim, marginTop: 4 }}>
+                          {formatDate(alert.created_at || alert.createdAt)}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>
+                          {alert.file_name}
+                        </div>
+                        <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>
+                          Uploaded by {alert.created_by_name}
+                        </div>
+                        <div style={{ fontSize: 10, color: t.textDim, marginTop: 4 }}>
+                          {alert.item_name} • {formatDate(alert.created_at)}
+                        </div>
+                      </>
+                    )}
                   </div>
                   <button
                     onClick={(e) => deleteAlert(e, alert.id)}

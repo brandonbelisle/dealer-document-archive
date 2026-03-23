@@ -3,7 +3,7 @@ import { SunIcon, MoonIcon, UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronD
 import AlertsDropdown from "./AlertsDropdown";
 import * as api from "../api";
 
-export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket }) {
+export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket, onOpenInquiry }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
   const [customApps, setCustomApps] = useState([]);
@@ -346,7 +346,16 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
             </div>
           )}
         </div>
-        <AlertsDropdown darkMode={darkMode} onNavigate={() => {}} />
+        <AlertsDropdown darkMode={darkMode} onNavigate={(alert) => {
+          const isCHT = alert.type === "cht_inquiry_assigned" || alert.type === "cht_inquiry_updated" ||
+                        alert.notification_type === "cht_inquiry_assigned" || alert.notification_type === "cht_inquiry_updated";
+          if (isCHT) {
+            setPage("cht-dashboard");
+            if (alert.data?.inquiryId && onOpenInquiry) {
+              setTimeout(() => onOpenInquiry(alert.data.inquiryId), 100);
+            }
+          }
+        }} />
         <button
           onClick={() => setDarkMode(!darkMode)}
           style={{

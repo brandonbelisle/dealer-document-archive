@@ -265,7 +265,7 @@ useEffect(() => {
 // ── Subscriptions state ────────────────────────────────
 const [subscriptions, setSubscriptions] = useState([]);
 
-// ── Alert navigation state ────────────────────────────
+// ── Alert navigation state ────────────────────────────────────
 const [viewingFileIdFromAlert, setViewingFileIdFromAlert] = useState(null);
 
 useEffect(() => {
@@ -275,6 +275,14 @@ useEffect(() => {
     setViewingFileIdFromAlert(null);
   }
 }, [viewingFileIdFromAlert]);
+
+const [chtInquiryIdFromAlert, setChtInquiryIdFromAlert] = useState(null);
+
+useEffect(() => {
+  if (chtInquiryIdFromAlert) {
+    setPage("cht-dashboard");
+  }
+}, [chtInquiryIdFromAlert]);
 
 const t = getTheme(darkMode);
 
@@ -961,12 +969,12 @@ const t = getTheme(darkMode);
 
       {page === "landing" && <LandingNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} />}
       {page === "admin" && <AdminNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} setAdminSection={setAdminSection} onOpenHelpTicket={() => setShowHelpTicketModal(true)} />}
-      {page.startsWith("cht-") && <CHTNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} setAdminSection={setAdminSection} onOpenHelpTicket={() => setShowHelpTicketModal(true)} />}
+      {page.startsWith("cht-") && <CHTNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} setAdminSection={setAdminSection} onOpenHelpTicket={() => setShowHelpTicketModal(true)} onOpenInquiry={(inquiryId) => setChtInquiryIdFromAlert(inquiryId)} />}
       {page !== "landing" && page !== "admin" && !page.startsWith("cht-") && <Navbar page={page} setPage={setPage} darkMode={darkMode} setDarkMode={setDarkMode} isLoggedIn={isLoggedIn} loggedInUser={loggedInUser} locations={locations} departments={departments} folders={folders} files={files} unsortedFiles={unsortedFiles} stagedFiles={stagedFiles} activeLocation={activeLocation} setActiveLocation={setActiveLocation} activeDepartment={activeDepartment} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setFolderSearch={setFolderSearch} expandedLocations={expandedLocations} setExpandedLocations={setExpandedLocations} showDeptDropdown={showDeptDropdown} setShowDeptDropdown={setShowDeptDropdown} showProfileMenu={showProfileMenu} setShowProfileMenu={setShowProfileMenu} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} setAdminSection={setAdminSection} handleLogout={handleLogout} foldersInLocation={foldersInLocation} foldersInDepartment={foldersInDepartment} deptsInLocation={deptsInLocation} filesInFolder={filesInFolder} setShowSubscriptionsModal={setShowSubscriptionsModal} setViewingFileIdFromAlert={setViewingFileIdFromAlert} onOpenHelpTicket={() => setShowHelpTicketModal(true)} dashboardData={dashboardData} t={t} />}
 
       {page === "landing" && <LandingPage setPage={setPage} t={t} darkMode={darkMode} loggedInUser={loggedInUser} onOpenHelpTicket={() => setShowHelpTicketModal(true)} />}
-      {page === "cht-dashboard" && <CHTDashboardPage loggedInUser={loggedInUser} t={t} darkMode={darkMode} activeTab="dashboard" />}
-      {page === "cht-inquiries" && <CHTDashboardPage loggedInUser={loggedInUser} t={t} darkMode={darkMode} activeTab="inquiries" />}
+{page === "cht-dashboard" && <CHTDashboardPage loggedInUser={loggedInUser} t={t} darkMode={darkMode} activeTab="dashboard" openInquiryId={chtInquiryIdFromAlert} onInquiryOpened={() => setChtInquiryIdFromAlert(null)} />}
+{page === "cht-inquiries" && <CHTDashboardPage loggedInUser={loggedInUser} t={t} darkMode={darkMode} activeTab="inquiries" />}
       {page === "dashboard" && <DashboardPage dashboardData={dashboardData} loggedInUser={loggedInUser} locations={locations} departments={departments} setPage={setPage} setActiveFolderId={setActiveFolderId} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setViewingFileId={setViewingFileId} t={t} darkMode={darkMode} />}
       {page === "folders-browse" && <FoldersBrowsePage locations={locations} departments={departments} deptsInLocation={deptsInLocation} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setFolderSearch={setFolderSearch} setSelectedFile={setSelectedFile} setPage={setPage} subscriptions={subscriptions} setSubscriptions={setSubscriptions} t={t} darkMode={darkMode} />}
       {page === "folders" && <FoldersPage currentLocation={currentLocation} currentDept={currentDept} currentDeptFolders={currentDeptFolders} folderSearch={folderSearch} setFolderSearch={setFolderSearch} creatingDeptFolder={creatingDeptFolder} setCreatingDeptFolder={setCreatingDeptFolder} newDeptFolderName={newDeptFolderName} setNewDeptFolderName={setNewDeptFolderName} createDeptFolder={createDeptFolder} setActiveFolderId={setActiveFolderId} setPage={setPage} setCreatingSubfolder={setCreatingSubfolder} handleDeleteFolder={handleDeleteFolder} subscriptions={subscriptions} setSubscriptions={setSubscriptions} loggedInUser={loggedInUser} t={t} darkMode={darkMode} handleDeptDrop={handleDeptDrop} deptDragOver={deptDragOver} setDeptDragOver={setDeptDragOver} handleDeptFiles={handleDeptFiles} />}

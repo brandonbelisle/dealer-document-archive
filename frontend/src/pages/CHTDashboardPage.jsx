@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import * as api from "../api";
 import { PlusIcon, XIcon, ChevronDown, SearchIcon } from "../components/Icons";
 
-export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab = "dashboard" }) {
+export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab = "dashboard", openInquiryId, onInquiryOpened }) {
   const [inquiries, setInquiries] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [users, setUsers] = useState([]);
@@ -44,6 +44,16 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
       loadUsers();
     }
   }, [activeTab, canViewInquiries]);
+
+  useEffect(() => {
+    if (openInquiryId && inquiries.length > 0) {
+      const inquiry = inquiries.find((i) => i.id === openInquiryId);
+      if (inquiry) {
+        handleSelectInquiry(inquiry);
+        if (onInquiryOpened) onInquiryOpened();
+      }
+    }
+  }, [openInquiryId, inquiries]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {

@@ -498,7 +498,33 @@ export default function FileDetailPage({
           >
             <FileTypeIcon size={16} /> {isImage ? "Image Preview" : "Document Preview"}
           </div>
-          <span style={{ fontSize: 11, color: t.textDim }}>{vf.name}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 11, color: t.textDim }}>{vf.name}</span>
+            <button
+              onClick={() => {
+                setPreviewLoading(true);
+                api.getFilePreviewUrlByFileId(vf.id)
+                  .then((data) => {
+                    setPreviewUrl(data.url || data);
+                    setPreviewLoading(false);
+                  })
+                  .catch(() => setPreviewLoading(false));
+              }}
+              style={{
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: t.textDim,
+                padding: 4,
+                display: "flex",
+                alignItems: "center",
+                borderRadius: 4,
+              }}
+              title="Refresh preview"
+            >
+              <RefreshIcon size={14} />
+            </button>
+          </div>
         </div>
         <div
           style={{
@@ -533,10 +559,11 @@ export default function FileDetailPage({
                       border: "none",
                     }}
                     title="PDF Preview"
+                    sandbox="allow-scripts allow-same-origin allow-forms"
                     onError={() => {
                       setPreviewLoading(true);
                       api.getFilePreviewUrlByFileId(vf.id)
-                        .then((url) => setPreviewUrl(url))
+                        .then((data) => setPreviewUrl(data.url || data))
                         .catch(() => setPreviewUrl(null))
                         .finally(() => setPreviewLoading(false));
                     }}
@@ -568,7 +595,7 @@ export default function FileDetailPage({
                       onError={() => {
                         setPreviewLoading(true);
                         api.getFilePreviewUrlByFileId(vf.id)
-                          .then((url) => setPreviewUrl(url))
+                          .then((data) => setPreviewUrl(data.url || data))
                           .catch(() => setPreviewUrl(null))
                           .finally(() => setPreviewLoading(false));
                       }}

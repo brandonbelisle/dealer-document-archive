@@ -130,22 +130,45 @@ router.get('/:id/download', requireAuth, async (req, res) => {
 });
 
 // ── GET /api/files/:id/preview-url ────────────────────────
-// Returns a fresh SAS URL for previewing the file (URLs expire after some time)
+// Returns a SAS URL for previewing the file (regenerates if expired)
 router.get('/:id/preview-url', requireAuth, async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT name, file_storage_path FROM files WHERE id = ?', [req.params.id]);
+    const [rows] = await db.execute(
+      'SELECT name, file_storage_path, preview_url, preview_url_generated_at FROM files WHERE id = ?',
+      [req.params.id]
+    );
     if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
 
-    const storagePath = rows[0].file_storage_path;
+    const file = rows[0];
+    const storagePath = file.file_storage_path;
     if (!storagePath) return res.status(404).json({ error: 'No file stored' });
+
+    // Check if existing preview URL is still valid (less than 55 minutes old to be safe)
+    const now = new Date();
+    let previewUrl = file.preview_url;
+    const generatedAt = file.preview_url_generated_at;
+    
+    if (previewUrl && generatedAt) {
+      const minutesSinceGenerated = (now - new Date(generatedAt)) / (1000 * 60);
+      if (minutesSinceGenerated < 55) {
+        // URL is still valid, return it
+        return res.json({ url: previewUrl, generatedAt: generatedAt, cached: true });
+      }
+    }
 
     // Extract blob name (handles both old URL format and new blob name format)
     const blobName = storagePath.includes('/') ? storagePath.split('/').pop().split('?')[0] : storagePath;
 
     // Generate fresh SAS URL valid for 1 hour
-    const previewUrl = generateSasUrl(blobName, 60);
+    previewUrl = generateSasUrl(blobName, 60);
 
-    res.json({ url: previewUrl });
+    // Save to database with timestamp
+    await db.execute(
+      'UPDATE files SET preview_url = ?, preview_url_generated_at = ? WHERE id = ?',
+      [previewUrl, now, req.params.id]
+    );
+
+    res.json({ url: previewUrl, generatedAt: now, cached: false });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to generate preview URL' });

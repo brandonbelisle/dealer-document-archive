@@ -36,19 +36,32 @@ const PORT = parseInt(process.env.PORT || '3001', 10);
 const HOST = process.env.HOST || '0.0.0.0';
 
 // ── Dynamic CSP Middleware ─────────────────────────────────
+let cachedDomains = null;
+let domainCacheTime = 0;
+const DOMAIN_CACHE_TTL = 60000; // Cache for 1 minute
+
 async function getAllowedIframeDomains() {
+  const now = Date.now();
+  if (cachedDomains && (now - domainCacheTime) < DOMAIN_CACHE_TTL) {
+    return cachedDomains;
+  }
+  
   try {
     const db = require('./config/db');
     const [rows] = await db.execute(
       'SELECT value FROM app_settings WHERE `key` = "allowed_iframe_domains"'
     );
     if (rows.length > 0 && rows[0].value) {
-      return rows[0].value.split(',').map(d => d.trim()).filter(d => d);
+      cachedDomains = rows[0].value.split(',').map(d => d.trim()).filter(d => d);
+      domainCacheTime = now;
+      return cachedDomains;
     }
   } catch (err) {
     console.error('Failed to get allowed iframe domains:', err.message);
   }
-  return ['*.blob.core.windows.net'];
+  cachedDomains = ['*.blob.core.windows.net'];
+  domainCacheTime = now;
+  return cachedDomains;
 }
 
 app.use(async (req, res, next) => {
@@ -60,7 +73,7 @@ app.use(async (req, res, next) => {
       "default-src 'self'",
       "script-src 'self'",
       "style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net",
-      "img-src 'self' data: blob:",
+      "img-src 'self' data: blob: https://*.blob.core.windows.net https://*.azureedge.net",
       "font-src 'self' fonts.gstatic.com cdn.jsdelivr.net",
       `frame-src ${frameSrc.join(' ')}`,
       "frame-ancestors 'self'",

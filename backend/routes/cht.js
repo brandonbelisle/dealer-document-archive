@@ -405,17 +405,31 @@ router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
       );
     }
 
-    // Update inquiry status and optionally set decision_at
+    // Update inquiry status, optionally set decision_at, and assign if not already assigned
     if (setDecisionAt) {
-      await db.execute(
-        'UPDATE cht_inquiries SET status_id = ?, decision_at = NOW(), updated_at = NOW() WHERE id = ?',
-        [statusId, id]
-      );
+      if (inquiry.assigned_to) {
+        await db.execute(
+          'UPDATE cht_inquiries SET status_id = ?, decision_at = NOW(), updated_at = NOW() WHERE id = ?',
+          [statusId, id]
+        );
+      } else {
+        await db.execute(
+          'UPDATE cht_inquiries SET status_id = ?, decision_at = NOW(), assigned_to = ?, assigned_at = NOW(), updated_at = NOW() WHERE id = ?',
+          [statusId, req.user.id, id]
+        );
+      }
     } else {
-      await db.execute(
-        'UPDATE cht_inquiries SET status_id = ?, updated_at = NOW() WHERE id = ?',
-        [statusId, id]
-      );
+      if (inquiry.assigned_to) {
+        await db.execute(
+          'UPDATE cht_inquiries SET status_id = ?, updated_at = NOW() WHERE id = ?',
+          [statusId, id]
+        );
+      } else {
+        await db.execute(
+          'UPDATE cht_inquiries SET status_id = ?, assigned_to = ?, assigned_at = NOW(), updated_at = NOW() WHERE id = ?',
+          [statusId, req.user.id, id]
+        );
+      }
     }
 
     await logAudit('CHT Inquiry Updated', `Invoice: ${inquiry.invoice_number} → Status: ${statusName}`, req.user, req.ip);

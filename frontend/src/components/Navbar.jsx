@@ -252,7 +252,6 @@ const apps = [
               Dealer Document Archive
             </span>
           )}
-          </div>
         </div>
       {!isMobile && (
         <div style={{ display: "flex", gap: 2, marginLeft: 8 }}>
@@ -527,7 +526,6 @@ const apps = [
               </span>
             )}
           </button>
-        </div>
         </div>
         )}
       {/* Mobile menu (shown on mobile) */}

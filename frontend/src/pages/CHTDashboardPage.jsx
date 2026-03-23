@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import * as api from "../api";
 import { PlusIcon, XIcon, InboxIcon } from "../components/Icons";
 
-export default function CHTDashboardPage({ loggedInUser, t, darkMode }) {
-  const [activeTab, setActiveTab] = useState("dashboard");
+export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab = "dashboard" }) {
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -17,6 +16,12 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode }) {
 
   const chtAccent = "#f59e0b";
   const chtAccentDark = "#d97706";
+
+  useEffect(() => {
+    if (activeTab === "inquiries" && canViewInquiries) {
+      loadInquiries();
+    }
+  }, [activeTab, canViewInquiries]);
 
   useEffect(() => {
     if (activeTab === "inquiries" && canViewInquiries) {
@@ -52,7 +57,6 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode }) {
       setShowModal(false);
       setInvoiceNumber("");
       setNotes("");
-      setActiveTab("inquiries");
     } catch (err) {
       setError(err.message || "Failed to submit inquiry");
     } finally {
@@ -94,56 +98,9 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode }) {
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <style>{`
-        .cht-tab-btn { transition: all 0.15s ease; }
-        .cht-tab-btn:hover { background: ${darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}; }
         .inquiry-row { transition: background 0.1s ease; }
         .inquiry-row:hover { background: ${darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)"}; }
       `}</style>
-
-      <div style={{
-        borderBottom: `1px solid ${t.border}`,
-        padding: "0 24px",
-        display: "flex",
-        alignItems: "center",
-        gap: 4,
-      }}>
-        <button
-          onClick={() => setActiveTab("dashboard")}
-          className="cht-tab-btn"
-          style={{
-            padding: "14px 20px",
-            border: "none",
-            background: "transparent",
-            borderBottom: activeTab === "dashboard" ? `2px solid ${chtAccent}` : "2px solid transparent",
-            color: activeTab === "dashboard" ? chtAccent : t.textMuted,
-            fontWeight: 600,
-            fontSize: 13,
-            cursor: "pointer",
-            fontFamily: "inherit",
-          }}
-        >
-          Dashboard
-        </button>
-        {(canViewInquiries || canSubmitInquiries) && (
-          <button
-            onClick={() => setActiveTab("inquiries")}
-            className="cht-tab-btn"
-            style={{
-              padding: "14px 20px",
-              border: "none",
-              background: "transparent",
-              borderBottom: activeTab === "inquiries" ? `2px solid ${chtAccent}` : "2px solid transparent",
-              color: activeTab === "inquiries" ? chtAccent : t.textMuted,
-              fontWeight: 600,
-              fontSize: 13,
-              cursor: "pointer",
-              fontFamily: "inherit",
-            }}
-          >
-            Credit Hold Inquiry
-          </button>
-        )}
-      </div>
 
       <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
         {activeTab === "dashboard" && (

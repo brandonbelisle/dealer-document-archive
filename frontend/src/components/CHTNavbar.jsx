@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SunIcon, MoonIcon, UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon, LinkIcon, TicketIcon } from "./Icons";
+import { SunIcon, MoonIcon, UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon, TicketIcon } from "./Icons";
 import AlertsDropdown from "./AlertsDropdown";
 import * as api from "../api";
 
@@ -18,7 +18,10 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
     text: darkMode ? "#e5e7eb" : "#1f2937",
     border: darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
     surface: darkMode ? "#0d1117" : "#fff",
+    navActive: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
   };
+
+  const canViewInquiries = loggedInUser?.permissions?.includes("cht_inquiry_view") || loggedInUser?.permissions?.includes("cht_inquiry_submit");
 
   const apps = [
     { id: "home", name: "Home", icon: <HomeIcon size={20} />, onClick: () => { setPage("landing"); setShowAppsDropdown(false); } },
@@ -96,6 +99,50 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
           <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.03em", color: t.text }}>
             Credit Hold Tracker
           </span>
+        </div>
+        <div style={{ display: "flex", gap: 2, marginLeft: 8 }}>
+          <button
+            onClick={() => setPage("cht-dashboard")}
+            style={{
+              background: page === "cht-dashboard" ? t.navActive : "transparent",
+              color: page === "cht-dashboard" ? chtAccent : t.textMuted,
+              border: "none",
+              borderRadius: 8,
+              padding: "7px 14px",
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              gap: 7,
+              fontFamily: "inherit",
+              borderBottom: page === "cht-dashboard" ? `2px solid ${chtAccent}` : "2px solid transparent",
+            }}
+          >
+            Dashboard
+          </button>
+          {canViewInquiries && (
+            <button
+              onClick={() => setPage("cht-inquiries")}
+              style={{
+                background: page === "cht-inquiries" ? t.navActive : "transparent",
+                color: page === "cht-inquiries" ? chtAccent : t.textMuted,
+                border: "none",
+                borderRadius: 8,
+                padding: "7px 14px",
+                cursor: "pointer",
+                fontSize: 13,
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 7,
+                fontFamily: "inherit",
+                borderBottom: page === "cht-inquiries" ? `2px solid ${chtAccent}` : "2px solid transparent",
+              }}
+            >
+              Credit Hold Inquiry
+            </button>
+          )}
         </div>
       </div>
 

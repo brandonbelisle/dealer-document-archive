@@ -29,6 +29,27 @@ router.get('/', requireAuth, async (req, res) => {
       'SELECT COUNT(*) AS cnt FROM folders WHERE YEAR(created_at) = YEAR(CURDATE())'
     );
 
+    // Counts per location (folder count per location)
+    const [locationFolderCounts] = await db.execute(`
+      SELECT l.id AS location_id, COUNT(f.id) AS folder_count
+      FROM locations l
+      LEFT JOIN folders f ON f.location_id = l.id
+      GROUP BY l.id
+    `);
+
+    // Counts per department (folder count and file count per department)
+    const [deptCounts] = await db.execute(`
+      SELECT 
+        d.id AS department_id,
+        d.location_id,
+        COUNT(DISTINCT f.id) AS folder_count,
+        COUNT(fi.id) AS file_count
+      FROM departments d
+      LEFT JOIN folders f ON f.department_id = d.id
+      LEFT JOIN files fi ON fi.folder_id = f.id AND fi.status = 'done'
+      GROUP BY d.id, d.location_id
+    `);
+
     // Recent uploads (last 10)
     const [recentFiles] = await db.execute(
       `SELECT f.id, f.name, f.file_size_bytes, f.page_count, f.mime_type, f.uploaded_at,
@@ -68,6 +89,17 @@ router.get('/', requireAuth, async (req, res) => {
       filesThisYear: num(filesThisYear[0].cnt),
       foldersThisYear: num(foldersThisYear[0].cnt),
       recentFiles: normalizedFiles,
+      locationFolderCounts: locationFolderCounts.reduce((acc, row) => {
+        acc[row.location_id] = num(row.folder_count);
+        return acc;
+      }, {}),
+      deptCounts: deptCounts.reduce((acc, row) => {
+        acc[row.department_id] = {
+          folderCount: num(row.folder_count),
+          fileCount: num(row.file_count),
+        };
+        return acc;
+      }, {}),
     });
   } catch (err) {
     console.error(err);

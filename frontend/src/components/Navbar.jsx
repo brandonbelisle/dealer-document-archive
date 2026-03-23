@@ -48,6 +48,7 @@ export default function Navbar({
   setActiveDepartment,
   setActiveFolderId,
   setSelectedFile,
+  dashboardData,
   setViewingFileId,
   setFolderSearch,
   expandedLocations,
@@ -387,7 +388,7 @@ const apps = [
                         <span
                           style={{ fontSize: 9.5, color: t.textDim }}
                         >
-                          {foldersInLocation(loc.id).length} folders
+                          {dashboardData?.locationFolderCounts?.[loc.id] ?? 0} folders
                         </span>
                       </div>
                       {le && (
@@ -395,7 +396,7 @@ const apps = [
                           style={{ paddingLeft: 12, marginBottom: 4 }}
                         >
                           {deptsInLocation(loc.id).map((dept) => {
-                            const df = foldersInDepartment(dept.id);
+                            const deptData = dashboardData?.deptCounts?.[dept.id] || { folderCount: 0, fileCount: 0 };
                             const isAct =
                               activeLocation === loc.id &&
                               activeDepartment === dept.id &&
@@ -441,13 +442,7 @@ const apps = [
                                     color: t.textDim,
                                   }}
                                 >
-                                  {df.length} ·{" "}
-                                  {df.reduce(
-                                    (s, f) =>
-                                      s + filesInFolder(f.id).length,
-                                    0
-                                  )}{" "}
-                                  files
+                                  {deptData.folderCount} · {deptData.fileCount} files
                                 </span>
                               </div>
                             );

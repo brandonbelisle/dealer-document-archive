@@ -242,12 +242,12 @@ export default function DashboardPage({
                 <div
                   style={{
                     display: "flex",
-                    flexWrap: "wrap",
-                    gap: 6,
+                    flexDirection: "column",
+                    gap: 4,
                   }}
                 >
                   {loc.departments.map((dept) => (
-                    <button
+                    <div
                       key={dept.id}
                       onClick={() => {
                         setActiveFolderId(dept.id);
@@ -256,21 +256,26 @@ export default function DashboardPage({
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 4,
-                        padding: "5px 10px",
-                        background: t.accentSoft,
-                        color: t.accent,
-                        border: "none",
-                        borderRadius: 6,
-                        fontSize: 11,
-                        fontWeight: 500,
+                        justifyContent: "space-between",
+                        padding: "8px 12px",
+                        background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                        borderRadius: 8,
                         cursor: "pointer",
+                        transition: "background 0.15s",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = t.accentSoft;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)";
                       }}
                     >
-                      <LayersIcon size={11} />
-                      {dept.name}
-                      <ChevronRightIcon size={10} />
-                    </button>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <LayersIcon size={14} style={{ color: t.accent }} />
+                        <span style={{ fontSize: 13, fontWeight: 500 }}>{dept.name}</span>
+                      </div>
+                      <ChevronRightIcon size={14} style={{ color: t.textDim }} />
+                    </div>
                   ))}
                 </div>
               ) : (

@@ -119,7 +119,7 @@ router.post('/inquiries/:id/accept', requireAuth, requirePermission('cht_inquiry
 
     await logAudit('Credit Hold Inquiry Accepted', `Invoice: ${inquiry.invoice_number}`, req.user, req.ip);
 
-    // Notify the original submitter
+    // Notify the original submitter via socket
     const socket = require('../socket');
     const io = socket.getIO();
     if (io) {
@@ -131,15 +131,6 @@ router.post('/inquiries/:id/accept', requireAuth, requirePermission('cht_inquiry
         createdAt: new Date().toISOString(),
       });
     }
-
-    // Create notification record
-    await db.execute(
-      `INSERT INTO notifications (id, user_id, type, title, message, data)
-       VALUES (UUID(), ?, 'cht_inquiry_assigned', ?, ?, ?)`,
-      [inquiry.user_id, 'Credit Hold Inquiry Assigned', 
-       `Your inquiry for invoice "${inquiry.invoice_number}" has been assigned for review.`,
-       JSON.stringify({ inquiryId: id })]
-    );
 
     const [rows] = await db.execute(
       `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
@@ -358,7 +349,7 @@ router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
 
     await logAudit('CHT Inquiry Updated', `Invoice: ${inquiry.invoice_number} → Status: ${statusName}`, req.user, req.ip);
 
-    // Notify the original submitter
+    // Notify the original submitter via socket
     const socket = require('../socket');
     const io = socket.getIO();
     if (io) {
@@ -370,15 +361,6 @@ router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
         createdAt: new Date().toISOString(),
       });
     }
-
-    // Create notification record
-    await db.execute(
-      `INSERT INTO notifications (id, user_id, type, title, message, data)
-       VALUES (UUID(), ?, 'cht_inquiry_updated', ?, ?, ?)`,
-      [inquiry.user_id, 'Credit Hold Inquiry Updated', 
-       `Your inquiry for invoice "${inquiry.invoice_number}" has been updated to ${statusName}.`,
-       JSON.stringify({ inquiryId: id })]
-    );
 
     // Return updated inquiry
     const [rows] = await db.execute(

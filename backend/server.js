@@ -75,7 +75,7 @@ app.use(async (req, res, next) => {
       "style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net",
       "img-src 'self' data: blob: https://*.blob.core.windows.net https://*.azureedge.net",
       "font-src 'self' fonts.gstatic.com cdn.jsdelivr.net",
-      `frame-src ${frameSrc.join(' ')}`,
+      `frame-src blob: ${frameSrc.join(' ')}`,
       "frame-ancestors 'self'",
     ].join('; '));
   } catch (err) {

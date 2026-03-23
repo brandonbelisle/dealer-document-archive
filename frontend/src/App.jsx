@@ -60,6 +60,10 @@ function AppInner() {
   const [deptDragOver, setDeptDragOver] = useState(false);
   const [stagedFolderAssignments, setStagedFolderAssignments] = useState({});
   const [stagedSuggestions, setStagedSuggestions] = useState({});
+  
+  // ── Upload batch tracking for notifications ───────────────
+  const [pendingUploads, setPendingUploads] = useState({}); // { folderId: { fileIds: [], timer: null } }
+  const uploadNotificationTimeoutRef = useRef(null);
 
   // ── Folder state ────────────────────────────────────────
   const [folderSearch, setFolderSearch] = useState("");
@@ -502,6 +506,38 @@ const t = getTheme(darkMode);
     return { folder: null, ro, confidence: "none" };
   };
 
+  // ── Batch upload notification tracking ────────────────────
+  const trackSuccessfulUpload = (fileId, folderId) => {
+    if (!folderId) return;
+    
+    setPendingUploads((prev) => {
+      const existing = prev[folderId];
+      if (existing?.timer) {
+        clearTimeout(existing.timer);
+      }
+      
+      const allFileIds = existing ? [...existing.fileIds, fileId] : [fileId];
+      
+      // Set a timer to create batch notification after 2 seconds
+      const timer = setTimeout(() => {
+        setPendingUploads((current) => {
+          const batchData = current[folderId];
+          if (batchData && batchData.fileIds.length > 0) {
+            api.createBatchUploadNotification(batchData.fileIds, folderId).catch(console.error);
+          }
+          const updated = { ...current };
+          delete updated[folderId];
+          return updated;
+        });
+      }, 2000);
+      
+      return {
+        ...prev,
+        [folderId]: { fileIds: allFileIds, timer },
+      };
+    });
+  };
+
   // ── Handlers ────────────────────────────────────────────
   const handleLogin = async () => {
     setLoginError("");
@@ -558,7 +594,15 @@ const t = getTheme(darkMode);
     try {
       if (isPdf) {
         const r = await extractTextFromPDF(rawFile, (prog) => { const up = (p) => p.map((f) => f.id === id ? { ...f, progress: prog } : f); if (folderId) setFiles(up); else setStagedFiles(up); });
-        if (folderId) { try { const uploaded = await api.uploadFile(rawFile, folderId, r.text, r.pages); const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || "application/pdf", pages: Number(uploaded.page_count || 0), status: "done", text: uploaded.extracted_text, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, uploadedAt: uploaded.uploaded_at || new Date().toISOString(), uploadedBy: uploaded.uploaded_by_name || loggedInUser?.name || null, progress: 100 }; setFiles((p) => p.map((f) => f.id === id ? norm : f)); } catch (err) { setFiles((p) => p.map((f) => f.id === id ? { ...f, status: "error", error: err.message } : f)); } }
+        if (folderId) { 
+          try { 
+            const uploaded = await api.uploadFile(rawFile, folderId, r.text, r.pages, true); // skipNotification=true 
+            const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || "application/pdf", pages: Number(uploaded.page_count || 0), status: "done", text: uploaded.extracted_text, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, uploadedAt: uploaded.uploaded_at || new Date().toISOString(), uploadedBy: uploaded.uploaded_by_name || loggedInUser?.name || null, progress: 100 }; 
+            setFiles((p) => p.map((f) => f.id === id ? norm : f));
+            // Track successful upload for batch notification
+            trackSuccessfulUpload(uploaded.id, uploaded.folder_id);
+          } catch (err) { setFiles((p) => p.map((f) => f.id === id ? { ...f, status: "error", error: err.message } : f)); } 
+        }
         else { setStagedFiles((p) => p.map((f) => f.id === id ? { ...f, status: "done", text: r.text, pages: r.pages, progress: 100 } : f)); }
       } else {
         const updateProgress = (prog) => {
@@ -567,13 +611,15 @@ const t = getTheme(darkMode);
         };
         updateProgress(50);
         try {
-          const uploaded = await api.uploadFile(rawFile, folderId, null, 0);
+          const uploaded = await api.uploadFile(rawFile, folderId, null, 0, true); // skipNotification=true
           const norm = { id: uploaded.id, name: uploaded.name, size: Number(uploaded.file_size_bytes || 0), type: uploaded.mime_type || rawFile.type, pages: 0, status: "done", text: null, folderId: uploaded.folder_id, fileStoragePath: uploaded.file_storage_path, uploadedAt: uploaded.uploaded_at || new Date().toISOString(), uploadedBy: uploaded.uploaded_by_name || loggedInUser?.name || null, progress: 100 };
           setFiles((p) => p.map((f) => f.id === id ? norm : f));
+          // Track successful upload for batch notification
+          trackSuccessfulUpload(uploaded.id, uploaded.folder_id);
         } catch (err) { setFiles((p) => p.map((f) => f.id === id ? { ...f, status: "error", error: err.message } : f)); }
       }
     } catch { const up = (p) => p.map((f) => f.id === id ? { ...f, status: "error", error: "Failed" } : f); if (folderId) setFiles(up); else setStagedFiles(up); }
-  }, []);
+  }, [trackSuccessfulUpload]);
 
   const handleUploadFiles = useCallback((fl) => { 
     const files = Array.from(fl);

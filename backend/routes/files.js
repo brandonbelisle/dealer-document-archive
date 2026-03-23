@@ -7,7 +7,7 @@ const db = require('../config/db');
 const { uploadBlob, downloadBlob, downloadBlobBuffer, deleteBlob, generateSasUrl } = require('../config/azure-storage');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
-const { createNotificationsForUpload, createNotificationsForUnsortedUpload } = require('./notifications');
+const { createNotificationsForUpload, createNotificationsForUnsortedUpload, createBatchNotifications } = require('./notifications');
 const { extractPdfText } = require('../utils/pdfExtract');
 const socket = require('../socket');
 
@@ -278,14 +278,17 @@ router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.sin
       req.ip
     );
 
-    // Create notifications for subscribers
-    createNotificationsForUpload({
-      fileId: id,
-      fileName: req.file.originalname,
-      folderId: folderId || null,
-      uploadedBy: req.user.id,
-      uploadedByName: req.user.displayName || req.user.username || 'Unknown',
-    });
+    // Create notifications for subscribers (skip if frontend will create batch notification)
+    const skipNotification = req.body.skipNotification === 'true';
+    if (!skipNotification) {
+      createNotificationsForUpload({
+        fileId: id,
+        fileName: req.file.originalname,
+        folderId: folderId || null,
+        uploadedBy: req.user.id,
+        uploadedByName: req.user.displayName || req.user.username || 'Unknown',
+      });
+    }
     if (folderId) socket.filesChanged(folderId);
 
     const [rows] = await db.execute('SELECT * FROM files WHERE id = ?', [id]);

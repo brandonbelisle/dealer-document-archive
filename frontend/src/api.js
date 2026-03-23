@@ -190,12 +190,13 @@ export async function getUnsortedFiles() {
 export async function getFile(id) {
   return request(`/files/${id}`);
 }
-export async function uploadFile(file, folderId, extractedText, pageCount) {
+export async function uploadFile(file, folderId, extractedText, pageCount, skipNotification = false) {
   const form = new FormData();
   form.append('file', file);
   if (folderId) form.append('folderId', folderId);
   if (extractedText) form.append('extractedText', extractedText);
   if (pageCount) form.append('pageCount', String(pageCount));
+  if (skipNotification) form.append('skipNotification', 'true');
 
   return request('/files/upload', { method: 'POST', body: form });
 }
@@ -203,6 +204,13 @@ export async function moveFile(id, folderId) {
   return request(`/files/${id}/move`, {
     method: 'PUT',
     body: JSON.stringify({ folderId: folderId || null }),
+  });
+}
+
+export async function createBatchUploadNotification(fileIds, folderId) {
+  return request('/notifications/batch-upload', {
+    method: 'POST',
+    body: JSON.stringify({ fileIds, folderId }),
   });
 }
 export async function updateFileText(id, extractedText, pageCount) {

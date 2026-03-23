@@ -535,7 +535,7 @@ export default function UploadPage({
                                       gap: 6,
                                     }}
                                   >
-                                    <SearchIcon size={13} />
+                                    <SearchIcon size={13} style={{ color: t.textDim, flexShrink: 0 }} />
                                     <input
                                       autoFocus
                                       value={stagedDropdownSearch}
@@ -565,138 +565,109 @@ export default function UploadPage({
                                   </div>
                                   <div
                                     style={{
-                                      maxHeight: 220,
+                                      maxHeight: 300,
                                       overflowY: "auto",
                                       padding: 3,
                                     }}
                                   >
-                                    {locations.map((loc) => {
-                                      const li = dff.filter(
-                                        (f) =>
-                                          f.locationId === loc.id
-                                      );
-                                      if (!li.length) return null;
-                                      return (
-                                        <div key={loc.id}>
+                                    {(() => {
+                                      const sq = stagedDropdownSearch.trim();
+                                      const searchResults = sq
+                                        ? folders
+                                            .map((f) => ({
+                                              ...f,
+                                              ...fuzzyMatch(sq, f.name),
+                                            }))
+                                            .filter((r) => r.match)
+                                            .sort((a, b) => b.score - a.score)
+                                            .slice(0, 10)
+                                        : [];
+                                      
+                                      if (sq && searchResults.length === 0) {
+                                        return (
                                           <div
                                             style={{
-                                              padding:
-                                                "4px 8px 2px",
+                                              padding: "12px",
+                                              fontSize: 11,
+                                              color: t.textDim,
+                                              textAlign: "center",
+                                            }}
+                                          >
+                                            No folders match "{sq}"
+                                          </div>
+                                        );
+                                      }
+                                      
+                                      return searchResults.length > 0 ? (
+                                        <div>
+                                          <div
+                                            style={{
+                                              padding: "4px 8px 2px",
                                               fontSize: 9,
                                               fontWeight: 700,
-                                              letterSpacing:
-                                                "0.06em",
-                                              textTransform:
-                                                "uppercase",
+                                              letterSpacing: "0.06em",
+                                              textTransform: "uppercase",
                                               color: t.textMuted,
                                             }}
                                           >
-                                            {loc.name}
+                                            {sq ? "Search Results" : "All Folders"}
                                           </div>
-                                          {deptsInLocation(
-                                            loc.id
-                                          ).map((dept) => {
-                                            const di = li.filter(
-                                              (f) =>
-                                                f.departmentId ===
-                                                dept.id
-                                            );
-                                            if (!di.length)
-                                              return null;
+                                          {searchResults.map((folder) => {
+                                            const loc = locations.find((l) => l.id === folder.locationId);
+                                            const dept = departments.find((d) => d.id === folder.departmentId);
                                             return (
-                                              <div key={dept.id}>
-                                                <div
-                                                  style={{
-                                                    padding:
-                                                      "2px 8px 2px 14px",
-                                                    fontSize: 8.5,
-                                                    fontWeight: 600,
-                                                    color:
-                                                      t.textDim,
-                                                  }}
-                                                >
-                                                  {dept.name}
-                                                </div>
-                                                {di.map(
-                                                  (folder) => (
-                                                    <div
-                                                      key={
-                                                        folder.id
-                                                      }
-                                                      onClick={() => {
-                                                        setStagedFolderAssignments(
-                                                          (p) => ({
-                                                            ...p,
-                                                            [sf.id]:
-                                                              folder.id,
-                                                          })
-                                                        );
-                                                        setOpenStagedDropdown(
-                                                          null
-                                                        );
-                                                        setStagedDropdownSearch(
-                                                          ""
-                                                        );
-                                                      }}
-                                                      className="folder-select-item"
-                                                      style={{
-                                                        padding:
-                                                          "5px 8px 5px 22px",
-                                                        borderRadius: 5,
-                                                        cursor:
-                                                          "pointer",
-                                                        fontSize: 11.5,
-                                                        display:
-                                                          "flex",
-                                                        alignItems:
-                                                          "center",
-                                                        gap: 7,
-                                                        background:
-                                                          assignedFolderId ===
-                                                          folder.id
-                                                            ? t.accentSoft
-                                                            : "transparent",
-                                                        color:
-                                                          assignedFolderId ===
-                                                          folder.id
-                                                            ? t.accent
-                                                            : t.text,
-                                                        fontWeight: 500,
-                                                      }}
-                                                    >
-                                                      <FolderClosedIcon
-                                                        size={12}
-                                                      />
-                                                      <span
-                                                        style={{
-                                                          flex: 1,
-                                                        }}
-                                                      >
-                                                        {
-                                                          folder.name
-                                                        }
-                                                      </span>
-                                                    </div>
-                                                  )
-                                                )}
+                                              <div
+                                                key={folder.id}
+                                                onClick={() => {
+                                                  setStagedFolderAssignments((p) => ({
+                                                    ...p,
+                                                    [sf.id]: folder.id,
+                                                  }));
+                                                  setOpenStagedDropdown(null);
+                                                  setStagedDropdownSearch("");
+                                                }}
+                                                className="folder-select-item"
+                                                style={{
+                                                  padding: "6px 8px",
+                                                  borderRadius: 5,
+                                                  cursor: "pointer",
+                                                  fontSize: 11.5,
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  gap: 7,
+                                                  background:
+                                                    assignedFolderId === folder.id
+                                                      ? t.accentSoft
+                                                      : "transparent",
+                                                  color:
+                                                    assignedFolderId === folder.id
+                                                      ? t.accent
+                                                      : t.text,
+                                                  fontWeight: 500,
+                                                }}
+                                              >
+                                                <FolderClosedIcon size={12} />
+                                                <span style={{ flex: 1 }}>{folder.name}</span>
+                                                <span style={{ fontSize: 9.5, color: t.textDim }}>
+                                                  {loc?.name} / {dept?.name}
+                                                </span>
                                               </div>
                                             );
                                           })}
                                         </div>
+                                      ) : (
+                                        <div
+                                          style={{
+                                            padding: "10px",
+                                            fontSize: 11,
+                                            color: t.textDim,
+                                            textAlign: "center",
+                                          }}
+                                        >
+                                          No folders available
+                                        </div>
                                       );
-                                    })}
-                                    {dff.length === 0 && (
-                                      <div
-                                        style={{
-                                          padding: "10px",
-                                          fontSize: 11,
-                                          color: t.textDim,
-                                          textAlign: "center",
-                                        }}
-                                      >
-                                        No folders found
-                                      </div>
-                                    )}
+                                    })()}
                                   </div>
                                 </div>
                               </>

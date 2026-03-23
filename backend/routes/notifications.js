@@ -98,6 +98,52 @@ router.delete('/', requireAuth, async (req, res) => {
   }
 });
 
+// ── POST /api/notifications/batch-upload ──────────────────
+// Create a summary notification for multiple uploaded files
+router.post('/batch-upload', requireAuth, async (req, res) => {
+  try {
+    const { fileIds, folderId } = req.body;
+    
+    if (!fileIds || !Array.isArray(fileIds) || fileIds.length === 0) {
+      return res.status(400).json({ error: 'No file IDs provided' });
+    }
+    
+    // If only one file, use the regular notification
+    if (fileIds.length === 1) {
+      return createNotificationsForUpload({
+        fileId: fileIds[0],
+        fileName: null, // Will be fetched
+        folderId,
+        uploadedBy: req.user.id,
+        uploadedByName: req.user.displayName || req.user.username || 'Unknown',
+      }).then(() => res.json({ success: true }));
+    }
+    
+    // Get file details
+    const [files] = await db.execute(
+      `SELECT id, name FROM files WHERE id IN (${fileIds.map(() => '?').join(',')})`,
+      fileIds
+    );
+    
+    if (files.length === 0) {
+      return res.status(404).json({ error: 'Files not found' });
+    }
+    
+    // Create batch notification
+    await createBatchNotifications({
+      files,
+      folderId,
+      uploadedBy: req.user.id,
+      uploadedByName: req.user.displayName || req.user.username || 'Unknown',
+    });
+    
+    res.json({ success: true, notified: files.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // ── Helper: Create notifications for subscribers ───────────
 // Called when a file is uploaded
 async function createNotificationsForUpload(uploadInfo) {
@@ -240,8 +286,126 @@ async function createNotificationsForUnsortedUpload(uploadInfo) {
   }
 }
 
+// ── Helper: Create batch notification for multiple uploads ─
+// Creates a single summary notification for multiple file uploads
+async function createBatchNotifications(uploadInfo) {
+  const { files, folderId, uploadedBy, uploadedByName } = uploadInfo;
+  
+  if (!files || files.length === 0) return;
+  
+  try {
+    // If only one file, use the regular notification
+    if (files.length === 1) {
+      return createNotificationsForUpload({
+        fileId: files[0].id,
+        fileName: files[0].name,
+        folderId,
+        uploadedBy,
+        uploadedByName,
+      });
+    }
+    
+    // Get folder details if files are in a folder
+    let locationId = null;
+    let locationName = null;
+    let departmentId = null;
+    let departmentName = null;
+    let itemType = 'folder';
+    let itemName = null;
+    
+    if (folderId) {
+      const [folders] = await db.execute(
+        `SELECT f.id, f.name, f.location_id, f.department_id, 
+                l.name AS location_name, d.name AS department_name
+         FROM folders f
+         LEFT JOIN locations l ON f.location_id = l.id
+         LEFT JOIN departments d ON f.department_id = d.id
+         WHERE f.id = ?`,
+        [folderId]
+      );
+      if (folders.length > 0) {
+        locationId = folders[0].location_id;
+        locationName = folders[0].location_name;
+        departmentId = folders[0].department_id;
+        departmentName = folders[0].department_name;
+        itemType = 'folder';
+        itemName = folders[0].name;
+      }
+    }
+    
+    // Find all users subscribed to: this specific folder, its department, or its location
+    let subscriberQuery = `
+      SELECT DISTINCT s.user_id
+      FROM subscriptions s
+      WHERE (s.subscription_type = 'folder' COLLATE utf8mb4_unicode_ci AND s.subscription_id = ?)
+    `;
+    const params = [folderId];
+    
+    if (departmentId) {
+      subscriberQuery += ` OR (s.subscription_type = 'department' COLLATE utf8mb4_unicode_ci AND s.subscription_id = ?)`;
+      params.push(departmentId);
+    }
+    if (locationId) {
+      subscriberQuery += ` OR (s.subscription_type = 'location' COLLATE utf8mb4_unicode_ci AND s.subscription_id = ?)`;
+      params.push(locationId);
+    }
+    
+    const [subscribers] = await db.execute(subscriberQuery, params);
+    
+    // Create ONE summary notification for each subscriber (except the uploader)
+    const fileNames = files.length <= 5 
+      ? files.map(f => f.name).join(', ')
+      : `${files.slice(0, 5).map(f => f.name).join(', ')} and ${files.length - 5} more`;
+    
+    for (const sub of subscribers) {
+      if (sub.user_id === uploadedBy) continue;
+      
+      const notificationId = uuidv4();
+      
+      await db.execute(
+        `INSERT INTO notifications 
+         (id, user_id, notification_type, item_type, item_id, item_name, 
+          location_name, department_name, file_name, file_id, created_by_name)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          notificationId,
+          sub.user_id,
+          'batch_upload',
+          itemType,
+          folderId,
+          itemName,
+          locationName,
+          departmentName,
+          fileNames,
+          files.length > 1 ? files.map(f => f.id).join(',') : files[0].id,
+          uploadedByName
+        ]
+      );
+      
+      // Emit socket event for real-time notification
+      socket.notificationCreated(sub.user_id, {
+        id: notificationId,
+        notification_type: 'batch_upload',
+        item_type: itemType,
+        item_id: folderId,
+        item_name: itemName,
+        location_name: locationName,
+        department_name: departmentName,
+        file_name: fileNames,
+        file_id: files.map(f => f.id).join(','),
+        created_by_name: uploadedByName,
+        created_at: new Date().toISOString(),
+        batch_count: files.length,
+      });
+    }
+  } catch (err) {
+    console.error('Error creating batch notifications:', err);
+  }
+}
+
 module.exports = {
   router,
   createNotificationsForUpload,
-  createNotificationsForUnsortedUpload
+  createNotificationsForUnsortedUpload,
+  createBatchNotifications
 };

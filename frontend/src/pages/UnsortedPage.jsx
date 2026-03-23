@@ -42,7 +42,7 @@ export default function UnsortedPage({
   darkMode,
 }) {
   const canDeleteFiles = loggedInUser?.permissions?.includes("deleteFiles");
-  const canViewLocations = loggedInUser?.permissions?.includes("viewLocations");
+  const canViewLocations = loggedInUser?.permissions?.includes("viewLocations") || loggedInUser?.permissions?.includes("viewFiles");
   const [movingFileId, setMovingFileId] = useState(null);
   const [moveTargetFolderId, setMoveTargetFolderId] = useState("");
   const [showMoveSelect, setShowMoveSelect] = useState(false);

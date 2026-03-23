@@ -80,7 +80,7 @@ export default function DashboardPage({
 }) {
   const dd = dashboardData || {};
   const year = new Date().getFullYear();
-  const canViewLocations = loggedInUser?.permissions?.includes("viewLocations");
+  const canViewLocations = loggedInUser?.permissions?.includes("viewLocations") || loggedInUser?.permissions?.includes("viewFiles");
 
   const locationsWithDepts = locations.map((loc) => ({
     ...loc,

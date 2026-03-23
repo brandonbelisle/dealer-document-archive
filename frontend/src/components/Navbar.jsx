@@ -98,7 +98,7 @@ export default function Navbar({
   const q = globalSearch.trim();
 
   const isAdmin = loggedInUser?.groups?.includes("Administrator");
-  const canViewLocations = loggedInUser?.permissions?.includes("viewLocations");
+  const canViewLocations = loggedInUser?.permissions?.includes("viewLocations") || loggedInUser?.permissions?.includes("viewFiles");
 
 const apps = [
     { id: "home", name: "Home", icon: <HomeIcon size={20} />, onClick: () => { setPage("landing"); setSelectedFile(null); setShowAppsDropdown(false); } },

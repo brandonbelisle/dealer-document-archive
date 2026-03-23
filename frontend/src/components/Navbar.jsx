@@ -182,7 +182,7 @@ const apps = [
         zIndex: 100,
       }}
     >
-      {/* Left: Logo */}
+      {/* Left: logo + tabs */}
       <div
         style={{
           display: "flex",
@@ -253,8 +253,8 @@ const apps = [
             </span>
           )}
         </div>
-      {!isMobile && (
-        <div style={{ display: "flex", gap: 2, marginLeft: 8 }}>
+        {!isMobile && (
+          <div style={{ display: "flex", gap: 2, marginLeft: 8 }}>
           {/* Dashboard tab */}
           <button
             onClick={() => {
@@ -528,8 +528,7 @@ const apps = [
           </button>
         </div>
         )}
-      {/* Mobile menu (shown on mobile) */}
-      <div style={{ flexShrink: 0, position: "relative", zIndex: 2 }}>
+{/* Mobile menu dropdown */}
         {isMobile && showMobileMenu && (
           <div
             style={{
@@ -799,14 +798,14 @@ const apps = [
               display: "flex",
               alignItems: "center",
               gap: 8,
-                background: darkMode
-                  ? "rgba(255,255,255,0.05)"
-                  : "rgba(0,0,0,0.04)",
-                border: `1px solid ${showDropdown && hasResults ? t.accent : t.border}`,
-                borderRadius: 9,
-                padding: "6px 12px",
-                transition: "border-color 0.2s",
-              }}
+              background: darkMode
+                ? "rgba(255,255,255,0.05)"
+                : "rgba(0,0,0,0.04)",
+              border: `1px solid ${showDropdown && hasResults ? t.accent : t.border}`,
+              borderRadius: 9,
+              padding: "6px 12px",
+              transition: "border-color 0.2s",
+            }}
             >
               <SearchIcon size={15} />
               <input

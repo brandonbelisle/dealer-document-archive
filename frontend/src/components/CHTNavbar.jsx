@@ -85,7 +85,7 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
       zIndex: 100,
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div onClick={() => setPage("cht")} style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer" }}>
+        <div onClick={() => setPage("landing")} style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer" }}>
           <div style={{
             width: 28,
             height: 28,
@@ -200,8 +200,9 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
                 </div>
                 {[
                   { l: "My Account", i: <UserIcon /> },
-                  { l: "Change Password", i: <ShieldIcon /> },
+                  ...(loggedInUser?.authProvider !== 'saml' ? [{ l: "Change Password", i: <ShieldIcon /> }] : []),
                   { l: "My Subscriptions", i: <BellIcon /> },
+                  { l: "Settings", i: <GearIcon /> },
                 ].map((item) => (
                   <div
                     key={item.l}
@@ -215,6 +216,9 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
                       }
                       if (item.l === "My Subscriptions") {
                         setShowSubscriptionsModal(true);
+                      }
+                      if (item.l === "Settings") {
+                        setPage("settings");
                       }
                     }}
                     className="folder-select-item"
@@ -259,6 +263,16 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
             )}
           </div>
         )}
+        <AlertsDropdown darkMode={darkMode} currentUserId={loggedInUser?.id} onShowToast={onShowToast} onNavigate={(alert) => {
+          const isCHT = alert.type === "cht_inquiry_assigned" || alert.type === "cht_inquiry_updated" ||
+                        alert.notification_type === "cht_inquiry_assigned" || alert.notification_type === "cht_inquiry_updated";
+          if (isCHT) {
+            setPage("cht");
+            if (alert.data?.inquiryId && onOpenInquiry) {
+              setTimeout(() => onOpenInquiry(alert.data.inquiryId), 100);
+            }
+}
+          }} />
         <div style={{ position: "relative" }}>
           <button
             onClick={() => setShowAppsDropdown(!showAppsDropdown)}
@@ -324,31 +338,6 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
             </div>
           )}
         </div>
-        <AlertsDropdown darkMode={darkMode} currentUserId={loggedInUser?.id} onShowToast={onShowToast} onNavigate={(alert) => {
-          const isCHT = alert.type === "cht_inquiry_assigned" || alert.type === "cht_inquiry_updated" ||
-                        alert.notification_type === "cht_inquiry_assigned" || alert.notification_type === "cht_inquiry_updated";
-          if (isCHT) {
-            setPage("cht");
-            if (alert.data?.inquiryId && onOpenInquiry) {
-              setTimeout(() => onOpenInquiry(alert.data.inquiryId), 100);
-            }
-          }
-        }} />
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          style={{
-            background: t.surface,
-            border: `1px solid ${t.border}`,
-            borderRadius: 7,
-            padding: 6,
-            cursor: "pointer",
-            color: t.textMuted,
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          {darkMode ? <SunIcon /> : <MoonIcon />}
-        </button>
       </div>
     </nav>
   );

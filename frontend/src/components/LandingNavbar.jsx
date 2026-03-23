@@ -104,12 +104,12 @@ export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, set
                     {loggedInUser.groups?.join(", ")}
                   </div>
                 </div>
-                {[
-                  { l: "My Account", i: <UserIcon /> },
-                  { l: "Change Password", i: <ShieldIcon /> },
-                  { l: "My Subscriptions", i: <BellIcon /> },
-                  { l: "Settings", i: <GearIcon /> },
-                ].map((item) => (
+{[
+          { l: "My Account", i: <UserIcon /> },
+          ...(loggedInUser?.authProvider !== 'saml' ? [{ l: "Change Password", i: <ShieldIcon /> }] : []),
+          { l: "My Subscriptions", i: <BellIcon /> },
+          { l: "Settings", i: <GearIcon /> },
+        ].map((item) => (
                   <div
                     key={item.l}
                     onClick={() => {
@@ -122,6 +122,9 @@ export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, set
                       }
                       if (item.l === "My Subscriptions") {
                         setShowSubscriptionsModal(true);
+                      }
+                      if (item.l === "Settings") {
+                        setPage("settings");
                       }
                     }}
                     className="folder-select-item"
@@ -175,25 +178,6 @@ export default function LandingNavbar({ darkMode, setDarkMode, loggedInUser, set
               }, 100);
             }
           }} />
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          style={{
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            color: darkMode ? "#c9d1d9" : "#57606a",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 8,
-            borderRadius: 8,
-            transition: "background 0.2s",
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"}
-          onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-        >
-          {darkMode ? <SunIcon /> : <MoonIcon />}
-        </button>
       </div>
     </div>
   );

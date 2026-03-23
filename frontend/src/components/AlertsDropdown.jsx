@@ -4,7 +4,7 @@ import { BellIcon, XIcon, TrashIcon, MapPinIcon, LayersIcon, FolderClosedIcon } 
 import { getTheme } from "../theme";
 import { useSocket } from "../hooks/useSocket";
 
-export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) {
+export default function AlertsDropdown({ darkMode, onNavigate, currentUserId, onShowToast }) {
   const t = getTheme(darkMode);
   const [showDropdown, setShowDropdown] = useState(false);
   const [alerts, setAlerts] = useState([]);
@@ -35,6 +35,16 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) 
       return [newAlert, ...prev.slice(0, 99)];
     });
     setUnreadCount((prev) => prev + 1);
+
+    // Show Toast notification for CHT
+    if (isCHT && onShowToast) {
+      onShowToast({
+        title: notification.title || 'Credit Hold Tracker',
+        message: notification.message,
+        type: 'cht',
+        duration: 6000,
+      });
+    }
   };
 
   useSocket({

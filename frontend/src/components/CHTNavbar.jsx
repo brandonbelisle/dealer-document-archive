@@ -3,7 +3,7 @@ import { SunIcon, MoonIcon, UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronD
 import AlertsDropdown from "./AlertsDropdown";
 import * as api from "../api";
 
-export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket, onOpenInquiry }) {
+export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket, onOpenInquiry, onShowToast }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
   const [customApps, setCustomApps] = useState([]);
@@ -346,7 +346,7 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
             </div>
           )}
         </div>
-        <AlertsDropdown darkMode={darkMode} currentUserId={loggedInUser?.id} onNavigate={(alert) => {
+        <AlertsDropdown darkMode={darkMode} currentUserId={loggedInUser?.id} onShowToast={onShowToast} onNavigate={(alert) => {
           const isCHT = alert.type === "cht_inquiry_assigned" || alert.type === "cht_inquiry_updated" ||
                         alert.notification_type === "cht_inquiry_assigned" || alert.notification_type === "cht_inquiry_updated";
           if (isCHT) {

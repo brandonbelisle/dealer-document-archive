@@ -15,6 +15,7 @@ export function useSocket({
   onSettingsChanged,
   onDmsScheduleChanged,
   onNotificationCreated,
+  onChtInquiriesChanged,
 }) {
   const reconnectTimeoutRef = useRef(null);
   
@@ -28,6 +29,7 @@ export function useSocket({
     onSettingsChanged,
     onDmsScheduleChanged,
     onNotificationCreated,
+    onChtInquiriesChanged,
   });
   
   // Keep handlers up to date
@@ -42,6 +44,7 @@ export function useSocket({
       onSettingsChanged,
       onDmsScheduleChanged,
       onNotificationCreated,
+      onChtInquiriesChanged,
     };
   });
 
@@ -111,6 +114,11 @@ export function useSocket({
     // Notification events
     socket.on('notification:created', (data) => {
       handlersRef.current.onNotificationCreated?.(data);
+    });
+
+    // CHT inquiry events
+    socket.on('cht:inquiries:changed', () => {
+      handlersRef.current.onChtInquiriesChanged?.();
     });
   }, []);
 

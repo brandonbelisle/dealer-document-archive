@@ -81,6 +81,11 @@ function notificationCountUpdated(userId, count) {
   }
 }
 
+// CHT inquiry events
+function chtInquiriesChanged() {
+  broadcast('cht:inquiries:changed', { timestamp: Date.now() });
+}
+
 module.exports = {
   init,
   getIO,
@@ -95,4 +100,5 @@ module.exports = {
   dmsScheduleChanged,
   notificationCreated,
   notificationCountUpdated,
+  chtInquiriesChanged,
 };

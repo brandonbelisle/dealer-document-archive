@@ -30,7 +30,7 @@ export default function Toast({ toasts, removeToast, darkMode }) {
   useEffect(() => {
     if (toasts.length > prevToastCount.current) {
       const newToasts = toasts.slice(prevToastCount.current);
-      const hasSoundToast = newToasts.some((t) => t.type !== "delete" && t.type !== "create");
+      const hasSoundToast = newToasts.some((t) => t.type !== "delete" && t.type !== "create" && t.type !== "cht");
       if (hasSoundToast) {
         playNotificationSound();
       }
@@ -92,6 +92,7 @@ function ToastItem({ toast, onClose, darkMode }) {
     error: { border: "#ef4444", bg: darkMode ? "rgba(239, 68, 68, 0.1)" : "rgba(239, 68, 68, 0.05)" },
     success: { border: "#22c55e", bg: darkMode ? "rgba(34, 197, 94, 0.1)" : "rgba(34, 197, 94, 0.05)" },
     info: { border: "#3b82f6", bg: darkMode ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.05)" },
+    cht: { border: "#f59e0b", bg: darkMode ? "rgba(245, 158, 11, 0.1)" : "rgba(245, 158, 11, 0.05)" },
   };
 
   const typeStyle = typeColors[toast.type] || { border: darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)", bg: "transparent" };

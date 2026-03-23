@@ -63,6 +63,8 @@ router.post('/inquiries', requireAuth, async (req, res) => {
 
     await logAudit('Credit Hold Inquiry Created', `Invoice: ${invoiceNumber.trim()}`, req.user, req.ip);
 
+    socket.chtInquiriesChanged();
+
     const [rows] = await db.execute(
       `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
               u.display_name as submitted_by,
@@ -129,6 +131,8 @@ router.post('/inquiries/:id/accept', requireAuth, requirePermission('cht_inquiry
       data: { inquiryId: id },
       created_at: new Date().toISOString(),
     });
+
+    socket.chtInquiriesChanged();
 
     const [rows] = await db.execute(
       `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
@@ -357,6 +361,8 @@ router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
       data: { inquiryId: id },
       created_at: new Date().toISOString(),
     });
+
+    socket.chtInquiriesChanged();
 
     // Return updated inquiry
     const [rows] = await db.execute(

@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import * as api from "../api";
 import { PlusIcon, XIcon, ChevronDown, SearchIcon } from "../components/Icons";
+import { useSocket } from "../hooks/useSocket";
 
 export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab = "dashboard", openInquiryId, onInquiryOpened }) {
   const [inquiries, setInquiries] = useState([]);
@@ -37,13 +38,33 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
   const chtAccent = "#f59e0b";
   const chtAccentDark = "#d97706";
 
+  const loadInquiries = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await api.getCreditHoldInquiries();
+      setInquiries(data.inquiries || []);
+    } catch (err) {
+      console.error("Failed to load inquiries:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useSocket({
+    onChtInquiriesChanged: () => {
+      if (canViewInquiries) {
+        loadInquiries();
+      }
+    },
+  });
+
   useEffect(() => {
     if ((activeTab === "inquiries" || activeTab === "dashboard") && canViewInquiries) {
       loadInquiries();
       loadStatuses();
       loadUsers();
     }
-  }, [activeTab, canViewInquiries]);
+  }, [activeTab, canViewInquiries, loadInquiries]);
 
   useEffect(() => {
     if (openInquiryId && inquiries.length > 0) {
@@ -64,18 +85,6 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const loadInquiries = async () => {
-    setLoading(true);
-    try {
-      const data = await api.getCreditHoldInquiries();
-      setInquiries(data.inquiries || []);
-    } catch (err) {
-      console.error("Failed to load inquiries:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const loadStatuses = async () => {
     try {

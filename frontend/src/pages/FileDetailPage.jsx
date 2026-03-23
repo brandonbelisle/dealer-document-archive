@@ -524,6 +524,13 @@ export default function FileDetailPage({
                       border: "none",
                     }}
                     title="PDF Preview"
+                    onError={() => {
+                      setPreviewLoading(true);
+                      api.getFilePreviewUrlByFileId(vf.id)
+                        .then((url) => setPreviewUrl(url))
+                        .catch(() => setPreviewUrl(null))
+                        .finally(() => setPreviewLoading(false));
+                    }}
                   />
                 );
               }
@@ -548,6 +555,13 @@ export default function FileDetailPage({
                         maxHeight: "100%",
                         objectFit: "contain",
                         borderRadius: 4,
+                      }}
+                      onError={() => {
+                        setPreviewLoading(true);
+                        api.getFilePreviewUrlByFileId(vf.id)
+                          .then((url) => setPreviewUrl(url))
+                          .catch(() => setPreviewUrl(null))
+                          .finally(() => setPreviewLoading(false));
                       }}
                     />
                   </div>

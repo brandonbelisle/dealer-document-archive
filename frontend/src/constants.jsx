@@ -86,6 +86,20 @@ export const ADMIN_MENU = [
     desc: "Configure Azure Blob Storage for file uploads",
   },
   {
+    id: "cht",
+    label: "CHT - Credit Hold Tracker",
+    icon: null,
+    desc: "Credit Hold Tracker settings",
+    isCategory: true,
+  },
+  {
+    id: "cht-statuses",
+    label: "Statuses",
+    icon: <LayersIcon size={17} />,
+    desc: "Manage inquiry statuses",
+    category: "cht",
+  },
+  {
     id: "settings",
     label: "Settings",
     icon: <GearIcon size={17} />,
@@ -119,7 +133,10 @@ export const APP_PERMISSIONS = {
     permissions: [
       { key: "view_cht", label: "View App", desc: "Access Credit Hold Tracker" },
       { key: "cht_inquiry_submit", label: "Submit Inquiries", desc: "Submit credit hold inquiries" },
-      { key: "cht_inquiry_view", label: "View Inquiries", desc: "View credit hold inquiries" },
+      { key: "cht_inquiry_view", label: "View Inquiries", desc: "View own credit hold inquiries" },
+      { key: "cht_inquiry_view_all", label: "View All Inquiries", desc: "View all credit hold inquiries" },
+      { key: "cht_inquiry_accept", label: "Accept Inquiries", desc: "Accept and assign credit hold inquiries to yourself" },
+      { key: "cht_manage_statuses", label: "Manage Statuses", desc: "Add, edit, and remove inquiry statuses" },
     ],
   },
   help: {

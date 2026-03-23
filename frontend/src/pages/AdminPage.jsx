@@ -2692,6 +2692,17 @@ export default function AdminPage({
   const [securitySaving, setSecuritySaving] = useState(false);
   const [securityMessage, setSecurityMessage] = useState({ type: '', text: '' });
 
+  // CHT Statuses
+  const [chtStatuses, setChtStatuses] = useState([]);
+  const [chtStatusesLoading, setChtStatusesLoading] = useState(false);
+  const [addingChtStatus, setAddingChtStatus] = useState(false);
+  const [newChtStatusName, setNewChtStatusName] = useState("");
+  const [newChtStatusColor, setNewChtStatusColor] = useState("#6b7280");
+  const [editingChtStatusId, setEditingChtStatusId] = useState(null);
+  const [editingChtStatusName, setEditingChtStatusName] = useState("");
+  const [editingChtStatusColor, setEditingChtStatusColor] = useState("");
+  const [savingChtStatus, setSavingChtStatus] = useState(false);
+
   const editLocRef = useRef(null);
   const addLocRef = useRef(null);
   const editDeptRef = useRef(null);
@@ -2854,7 +2865,72 @@ export default function AdminPage({
     if (adminSection === 'security') {
       loadSecuritySettings();
     }
+    if (adminSection === 'cht-statuses') {
+      loadChtStatuses();
+    }
   }, [adminSection]);
+
+  const loadChtStatuses = async () => {
+    setChtStatusesLoading(true);
+    try {
+      const data = await api.getCreditHoldStatuses();
+      setChtStatuses(data.statuses || []);
+    } catch (err) {
+      console.error('Failed to load CHT statuses:', err);
+    } finally {
+      setChtStatusesLoading(false);
+    }
+  };
+
+  const handleAddChtStatus = async () => {
+    if (!newChtStatusName.trim()) return;
+    setSavingChtStatus(true);
+    try {
+      const data = await api.createCreditHoldStatus(newChtStatusName.trim(), newChtStatusColor, chtStatuses.length);
+      setChtStatuses([...chtStatuses, data.status]);
+      setNewChtStatusName("");
+      setNewChtStatusColor("#6b7280");
+      setAddingChtStatus(false);
+      addToast("Status created", `Status "${newChtStatusName.trim()}" has been created`, 4000, "create");
+    } catch (err) {
+      addToast("Error", err.message || "Failed to create status", 4000, "error");
+    } finally {
+      setSavingChtStatus(false);
+    }
+  };
+
+  const handleUpdateChtStatus = async (id) => {
+    if (!editingChtStatusName.trim()) return;
+    setSavingChtStatus(true);
+    try {
+      const status = chtStatuses.find(s => s.id === id);
+      const data = await api.updateCreditHoldStatus(id, editingChtStatusName.trim(), editingChtStatusColor, status.sort_order, status.is_default);
+      setChtStatuses(chtStatuses.map(s => s.id === id ? data.status : s));
+      setEditingChtStatusId(null);
+      addToast("Status updated", `Status has been updated`, 4000, "update");
+    } catch (err) {
+      addToast("Error", err.message || "Failed to update status", 4000, "error");
+    } finally {
+      setSavingChtStatus(false);
+    }
+  };
+
+  const handleDeleteChtStatus = (status) => {
+    setWarningModal({
+      title: "Delete Status",
+      message: `Are you sure you want to delete "${status.name}"? This action cannot be undone.`,
+      onConfirm: async () => {
+        try {
+          await api.deleteCreditHoldStatus(status.id);
+          setChtStatuses(chtStatuses.filter(s => s.id !== status.id));
+          addToast("Status deleted", `"${status.name}" has been deleted`, 4000, "delete");
+        } catch (err) {
+          addToast("Error", err.message || "Failed to delete status", 4000, "error");
+        }
+        setWarningModal(null);
+      },
+    });
+  };
 
   const adminActiveMenu = ADMIN_MENU.find((m) => m.id === adminSection);
   const demoUsers = adminUsers;
@@ -3762,6 +3838,138 @@ export default function AdminPage({
           {adminSection === "app-center" && (
             <div style={{ animation: "fadeIn 0.25s ease" }}>
               <AppCenterSection t={t} darkMode={darkMode} addToast={addToast} />
+            </div>
+          )}
+
+          {/* CHT STATUSES */}
+          {adminSection === "cht-statuses" && (
+            <div style={{ animation: "fadeIn 0.25s ease" }}>
+              <div style={{ marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: t.text }}>Inquiry Statuses</h3>
+                {!addingChtStatus && (
+                  <Btn primary darkMode={darkMode} t={t} onClick={() => setAddingChtStatus(true)} style={{ fontSize: 12 }}>
+                    <PlusIcon size={13} /> Add Status
+                  </Btn>
+                )}
+              </div>
+
+              {chtStatusesLoading ? (
+                <div style={{ padding: 40, textAlign: "center", color: t.textMuted }}>Loading...</div>
+              ) : (
+                <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
+                  {addingChtStatus && (
+                    <div style={{ padding: 16, borderBottom: `1px solid ${t.border}`, background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)" }}>
+                      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+                        <input
+                          type="text"
+                          value={newChtStatusName}
+                          onChange={(e) => setNewChtStatusName(e.target.value)}
+                          placeholder="Status name"
+                          autoFocus
+                          style={{
+                            flex: 1,
+                            minWidth: 150,
+                            padding: "8px 12px",
+                            border: `1px solid ${t.border}`,
+                            borderRadius: 6,
+                            fontSize: 13,
+                            background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                            color: t.text,
+                            outline: "none",
+                            fontFamily: "inherit",
+                          }}
+                        />
+                        <input
+                          type="color"
+                          value={newChtStatusColor}
+                          onChange={(e) => setNewChtStatusColor(e.target.value)}
+                          style={{ width: 36, height: 36, border: `1px solid ${t.border}`, borderRadius: 6, cursor: "pointer", padding: 2 }}
+                        />
+                        <Btn primary darkMode={darkMode} t={t} onClick={handleAddChtStatus} disabled={savingChtStatus || !newChtStatusName.trim()} style={{ fontSize: 12 }}>
+                          {savingChtStatus ? "Saving..." : "Save"}
+                        </Btn>
+                        <Btn ghost darkMode={darkMode} t={t} onClick={() => { setAddingChtStatus(false); setNewChtStatusName(""); setNewChtStatusColor("#6b7280"); }} style={{ fontSize: 12 }}>
+                          Cancel
+                        </Btn>
+                      </div>
+                    </div>
+                  )}
+                  {chtStatuses.length === 0 && !addingChtStatus ? (
+                    <div style={{ padding: 40, textAlign: "center", color: t.textMuted }}>No statuses configured</div>
+                  ) : (
+                    chtStatuses.map((status, idx) => (
+                      <div
+                        key={status.id}
+                        style={{
+                          padding: "14px 16px",
+                          borderBottom: idx < chtStatuses.length - 1 ? `1px solid ${t.border}` : "none",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                        }}
+                      >
+                        {editingChtStatusId === status.id ? (
+                          <>
+                            <input
+                              type="text"
+                              value={editingChtStatusName}
+                              onChange={(e) => setEditingChtStatusName(e.target.value)}
+                              autoFocus
+                              style={{
+                                flex: 1,
+                                padding: "8px 12px",
+                                border: `1px solid ${t.border}`,
+                                borderRadius: 6,
+                                fontSize: 13,
+                                background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                                color: t.text,
+                                outline: "none",
+                                fontFamily: "inherit",
+                              }}
+                            />
+                            <input
+                              type="color"
+                              value={editingChtStatusColor}
+                              onChange={(e) => setEditingChtStatusColor(e.target.value)}
+                              style={{ width: 36, height: 36, border: `1px solid ${t.border}`, borderRadius: 6, cursor: "pointer", padding: 2 }}
+                            />
+                            <Btn primary darkMode={darkMode} t={t} onClick={() => handleUpdateChtStatus(status.id)} disabled={savingChtStatus} style={{ fontSize: 12 }}>
+                              {savingChtStatus ? "Saving..." : "Save"}
+                            </Btn>
+                            <Btn ghost darkMode={darkMode} t={t} onClick={() => setEditingChtStatusId(null)} style={{ fontSize: 12 }}>
+                              Cancel
+                            </Btn>
+                          </>
+                        ) : (
+                          <>
+                            <div
+                              style={{
+                                width: 16,
+                                height: 16,
+                                borderRadius: "50%",
+                                background: status.color || "#6b7280",
+                                flexShrink: 0,
+                              }}
+                            />
+                            <span style={{ flex: 1, fontWeight: 500, color: t.text }}>{status.name}</span>
+                            {status.is_default && (
+                              <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: t.accentSoft, color: t.accent, fontWeight: 600 }}>
+                                Default
+                              </span>
+                            )}
+                            <SmallBtn darkMode={darkMode} t={t} onClick={() => { setEditingChtStatusId(status.id); setEditingChtStatusName(status.name); setEditingChtStatusColor(status.color || "#6b7280"); }}>
+                              <EditIcon />
+                            </SmallBtn>
+                            <SmallBtn darkMode={darkMode} t={t} onClick={() => handleDeleteChtStatus(status)} style={{ color: darkMode ? "#f87171" : "#ef4444" }}>
+                              <TrashIcon size={14} />
+                            </SmallBtn>
+                          </>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>

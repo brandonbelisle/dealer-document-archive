@@ -6,25 +6,23 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const canSubmitInquiries = loggedInUser?.permissions?.includes("cht_inquiry_submit");
-  const canViewInquiries = loggedInUser?.permissions?.includes("cht_inquiry_view");
+  const canViewAllInquiries = loggedInUser?.permissions?.includes("cht_inquiry_view_all");
+  const canAcceptInquiries = loggedInUser?.permissions?.includes("cht_inquiry_accept");
+  const canViewOwnInquiries = loggedInUser?.permissions?.includes("cht_inquiry_view");
+  const canViewInquiries = canViewOwnInquiries || canViewAllInquiries;
 
   const chtAccent = "#f59e0b";
   const chtAccentDark = "#d97706";
 
   useEffect(() => {
-    if (activeTab === "inquiries" && canViewInquiries) {
-      loadInquiries();
-    }
-  }, [activeTab, canViewInquiries]);
-
-  useEffect(() => {
-    if (activeTab === "inquiries" && canViewInquiries) {
+    if ((activeTab === "inquiries" || activeTab === "dashboard") && canViewInquiries) {
       loadInquiries();
     }
   }, [activeTab, canViewInquiries]);
@@ -64,24 +62,22 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "pending": return darkMode ? "#f59e0b" : "#d97706";
-      case "in_review": return darkMode ? "#3b82f6" : "#2563eb";
-      case "resolved": return darkMode ? "#22c55e" : "#16a34a";
-      case "closed": return darkMode ? "#6b7280" : "#9ca3af";
-      default: return darkMode ? "#6b7280" : "#9ca3af";
+  const handleAccept = async (inquiryId) => {
+    try {
+      const data = await api.acceptCreditHoldInquiry(inquiryId);
+      setInquiries((prev) =>
+        prev.map((inq) => (inq.id === inquiryId ? data.inquiry : inq))
+      );
+      if (selectedInquiry?.id === inquiryId) {
+        setSelectedInquiry(data.inquiry);
+      }
+    } catch (err) {
+      console.error("Failed to accept inquiry:", err);
     }
   };
 
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case "pending": return "Pending";
-      case "in_review": return "In Review";
-      case "resolved": return "Resolved";
-      case "closed": return "Closed";
-      default: return status;
-    }
+  const getStatusColor = (statusColor) => {
+    return statusColor || (darkMode ? "#6b7280" : "#9ca3af");
   };
 
   const formatDate = (dateStr) => {
@@ -95,43 +91,144 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
     });
   };
 
+  const getStatusBadge = (statusName, statusColor) => (
+    <span style={{
+      fontSize: 11,
+      fontWeight: 600,
+      padding: "3px 8px",
+      borderRadius: 6,
+      background: getStatusColor(statusColor) + "20",
+      color: getStatusColor(statusColor),
+    }}>
+      {statusName || "Pending"}
+    </span>
+  );
+
+  const pendingInquiries = inquiries.filter(i => !i.assigned_to);
+  const assignedInquiries = inquiries.filter(i => i.assigned_to);
+
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <style>{`
-        .inquiry-row { transition: background 0.1s ease; }
+        .inquiry-row { transition: background 0.1s ease; cursor: pointer; }
         .inquiry-row:hover { background: ${darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)"}; }
       `}</style>
 
       <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
         {activeTab === "dashboard" && (
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: 400,
-          }}>
-            <div style={{
-              width: 80,
-              height: 80,
-              borderRadius: 20,
-              background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              fontSize: 24,
-              fontWeight: 800,
-              marginBottom: 24,
-            }}>
-              CHT
+          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: t.text }}>
+                Credit Hold Dashboard
+              </h2>
+              {canSubmitInquiries && (
+                <button
+                  onClick={() => setShowModal(true)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "8px 14px",
+                    background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+                    border: "none",
+                    borderRadius: 8,
+                    color: "white",
+                    fontWeight: 600,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  <PlusIcon size={14} /> New Inquiry
+                </button>
+              )}
             </div>
-            <h1 style={{ fontSize: 28, fontWeight: 700, margin: "0 0 12px", color: t.text }}>
-              Credit Hold Tracker
-            </h1>
-            <p style={{ fontSize: 15, color: t.textMuted, margin: 0, textAlign: "center", maxWidth: 400 }}>
-              Manage and track credit holds across your organization
-            </p>
+
+            {loading ? (
+              <div style={{ textAlign: "center", padding: 60, color: t.textMuted }}>
+                Loading...
+              </div>
+            ) : inquiries.length === 0 ? (
+              <div style={{
+                textAlign: "center",
+                padding: 80,
+                color: t.textMuted,
+                background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                borderRadius: 12,
+              }}>
+                <InboxIcon size={48} />
+                <p style={{ margin: "16px 0 0", fontSize: 15 }}>No inquiries yet</p>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: canViewAllInquiries ? "1fr1fr" : "1fr", gap: 24 }}>
+                {canViewAllInquiries && (
+                  <div>
+                    <h3 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px", color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                      Pending ({pendingInquiries.length})
+                    </h3>
+                    {pendingInquiries.length === 0 ? (
+                      <div style={{ padding: 20, textAlign: "center", color: t.textMuted, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, fontSize: 13 }}>
+                        No pending inquiries
+                      </div>
+                    ) : (
+                      <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
+                        {pendingInquiries.map((inquiry, idx) => (
+                          <div
+                            key={inquiry.id}
+                            className="inquiry-row"
+                            onClick={() => setSelectedInquiry(inquiry)}
+                            style={{
+                              padding: "14px 16px",
+                              borderBottom: idx < pendingInquiries.length - 1 ? `1px solid ${t.border}` : "none",
+                            }}
+                          >
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                              <span style={{ fontWeight: 600, color: t.text }}>{inquiry.invoice_number}</span>
+                              {getStatusBadge(inquiry.status_name, inquiry.status_color)}
+                            </div>
+                            <div style={{ fontSize: 12, color: t.textMuted }}>
+                              by {inquiry.submitted_by} · {formatDate(inquiry.created_at)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                <div>
+                  <h3 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px", color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    {canViewAllInquiries ? "In Progress" : "My Inquiries"} ({canViewAllInquiries ? assignedInquiries.length : inquiries.length})
+                  </h3>
+                  {(canViewAllInquiries ? assignedInquiries : inquiries).length === 0 ? (
+                    <div style={{ padding: 20, textAlign: "center", color: t.textMuted, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, fontSize: 13 }}>
+                      No inquiries in progress
+                    </div>
+                  ) : (
+                    <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
+                      {(canViewAllInquiries ? assignedInquiries : inquiries).map((inquiry, idx, arr) => (
+                        <div
+                          key={inquiry.id}
+                          className="inquiry-row"
+                          onClick={() => setSelectedInquiry(inquiry)}
+                          style={{
+                            padding: "14px 16px",
+                            borderBottom: idx < arr.length - 1 ? `1px solid ${t.border}` : "none",
+                          }}
+                        >
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                            <span style={{ fontWeight: 600, color: t.text }}>{inquiry.invoice_number}</span>
+                            {getStatusBadge(inquiry.status_name, inquiry.status_color)}
+                          </div>
+                          <div style={{ fontSize: 12, color: t.textMuted }}>
+                            {inquiry.assigned_to_name ? `Assigned to ${inquiry.assigned_to_name}` : `by ${inquiry.submitted_by}`} · {formatDate(inquiry.created_at)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -168,86 +265,84 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
               <div style={{ textAlign: "center", padding: 40, color: t.textMuted }}>
                 Loading...
               </div>
-            ) : inquiries.length === 0 ? (
-              <div style={{
-                textAlign: "center",
-                padding: 60,
-                color: t.textMuted,
-                background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
-                borderRadius: 12,
-              }}>
-                <InboxIcon size={40} />
-                <p style={{ margin: "12px 0 0", fontSize: 14 }}>No inquiries submitted yet</p>
-              </div>
-            ) : (
-              <div style={{
-                background: t.surface,
-                border: `1px solid ${t.border}`,
-                borderRadius: 12,
-                overflow: "hidden",
-              }}>
+            ) : (() => {
+              const myInquiries = canViewAllInquiries 
+                ? inquiries 
+                : inquiries.filter(i => i.submitted_by === loggedInUser?.name || i.user_id === loggedInUser?.id);
+              return myInquiries.length === 0 ? (
                 <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 120px 140px",
-                  gap: 12,
-                  padding: "12px 16px",
-                  borderBottom: `1px solid ${t.border}`,
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: t.textDim,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
+                  textAlign: "center",
+                  padding: 60,
+                  color: t.textMuted,
+                  background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                  borderRadius: 12,
                 }}>
-                  <div>Invoice Number</div>
-                  <div>Status</div>
-                  <div style={{ textAlign: "right" }}>Submitted</div>
+                  <InboxIcon size={40} />
+                  <p style={{ margin: "12px 0 0", fontSize: 14 }}>No inquiries submitted yet</p>
                 </div>
-                {inquiries.map((inquiry) => (
-                  <div
-                    key={inquiry.id}
-                    className="inquiry-row"
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 120px 140px",
-                      gap: 12,
-                      padding: "14px 16px",
-                      borderBottom: `1px solid ${t.border}`,
-                      alignItems: "center",
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 600, color: t.text, marginBottom: 4 }}>
-                        {inquiry.invoice_number}
-                      </div>
-                      {inquiry.notes && (
-                        <div style={{ fontSize: 12, color: t.textMuted }}>
-                          {inquiry.notes.length > 50 ? inquiry.notes.slice(0, 50) + "..." : inquiry.notes}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <span style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        padding: "3px 8px",
-                        borderRadius: 6,
-                        background: getStatusColor(inquiry.status) + "20",
-                        color: getStatusColor(inquiry.status),
-                      }}>
-                        {getStatusLabel(inquiry.status)}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: 12, color: t.textMuted, textAlign: "right" }}>
-                      {formatDate(inquiry.created_at)}
-                    </div>
+              ) : (
+                <div style={{
+                  background: t.surface,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 12,
+                  overflow: "hidden",
+                }}>
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 120px 140px",
+                    gap: 12,
+                    padding: "12px 16px",
+                    borderBottom: `1px solid ${t.border}`,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: t.textDim,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}>
+                    <div>Invoice Number</div>
+                    <div>Status</div>
+                    <div style={{ textAlign: "right" }}>Submitted</div>
                   </div>
-                ))}
-              </div>
-            )}
+                  {myInquiries.map((inquiry, idx) => (
+                    <div
+                      key={inquiry.id}
+                      className="inquiry-row"
+                      onClick={() => setSelectedInquiry(inquiry)}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 120px 140px",
+                        gap: 12,
+                        padding: "14px 16px",
+                        borderBottom: idx < myInquiries.length - 1 ? `1px solid ${t.border}` : "none",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 600, color: t.text, marginBottom: 4 }}>
+                          {inquiry.invoice_number}
+                        </div>
+                        {inquiry.notes && (
+                          <div style={{ fontSize: 12, color: t.textMuted }}>
+                            {inquiry.notes.length > 50 ? inquiry.notes.slice(0, 50) + "..." : inquiry.notes}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        {getStatusBadge(inquiry.status_name, inquiry.status_color)}
+                      </div>
+                      <div style={{ fontSize: 12, color: t.textMuted, textAlign: "right" }}>
+                        {formatDate(inquiry.created_at)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         )}
       </div>
 
+      {/* New Inquiry Modal */}
       {showModal && (
         <div
           style={{
@@ -446,6 +541,134 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Inquiry Detail Modal */}
+      {selectedInquiry && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onClick={() => setSelectedInquiry(null)}
+        >
+          <div
+            style={{
+              background: t.surface,
+              borderRadius: 12,
+              width: "100%",
+              maxWidth: 500,
+              maxHeight: "90vh",
+              overflow: "auto",
+              boxShadow: darkMode ? "0 20px 50px rgba(0,0,0,0.5)" : "0 20px 50px rgba(0,0,0,0.2)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              padding: 20,
+              borderBottom: `1px solid ${t.border}`,
+            }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: t.text }}>
+                  {selectedInquiry.invoice_number}
+                </h3>
+                <div style={{ marginTop: 8 }}>
+                  {getStatusBadge(selectedInquiry.status_name, selectedInquiry.status_color)}
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedInquiry(null)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: t.textMuted,
+                  padding: 4,
+                }}
+              >
+                <XIcon size={20} />
+              </button>
+            </div>
+
+            <div style={{ padding: 20 }}>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                  Submitted By
+                </div>
+                <div style={{ fontSize: 14, color: t.text }}>
+                  {selectedInquiry.submitted_by}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                  Submitted On
+                </div>
+                <div style={{ fontSize: 14, color: t.text }}>
+                  {formatDate(selectedInquiry.created_at)}
+                </div>
+              </div>
+
+              {selectedInquiry.assigned_to_name && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                    Assigned To
+                  </div>
+                  <div style={{ fontSize: 14, color: t.text }}>
+                    {selectedInquiry.assigned_to_name}
+                  </div>
+                </div>
+              )}
+
+              {selectedInquiry.notes && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                    Notes
+                  </div>
+                  <div style={{
+                    fontSize: 14,
+                    color: t.text,
+                    padding: 12,
+                    background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                    borderRadius: 8,
+                    whiteSpace: "pre-wrap",
+                  }}>
+                    {selectedInquiry.notes}
+                  </div>
+                </div>
+              )}
+
+              {canAcceptInquiries && !selectedInquiry.assigned_to && (
+                <button
+                  onClick={() => handleAccept(selectedInquiry.id)}
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+                    border: "none",
+                    borderRadius: 8,
+                    color: "white",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    marginTop: 8,
+                  }}
+                >
+                  Accept & Assign to Me
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

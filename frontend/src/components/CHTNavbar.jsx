@@ -21,7 +21,12 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
     navActive: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
   };
 
-  const canViewInquiries = loggedInUser?.permissions?.includes("cht_inquiry_view") || loggedInUser?.permissions?.includes("cht_inquiry_submit");
+  const canViewInquiries = loggedInUser?.permissions?.includes("cht_inquiry_view") || 
+                            loggedInUser?.permissions?.includes("cht_inquiry_view_all") || 
+                            loggedInUser?.permissions?.includes("cht_inquiry_submit");
+
+  const canViewDashboard = loggedInUser?.permissions?.includes("cht_inquiry_view_all") || 
+                           loggedInUser?.permissions?.includes("cht_inquiry_accept");
 
   const apps = [
     { id: "home", name: "Home", icon: <HomeIcon size={20} />, onClick: () => { setPage("landing"); setShowAppsDropdown(false); } },
@@ -101,26 +106,28 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
           </span>
         </div>
         <div style={{ display: "flex", gap: 2, marginLeft: 8 }}>
-          <button
-            onClick={() => setPage("cht-dashboard")}
-            style={{
-              background: page === "cht-dashboard" ? t.navActive : "transparent",
-              color: page === "cht-dashboard" ? chtAccent : t.textMuted,
-              border: "none",
-              borderRadius: 8,
-              padding: "7px 14px",
-              cursor: "pointer",
-              fontSize: 13,
-              fontWeight: 600,
-              display: "flex",
-              alignItems: "center",
-              gap: 7,
-              fontFamily: "inherit",
-              borderBottom: page === "cht-dashboard" ? `2px solid ${chtAccent}` : "2px solid transparent",
-            }}
-          >
-            Dashboard
-          </button>
+          {canViewDashboard && (
+            <button
+              onClick={() => setPage("cht-dashboard")}
+              style={{
+                background: page === "cht-dashboard" ? t.navActive : "transparent",
+                color: page === "cht-dashboard" ? chtAccent : t.textMuted,
+                border: "none",
+                borderRadius: 8,
+                padding: "7px 14px",
+                cursor: "pointer",
+                fontSize: 13,
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 7,
+                fontFamily: "inherit",
+                borderBottom: page === "cht-dashboard" ? `2px solid ${chtAccent}` : "2px solid transparent",
+              }}
+            >
+              Dashboard
+            </button>
+          )}
           {canViewInquiries && (
             <button
               onClick={() => setPage("cht-inquiries")}
@@ -140,7 +147,7 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
                 borderBottom: page === "cht-inquiries" ? `2px solid ${chtAccent}` : "2px solid transparent",
               }}
             >
-              Credit Hold Inquiry
+              {canViewDashboard ? "My Inquiries" : "Credit Hold Inquiry"}
             </button>
           )}
         </div>

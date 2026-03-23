@@ -549,3 +549,29 @@ export async function createCreditHoldInquiry(invoiceNumber, notes) {
     body: JSON.stringify({ invoiceNumber, notes }),
   });
 }
+
+export async function acceptCreditHoldInquiry(inquiryId) {
+  return request(`/cht/inquiries/${inquiryId}/accept`, { method: 'POST' });
+}
+
+export async function getCreditHoldStatuses() {
+  return request('/cht/statuses');
+}
+
+export async function createCreditHoldStatus(name, color, sortOrder) {
+  return request('/cht/statuses', {
+    method: 'POST',
+    body: JSON.stringify({ name, color, sortOrder }),
+  });
+}
+
+export async function updateCreditHoldStatus(id, name, color, sortOrder, isDefault) {
+  return request(`/cht/statuses/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ name, color, sortOrder, isDefault }),
+  });
+}
+
+export async function deleteCreditHoldStatus(id) {
+  return request(`/cht/statuses/${id}`, { method: 'DELETE' });
+}

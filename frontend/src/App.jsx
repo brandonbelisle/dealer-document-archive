@@ -461,6 +461,9 @@ const t = getTheme(darkMode);
   const handleNotificationCreated = useCallback((data) => {
     if (!isLoggedIn) return;
     const notification = data.notification || data;
+    if (notification.type === 'cht_inquiry_assigned' || notification.type === 'cht_inquiry_updated') {
+      return;
+    }
     addToast(
       `New file uploaded`,
       `${notification.file_name} was uploaded by ${notification.created_by_name} to ${notification.item_name || 'a subscribed location'}`,

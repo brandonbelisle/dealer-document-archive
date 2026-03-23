@@ -608,7 +608,6 @@ const handleStatusUpdate = async () => {
                   <div
                     key={inquiry.id}
                     className="inquiry-row"
-                    onClick={() => handleSelectInquiry(inquiry)}
                     style={{
                       display: "grid",
                       gridTemplateColumns: canViewMetrics ? "1fr 120px 120px 120px 80px 100px" : "1fr 120px 120px 120px 100px",

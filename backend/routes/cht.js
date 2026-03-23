@@ -393,8 +393,8 @@ router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
     const statusName = newStatus.name;
 
     // Determine if we need to set decision_at
-    // Set decision_at if changing FROM default status TO non-default status
-    const setDecisionAt = inquiry.is_default && !newStatus.is_default;
+    // Lock the inquiry when changing to a non-default status (making a decision)
+    const setDecisionAt = !newStatus.is_default;
 
     // Insert response (optional)
     if (response && response.trim()) {

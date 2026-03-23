@@ -38,14 +38,31 @@ export default function FileDetailPage({
   const [vf, setVf] = useState(currentFile);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [textExpanded, setTextExpanded] = useState(false);
 
   useEffect(() => {
     const newFile = files.find((f) => f.id === viewingFileId);
     if (newFile && newFile.id !== vf?.id) {
       setVf(newFile);
       setPreviewUrl(null);
+      setTextExpanded(false);
     }
   }, [viewingFileId, files]);
+
+  // Fetch full file details including extracted_text
+  useEffect(() => {
+    if (!viewingFileId) return;
+    
+    api.getFile(viewingFileId)
+      .then((fileData) => {
+        setVf((prev) => ({
+          ...prev,
+          ...fileData,
+          text: fileData.extracted_text || fileData.text,
+        }));
+      })
+      .catch((err) => console.error("Failed to fetch file details:", err));
+  }, [viewingFileId]);
 
   if (!vf) return null;
 
@@ -495,7 +512,7 @@ export default function FileDetailPage({
           <pre
             style={{
               flex: 1,
-              padding: "0 20px 20px",
+              padding: "0 20px 10px",
               margin: 0,
               fontSize: 11,
               lineHeight: 1.75,
@@ -506,8 +523,31 @@ export default function FileDetailPage({
               overflowY: "auto",
             }}
           >
-            {vf.text || "(No extractable text found)"}
+            {vf.text ? (
+              textExpanded || vf.text.length <= 2000 
+                ? vf.text 
+                : vf.text.substring(0, 2000) + "..."
+            ) : "(No extractable text found)"}
           </pre>
+          {vf.text && vf.text.length > 2000 && !textExpanded && (
+            <div style={{ padding: "0 20px 15px", flexShrink: 0 }}>
+              <button
+                onClick={() => setTextExpanded(true)}
+                style={{
+                  background: t.accentSoft,
+                  color: t.accent,
+                  border: "none",
+                  borderRadius: 6,
+                  padding: "6px 14px",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Load More ({vf.text.length - 2000} more chars)
+              </button>
+            </div>
+          )}
         </div>
       </div>
       {/* Right panel - preview */}

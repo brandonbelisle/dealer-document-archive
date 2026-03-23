@@ -80,8 +80,13 @@ export const copyText = (txt) => navigator.clipboard.writeText(txt);
 export const extractRO = (text, filename) => {
   const sources = [filename || "", text || ""];
   for (const src of sources) {
+    // First try: R followed by 9 digits (10-char R + 9 digits)
     const rMatch = src.match(/\b(R\d{9})\b/);
     if (rMatch) return rMatch[1];
+    
+    // Second try: 10-character words that start with R10 (R10 + 7 digits)
+    const r10Match = src.match(/\b(R10\d{7})\b/);
+    if (r10Match) return r10Match[1];
   }
   if (text) {
     const patterns = [

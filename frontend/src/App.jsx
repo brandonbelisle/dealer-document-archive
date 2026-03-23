@@ -488,7 +488,17 @@ const t = getTheme(darkMode);
     const ro = extractRO(file.text, file.name); if (!ro) return null;
     const exact = folders.find((f) => f.name === ro || f.name.toUpperCase() === ro.toUpperCase()); if (exact) return { folder: exact, ro, confidence: "exact" };
     const contains = folders.find((f) => f.name.toUpperCase().includes(ro.toUpperCase())); if (contains) return { folder: contains, ro, confidence: "partial" };
+    // Handle R followed by 9 digits (R + 9 digits = 10 chars) - try without the R
     if (/^R\d{9}$/.test(ro)) { const numPart = ro.slice(1); const numMatch = folders.find((f) => f.name === numPart || f.name.includes(numPart)); if (numMatch) return { folder: numMatch, ro, confidence: "partial" }; }
+    // Handle R10 followed by 7 digits (R10 + 7 digits = 10 chars) - try with and without R10
+    if (/^R10\d{7}$/.test(ro)) { 
+      const numMatch = folders.find((f) => f.name === ro || f.name.includes(ro)); 
+      if (numMatch) return { folder: numMatch, ro, confidence: "partial" };
+      // Try just the numeric part after R10
+      const numPart = ro.slice(3); // Get the 7 digits after R10
+      const numOnlyMatch = folders.find((f) => f.name === numPart || f.name.includes(numPart)); 
+      if (numOnlyMatch) return { folder: numOnlyMatch, ro, confidence: "partial" };
+    }
     return { folder: null, ro, confidence: "none" };
   };
 

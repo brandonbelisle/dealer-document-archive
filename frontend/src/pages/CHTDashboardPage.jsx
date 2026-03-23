@@ -22,7 +22,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
   const [error, setError] = useState("");
 
   const [decisionFilter, setDecisionFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("today");
   const [userFilter, setUserFilter] = useState("");
   const [userSearch, setUserSearch] = useState("");
   const [showUserDropdown, setShowUserDropdown] = useState(false);
@@ -205,7 +205,7 @@ const handleStatusUpdate = async () => {
   };
 
   const handleQuickEditDecision = async () => {
-    if (!quickEditInquiryId || !quickEditStatusId || !quickEditResponse.trim()) return;
+    if (!quickEditInquiryId || !quickEditStatusId) return;
     setQuickEditSubmitting(true);
     setQuickEditError("");
     try {
@@ -221,6 +221,18 @@ const handleStatusUpdate = async () => {
       setQuickEditError(err.message || "Failed to update decision. This inquiry may have already been finalized.");
     } finally {
       setQuickEditSubmitting(false);
+    }
+  };
+
+  const handleQuickAssign = async (inquiryId, e) => {
+    e.stopPropagation();
+    try {
+      const data = await api.acceptCreditHoldInquiry(inquiryId);
+      setInquiries((prev) =>
+        prev.map((inq) => (inq.id === inquiryId ? data.inquiry : inq))
+      );
+    } catch (err) {
+      console.error("Failed to assign inquiry:", err);
     }
   };
 
@@ -632,6 +644,9 @@ const handleStatusUpdate = async () => {
                             {getStatusBadge(inquiry.status_name, inquiry.status_color)}
                             <ChevronDown size={12} style={{ color: t.textMuted }} />
                           </button>
+                            {getStatusBadge(inquiry.status_name, inquiry.status_color)}
+                            <ChevronDown size={12} style={{ color: t.textMuted }} />
+                          </button>
                           {quickEditInquiryId === inquiry.id && (
                             <div
                               onClick={(e) => e.stopPropagation()}
@@ -673,7 +688,7 @@ const handleStatusUpdate = async () => {
                                 ))}
                               </select>
                               <textarea
-                                placeholder="Add response (required)..."
+                                placeholder="Add response (optional)..."
                                 value={quickEditResponse}
                                 onChange={(e) => setQuickEditResponse(e.target.value)}
                                 rows={2}
@@ -716,7 +731,7 @@ const handleStatusUpdate = async () => {
                                 </button>
                                 <button
                                   onClick={handleQuickEditDecision}
-                                  disabled={!quickEditStatusId || !quickEditResponse.trim() || quickEditSubmitting}
+                                  disabled={!quickEditStatusId || quickEditSubmitting}
                                   style={{
                                     flex: 1,
                                     padding: "6px 10px",
@@ -726,9 +741,9 @@ const handleStatusUpdate = async () => {
                                     color: "white",
                                     fontSize: 12,
                                     fontWeight: 600,
-                                    cursor: quickEditSubmitting || !quickEditStatusId || !quickEditResponse.trim() ? "not-allowed" : "pointer",
+                                    cursor: quickEditSubmitting || !quickEditStatusId ? "not-allowed" : "pointer",
                                     fontFamily: "inherit",
-                                    opacity: !quickEditStatusId || !quickEditResponse.trim() ? 0.5 : 1,
+                                    opacity: !quickEditStatusId ? 0.5 : 1,
                                   }}
                                 >
                                   {quickEditSubmitting ? "Saving..." : "Save"}
@@ -757,8 +772,30 @@ const handleStatusUpdate = async () => {
                         {formatTimeToClose(inquiry.created_at, inquiry.decision_at) || "—"}
                       </div>
                     )}
-                    <div style={{ fontSize: 12, color: inquiry.assigned_to_name ? t.text : t.textMuted, textAlign: "right" }}>
-                      {inquiry.assigned_to_name || "—"}
+                    <div style={{ fontSize: 12, textAlign: "right" }}>
+                      {inquiry.assigned_to_name ? (
+                        <span style={{ color: t.text }}>{inquiry.assigned_to_name}</span>
+                      ) : canAcceptInquiries && !isLocked ? (
+                        <button
+                          onClick={(e) => handleQuickAssign(inquiry.id, e)}
+                          style={{
+                            padding: "4px 8px",
+                            background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+                            border: "none",
+                            borderRadius: 4,
+                            color: "white",
+                            fontSize: 10,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            fontFamily: "inherit",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Assign to Me
+                        </button>
+                      ) : (
+                        <span style={{ color: t.textMuted }}>—</span>
+                      )}
                     </div>
                   </div>
                 );
@@ -1109,12 +1146,12 @@ const handleStatusUpdate = async () => {
                   </div>
                   <div style={{ marginBottom: 12 }}>
                     <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, marginBottom: 4, display: "block" }}>
-                      Response *
+                      Response
                     </label>
                     <textarea
                       value={responseText}
                       onChange={(e) => setResponseText(e.target.value)}
-                      placeholder="Enter your response..."
+                      placeholder="Enter your response (optional)..."
                       rows={3}
                       style={{
                         width: "100%",
@@ -1139,7 +1176,7 @@ const handleStatusUpdate = async () => {
                   <div style={{ display: "flex", gap: 8 }}>
                     <button
                       onClick={handleStatusUpdate}
-                      disabled={!selectedStatusId || !responseText.trim() || submittingResponse}
+                      disabled={!selectedStatusId || submittingResponse}
                       style={{
                         padding: "8px 16px",
                         background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
@@ -1150,7 +1187,7 @@ const handleStatusUpdate = async () => {
                         fontWeight: 600,
                         cursor: submittingResponse ? "not-allowed" : "pointer",
                         fontFamily: "inherit",
-                        opacity: !selectedStatusId || !responseText.trim() ? 0.5 : 1,
+                        opacity: !selectedStatusId ? 0.5 : 1,
                       }}
                     >
                       {submittingResponse ? "Updating..." : "Update Decision"}

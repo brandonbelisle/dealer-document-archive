@@ -366,10 +366,6 @@ router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
     if (!statusId) {
       return res.status(400).json({ error: 'Status is required' });
     }
-    
-    if (!response || !response.trim()) {
-      return res.status(400).json({ error: 'Response is required' });
-    }
 
     // Check if inquiry exists and get current status
     const [existing] = await db.execute(
@@ -400,12 +396,14 @@ router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
     // Set decision_at if changing FROM default status TO non-default status
     const setDecisionAt = inquiry.is_default && !newStatus.is_default;
 
-    // Insert response
-    await db.execute(
-      `INSERT INTO cht_inquiry_responses (inquiry_id, user_id, status_id, response)
-       VALUES (?, ?, ?, ?)`,
-      [id, req.user.id, statusId, response.trim()]
-    );
+    // Insert response (optional)
+    if (response && response.trim()) {
+      await db.execute(
+        `INSERT INTO cht_inquiry_responses (inquiry_id, user_id, status_id, response)
+         VALUES (?, ?, ?, ?)`,
+        [id, req.user.id, statusId, response.trim()]
+      );
+    }
 
     // Update inquiry status and optionally set decision_at
     if (setDecisionAt) {

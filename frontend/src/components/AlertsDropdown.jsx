@@ -13,11 +13,13 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) 
 
   const handleNotificationCreated = (data) => {
     const notification = data.notification || data;
+    
     // For CHT notifications, only show if it's for the current user
     const isCHT = notification.type === 'cht_inquiry_assigned' || notification.type === 'cht_inquiry_updated';
     if (isCHT && data.userId && currentUserId && data.userId !== currentUserId) {
       return;
     }
+    
     setAlerts((prev) => [{ ...notification, read_at: null }, ...prev.slice(0, 99)]);
     setUnreadCount((prev) => prev + 1);
   };
@@ -119,33 +121,41 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) 
     return date.toLocaleDateString();
   };
 
-  const getTypeIcon = (type) => {
-    if (type === "location") return <MapPinIcon size={14} />;
-    if (type === "department") return <LayersIcon size={14} />;
-    if (type === "cht_inquiry_assigned" || type === "cht_inquiry_updated") {
-      return (
-        <div style={{
-          width: 18,
-          height: 18,
-          borderRadius: 4,
-          background: "linear-gradient(135deg, #f59e0b, #d97706)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "white",
-          fontSize: 8,
-          fontWeight: 800,
-        }}>
-          CHT
-        </div>
-      );
+  const getAlertType = (alert) => {
+    // CHT notifications
+    if (alert.type === 'cht_inquiry_assigned' || alert.type === 'cht_inquiry_updated') {
+      return 'cht';
     }
-    return <FolderClosedIcon size={14} />;
+    // DDA file upload notifications
+    return 'dda';
   };
 
-  const isCHTNotification = (alert) => {
-    return alert.type === "cht_inquiry_assigned" || alert.type === "cht_inquiry_updated" || 
-           alert.notification_type === "cht_inquiry_assigned" || alert.notification_type === "cht_inquiry_updated";
+  const renderCHTIcon = () => (
+    <div style={{
+      width: 28,
+      height: 28,
+      borderRadius: 6,
+      background: "linear-gradient(135deg, #f59e0b, #d97706)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      color: "white",
+      fontSize: 10,
+      fontWeight: 800,
+    }}>
+      CHT
+    </div>
+  );
+
+  const renderDDAIcon = (alert) => {
+    const iconColor = t.accent;
+    if (alert.notification_type === 'location_upload' || alert.item_type === 'location') {
+      return <MapPinIcon size={16} style={{ color: iconColor }} />;
+    }
+    if (alert.notification_type === 'department_upload' || alert.item_type === 'department') {
+      return <LayersIcon size={16} style={{ color: iconColor }} />;
+    }
+    return <FolderClosedIcon size={16} style={{ color: iconColor }} />;
   };
 
   return (
@@ -163,7 +173,7 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) 
           alignItems: "center",
           position: "relative",
         }}
-        title="Alerts"
+        title="Notifications"
       >
         <BellIcon size={18} />
         {unreadCount > 0 && (
@@ -172,7 +182,7 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) 
               position: "absolute",
               top: 2,
               right: 2,
-              background: t.error,
+              background: "#dc2626",
               color: "white",
               fontSize: 10,
               fontWeight: 700,
@@ -196,8 +206,8 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) 
             position: "absolute",
             top: "calc(100% + 8px)",
             right: 0,
-            width: 380,
-            maxHeight: 480,
+            width: 400,
+            maxHeight: 500,
             overflow: "hidden",
             background: t.surface,
             border: `1px solid ${t.border}`,
@@ -217,24 +227,7 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) 
               borderBottom: `1px solid ${t.border}`,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <BellIcon size={16} />
-              <span style={{ fontSize: 14, fontWeight: 600 }}>Alerts</span>
-              {unreadCount > 0 && (
-                <span
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    padding: "2px 6px",
-                    borderRadius: 8,
-                    background: t.accentSoft,
-                    color: t.accent,
-                  }}
-                >
-                  {unreadCount} new
-                </span>
-              )}
-            </div>
+            <span style={{ fontSize: 14, fontWeight: 600, color: t.text }}>Notifications</span>
             <div style={{ display: "flex", gap: 6 }}>
               {unreadCount > 0 && (
                 <button
@@ -270,7 +263,7 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) 
             </div>
           </div>
 
-          <div style={{ maxHeight: 360, overflowY: "auto" }}>
+          <div style={{ maxHeight: 400, overflowY: "auto" }}>
             {loading ? (
               <div style={{ padding: 24, textAlign: "center", color: t.textMuted }}>
                 Loading...
@@ -278,76 +271,96 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) 
             ) : alerts.length === 0 ? (
               <div style={{ padding: 24, textAlign: "center", color: t.textMuted }}>
                 <BellIcon size={32} />
-                <div style={{ marginTop: 8, fontSize: 13 }}>No alerts yet</div>
+                <div style={{ marginTop: 8, fontSize: 13 }}>No notifications</div>
               </div>
             ) : (
-              alerts.map((alert, idx) => (
-                <div
-                  key={alert.id || idx}
-                  onClick={() => handleAlertClick(alert)}
-                  style={{
-                    padding: "12px 14px",
-                    borderBottom: `1px solid ${t.border}`,
-                    background: alert.read_at ? "transparent" : darkMode ? "rgba(88,166,255,0.05)" : "rgba(88,166,255,0.03)",
-                    opacity: alert.read_at ? 0.7 : 1,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: 10,
-                  }}
-                >
-                  <div style={{ color: isCHTNotification(alert) ? "#f59e0b" : t.accent, marginTop: 2, flexShrink: 0 }}>
-                    {getTypeIcon(alert.type || alert.notification_type || alert.item_type)}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    {isCHTNotification(alert) ? (
-                      <>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>
-                          Credit Hold Tracker
+              alerts.map((alert, idx) => {
+                const alertType = getAlertType(alert);
+                const isCHT = alertType === 'cht';
+                
+                return (
+                  <div
+                    key={alert.id || idx}
+                    onClick={() => handleAlertClick(alert)}
+                    style={{
+                      padding: "12px 14px",
+                      borderBottom: `1px solid ${t.border}`,
+                      background: alert.read_at ? "transparent" : darkMode ? "rgba(88,166,255,0.05)" : "rgba(88,166,255,0.03)",
+                      opacity: alert.read_at ? 0.7 : 1,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {isCHT ? (
+                      // CHT Notification
+                      <div style={{ display: "flex", gap: 12 }}>
+                        <div style={{ flexShrink: 0 }}>
+                          {renderCHTIcon()}
                         </div>
-                        <div style={{ fontSize: 12, color: t.text, marginTop: 2 }}>
-                          {alert.title || alert.message}
-                        </div>
-                        {alert.message && alert.title && (
-                          <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: "#f59e0b", marginBottom: 2 }}>
+                            Credit Hold Tracker
+                          </div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>
+                            {alert.title || "Inquiry Updated"}
+                          </div>
+                          <div style={{ fontSize: 12, color: t.textMuted, marginTop: 4 }}>
                             {alert.message}
                           </div>
-                        )}
-                        <div style={{ fontSize: 10, color: t.textDim, marginTop: 4 }}>
-                          {formatDate(alert.created_at || alert.createdAt)}
+                          <div style={{ fontSize: 10, color: t.textDim, marginTop: 4 }}>
+                            {formatDate(alert.created_at || alert.createdAt)}
+                          </div>
                         </div>
-                      </>
+                        <button
+                          onClick={(e) => deleteAlert(e, alert.id)}
+                          style={{
+                            background: "transparent",
+                            border: "none",
+                            cursor: "pointer",
+                            color: t.textMuted,
+                            padding: 4,
+                            flexShrink: 0,
+                          }}
+                          title="Dismiss"
+                        >
+                          <XIcon size={14} />
+                        </button>
+                      </div>
                     ) : (
-                      <>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>
-                          {alert.file_name}
+                      // DDA File Upload Notification
+                      <div style={{ display: "flex", gap: 10 }}>
+                        <div style={{ color: t.accent, marginTop: 2, flexShrink: 0 }}>
+                          {renderDDAIcon(alert)}
                         </div>
-                        <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>
-                          Uploaded by {alert.created_by_name}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>
+                            {alert.file_name}
+                          </div>
+                          <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>
+                            Uploaded by {alert.created_by_name}
+                          </div>
+                          <div style={{ fontSize: 10, color: t.textDim, marginTop: 4 }}>
+                            {alert.item_name} • {formatDate(alert.created_at)}
+                          </div>
                         </div>
-                        <div style={{ fontSize: 10, color: t.textDim, marginTop: 4 }}>
-                          {alert.item_name} • {formatDate(alert.created_at)}
-                        </div>
-                      </>
+                        <button
+                          onClick={(e) => deleteAlert(e, alert.id)}
+                          style={{
+                            background: "transparent",
+                            border: "none",
+                            cursor: "pointer",
+                            color: t.textMuted,
+                            padding: 4,
+                            flexShrink: 0,
+                          }}
+                          title="Dismiss"
+                        >
+                          <XIcon size={14} />
+                        </button>
+                      </div>
                     )}
                   </div>
-                  <button
-                    onClick={(e) => deleteAlert(e, alert.id)}
-                    style={{
-                      background: "transparent",
-                      border: "none",
-                      cursor: "pointer",
-                      color: t.textMuted,
-                      padding: 4,
-                      display: "flex",
-                      flexShrink: 0,
-                    }}
-                    title="Delete alert"
-                  >
-                    <TrashIcon size={14} />
-                  </button>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
@@ -371,7 +384,7 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) 
                   fontFamily: "inherit",
                 }}
               >
-                Clear read alerts
+                Clear read notifications
               </button>
             </div>
           )}

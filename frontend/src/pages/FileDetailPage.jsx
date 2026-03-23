@@ -604,22 +604,11 @@ export default function FileDetailPage({
             }
             if (previewUrl) {
               if (isPdf) {
-                if (vf.fileDataUrl)
-                  return (
-                    <PdfCanvasPreview
-                      dataUrl={vf.fileDataUrl}
-                      darkMode={darkMode}
-                    />
-                  );
+                const pdfDataUrl = vf.fileDataUrl || previewUrl;
                 return (
-                  <iframe
-                    src={previewUrl}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      border: "none",
-                    }}
-                    title="PDF Preview"
+                  <PdfCanvasPreview
+                    dataUrl={pdfDataUrl}
+                    darkMode={darkMode}
                   />
                 );
               }

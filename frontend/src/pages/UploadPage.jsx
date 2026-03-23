@@ -160,7 +160,7 @@ export default function UploadPage({
             </button>
           </div>
           <div
-            style={{ border: `1px solid ${t.border}`, borderRadius: 10 }}
+            style={{ border: `1px solid ${t.border}`, borderRadius: 10, overflow: "visible" }}
           >
             <div
               style={{
@@ -438,8 +438,8 @@ export default function UploadPage({
                             gap: 6,
                             fontSize: 12,
                             background: darkMode
-                              ? "rgba(255,255,255,0.03)"
-                              : "rgba(0,0,0,0.02)",
+                              ? "rgba(30,35,42,0.95)"
+                              : "rgba(255,255,255,0.95)",
                           }}
                         >
                           <FolderClosedIcon size={13} />
@@ -505,7 +505,7 @@ export default function UploadPage({
                                   style={{
                                     position: "fixed",
                                     inset: 0,
-                                    zIndex: 499,
+                                    zIndex: 999,
                                   }}
                                 />
                                 <div
@@ -514,15 +514,15 @@ export default function UploadPage({
                                     top: "100%",
                                     left: 0,
                                     right: 0,
-                                    zIndex: 500,
+                                    zIndex: 1000,
                                     background: darkMode
-                                      ? "#1a1d23"
+                                      ? "#1e232a"
                                       : "#ffffff",
                                     border: `1px solid ${t.border}`,
                                     borderRadius: 10,
                                     boxShadow: darkMode
-                                      ? "0 12px 40px rgba(0,0,0,0.6)"
-                                      : "0 12px 40px rgba(0,0,0,0.2)",
+                                      ? "0 16px 48px rgba(0,0,0,0.7)"
+                                      : "0 16px 48px rgba(0,0,0,0.25)",
                                     marginTop: 4,
                                   }}
                                 >
@@ -572,7 +572,7 @@ export default function UploadPage({
                                   >
                                     {(() => {
                                       const sq = stagedDropdownSearch.trim();
-                                      const searchResults = sq
+                                      const displayFolders = sq
                                         ? folders
                                             .map((f) => ({
                                               ...f,
@@ -581,9 +581,9 @@ export default function UploadPage({
                                             .filter((r) => r.match)
                                             .sort((a, b) => b.score - a.score)
                                             .slice(0, 10)
-                                        : [];
+                                        : folders.slice(0, 10);
                                       
-                                      if (sq && searchResults.length === 0) {
+                                      if (displayFolders.length === 0) {
                                         return (
                                           <div
                                             style={{
@@ -593,12 +593,12 @@ export default function UploadPage({
                                               textAlign: "center",
                                             }}
                                           >
-                                            No folders match "{sq}"
+                                            {sq ? `No folders match "${sq}"` : "No folders available"}
                                           </div>
                                         );
                                       }
                                       
-                                      return searchResults.length > 0 ? (
+                                      return (
                                         <div>
                                           <div
                                             style={{
@@ -610,9 +610,9 @@ export default function UploadPage({
                                               color: t.textMuted,
                                             }}
                                           >
-                                            {sq ? "Search Results" : "All Folders"}
+                                            {sq ? `Search Results (${displayFolders.length})` : "Folders"}
                                           </div>
-                                          {searchResults.map((folder) => {
+                                          {displayFolders.map((folder) => {
                                             const loc = locations.find((l) => l.id === folder.locationId);
                                             const dept = departments.find((d) => d.id === folder.departmentId);
                                             return (
@@ -654,17 +654,6 @@ export default function UploadPage({
                                               </div>
                                             );
                                           })}
-                                        </div>
-                                      ) : (
-                                        <div
-                                          style={{
-                                            padding: "10px",
-                                            fontSize: 11,
-                                            color: t.textDim,
-                                            textAlign: "center",
-                                          }}
-                                        >
-                                          No folders available
                                         </div>
                                       );
                                     })()}

@@ -617,6 +617,7 @@ const handleStatusUpdate = async () => {
               </div>
               {filteredInquiries.map((inquiry, idx) => {
                 const isLocked = inquiry.decision_at !== null;
+                const showDropdownAbove = idx >= 4;
                 return (
                   <div
                     key={inquiry.id}
@@ -661,9 +662,11 @@ const handleStatusUpdate = async () => {
                               onClick={(e) => e.stopPropagation()}
                               style={{
                                 position: "absolute",
-                                bottom: "100%",
+                                bottom: showDropdownAbove ? "100%" : "auto",
+                                top: showDropdownAbove ? "auto" : "100%",
                                 left: 0,
-                                marginBottom: 4,
+                                marginBottom: showDropdownAbove ? 4 : 0,
+                                marginTop: showDropdownAbove ? 0 : 4,
                                 background: t.surface,
                                 border: `1px solid ${t.border}`,
                                 borderRadius: 8,

@@ -1133,8 +1133,7 @@ const apps = [
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
 
       {/* Right: profile + dark mode */}
       {!isMobile && (

@@ -160,7 +160,7 @@ router.get('/:id/preview-url', requireAuth, async (req, res) => {
     const blobName = storagePath.includes('/') ? storagePath.split('/').pop().split('?')[0] : storagePath;
 
     // Generate fresh SAS URL valid for 1 hour
-    previewUrl = generateSasUrl(blobName, 60);
+    previewUrl = await generateSasUrl(blobName, 60);
 
     // Save to database with timestamp
     await db.execute(

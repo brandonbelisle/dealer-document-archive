@@ -5,6 +5,7 @@ import {
   MapPinIcon,
   LayersIcon,
   CalendarIcon,
+  ChevronRightIcon,
 } from "../components/Icons";
 
 function StatCard({ icon, label, value, color, sub, t }) {
@@ -68,11 +69,20 @@ function StatCard({ icon, label, value, color, sub, t }) {
 export default function DashboardPage({
   dashboardData,
   loggedInUser,
+  locations,
+  departments,
   t,
   darkMode,
+  setPage,
+  setActiveFolderId,
 }) {
   const dd = dashboardData || {};
   const year = new Date().getFullYear();
+
+  const locationsWithDepts = locations.map((loc) => ({
+    ...loc,
+    departments: departments.filter((d) => d.locationId === loc.id),
+  }));
 
   return (
     <div
@@ -146,6 +156,7 @@ export default function DashboardPage({
           display: "grid",
           gridTemplateColumns: "repeat(2, 1fr)",
           gap: 12,
+          marginBottom: 28,
         }}
       >
         <StatCard
@@ -162,6 +173,120 @@ export default function DashboardPage({
           value={dd.foldersThisYear ?? 0}
           color={darkMode ? "rgba(34,197,94,0.12)" : "rgba(34,197,94,0.08)"}
         />
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
+        <h2
+          style={{
+            fontSize: 18,
+            fontWeight: 700,
+            margin: "0 0 16px 0",
+            letterSpacing: "-0.02em",
+          }}
+        >
+          Locations & Departments
+        </h2>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: 16,
+          }}
+        >
+          {locationsWithDepts.map((loc) => (
+            <div
+              key={loc.id}
+              style={{
+                background: t.surface,
+                border: `1px solid ${t.border}`,
+                borderRadius: 12,
+                padding: "16px 18px",
+                animation: "fadeIn 0.3s ease",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  marginBottom: 12,
+                }}
+              >
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    background:
+                      darkMode
+                        ? "rgba(210,153,34,0.15)"
+                        : "rgba(180,83,9,0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: darkMode ? "#d2992e" : "#b45309",
+                  }}
+                >
+                  <MapPinIcon size={16} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600 }}>{loc.name}</div>
+                  {loc.code && (
+                    <div style={{ fontSize: 11, color: t.textDim }}>
+                      {loc.code}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {loc.departments.length > 0 ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 6,
+                  }}
+                >
+                  {loc.departments.map((dept) => (
+                    <button
+                      key={dept.id}
+                      onClick={() => {
+                        setActiveFolderId(dept.id);
+                        setPage("folder-detail");
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        padding: "5px 10px",
+                        background: t.accentSoft,
+                        color: t.accent,
+                        border: "none",
+                        borderRadius: 6,
+                        fontSize: 11,
+                        fontWeight: 500,
+                        cursor: "pointer",
+                      }}
+                    >
+                      <LayersIcon size={11} />
+                      {dept.name}
+                      <ChevronRightIcon size={10} />
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: t.textDim,
+                    fontStyle: "italic",
+                  }}
+                >
+                  No departments
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

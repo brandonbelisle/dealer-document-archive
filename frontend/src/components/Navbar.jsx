@@ -252,6 +252,255 @@ const apps = [
             </span>
           )}
         </div>
+        {/* Mobile menu dropdown */}
+        {isMobile && showMobileMenu && (
+          <div
+            style={{
+              position: "absolute",
+              top: 54,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: darkMode ? "#0d1117" : "#fff",
+              overflowY: "auto",
+              zIndex: 150,
+            }}
+          >
+            {/* Navigation items */}
+            <div style={{ padding: "8px 0" }}>
+              <button
+                onClick={() => { setPage("dashboard"); setSelectedFile(null); setShowMobileMenu(false); }}
+                style={{
+                  width: "100%",
+                  background: "transparent",
+                  color: t.text,
+                  border: "none",
+                  padding: "12px 20px",
+                  cursor: "pointer",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  fontFamily: "inherit",
+                  textAlign: "left",
+                }}
+              >
+                <DashboardIcon size={16} /> Dashboard
+              </button>
+              <button
+                onClick={() => { setPage("folders-browse"); setSelectedFile(null); setShowMobileMenu(false); }}
+                style={{
+                  width: "100%",
+                  background: "transparent",
+                  color: t.text,
+                  border: "none",
+                  padding: "12px 20px",
+                  cursor: "pointer",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  fontFamily: "inherit",
+                  textAlign: "left",
+                }}
+              >
+                <FolderClosedIcon size={16} /> Folders
+              </button>
+              <button
+                onClick={() => { setPage("unsorted"); setShowMobileMenu(false); }}
+                style={{
+                  width: "100%",
+                  background: "transparent",
+                  color: t.text,
+                  border: "none",
+                  padding: "12px 20px",
+                  cursor: "pointer",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  fontFamily: "inherit",
+                  textAlign: "left",
+                }}
+              >
+                <InboxIcon size={16} /> Unsorted {unsortedFiles.length > 0 && <span style={{ fontSize: 10, background: darkMode ? "rgba(210,153,34,0.15)" : "rgba(180,83,9,0.1)", color: darkMode ? "#d29922" : "#b45309", borderRadius: 10, padding: "1px 6px" }}>{unsortedFiles.length}</span>}
+              </button>
+              <button
+                onClick={() => { setPage("upload"); setShowMobileMenu(false); }}
+                style={{
+                  width: "100%",
+                  background: "transparent",
+                  color: t.text,
+                  border: "none",
+                  padding: "12px 20px",
+                  cursor: "pointer",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  fontFamily: "inherit",
+                  textAlign: "left",
+                }}
+              >
+                <UploadCloudIcon size={16} /> Upload {stagedFiles.length > 0 && <span style={{ fontSize: 10, background: t.accent, color: "#fff", borderRadius: 10, padding: "1px 6px" }}>{stagedFiles.length}</span>}
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div style={{ borderTop: `1px solid ${t.border}`, margin: "4px 0" }} />
+
+            {/* Apps section */}
+            <div style={{ padding: "8px 0" }}>
+              {apps.map((app) => (
+                <button
+                  key={app.id}
+                  onClick={app.onClick}
+                  style={{
+                    width: "100%",
+                    background: "transparent",
+                    color: t.text,
+                    border: "none",
+                    padding: "12px 20px",
+                    cursor: "pointer",
+                    fontSize: 14,
+                    fontWeight: 500,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    fontFamily: "inherit",
+                    textAlign: "left",
+                  }}
+                >
+                  <span style={{ color: t.accent, display: "flex", alignItems: "center" }}>{app.icon}</span>
+                  {app.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div style={{ borderTop: `1px solid ${t.border}`, margin: "4px 0" }} />
+
+            {/* User section */}
+            {loggedInUser && (
+              <div style={{ padding: "8px 0" }}>
+                <div style={{ padding: "8px 20px", color: t.textDim, fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  {loggedInUser.name}
+                </div>
+                <button
+                  onClick={() => { setShowMobileMenu(false); setShowProfileMenu(true); }}
+                  style={{
+                    width: "100%",
+                    background: "transparent",
+                    color: t.text,
+                    border: "none",
+                    padding: "12px 20px",
+                    cursor: "pointer",
+                    fontSize: 14,
+                    fontWeight: 500,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    fontFamily: "inherit",
+                    textAlign: "left",
+                  }}
+                >
+                  <UserIcon size={16} /> My Account
+                </button>
+                <button
+                  onClick={() => { setShowMobileMenu(false); setShowChangePassword(true); setChangePasswordForm({ current: "", new: "", confirm: "" }); setChangePasswordError(""); setChangePasswordSuccess(""); }}
+                  style={{
+                    width: "100%",
+                    background: "transparent",
+                    color: t.text,
+                    border: "none",
+                    padding: "12px 20px",
+                    cursor: "pointer",
+                    fontSize: 14,
+                    fontWeight: 500,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    fontFamily: "inherit",
+                    textAlign: "left",
+                  }}
+                >
+                  <ShieldIcon size={16} /> Change Password
+                </button>
+                <button
+                  onClick={() => { setShowMobileMenu(false); setShowSubscriptionsModal(true); }}
+                  style={{
+                    width: "100%",
+                    background: "transparent",
+                    color: t.text,
+                    border: "none",
+                    padding: "12px 20px",
+                    cursor: "pointer",
+                    fontSize: 14,
+                    fontWeight: 500,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    fontFamily: "inherit",
+                    textAlign: "left",
+                  }}
+                >
+                  <BellIcon size={16} /> My Subscriptions
+                </button>
+              </div>
+            )}
+
+            {/* Divider */}
+            <div style={{ borderTop: `1px solid ${t.border}`, margin: "4px 0" }} />
+
+            {/* Dark mode toggle */}
+            <div style={{ padding: "8px 0" }}>
+              <button
+                onClick={() => { setDarkMode(!darkMode); setShowMobileMenu(false); }}
+                style={{
+                  width: "100%",
+                  background: "transparent",
+                  color: t.text,
+                  border: "none",
+                  padding: "12px 20px",
+                  cursor: "pointer",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  fontFamily: "inherit",
+                  textAlign: "left",
+                }}
+              >
+                {darkMode ? <SunIcon /> : <MoonIcon />} {darkMode ? "Light Mode" : "Dark Mode"}
+              </button>
+              <button
+                onClick={() => { handleLogout(); setShowMobileMenu(false); }}
+                style={{
+                  width: "100%",
+                  background: "transparent",
+                  color: t.error,
+                  border: "none",
+                  padding: "12px 20px",
+                  cursor: "pointer",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  fontFamily: "inherit",
+                  textAlign: "left",
+                }}
+              >
+                <LogOutIcon size={16} /> Sign Out
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Center: Tabs */}
@@ -529,255 +778,6 @@ const apps = [
             )}
           </button>
         </div>
-        )}
-{/* Mobile menu dropdown */}
-        {isMobile && showMobileMenu && (
-          <div
-            style={{
-              position: "absolute",
-              top: 54,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: darkMode ? "#0d1117" : "#fff",
-              overflowY: "auto",
-              zIndex: 150,
-            }}
-          >
-            {/* Navigation items */}
-            <div style={{ padding: "8px 0" }}>
-              <button
-                onClick={() => { setPage("dashboard"); setSelectedFile(null); setShowMobileMenu(false); }}
-                style={{
-                  width: "100%",
-                  background: "transparent",
-                  color: t.text,
-                  border: "none",
-                  padding: "12px 20px",
-                  cursor: "pointer",
-                  fontSize: 14,
-                  fontWeight: 500,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  fontFamily: "inherit",
-                  textAlign: "left",
-                }}
-              >
-                <DashboardIcon size={16} /> Dashboard
-              </button>
-              <button
-                onClick={() => { setPage("folders-browse"); setSelectedFile(null); setShowMobileMenu(false); }}
-                style={{
-                  width: "100%",
-                  background: "transparent",
-                  color: t.text,
-                  border: "none",
-                  padding: "12px 20px",
-                  cursor: "pointer",
-                  fontSize: 14,
-                  fontWeight: 500,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  fontFamily: "inherit",
-                  textAlign: "left",
-                }}
-              >
-                <FolderClosedIcon size={16} /> Folders
-              </button>
-              <button
-                onClick={() => { setPage("unsorted"); setShowMobileMenu(false); }}
-                style={{
-                  width: "100%",
-                  background: "transparent",
-                  color: t.text,
-                  border: "none",
-                  padding: "12px 20px",
-                  cursor: "pointer",
-                  fontSize: 14,
-                  fontWeight: 500,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  fontFamily: "inherit",
-                  textAlign: "left",
-                }}
-              >
-                <InboxIcon size={16} /> Unsorted {unsortedFiles.length > 0 && <span style={{ fontSize: 10, background: darkMode ? "rgba(210,153,34,0.15)" : "rgba(180,83,9,0.1)", color: darkMode ? "#d29922" : "#b45309", borderRadius: 10, padding: "1px 6px" }}>{unsortedFiles.length}</span>}
-              </button>
-              <button
-                onClick={() => { setPage("upload"); setShowMobileMenu(false); }}
-                style={{
-                  width: "100%",
-                  background: "transparent",
-                  color: t.text,
-                  border: "none",
-                  padding: "12px 20px",
-                  cursor: "pointer",
-                  fontSize: 14,
-                  fontWeight: 500,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  fontFamily: "inherit",
-                  textAlign: "left",
-                }}
-              >
-                <UploadCloudIcon size={16} /> Upload {stagedFiles.length > 0 && <span style={{ fontSize: 10, background: t.accent, color: "#fff", borderRadius: 10, padding: "1px 6px" }}>{stagedFiles.length}</span>}
-              </button>
-            </div>
-
-            {/* Divider */}
-            <div style={{ borderTop: `1px solid ${t.border}`, margin: "4px 0" }} />
-
-            {/* Apps section */}
-            <div style={{ padding: "8px 0" }}>
-              {apps.map((app) => (
-                <button
-                  key={app.id}
-                  onClick={app.onClick}
-                  style={{
-                    width: "100%",
-                    background: "transparent",
-                    color: t.text,
-                    border: "none",
-                    padding: "12px 20px",
-                    cursor: "pointer",
-                    fontSize: 14,
-                    fontWeight: 500,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    fontFamily: "inherit",
-                    textAlign: "left",
-                  }}
-                >
-                  <span style={{ color: t.accent, display: "flex", alignItems: "center" }}>{app.icon}</span>
-                  {app.name}
-                </button>
-              ))}
-            </div>
-
-            {/* Divider */}
-            <div style={{ borderTop: `1px solid ${t.border}`, margin: "4px 0" }} />
-
-            {/* User section */}
-            {loggedInUser && (
-              <div style={{ padding: "8px 0" }}>
-                <div style={{ padding: "8px 20px", color: t.textDim, fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  {loggedInUser.name}
-                </div>
-                <button
-                  onClick={() => { setShowMobileMenu(false); setShowProfileMenu(true); }}
-                  style={{
-                    width: "100%",
-                    background: "transparent",
-                    color: t.text,
-                    border: "none",
-                    padding: "12px 20px",
-                    cursor: "pointer",
-                    fontSize: 14,
-                    fontWeight: 500,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    fontFamily: "inherit",
-                    textAlign: "left",
-                  }}
-                >
-                  <UserIcon size={16} /> My Account
-                </button>
-                <button
-                  onClick={() => { setShowMobileMenu(false); setShowChangePassword(true); setChangePasswordForm({ current: "", new: "", confirm: "" }); setChangePasswordError(""); setChangePasswordSuccess(""); }}
-                  style={{
-                    width: "100%",
-                    background: "transparent",
-                    color: t.text,
-                    border: "none",
-                    padding: "12px 20px",
-                    cursor: "pointer",
-                    fontSize: 14,
-                    fontWeight: 500,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    fontFamily: "inherit",
-                    textAlign: "left",
-                  }}
-                >
-                  <ShieldIcon size={16} /> Change Password
-                </button>
-                <button
-                  onClick={() => { setShowMobileMenu(false); setShowSubscriptionsModal(true); }}
-                  style={{
-                    width: "100%",
-                    background: "transparent",
-                    color: t.text,
-                    border: "none",
-                    padding: "12px 20px",
-                    cursor: "pointer",
-                    fontSize: 14,
-                    fontWeight: 500,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    fontFamily: "inherit",
-                    textAlign: "left",
-                  }}
-                >
-                  <BellIcon size={16} /> My Subscriptions
-                </button>
-              </div>
-            )}
-
-            {/* Divider */}
-            <div style={{ borderTop: `1px solid ${t.border}`, margin: "4px 0" }} />
-
-            {/* Dark mode toggle */}
-            <div style={{ padding: "8px 0" }}>
-              <button
-                onClick={() => { setDarkMode(!darkMode); setShowMobileMenu(false); }}
-                style={{
-                  width: "100%",
-                  background: "transparent",
-                  color: t.text,
-                  border: "none",
-                  padding: "12px 20px",
-                  cursor: "pointer",
-                  fontSize: 14,
-                  fontWeight: 500,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  fontFamily: "inherit",
-                  textAlign: "left",
-                }}
-              >
-                {darkMode ? <SunIcon /> : <MoonIcon />} {darkMode ? "Light Mode" : "Dark Mode"}
-              </button>
-              <button
-                onClick={() => { handleLogout(); setShowMobileMenu(false); }}
-                style={{
-                  width: "100%",
-                  background: "transparent",
-                  color: t.error,
-                  border: "none",
-                  padding: "12px 20px",
-                  cursor: "pointer",
-                  fontSize: 14,
-                  fontWeight: 500,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  fontFamily: "inherit",
-                  textAlign: "left",
-                }}
-              >
-                <LogOutIcon size={16} /> Sign Out
-              </button>
-            </div>
-          </div>
         )}
       </div>
 
@@ -1391,36 +1391,35 @@ const apps = [
               </div>
             </div>
           )}
-        </div>
-        <AlertsDropdown darkMode={darkMode} onNavigate={(alert) => {
-            if (alert.file_id) {
-              setActiveFolderId(alert.folder_id || null);
-              if (alert.folder_id) {
-                setPage("folders");
-              } else {
-                setPage("unsorted");
+          <AlertsDropdown darkMode={darkMode} onNavigate={(alert) => {
+              if (alert.file_id) {
+                setActiveFolderId(alert.folder_id || null);
+                if (alert.folder_id) {
+                  setPage("folders");
+                } else {
+                  setPage("unsorted");
+                }
+                setTimeout(() => {
+                  setViewingFileIdFromAlert(alert.file_id);
+                }, 100);
               }
-              setTimeout(() => {
-                setViewingFileIdFromAlert(alert.file_id);
-              }, 100);
-            }
-          }} />
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          style={{
-            background: t.surface,
-            border: `1px solid ${t.border}`,
-            borderRadius: 7,
-            padding: 6,
-            cursor: "pointer",
-            color: t.textMuted,
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          {darkMode ? <SunIcon /> : <MoonIcon />}
-        </button>
-      </div>
+            }} />
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            style={{
+              background: t.surface,
+              border: `1px solid ${t.border}`,
+              borderRadius: 7,
+              padding: 6,
+              cursor: "pointer",
+              color: t.textMuted,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            {darkMode ? <SunIcon /> : <MoonIcon />}
+          </button>
+        </div>
       )}
     </nav>
   );

@@ -455,7 +455,6 @@ const apps = [
                   );
                 })}
               </div>
-              </div>
             </div>
           )}
           )}

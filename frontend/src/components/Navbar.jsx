@@ -455,6 +455,9 @@ const apps = [
                   );
                 })}
               </div>
+              </div>
+            </div>
+          )}
           )}
           {/* Unsorted tab */}
           <button

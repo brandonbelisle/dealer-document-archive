@@ -3,7 +3,7 @@ import * as api from "../api";
 import { PlusIcon, XIcon, ChevronDown, SearchIcon } from "../components/Icons";
 import { useSocket } from "../hooks/useSocket";
 
-export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab = "dashboard", openInquiryId, onInquiryOpened }) {
+export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquiryId, onInquiryOpened }) {
   const [inquiries, setInquiries] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [users, setUsers] = useState([]);
@@ -21,7 +21,6 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // Filters
   const [statusFilter, setStatusFilter] = useState("open");
   const [dateFilter, setDateFilter] = useState("all");
   const [userFilter, setUserFilter] = useState("");
@@ -59,12 +58,12 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
   });
 
   useEffect(() => {
-    if ((activeTab === "inquiries" || activeTab === "dashboard") && canViewInquiries) {
+    if (canViewInquiries) {
       loadInquiries();
       loadStatuses();
       loadUsers();
     }
-  }, [activeTab, canViewInquiries, loadInquiries]);
+  }, [canViewInquiries, loadInquiries]);
 
   useEffect(() => {
     if (openInquiryId && inquiries.length > 0) {
@@ -197,18 +196,17 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
     }
   };
 
-  // Filter inquiries
   const getFilteredInquiries = () => {
-    let filtered = [...inquiries];
+    let filtered = canViewAllInquiries 
+      ? [...inquiries] 
+      : inquiries.filter(i => i.submitted_by === loggedInUser?.name || i.user_id === loggedInUser?.id);
 
-    // Status filter
     if (statusFilter === "open") {
       filtered = filtered.filter((i) => i.status_name?.toLowerCase() !== "closed");
     } else if (statusFilter && statusFilter !== "all") {
       filtered = filtered.filter((i) => String(i.status_id) === statusFilter);
     }
 
-    // Date filter
     const now = new Date();
     if (dateFilter === "today") {
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -221,7 +219,6 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
       filtered = filtered.filter((i) => new Date(i.created_at) >= firstOfYear);
     }
 
-    // User filter
     if (userFilter) {
       filtered = filtered.filter((i) => i.user_id === userFilter);
     }
@@ -269,10 +266,6 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
     </span>
   );
 
-  const myInquiries = canViewAllInquiries 
-    ? inquiries 
-    : inquiries.filter(i => i.submitted_by === loggedInUser?.name || i.user_id === loggedInUser?.id);
-
   const filteredUsers = users.filter((u) => 
     u.name?.toLowerCase().includes(userSearch.toLowerCase())
   );
@@ -291,70 +284,93 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
       `}</style>
 
       <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
-        {activeTab === "dashboard" && (
-          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-            <h2 style={{ fontSize: 20, fontWeight: 600, margin: "0 0 20px", color: t.text }}>
-              Credit Hold Dashboard
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: t.text }}>
+              Credit Hold Inquiry
             </h2>
+            {canSubmitInquiries && (
+              <button
+                onClick={() => setShowModal(true)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "8px 14px",
+                  background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+                  border: "none",
+                  borderRadius: 8,
+                  color: "white",
+                  fontWeight: 600,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                <PlusIcon size={14} /> New Inquiry
+              </button>
+            )}
+          </div>
 
-            {/* Filters */}
-            <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
-              {/* Status Filter */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  Status
-                </label>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  style={{
-                    padding: "8px 12px",
-                    border: `1px solid ${t.border}`,
-                    borderRadius: 6,
-                    fontSize: 13,
-                    background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
-                    color: t.text,
-                    outline: "none",
-                    fontFamily: "inherit",
-                    minWidth: 140,
-                  }}
-                >
-                  <option value="open">Open (Not Closed)</option>
-                  <option value="all">All Statuses</option>
-                  {statuses.map((s) => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </select>
-              </div>
+          {/* Filters */}
+          <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+            {/* Status Filter */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Status
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                style={{
+                  padding: "8px 12px",
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 6,
+                  fontSize: 13,
+                  background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                  color: t.text,
+                  outline: "none",
+                  fontFamily: "inherit",
+                  minWidth: 140,
+                }}
+              >
+                <option value="open">Open (Not Closed)</option>
+                <option value="all">All Statuses</option>
+                {statuses.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            </div>
 
-              {/* Date Filter */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  Date
-                </label>
-                <select
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  style={{
-                    padding: "8px 12px",
-                    border: `1px solid ${t.border}`,
-                    borderRadius: 6,
-                    fontSize: 13,
-                    background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
-                    color: t.text,
-                    outline: "none",
-                    fontFamily: "inherit",
-                    minWidth: 120,
-                  }}
-                >
-                  <option value="all">All Time</option>
-                  <option value="today">Today</option>
-                  <option value="month">This Month</option>
-                  <option value="year">This Year</option>
-                </select>
-              </div>
+            {/* Date Filter */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Date
+              </label>
+              <select
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                style={{
+                  padding: "8px 12px",
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 6,
+                  fontSize: 13,
+                  background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                  color: t.text,
+                  outline: "none",
+                  fontFamily: "inherit",
+                  minWidth: 120,
+                }}
+              >
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="month">This Month</option>
+                <option value="year">This Year</option>
+              </select>
+            </div>
 
-              {/* User Filter */}
+            {/* User Filter - only for users who can view all */}
+            {canViewAllInquiries && (
               <div style={{ display: "flex", flexDirection: "column", gap: 4, position: "relative" }} ref={userDropdownRef}>
                 <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   Submitted By
@@ -400,7 +416,6 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                   }}>
                     <div style={{ padding: 8, borderBottom: `1px solid ${t.border}` }}>
                       <div style={{ position: "relative" }}>
-                        <SearchIcon size={14} />
                         <input
                           type="text"
                           placeholder="Search users..."
@@ -431,7 +446,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                           cursor: "pointer",
                           fontSize: 13,
                           background: !userFilter ? t.accentSoft : "transparent",
-                          color: !userFilter ? t.accent : t.text,
+                          color: !userFilter ? chtAccent : t.text,
                           fontWeight: !userFilter ? 600 : 400,
                         }}
                       >
@@ -446,7 +461,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                             cursor: "pointer",
                             fontSize: 13,
                             background: userFilter === user.id ? t.accentSoft : "transparent",
-                            color: userFilter === user.id ? t.accent : t.text,
+                            color: userFilter === user.id ? chtAccent : t.text,
                             fontWeight: userFilter === user.id ? 600 : 400,
                           }}
                         >
@@ -462,209 +477,105 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                   </div>
                 )}
               </div>
-
-              {/* Clear Filters */}
-              {(statusFilter !== "open" || dateFilter !== "all" || userFilter) && (
-                <div style={{ display: "flex", alignItems: "flex-end" }}>
-                  <button
-                    onClick={() => { setStatusFilter("open"); setDateFilter("all"); setUserFilter(""); }}
-                    style={{
-                      padding: "8px 12px",
-                      border: `1px solid ${t.border}`,
-                      borderRadius: 6,
-                      fontSize: 12,
-                      background: "transparent",
-                      color: t.textMuted,
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Clear Filters
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {loading ? (
-              <div style={{ textAlign: "center", padding: 60, color: t.textMuted }}>
-                Loading...
-              </div>
-            ) : filteredInquiries.length === 0 ? (
-              <div style={{
-                textAlign: "center",
-                padding: 80,
-                color: t.textMuted,
-                background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
-                borderRadius: 12,
-              }}>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
-                <p style={{ margin: 0, fontSize: 15 }}>No inquiries match your filters</p>
-              </div>
-            ) : (
-              <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 100px 130px 130px 100px",
-                  gap: 12,
-                  padding: "12px 16px",
-                  borderBottom: `1px solid ${t.border}`,
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: t.textDim,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
-                }}>
-                  <div>Invoice Number</div>
-                  <div>Status</div>
-                  <div>Submitted By</div>
-                  <div>Submitted</div>
-                  <div style={{ textAlign: "right" }}>Assigned To</div>
-                </div>
-                {filteredInquiries.map((inquiry, idx) => (
-                  <div
-                    key={inquiry.id}
-                    className="inquiry-row"
-                    onClick={() => handleSelectInquiry(inquiry)}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 100px 130px 130px 100px",
-                      gap: 12,
-                      padding: "14px 16px",
-                      borderBottom: idx < filteredInquiries.length - 1 ? `1px solid ${t.border}` : "none",
-                      alignItems: "center",
-                    }}
-                  >
-                    <div style={{ fontWeight: 600, color: t.text }}>
-                      {inquiry.invoice_number}
-                    </div>
-                    <div>
-                      {getStatusBadge(inquiry.status_name, inquiry.status_color)}
-                    </div>
-                    <div style={{ fontSize: 13, color: t.textMuted }}>
-                      {inquiry.submitted_by}
-                    </div>
-                    <div style={{ fontSize: 12, color: t.textMuted }}>
-                      {formatDate(inquiry.created_at)}
-                    </div>
-                    <div style={{ fontSize: 12, color: inquiry.assigned_to_name ? t.text : t.textMuted, textAlign: "right" }}>
-                      {inquiry.assigned_to_name || "—"}
-                    </div>
-                  </div>
-                ))}
-              </div>
             )}
 
-            <div style={{ marginTop: 12, fontSize: 12, color: t.textMuted }}>
-              Showing {filteredInquiries.length} of {inquiries.length} inquiries
-            </div>
-          </div>
-        )}
-
-        {activeTab === "inquiries" && (
-          <div style={{ maxWidth: 900, margin: "0 auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0, color: t.text }}>
-                My Credit Hold Inquiries
-              </h2>
-              {canSubmitInquiries && (
+            {/* Clear Filters */}
+            {(statusFilter !== "open" || dateFilter !== "all" || userFilter) && (
+              <div style={{ display: "flex", alignItems: "flex-end" }}>
                 <button
-                  onClick={() => setShowModal(true)}
+                  onClick={() => { setStatusFilter("open"); setDateFilter("all"); setUserFilter(""); }}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "8px 14px",
-                    background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
-                    border: "none",
-                    borderRadius: 8,
-                    color: "white",
-                    fontWeight: 600,
-                    fontSize: 13,
+                    padding: "8px 12px",
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 6,
+                    fontSize: 12,
+                    background: "transparent",
+                    color: t.textMuted,
                     cursor: "pointer",
                     fontFamily: "inherit",
+                    whiteSpace: "nowrap",
                   }}
                 >
-                  <PlusIcon size={14} /> New Inquiry
+                  Clear Filters
                 </button>
-              )}
-            </div>
-
-            {loading ? (
-              <div style={{ textAlign: "center", padding: 40, color: t.textMuted }}>
-                Loading...
-              </div>
-            ) : myInquiries.length === 0 ? (
-              <div style={{
-                textAlign: "center",
-                padding: 60,
-                color: t.textMuted,
-                background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
-                borderRadius: 12,
-              }}>
-                <div style={{ fontSize: 40, marginBottom: 12 }}>📋</div>
-                <p style={{ margin: 0, fontSize: 14 }}>No inquiries submitted yet</p>
-              </div>
-            ) : (
-              <div style={{
-                background: t.surface,
-                border: `1px solid ${t.border}`,
-                borderRadius: 12,
-                overflow: "hidden",
-              }}>
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 100px 140px",
-                  gap: 12,
-                  padding: "12px 16px",
-                  borderBottom: `1px solid ${t.border}`,
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: t.textDim,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}>
-                  <div>Invoice Number</div>
-                  <div>Status</div>
-                  <div style={{ textAlign: "right" }}>Submitted</div>
-                </div>
-                {myInquiries.map((inquiry, idx) => (
-                  <div
-                    key={inquiry.id}
-                    className="inquiry-row"
-                    onClick={() => handleSelectInquiry(inquiry)}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 100px 140px",
-                      gap: 12,
-                      padding: "14px 16px",
-                      borderBottom: idx < myInquiries.length - 1 ? `1px solid ${t.border}` : "none",
-                      alignItems: "center",
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 600, color: t.text, marginBottom: 4 }}>
-                        {inquiry.invoice_number}
-                      </div>
-                      {inquiry.notes && (
-                        <div style={{ fontSize: 12, color: t.textMuted }}>
-                          {inquiry.notes.length > 50 ? inquiry.notes.slice(0, 50) + "..." : inquiry.notes}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      {getStatusBadge(inquiry.status_name, inquiry.status_color)}
-                    </div>
-                    <div style={{ fontSize: 12, color: t.textMuted, textAlign: "right" }}>
-                      {formatDate(inquiry.created_at)}
-                    </div>
-                  </div>
-                ))}
               </div>
             )}
           </div>
-        )}
+
+          {loading ? (
+            <div style={{ textAlign: "center", padding: 60, color: t.textMuted }}>
+              Loading...
+            </div>
+          ) : filteredInquiries.length === 0 ? (
+            <div style={{
+              textAlign: "center",
+              padding: 80,
+              color: t.textMuted,
+              background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+              borderRadius: 12,
+            }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
+              <p style={{ margin: 0, fontSize: 15 }}>No inquiries found</p>
+            </div>
+          ) : (
+            <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 100px 130px 130px 100px",
+                gap: 12,
+                padding: "12px 16px",
+                borderBottom: `1px solid ${t.border}`,
+                fontSize: 11,
+                fontWeight: 600,
+                color: t.textDim,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+              }}>
+                <div>Invoice Number</div>
+                <div>Status</div>
+                <div>Submitted By</div>
+                <div>Submitted</div>
+                <div style={{ textAlign: "right" }}>Assigned To</div>
+              </div>
+              {filteredInquiries.map((inquiry, idx) => (
+                <div
+                  key={inquiry.id}
+                  className="inquiry-row"
+                  onClick={() => handleSelectInquiry(inquiry)}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 100px 130px 130px 100px",
+                    gap: 12,
+                    padding: "14px 16px",
+                    borderBottom: idx < filteredInquiries.length - 1 ? `1px solid ${t.border}` : "none",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ fontWeight: 600, color: t.text }}>
+                    {inquiry.invoice_number}
+                  </div>
+                  <div>
+                    {getStatusBadge(inquiry.status_name, inquiry.status_color)}
+                  </div>
+                  <div style={{ fontSize: 13, color: t.textMuted }}>
+                    {inquiry.submitted_by}
+                  </div>
+                  <div style={{ fontSize: 12, color: t.textMuted }}>
+                    {formatDate(inquiry.created_at)}
+                  </div>
+                  <div style={{ fontSize: 12, color: inquiry.assigned_to_name ? t.text : t.textMuted, textAlign: "right" }}>
+                    {inquiry.assigned_to_name || "—"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div style={{ marginTop: 12, fontSize: 12, color: t.textMuted }}>
+            Showing {filteredInquiries.length} of {inquiries.length} inquiries
+          </div>
+        </div>
       </div>
 
       {showModal && (

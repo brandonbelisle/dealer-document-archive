@@ -122,14 +122,17 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId, on
   };
 
   const handleAlertClick = async (alert) => {
-    try {
-      if (alert.id) {
+    const isCHT = alert.type === 'cht_inquiry_assigned' || alert.type === 'cht_inquiry_updated';
+    
+    setAlerts((prev) => prev.map((a) => a.id === alert.id ? { ...a, read_at: a.read_at || new Date().toISOString() } : a));
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+    
+    if (!isCHT && alert.id) {
+      try {
         await api.markNotificationRead(alert.id);
+      } catch (err) {
+        console.error("Failed to mark alert as read:", err);
       }
-      setAlerts((prev) => prev.map((a) => a.id === alert.id ? { ...a, read_at: new Date().toISOString() } : a));
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (err) {
-      console.error("Failed to mark alert as read:", err);
     }
     
     if (onNavigate) {

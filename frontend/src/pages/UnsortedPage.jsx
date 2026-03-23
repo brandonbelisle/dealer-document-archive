@@ -42,6 +42,7 @@ export default function UnsortedPage({
   darkMode,
 }) {
   const canDeleteFiles = loggedInUser?.permissions?.includes("deleteFiles");
+  const canViewLocations = loggedInUser?.permissions?.includes("viewLocations");
   const [movingFileId, setMovingFileId] = useState(null);
   const [moveTargetFolderId, setMoveTargetFolderId] = useState("");
   const [showMoveSelect, setShowMoveSelect] = useState(false);
@@ -756,18 +757,20 @@ export default function UnsortedPage({
                             justifyContent: "center",
                           }}
                         >
-                          <SmallBtn
-                            t={t}
-                            title="Move to Folder"
-                            onClick={() => {
-                              setSelectedFileId(file.id);
-                              setMovingFileId(file.id);
-                              setMoveTargetFolderId("");
-                              setShowMoveSelect(false);
-                            }}
-                          >
-                            <FolderClosedIcon size={12} />
-                          </SmallBtn>
+                          {canViewLocations && (
+                            <SmallBtn
+                              t={t}
+                              title="Move to Folder"
+                              onClick={() => {
+                                setSelectedFileId(file.id);
+                                setMovingFileId(file.id);
+                                setMoveTargetFolderId("");
+                                setShowMoveSelect(false);
+                              }}
+                            >
+                              <FolderClosedIcon size={12} />
+                            </SmallBtn>
+                          )}
                           <SmallBtn
                             t={t}
                             title="Delete"

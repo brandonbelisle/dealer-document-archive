@@ -80,6 +80,7 @@ export default function DashboardPage({
 }) {
   const dd = dashboardData || {};
   const year = new Date().getFullYear();
+  const canViewLocations = loggedInUser?.permissions?.includes("viewLocations");
 
   const locationsWithDepts = locations.map((loc) => ({
     ...loc,
@@ -177,8 +178,9 @@ export default function DashboardPage({
         />
       </div>
 
-      <div style={{ marginBottom: 20 }}>
-        <h2
+      {canViewLocations && (
+        <div style={{ marginBottom: 20 }}>
+          <h2
           style={{
             fontSize: 18,
             fontWeight: 700,
@@ -305,6 +307,7 @@ export default function DashboardPage({
           ))}
         </div>
       </div>
+      )}
     </div>
   );
 }

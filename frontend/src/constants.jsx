@@ -102,6 +102,7 @@ export const APP_PERMISSIONS = {
     color: "#0891b2",
     permissions: [
       { key: "view_dda", label: "View App", desc: "Access Dealer Document Archive" },
+      { key: "viewLocations", label: "View Locations", desc: "View locations and departments in navigation" },
       { key: "viewFiles", label: "View Files", desc: "Browse and preview uploaded documents" },
       { key: "uploadFiles", label: "Upload Files", desc: "Upload new PDF files to folders" },
       { key: "deleteFiles", label: "Delete Files", desc: "Remove uploaded files permanently" },
@@ -149,6 +150,13 @@ export const APP_PERMISSION_TABS = ["dda", "cht", "admin"];
 
 // Legacy permission labels (for backward compatibility)
 export const PERMISSION_LABELS = {
+  // DDA Locations
+  viewLocations: {
+    label: "View Locations",
+    category: "Locations",
+    app: "dda",
+    desc: "View locations and departments in navigation",
+  },
   // DDA Documents
   viewFiles: {
     label: "View Files",
@@ -233,6 +241,7 @@ export const PERMISSION_LABELS = {
 };
 
 export const PERMISSION_CATEGORIES = [
+  "Locations",
   "Documents",
   "Folders",
   "Administration",

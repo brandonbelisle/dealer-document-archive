@@ -98,6 +98,7 @@ export default function Navbar({
   const q = globalSearch.trim();
 
   const isAdmin = loggedInUser?.groups?.includes("Administrator");
+  const canViewLocations = loggedInUser?.permissions?.includes("viewLocations");
 
 const apps = [
     { id: "home", name: "Home", icon: <HomeIcon size={20} />, onClick: () => { setPage("landing"); setSelectedFile(null); setShowAppsDropdown(false); } },
@@ -282,13 +283,14 @@ const apps = [
           >
             <DashboardIcon size={15} /> Dashboard
           </button>
-          {/* Folders tab with dept dropdown on hover */}
-          <div
-            style={{ position: "relative" }}
-            onMouseEnter={() => setShowDeptDropdown(true)}
-            onMouseLeave={() => setShowDeptDropdown(false)}
-          >
-            <button
+          {/* Folders tab with dept dropdown on hover - only show if user has viewLocations permission */}
+          {canViewLocations && (
+            <div
+              style={{ position: "relative" }}
+              onMouseEnter={() => setShowDeptDropdown(true)}
+              onMouseLeave={() => setShowDeptDropdown(false)}
+            >
+              <button
               onClick={() => {
                 setShowDeptDropdown(false);
                 setPage("folders-browse");
@@ -453,9 +455,9 @@ const apps = [
                   );
                 })}
               </div>
-              </div>
-            )}
+            </div>
           </div>
+          )}
           {/* Unsorted tab */}
           <button
             onClick={() => setPage("unsorted")}

@@ -4,9 +4,16 @@ import { PlusIcon, XIcon } from "../components/Icons";
 
 export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab = "dashboard" }) {
   const [inquiries, setInquiries] = useState([]);
+  const [statuses, setStatuses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
+  const [responses, setResponses] = useState([]);
+  const [loadingResponses, setLoadingResponses] = useState(false);
+  const [showStatusUpdate, setShowStatusUpdate] = useState(false);
+  const [selectedStatusId, setSelectedStatusId] = useState("");
+  const [responseText, setResponseText] = useState("");
+  const [submittingResponse, setSubmittingResponse] = useState(false);
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -24,6 +31,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
   useEffect(() => {
     if ((activeTab === "inquiries" || activeTab === "dashboard") && canViewInquiries) {
       loadInquiries();
+      loadStatuses();
     }
   }, [activeTab, canViewInquiries]);
 
@@ -36,6 +44,27 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
       console.error("Failed to load inquiries:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadStatuses = async () => {
+    try {
+      const data = await api.getCreditHoldStatuses();
+      setStatuses(data.statuses || []);
+    } catch (err) {
+      console.error("Failed to load statuses:", err);
+    }
+  };
+
+  const loadResponses = async (inquiryId) => {
+    setLoadingResponses(true);
+    try {
+      const data = await api.getCreditHoldInquiryResponses(inquiryId);
+      setResponses(data.responses || []);
+    } catch (err) {
+      console.error("Failed to load responses:", err);
+    } finally {
+      setLoadingResponses(false);
     }
   };
 
@@ -73,6 +102,40 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
       }
     } catch (err) {
       console.error("Failed to accept inquiry:", err);
+    }
+  };
+
+  const handleStatusUpdate = async () => {
+    if (!selectedStatusId || !responseText.trim()) {
+      return;
+    }
+
+    setSubmittingResponse(true);
+    try {
+      const data = await api.respondToCreditHoldInquiry(selectedInquiry.id, selectedStatusId, responseText);
+      setInquiries((prev) =>
+        prev.map((inq) => (inq.id === selectedInquiry.id ? data.inquiry : inq))
+      );
+      setSelectedInquiry(data.inquiry);
+      await loadResponses(selectedInquiry.id);
+      setShowStatusUpdate(false);
+      setSelectedStatusId("");
+      setResponseText("");
+    } catch (err) {
+      console.error("Failed to update status:", err);
+    } finally {
+      setSubmittingResponse(false);
+    }
+  };
+
+  const handleSelectInquiry = (inquiry) => {
+    setSelectedInquiry(inquiry);
+    setResponses([]);
+    setShowStatusUpdate(false);
+    setSelectedStatusId("");
+    setResponseText("");
+    if (canAcceptInquiries || canViewAllInquiries) {
+      loadResponses(inquiry.id);
     }
   };
 
@@ -130,32 +193,9 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
       <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
         {activeTab === "dashboard" && (
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: t.text }}>
-                Credit Hold Dashboard
-              </h2>
-              {canSubmitInquiries && (
-                <button
-                  onClick={() => setShowModal(true)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "8px 14px",
-                    background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
-                    border: "none",
-                    borderRadius: 8,
-                    color: "white",
-                    fontWeight: 600,
-                    fontSize: 13,
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                  }}
-                >
-                  <PlusIcon size={14} /> New Inquiry
-                </button>
-              )}
-            </div>
+            <h2 style={{ fontSize: 20, fontWeight: 600, margin: "0 0 24px", color: t.text }}>
+              Credit Hold Dashboard
+            </h2>
 
             {loading ? (
               <div style={{ textAlign: "center", padding: 60, color: t.textMuted }}>
@@ -197,7 +237,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                   <div
                     key={inquiry.id}
                     className="inquiry-row"
-                    onClick={() => setSelectedInquiry(inquiry)}
+                    onClick={() => handleSelectInquiry(inquiry)}
                     style={{
                       display: "grid",
                       gridTemplateColumns: "1fr 100px 130px 130px 100px",
@@ -300,7 +340,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                   <div
                     key={inquiry.id}
                     className="inquiry-row"
-                    onClick={() => setSelectedInquiry(inquiry)}
+                    onClick={() => handleSelectInquiry(inquiry)}
                     style={{
                       display: "grid",
                       gridTemplateColumns: "1fr 100px 140px",
@@ -554,7 +594,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
               background: t.surface,
               borderRadius: 12,
               width: "100%",
-              maxWidth: 500,
+              maxWidth: 560,
               maxHeight: "90vh",
               overflow: "auto",
               boxShadow: darkMode ? "0 20px 50px rgba(0,0,0,0.5)" : "0 20px 50px rgba(0,0,0,0.2)",
@@ -639,7 +679,129 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                 </div>
               )}
 
-              {canAcceptInquiries && !selectedInquiry.assigned_to && (
+              {/* Status Update Section */}
+              {canAcceptInquiries && showStatusUpdate && (
+                <div style={{ marginBottom: 16, padding: 16, background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)", borderRadius: 8 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 12 }}>
+                    Update Status
+                  </div>
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, marginBottom: 4, display: "block" }}>
+                      New Status *
+                    </label>
+                    <select
+                      value={selectedStatusId}
+                      onChange={(e) => setSelectedStatusId(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "8px 12px",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 6,
+                        fontSize: 13,
+                        background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                        color: t.text,
+                        outline: "none",
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      <option value="">Select status...</option>
+                      {statuses.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, marginBottom: 4, display: "block" }}>
+                      Response *
+                    </label>
+                    <textarea
+                      value={responseText}
+                      onChange={(e) => setResponseText(e.target.value)}
+                      placeholder="Enter your response..."
+                      rows={3}
+                      style={{
+                        width: "100%",
+                        padding: "8px 12px",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 6,
+                        fontSize: 13,
+                        background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                        color: t.text,
+                        outline: "none",
+                        fontFamily: "inherit",
+                        resize: "vertical",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      onClick={handleStatusUpdate}
+                      disabled={!selectedStatusId || !responseText.trim() || submittingResponse}
+                      style={{
+                        padding: "8px 16px",
+                        background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+                        border: "none",
+                        borderRadius: 6,
+                        color: "white",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: submittingResponse ? "not-allowed" : "pointer",
+                        fontFamily: "inherit",
+                        opacity: !selectedStatusId || !responseText.trim() ? 0.5 : 1,
+                      }}
+                    >
+                      {submittingResponse ? "Updating..." : "Update Status"}
+                    </button>
+                    <button
+                      onClick={() => { setShowStatusUpdate(false); setSelectedStatusId(""); setResponseText(""); }}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 6,
+                        color: t.textMuted,
+                        fontSize: 13,
+                        fontWeight: 500,
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Response History */}
+              {responses.length > 0 && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
+                    Response History
+                  </div>
+                  {loadingResponses ? (
+                    <div style={{ color: t.textMuted, fontSize: 13 }}>Loading...</div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {responses.map((r) => (
+                        <div key={r.id} style={{ padding: 12, background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)", borderRadius: 8 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{r.user_name}</span>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              {r.status_name && getStatusBadge(r.status_name, r.status_color)}
+                              <span style={{ fontSize: 11, color: t.textMuted }}>{formatDateTime(r.created_at)}</span>
+                            </div>
+                          </div>
+                          <div style={{ fontSize: 13, color: t.text, whiteSpace: "pre-wrap" }}>{r.response}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              {canAcceptInquiries && !selectedInquiry.assigned_to && !showStatusUpdate && (
                 <button
                   onClick={() => handleAccept(selectedInquiry.id)}
                   style={{
@@ -657,6 +819,27 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                   }}
                 >
                   Accept & Assign to Me
+                </button>
+              )}
+
+              {canAcceptInquiries && selectedInquiry.assigned_to && !showStatusUpdate && (
+                <button
+                  onClick={() => setShowStatusUpdate(true)}
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    background: "transparent",
+                    border: `1px solid ${chtAccent}`,
+                    borderRadius: 8,
+                    color: chtAccent,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    marginTop: 8,
+                  }}
+                >
+                  Update Status
                 </button>
               )}
             </div>

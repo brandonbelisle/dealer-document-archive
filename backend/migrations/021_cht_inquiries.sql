@@ -63,5 +63,17 @@ INSERT IGNORE INTO cht_statuses (name, color, sort_order, is_default) VALUES
     ('Resolved', '#22c55e', 3, 0),
     ('Closed', '#6b7280', 4, 0);
 
--- Update existing inquiries to use default status
-UPDATE cht_inquiries SET status_id = (SELECT id FROM cht_statuses WHERE is_default = 1 LIMIT 1) WHERE status_id IS NULL;
+-- Credit Hold Inquiry Responses table
+CREATE TABLE IF NOT EXISTS cht_inquiry_responses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    inquiry_id CHAR(36) NOT NULL,
+    user_id CHAR(36) NOT NULL,
+    status_id INT,
+    response TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (inquiry_id) REFERENCES cht_inquiries(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (status_id) REFERENCES cht_statuses(id) ON DELETE SET NULL,
+    INDEX idx_inquiry_id (inquiry_id),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

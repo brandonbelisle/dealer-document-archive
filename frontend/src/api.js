@@ -575,3 +575,14 @@ export async function updateCreditHoldStatus(id, name, color, sortOrder, isDefau
 export async function deleteCreditHoldStatus(id) {
   return request(`/cht/statuses/${id}`, { method: 'DELETE' });
 }
+
+export async function getCreditHoldInquiryResponses(inquiryId) {
+  return request(`/cht/inquiries/${inquiryId}/responses`);
+}
+
+export async function respondToCreditHoldInquiry(inquiryId, statusId, response) {
+  return request(`/cht/inquiries/${inquiryId}/respond`, {
+    method: 'POST',
+    body: JSON.stringify({ statusId, response }),
+  });
+}

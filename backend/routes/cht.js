@@ -289,4 +289,116 @@ router.delete('/statuses/:id', requireAuth, requirePermission('cht_manage_status
   }
 });
 
+// Get responses for an inquiry
+router.get('/inquiries/:id/responses', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const [rows] = await db.execute(
+      `SELECT r.id, r.inquiry_id, r.response, r.created_at,
+              u.display_name as user_name,
+              s.name as status_name, s.color as status_color
+       FROM cht_inquiry_responses r
+       JOIN users u ON r.user_id = u.id
+       LEFT JOIN cht_statuses s ON r.status_id = s.id
+       WHERE r.inquiry_id = ?
+       ORDER BY r.created_at DESC`,
+      [id]
+    );
+    
+    res.json({ responses: rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update inquiry status with response
+router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { statusId, response } = req.body;
+    
+    if (!statusId) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+    
+    if (!response || !response.trim()) {
+      return res.status(400).json({ error: 'Response is required' });
+    }
+
+    // Check if inquiry exists
+    const [existing] = await db.execute(
+      'SELECT id, invoice_number, user_id FROM cht_inquiries WHERE id = ?',
+      [id]
+    );
+    
+    if (existing.length === 0) {
+      return res.status(404).json({ error: 'Inquiry not found' });
+    }
+
+    const inquiry = existing[0];
+
+    // Get status name for audit
+    const [statusRow] = await db.execute('SELECT name FROM cht_statuses WHERE id = ?', [statusId]);
+    const statusName = statusRow.length > 0 ? statusRow[0].name : 'Unknown';
+
+    // Insert response
+    await db.execute(
+      `INSERT INTO cht_inquiry_responses (inquiry_id, user_id, status_id, response)
+       VALUES (?, ?, ?, ?)`,
+      [id, req.user.id, statusId, response.trim()]
+    );
+
+    // Update inquiry status
+    await db.execute(
+      'UPDATE cht_inquiries SET status_id = ?, updated_at = NOW() WHERE id = ?',
+      [statusId, id]
+    );
+
+    await logAudit('CHT Inquiry Updated', `Invoice: ${inquiry.invoice_number} → Status: ${statusName}`, req.user, req.ip);
+
+    // Notify the original submitter
+    const socket = require('../socket');
+    const io = socket.getIO();
+    if (io) {
+      io.to(`user-${inquiry.user_id}`).emit('notification', {
+        type: 'cht_inquiry_updated',
+        title: 'Credit Hold Inquiry Updated',
+        message: `Your inquiry for invoice "${inquiry.invoice_number}" has been updated to ${statusName}.`,
+        data: { inquiryId: id },
+        createdAt: new Date().toISOString(),
+      });
+    }
+
+    // Create notification record
+    await db.execute(
+      `INSERT INTO notifications (id, user_id, type, title, message, data)
+       VALUES (UUID(), ?, 'cht_inquiry_updated', ?, ?, ?)`,
+      [inquiry.user_id, 'Credit Hold Inquiry Updated', 
+       `Your inquiry for invoice "${inquiry.invoice_number}" has been updated to ${statusName}.`,
+       JSON.stringify({ inquiryId: id })]
+    );
+
+    // Return updated inquiry
+    const [rows] = await db.execute(
+      `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
+              u.display_name as submitted_by,
+              s.name as status_name, s.color as status_color,
+              a.display_name as assigned_to_name
+       FROM cht_inquiries i
+       JOIN users u ON i.user_id = u.id
+       LEFT JOIN cht_statuses s ON i.status_id = s.id
+       LEFT JOIN users a ON i.assigned_to = a.id
+       WHERE i.id = ?`,
+      [id]
+    );
+
+    res.json({ inquiry: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}););
+
 module.exports = router;

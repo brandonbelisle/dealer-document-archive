@@ -56,6 +56,20 @@ export const ADMIN_MENU = [
     category: "dda",
   },
   {
+    id: "cht",
+    label: "CHT - Credit Hold Tracker",
+    icon: null,
+    desc: "Credit Hold Tracker settings",
+    isCategory: true,
+  },
+  {
+    id: "cht-statuses",
+    label: "Statuses",
+    icon: <LayersIcon size={17} />,
+    desc: "Manage inquiry statuses",
+    category: "cht",
+  },
+  {
     id: "audit",
     label: "Audit Log",
     icon: <ClipboardIcon size={17} />,
@@ -84,20 +98,6 @@ export const ADMIN_MENU = [
     label: "Azure Storage",
     icon: <UploadCloudIcon size={17} />,
     desc: "Configure Azure Blob Storage for file uploads",
-  },
-  {
-    id: "cht",
-    label: "CHT - Credit Hold Tracker",
-    icon: null,
-    desc: "Credit Hold Tracker settings",
-    isCategory: true,
-  },
-  {
-    id: "cht-statuses",
-    label: "Statuses",
-    icon: <LayersIcon size={17} />,
-    desc: "Manage inquiry statuses",
-    category: "cht",
   },
   {
     id: "settings",

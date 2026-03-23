@@ -3108,16 +3108,27 @@ export default function AdminPage({
           {/* USERS */}
           {adminSection === "users" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {/* Header Row */}
+              <div style={{ display: "flex", alignItems: "center", padding: "8px 16px", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: t.textDim }}>
+                <div style={{ flex: 1 }}>User</div>
+                <div style={{ width: 180, textAlign: "center" }}>Groups</div>
+                <div style={{ width: 80, textAlign: "center" }}>Login Type</div>
+                <div style={{ width: 80, textAlign: "center" }}>Status</div>
+                <div style={{ width: 90, textAlign: "right" }}>Actions</div>
+              </div>
               {demoUsers.map((u, i) => (
                 <div key={i} className="folder-row" style={{ display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "12px 16px", animation: `fadeIn 0.25s ease ${i * 0.04}s both` }}>
                   <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10 }}>
                     <div style={{ width: 32, height: 32, borderRadius: "50%", background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>{u.name.charAt(0)}</div>
                     <div><div style={{ fontSize: 13, fontWeight: 600 }}>{u.name}</div><div style={{ fontSize: 11, color: t.textDim }}>{u.email}</div></div>
                   </div>
-                  <div style={{ width: 180, display: "flex", gap: 4, flexWrap: "wrap" }}>{u.groups.map((g) => <span key={g} style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: g === "Administrator" ? t.accentSoft : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)", color: g === "Administrator" ? t.accent : t.textMuted }}>{g}</span>)}</div>
+                  <div style={{ width: 180, display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "center" }}>{u.groups.map((g) => <span key={g} style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: g === "Administrator" ? t.accentSoft : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)", color: g === "Administrator" ? t.accent : t.textMuted }}>{g}</span>)}</div>
+                  <div style={{ width: 80, textAlign: "center" }}><span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: u.authProvider === "saml" ? (darkMode ? "rgba(59,130,246,0.15)" : "rgba(59,130,246,0.1)") : (darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)"), color: u.authProvider === "saml" ? "#3b82f6" : t.textMuted }}>{u.authProvider === "saml" ? "SSO" : "Local"}</span></div>
                   <div style={{ width: 80, textAlign: "center" }}><span style={{ fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: u.status === "Active" ? t.successSoft : t.errorSoft, color: u.status === "Active" ? t.success : t.error }}>{u.status}</span></div>
                   <div style={{ width: 90, display: "flex", justifyContent: "flex-end", gap: 2 }}>
-                    <SmallBtn t={t} title="Set Password" onClick={() => { setAdminSetPasswordUserId(u.id); setAdminSetPasswordForm({ new: "", confirm: "" }); setAdminSetPasswordError(""); setAdminSetPasswordSuccess(""); }}><ShieldIcon size={12} /></SmallBtn>
+                    {u.authProvider !== "saml" && (
+                      <SmallBtn t={t} title="Set Password" onClick={() => { setAdminSetPasswordUserId(u.id); setAdminSetPasswordForm({ new: "", confirm: "" }); setAdminSetPasswordError(""); setAdminSetPasswordSuccess(""); }}><ShieldIcon size={12} /></SmallBtn>
+                    )}
                     <SmallBtn t={t} title="Edit" onClick={() => { setEditingUser(u); setShowEditUser(true); }}><EditIcon /></SmallBtn>
                     {u.id !== loggedInUser?.id && (
                       <SmallBtn t={t} title="Remove" onClick={() => handleDeleteUser(u)}><TrashIcon size={12} /></SmallBtn>

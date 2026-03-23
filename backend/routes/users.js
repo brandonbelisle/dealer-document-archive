@@ -22,7 +22,7 @@ function validatePassword(password) {
 router.get('/', requireAuth, requirePermission('manageUsers'), async (req, res) => {
   try {
     const [users] = await db.execute(
-      `SELECT u.id, u.username, u.email, u.display_name, u.status, u.last_login_at, u.created_at,
+      `SELECT u.id, u.username, u.email, u.display_name, u.status, u.auth_provider, u.last_login_at, u.created_at,
               GROUP_CONCAT(sg.name ORDER BY sg.name SEPARATOR ', ') AS group_names,
               GROUP_CONCAT(sg.id ORDER BY sg.name SEPARATOR ',') AS group_ids
        FROM users u

@@ -13,9 +13,9 @@ router.get('/inquiries', requireAuth, async (req, res) => {
     const canViewAll = req.user.permissions?.includes('cht_inquiry_view_all');
     
     let query = `
-      SELECT i.id, i.invoice_number, i.notes, i.status_id, i.is_closed, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
+      SELECT i.id, i.invoice_number, i.notes, i.status_id, i.is_closed, i.assigned_to, i.created_at, i.updated_at, i.assigned_at, i.decision_at,
              u.display_name as submitted_by,
-             s.name as status_name, s.color as status_color,
+             s.name as status_name, s.color as status_color, s.is_default,
              a.display_name as assigned_to_name
        FROM cht_inquiries i
        JOIN users u ON i.user_id = u.id
@@ -68,7 +68,7 @@ router.post('/inquiries', requireAuth, async (req, res) => {
     const [rows] = await db.execute(
       `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.is_closed, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
               u.display_name as submitted_by,
-              s.name as status_name, s.color as status_color,
+              s.name as status_name, s.color as status_color, s.is_default,
               a.display_name as assigned_to_name
        FROM cht_inquiries i
        JOIN users u ON i.user_id = u.id
@@ -135,9 +135,9 @@ router.post('/inquiries/:id/accept', requireAuth, requirePermission('cht_inquiry
     socket.chtInquiriesChanged();
 
     const [rows] = await db.execute(
-      `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.is_closed, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
+      `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.is_closed, i.assigned_to, i.created_at, i.updated_at, i.assigned_at, i.decision_at,
               u.display_name as submitted_by,
-              s.name as status_name, s.color as status_color,
+              s.name as status_name, s.color as status_color, s.is_default,
               a.display_name as assigned_to_name
        FROM cht_inquiries i
        JOIN users u ON i.user_id = u.id
@@ -371,9 +371,9 @@ router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Response is required' });
     }
 
-    // Check if inquiry exists
+    // Check if inquiry exists and get current status
     const [existing] = await db.execute(
-      'SELECT id, invoice_number, user_id FROM cht_inquiries WHERE id = ?',
+      'SELECT i.id, i.invoice_number, i.user_id, i.decision_at, s.is_default, s.name as current_status_name FROM cht_inquiries i LEFT JOIN cht_statuses s ON i.status_id = s.id WHERE i.id = ?',
       [id]
     );
     
@@ -383,9 +383,22 @@ router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
 
     const inquiry = existing[0];
 
-    // Get status name for audit
-    const [statusRow] = await db.execute('SELECT name FROM cht_statuses WHERE id = ?', [statusId]);
-    const statusName = statusRow.length > 0 ? statusRow[0].name : 'Unknown';
+    // Check if inquiry is already locked (has a decision)
+    if (inquiry.decision_at) {
+      return res.status(400).json({ error: 'This inquiry has already been decided and cannot be modified' });
+    }
+
+    // Get the new status
+    const [statusRow] = await db.execute('SELECT id, name, is_default FROM cht_statuses WHERE id = ?', [statusId]);
+    if (statusRow.length === 0) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+    const newStatus = statusRow[0];
+    const statusName = newStatus.name;
+
+    // Determine if we need to set decision_at
+    // Set decision_at if changing FROM default status TO non-default status
+    const setDecisionAt = inquiry.is_default && !newStatus.is_default;
 
     // Insert response
     await db.execute(
@@ -394,11 +407,18 @@ router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
       [id, req.user.id, statusId, response.trim()]
     );
 
-    // Update inquiry status
-    await db.execute(
-      'UPDATE cht_inquiries SET status_id = ?, updated_at = NOW() WHERE id = ?',
-      [statusId, id]
-    );
+    // Update inquiry status and optionally set decision_at
+    if (setDecisionAt) {
+      await db.execute(
+        'UPDATE cht_inquiries SET status_id = ?, decision_at = NOW(), updated_at = NOW() WHERE id = ?',
+        [statusId, id]
+      );
+    } else {
+      await db.execute(
+        'UPDATE cht_inquiries SET status_id = ?, updated_at = NOW() WHERE id = ?',
+        [statusId, id]
+      );
+    }
 
     await logAudit('CHT Inquiry Updated', `Invoice: ${inquiry.invoice_number} → Status: ${statusName}`, req.user, req.ip);
 
@@ -417,9 +437,9 @@ router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
 
     // Return updated inquiry
     const [rows] = await db.execute(
-      `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.is_closed, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
+      `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.is_closed, i.assigned_to, i.created_at, i.updated_at, i.assigned_at, i.decision_at,
               u.display_name as submitted_by,
-              s.name as status_name, s.color as status_color,
+              s.name as status_name, s.color as status_color, s.is_default,
               a.display_name as assigned_to_name
        FROM cht_inquiries i
        JOIN users u ON i.user_id = u.id

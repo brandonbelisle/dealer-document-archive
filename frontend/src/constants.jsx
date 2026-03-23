@@ -137,6 +137,7 @@ export const APP_PERMISSIONS = {
       { key: "cht_inquiry_view_all", label: "View All Inquiries", desc: "View all credit hold inquiries" },
       { key: "cht_inquiry_accept", label: "Accept Inquiries", desc: "Accept and assign credit hold inquiries to yourself" },
       { key: "cht_manage_statuses", label: "Manage Decisions", desc: "Add, edit, and remove inquiry decisions" },
+      { key: "cht_view_metrics", label: "View Metrics", desc: "View time to close metrics on inquiries" },
     ],
   },
   help: {

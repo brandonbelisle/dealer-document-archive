@@ -22,19 +22,24 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
   const [error, setError] = useState("");
 
   const [decisionFilter, setDecisionFilter] = useState("all");
-  const [isOpenFilter, setIsOpenFilter] = useState("open");
   const [dateFilter, setDateFilter] = useState("all");
   const [userFilter, setUserFilter] = useState("");
   const [userSearch, setUserSearch] = useState("");
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const userDropdownRef = useRef(null);
-  const [closingInquiry, setClosingInquiry] = useState(false);
+  const [quickEditInquiryId, setQuickEditInquiryId] = useState(null);
+  const [quickEditStatusId, setQuickEditStatusId] = useState("");
+  const [quickEditResponse, setQuickEditResponse] = useState("");
+  const [quickEditSubmitting, setQuickEditSubmitting] = useState(false);
+  const [quickEditError, setQuickEditError] = useState("");
+  const [statusUpdateError, setStatusUpdateError] = useState("");
 
   const canSubmitInquiries = loggedInUser?.permissions?.includes("cht_inquiry_submit");
   const canViewAllInquiries = loggedInUser?.permissions?.includes("cht_inquiry_view_all");
   const canAcceptInquiries = loggedInUser?.permissions?.includes("cht_inquiry_accept");
   const canViewOwnInquiries = loggedInUser?.permissions?.includes("cht_inquiry_view");
   const canViewInquiries = canViewOwnInquiries || canViewAllInquiries;
+  const canViewMetrics = loggedInUser?.permissions?.includes("cht_view_metrics");
 
   const chtAccent = "#f59e0b";
   const chtAccentDark = "#d97706";
@@ -164,12 +169,10 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
     }
   };
 
-  const handleStatusUpdate = async () => {
-    if (!selectedStatusId || !responseText.trim()) {
-      return;
-    }
-
+const handleStatusUpdate = async () => {
+    if (!selectedStatusId || !responseText.trim()) return;
     setSubmittingResponse(true);
+    setStatusUpdateError("");
     try {
       const data = await api.respondToCreditHoldInquiry(selectedInquiry.id, selectedStatusId, responseText);
       setInquiries((prev) =>
@@ -182,6 +185,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
       setResponseText("");
     } catch (err) {
       console.error("Failed to update status:", err);
+      setStatusUpdateError(err.message || "Failed to update decision. This inquiry may have already been finalized.");
     } finally {
       setSubmittingResponse(false);
     }
@@ -193,24 +197,30 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
     setShowStatusUpdate(false);
     setSelectedStatusId("");
     setResponseText("");
+    setStatusUpdateError("");
+    setQuickEditError("");
     if (canAcceptInquiries || canViewAllInquiries) {
       loadResponses(inquiry.id);
     }
   };
 
-  const handleToggleClosed = async () => {
-    if (!selectedInquiry) return;
-    setClosingInquiry(true);
+  const handleQuickEditDecision = async () => {
+    if (!quickEditInquiryId || !quickEditStatusId || !quickEditResponse.trim()) return;
+    setQuickEditSubmitting(true);
+    setQuickEditError("");
     try {
-      const data = await api.toggleCreditHoldInquiryClosed(selectedInquiry.id);
+      const data = await api.respondToCreditHoldInquiry(quickEditInquiryId, quickEditStatusId, quickEditResponse);
       setInquiries((prev) =>
-        prev.map((inq) => (inq.id === selectedInquiry.id ? data.inquiry : inq))
+        prev.map((inq) => (inq.id === quickEditInquiryId ? data.inquiry : inq))
       );
-      setSelectedInquiry(data.inquiry);
+      setQuickEditInquiryId(null);
+      setQuickEditStatusId("");
+      setQuickEditResponse("");
     } catch (err) {
-      console.error("Failed to toggle closed status:", err);
+      console.error("Failed to update decision:", err);
+      setQuickEditError(err.message || "Failed to update decision. This inquiry may have already been finalized.");
     } finally {
-      setClosingInquiry(false);
+      setQuickEditSubmitting(false);
     }
   };
 
@@ -218,13 +228,6 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
     let filtered = canViewAllInquiries 
       ? [...inquiries] 
       : inquiries.filter(i => i.submitted_by === loggedInUser?.name || i.user_id === loggedInUser?.id);
-
-    // Filter by open/closed status
-    if (isOpenFilter === "open") {
-      filtered = filtered.filter((i) => !i.is_closed);
-    } else if (isOpenFilter === "closed") {
-      filtered = filtered.filter((i) => i.is_closed);
-    }
 
     // Filter by decision
     if (decisionFilter && decisionFilter !== "all") {
@@ -274,6 +277,31 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  const formatTimeToClose = (createdAt, decisionAt) => {
+    if (!decisionAt) return null;
+    const start = new Date(createdAt);
+    const end = new Date(decisionAt);
+    const diffMs = end - start;
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+    const diffMinutes = Math.floor((diffMs / (1000 * 60)) % 60);
+    
+    if (diffDays > 0) {
+      const remainingHours = diffHours % 24;
+      if (remainingHours > 0) {
+        return `${diffDays}d ${remainingHours}h`;
+      }
+      return `${diffDays}d`;
+    }
+    if (diffHours > 0) {
+      return `${diffHours}h ${diffMinutes}m`;
+    }
+    if (diffMinutes > 0) {
+      return `${diffMinutes}m`;
+    }
+    return "<1m";
   };
 
   const getStatusBadge = (statusName, statusColor) => (
@@ -338,32 +366,6 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
 
           {/* Filters */}
           <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
-            {/* Status Filter */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                Status
-              </label>
-              <select
-                value={isOpenFilter}
-                onChange={(e) => setIsOpenFilter(e.target.value)}
-                style={{
-                  padding: "8px 12px",
-                  border: `1px solid ${t.border}`,
-                  borderRadius: 6,
-                  fontSize: 13,
-                  background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
-                  color: t.text,
-                  outline: "none",
-                  fontFamily: "inherit",
-                  minWidth: 120,
-                }}
-              >
-                <option value="open">Open</option>
-                <option value="closed">Closed</option>
-                <option value="all">All</option>
-              </select>
-            </div>
-
             {/* Decision Filter */}
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
@@ -529,10 +531,10 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
             )}
 
             {/* Clear Filters */}
-            {(isOpenFilter !== "open" || decisionFilter !== "all" || dateFilter !== "all" || userFilter) && (
+            {(decisionFilter !== "all" || dateFilter !== "all" || userFilter) && (
               <div style={{ display: "flex", alignItems: "flex-end" }}>
                 <button
-                  onClick={() => { setIsOpenFilter("open"); setDecisionFilter("all"); setDateFilter("all"); setUserFilter(""); }}
+                  onClick={() => { setDecisionFilter("all"); setDateFilter("all"); setUserFilter(""); }}
                   style={{
                     padding: "8px 12px",
                     border: `1px solid ${t.border}`,
@@ -570,7 +572,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
             <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
               <div style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 80px 100px 120px 120px 100px",
+                gridTemplateColumns: canViewMetrics ? "1fr 120px 120px 120px 80px 100px" : "1fr 120px 120px 120px 100px",
                 gap: 12,
                 padding: "12px 16px",
                 borderBottom: `1px solid ${t.border}`,
@@ -582,56 +584,185 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                 background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
               }}>
                 <div>Invoice Number</div>
-                <div>Status</div>
                 <div>Decision</div>
                 <div>Submitted By</div>
                 <div>Submitted</div>
+                {canViewMetrics && <div>Time to Close</div>}
                 <div style={{ textAlign: "right" }}>Assigned To</div>
               </div>
-              {filteredInquiries.map((inquiry, idx) => (
-                <div
-                  key={inquiry.id}
-                  className="inquiry-row"
-                  onClick={() => handleSelectInquiry(inquiry)}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 80px 100px 120px 120px 100px",
-                    gap: 12,
-                    padding: "14px 16px",
-                    borderBottom: idx < filteredInquiries.length - 1 ? `1px solid ${t.border}` : "none",
-                    alignItems: "center",
-                  }}
-                >
-                  <div style={{ fontWeight: 600, color: t.text }}>
-                    {inquiry.invoice_number}
+              {filteredInquiries.map((inquiry, idx) => {
+                const isLocked = inquiry.decision_at !== null;
+                return (
+                  <div
+                    key={inquiry.id}
+                    className="inquiry-row"
+                    onClick={() => handleSelectInquiry(inquiry)}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: canViewMetrics ? "1fr 120px 120px 120px 80px 100px" : "1fr 120px 120px 120px 100px",
+                      gap: 12,
+                      padding: "14px 16px",
+                      borderBottom: idx < filteredInquiries.length - 1 ? `1px solid ${t.border}` : "none",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, color: t.text }}>
+                      {inquiry.invoice_number}
+                    </div>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      {canAcceptInquiries && !isLocked ? (
+                        <div style={{ position: "relative" }}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setQuickEditInquiryId(quickEditInquiryId === inquiry.id ? null : inquiry.id);
+                              setQuickEditStatusId(String(inquiry.status_id || ""));
+                              setQuickEditResponse("");
+                            }}
+                            style={{
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                              padding: 0,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4,
+                            }}
+                          >
+                            {getStatusBadge(inquiry.status_name, inquiry.status_color)}
+                            <ChevronDown size={12} style={{ color: t.textMuted }} />
+                          </button>
+                          {quickEditInquiryId === inquiry.id && (
+                            <div
+                              onClick={(e) => e.stopPropagation()}
+                              style={{
+                                position: "absolute",
+                                top: "100%",
+                                left: 0,
+                                marginTop: 4,
+                                background: t.surface,
+                                border: `1px solid ${t.border}`,
+                                borderRadius: 8,
+                                boxShadow: darkMode ? "0 8px 24px rgba(0,0,0,0.4)" : "0 8px 24px rgba(0,0,0,0.15)",
+                                zIndex: 200,
+                                minWidth: 200,
+                                padding: 8,
+                              }}
+                            >
+                              <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                Change Decision
+                              </div>
+                              <select
+                                value={quickEditStatusId}
+                                onChange={(e) => setQuickEditStatusId(e.target.value)}
+                                style={{
+                                  width: "100%",
+                                  padding: "6px 8px",
+                                  border: `1px solid ${t.border}`,
+                                  borderRadius: 6,
+                                  fontSize: 12,
+                                  background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                                  color: t.text,
+                                  outline: "none",
+                                  fontFamily: "inherit",
+                                  marginBottom: 8,
+                                }}
+                              >
+                                {statuses.map((s) => (
+                                  <option key={s.id} value={s.id}>{s.name}</option>
+                                ))}
+                              </select>
+                              <textarea
+                                placeholder="Add response (required)..."
+                                value={quickEditResponse}
+                                onChange={(e) => setQuickEditResponse(e.target.value)}
+                                rows={2}
+                                style={{
+                                  width: "100%",
+                                  padding: "6px 8px",
+                                  border: `1px solid ${t.border}`,
+                                  borderRadius: 6,
+                                  fontSize: 12,
+                                  background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                                  color: t.text,
+                                  outline: "none",
+                                  fontFamily: "inherit",
+                                  resize: "vertical",
+                                  marginBottom: 8,
+                                  boxSizing: "border-box",
+                                }}
+                              />
+                              {quickEditError && (
+                                <div style={{ fontSize: 11, color: t.error, marginBottom: 8 }}>
+                                  {quickEditError}
+                                </div>
+                              )}
+                              <div style={{ display: "flex", gap: 6 }}>
+                                <button
+                                  onClick={() => { setQuickEditInquiryId(null); setQuickEditStatusId(""); setQuickEditResponse(""); }}
+                                  style={{
+                                    flex: 1,
+                                    padding: "6px 10px",
+                                    background: "transparent",
+                                    border: `1px solid ${t.border}`,
+                                    borderRadius: 6,
+                                    color: t.textMuted,
+                                    fontSize: 12,
+                                    cursor: "pointer",
+                                    fontFamily: "inherit",
+                                  }}
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={handleQuickEditDecision}
+                                  disabled={!quickEditStatusId || !quickEditResponse.trim() || quickEditSubmitting}
+                                  style={{
+                                    flex: 1,
+                                    padding: "6px 10px",
+                                    background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+                                    border: "none",
+                                    borderRadius: 6,
+                                    color: "white",
+                                    fontSize: 12,
+                                    fontWeight: 600,
+                                    cursor: quickEditSubmitting || !quickEditStatusId || !quickEditResponse.trim() ? "not-allowed" : "pointer",
+                                    fontFamily: "inherit",
+                                    opacity: !quickEditStatusId || !quickEditResponse.trim() ? 0.5 : 1,
+                                  }}
+                                >
+                                  {quickEditSubmitting ? "Saving..." : "Save"}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          {getStatusBadge(inquiry.status_name, inquiry.status_color)}
+                          {isLocked && (
+                            <span style={{ fontSize: 10, color: t.textDim, marginLeft: 2 }}>🔒</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 13, color: t.textMuted }}>
+                      {inquiry.submitted_by}
+                    </div>
+                    <div style={{ fontSize: 12, color: t.textMuted }}>
+                      {formatDate(inquiry.created_at)}
+                    </div>
+                    {canViewMetrics && (
+                      <div style={{ fontSize: 12, color: t.textMuted }}>
+                        {formatTimeToClose(inquiry.created_at, inquiry.decision_at) || "—"}
+                      </div>
+                    )}
+                    <div style={{ fontSize: 12, color: inquiry.assigned_to_name ? t.text : t.textMuted, textAlign: "right" }}>
+                      {inquiry.assigned_to_name || "—"}
+                    </div>
                   </div>
-                  <div>
-                    <span style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      padding: "3px 8px",
-                      borderRadius: 6,
-                      background: inquiry.is_closed ? (darkMode ? "rgba(239,68,68,0.15)" : "rgba(239,68,68,0.1)") : (darkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)"),
-                      color: inquiry.is_closed ? "#ef4444" : "#22c55e",
-                      whiteSpace: "nowrap",
-                    }}>
-                      {inquiry.is_closed ? "Closed" : "Open"}
-                    </span>
-                  </div>
-                  <div>
-                    {getStatusBadge(inquiry.status_name, inquiry.status_color)}
-                  </div>
-                  <div style={{ fontSize: 13, color: t.textMuted }}>
-                    {inquiry.submitted_by}
-                  </div>
-                  <div style={{ fontSize: 12, color: t.textMuted }}>
-                    {formatDate(inquiry.created_at)}
-                  </div>
-                  <div style={{ fontSize: 12, color: inquiry.assigned_to_name ? t.text : t.textMuted, textAlign: "right" }}>
-                    {inquiry.assigned_to_name || "—"}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
@@ -879,18 +1010,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: t.text }}>
                   {selectedInquiry.invoice_number}
                 </h3>
-                <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center" }}>
-                  <span style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    padding: "3px 8px",
-                    borderRadius: 6,
-                    background: selectedInquiry.is_closed ? (darkMode ? "rgba(239,68,68,0.15)" : "rgba(239,68,68,0.1)") : (darkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)"),
-                    color: selectedInquiry.is_closed ? "#ef4444" : "#22c55e",
-                    whiteSpace: "nowrap",
-                  }}>
-                    {selectedInquiry.is_closed ? "Closed" : "Open"}
-                  </span>
+                <div style={{ marginTop: 8 }}>
                   {getStatusBadge(selectedInquiry.status_name, selectedInquiry.status_color)}
                 </div>
               </div>
@@ -1011,6 +1131,11 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                       }}
                     />
                   </div>
+                  {statusUpdateError && (
+                    <div style={{ marginBottom: 12, padding: "8px 12px", background: darkMode ? "rgba(239,68,68,0.1)" : "rgba(239,68,68,0.1)", border: `1px solid ${t.error}`, borderRadius: 6, color: t.error, fontSize: 12 }}>
+                      {statusUpdateError}
+                    </div>
+                  )}
                   <div style={{ display: "flex", gap: 8 }}>
                     <button
                       onClick={handleStatusUpdate}
@@ -1072,11 +1197,10 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                         </div>
                       ))}
                     </div>
-                  )}
-                </div>
-              )}
+)}
+            </div>
 
-              {canAcceptInquiries && !selectedInquiry.assigned_to && !showStatusUpdate && (
+              {canAcceptInquiries && !selectedInquiry.assigned_to && !showStatusUpdate && !selectedInquiry.decision_at && (
                 <button
                   onClick={() => handleAccept(selectedInquiry.id)}
                   style={{
@@ -1097,7 +1221,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                 </button>
               )}
 
-              {canAcceptInquiries && selectedInquiry.assigned_to && !showStatusUpdate && (
+              {canAcceptInquiries && selectedInquiry.assigned_to && !showStatusUpdate && !selectedInquiry.decision_at && (
                 <button
                   onClick={() => setShowStatusUpdate(true)}
                   style={{
@@ -1118,27 +1242,12 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                 </button>
               )}
 
-              {canAcceptInquiries && selectedInquiry.assigned_to && !showStatusUpdate && (
-                <button
-                  onClick={handleToggleClosed}
-                  disabled={closingInquiry}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    background: selectedInquiry.is_closed ? "transparent" : `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
-                    border: selectedInquiry.is_closed ? `1px solid ${chtAccent}` : "none",
-                    borderRadius: 8,
-                    color: selectedInquiry.is_closed ? chtAccent : "white",
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: closingInquiry ? "not-allowed" : "pointer",
-                    fontFamily: "inherit",
-                    marginTop: 8,
-                    opacity: closingInquiry ? 0.7 : 1,
-                  }}
-                >
-                  {closingInquiry ? (selectedInquiry.is_closed ? "Reopening..." : "Closing...") : (selectedInquiry.is_closed ? "Reopen Inquiry" : "Close Inquiry")}
-                </button>
+              {selectedInquiry.decision_at && (
+                <div style={{ marginTop: 16, padding: 12, background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)", borderRadius: 8, textAlign: "center" }}>
+                  <div style={{ fontSize: 12, color: t.textMuted }}>
+                    This inquiry has been finalized and cannot be modified.
+                  </div>
+                </div>
               )}
             </div>
           </div>

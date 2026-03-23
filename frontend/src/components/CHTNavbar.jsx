@@ -8,6 +8,7 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
   const [customApps, setCustomApps] = useState([]);
 
+  const isAdmin = loggedInUser?.groups?.includes("Administrator");
   const chtAccent = "#f59e0b";
   const chtAccentDark = "#d97706";
   const t = {

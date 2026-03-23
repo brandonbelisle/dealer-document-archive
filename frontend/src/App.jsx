@@ -8,6 +8,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import LoginScreen from "./components/LoginScreen";
 import Navbar from "./components/Navbar";
 import WarningModal from "./components/modals/WarningModal";
+import ConfirmDeleteModal from "./components/modals/ConfirmDeleteModal";
 import RenameModal from "./components/modals/RenameModal";
 import ChangePasswordModal from "./components/modals/ChangePasswordModal";
 import AdminSetPasswordModal from "./components/modals/AdminSetPasswordModal";
@@ -98,6 +99,7 @@ function AppInner() {
   const [editingDeptId, setEditingDeptId] = useState(null);
   const [editingDeptName, setEditingDeptName] = useState("");
   const [warningModal, setWarningModal] = useState(null);
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState(null);
   const [auditLog, setAuditLog] = useState([]);
   const [auditFilterUser, setAuditFilterUser] = useState("");
   const [auditFilterAction, setAuditFilterAction] = useState("");
@@ -807,12 +809,13 @@ const t = getTheme(darkMode);
   const handleDeleteFolder = (folder) => {
     const childFolders = subfoldersOf(folder.id);
     const fileCount = allFilesInFolderRecursive(folder.id);
-    const message = childFolders.length > 0
-      ? `Delete "${folder.name}"? This includes ${childFolders.length} subfolder${childFolders.length !== 1 ? "s" : ""} and ${fileCount} file${fileCount !== 1 ? "s" : ""} will become unsorted. This cannot be undone.`
-      : fileCount > 0
-        ? `Delete "${folder.name}"? ${fileCount} file${fileCount !== 1 ? "s" : ""} inside will become unsorted. This cannot be undone.`
-        : `Delete the folder "${folder.name}"? This cannot be undone.`;
-    const doDelete = async () => { 
+    const hasFiles = fileCount > 0;
+    const message = hasFiles
+      ? `"${folder.name}" contains ${fileCount} file${fileCount !== 1 ? "s" : ""}. What would you like to do with the files?`
+      : `Delete the folder "${folder.name}"? This cannot be undone.`;
+    
+    // Unlink files (move them to unsorted) and delete folder
+    const doUnlink = async () => { 
       try { 
         const getAllDescendants = (pid) => { const ch = subfoldersOf(pid); let all = []; for (const c of ch) { all = [...all, ...getAllDescendants(c.id), c]; } return all; }; 
         const descendants = getAllDescendants(folder.id); 
@@ -824,9 +827,58 @@ const t = getTheme(darkMode);
         if (activeFolderId === folder.id || allIds.has(activeFolderId)) { if (folder.parentId) setActiveFolderId(folder.parentId); else { setActiveFolderId(null); setPage("folders"); } }
         addToast("Folder deleted", `"${folder.name}" has been deleted`, 4000, "delete");
       } catch (err) { console.error(err); } 
-      setWarningModal(null); 
     };
-    setWarningModal({ title: "Delete Folder", message, onConfirm: doDelete });
+    
+    // Delete folder and all files inside it
+    const doDeleteAll = async () => { 
+      try { 
+        const getAllDescendants = (pid) => { const ch = subfoldersOf(pid); let all = []; for (const c of ch) { all = [...all, ...getAllDescendants(c.id), c]; } return all; }; 
+        const descendants = getAllDescendants(folder.id); 
+        const allIds = new Set([folder.id, ...descendants.map((d) => d.id)]); 
+        
+        // Get all files in this folder and subfolders
+        const filesToDelete = files.filter((f) => allIds.has(f.folderId));
+        
+        // Delete all files first
+        for (const file of filesToDelete) {
+          await api.deleteFile(file.id).catch(console.error);
+        }
+        
+        // Remove from local state
+        setFiles((p) => p.filter((f) => !allIds.has(f.folderId))); 
+        
+        // Delete subfolders then main folder
+        for (const desc of descendants) { await api.deleteFolder(desc.id).catch(console.error); } 
+        await api.deleteFolder(folder.id); 
+        setFolders((p) => p.filter((f) => !allIds.has(f.id))); 
+        if (activeFolderId === folder.id || allIds.has(activeFolderId)) { if (folder.parentId) setActiveFolderId(folder.parentId); else { setActiveFolderId(null); setPage("folders"); } }
+        addToast("Folder and files deleted", `"${folder.name}" and ${filesToDelete.length} file${filesToDelete.length !== 1 ? "s" : ""} have been deleted`, 4000, "delete");
+      } catch (err) { console.error(err); } 
+    };
+    
+    // Show confirmation modal for delete all
+    const handleDeleteAllClick = () => {
+      const getAllDescendants = (pid) => { const ch = subfoldersOf(pid); let all = []; for (const c of ch) { all = [...all, ...getAllDescendants(c.id), c]; } return all; }; 
+      const descendants = getAllDescendants(folder.id); 
+      const allIds = new Set([folder.id, ...descendants.map((d) => d.id)]);
+      const filesToDelete = files.filter((f) => allIds.has(f.folderId));
+      
+      setDeleteConfirmModal({
+        title: "Confirm Delete",
+        message: `Are you sure you want to permanently delete "${folder.name}" and all its contents?`,
+        itemCount: filesToDelete.length,
+        itemType: "file",
+        onConfirm: doDeleteAll,
+      });
+    };
+    
+    setWarningModal({ 
+      title: "Delete Folder", 
+      message, 
+      onConfirmUnlink: hasFiles ? doUnlink : undefined,
+      onConfirmDeleteAll: doDeleteAll,
+      onDeleteAllClick: handleDeleteAllClick
+    });
   };
 
   const handleDeleteLocation = (loc) => { 
@@ -909,6 +961,18 @@ const t = getTheme(darkMode);
 
       <RenameModal renamingFileId={renamingFileId} renamingFileName={renamingFileName} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} renameFile={renameFile} t={t} darkMode={darkMode} />
       <WarningModal warningModal={warningModal} setWarningModal={setWarningModal} t={t} darkMode={darkMode} />
+      <ConfirmDeleteModal
+        isOpen={!!deleteConfirmModal}
+        onClose={() => setDeleteConfirmModal(null)}
+        title={deleteConfirmModal?.title || "Confirm Delete"}
+        message={deleteConfirmModal?.message || ""}
+        itemCount={deleteConfirmModal?.itemCount}
+        itemType={deleteConfirmModal?.itemType}
+        onConfirm={deleteConfirmModal?.onConfirm}
+        confirmText="Delete All"
+        t={t}
+        darkMode={darkMode}
+      />
       <ChangePasswordModal show={showChangePassword} form={changePasswordForm} setForm={setChangePasswordForm} error={changePasswordError} setError={setChangePasswordError} success={changePasswordSuccess} setSuccess={setChangePasswordSuccess} loading={changePasswordLoading} onSubmit={handleChangePassword} onClose={() => setShowChangePassword(false)} t={t} darkMode={darkMode} />
       <AdminSetPasswordModal userId={adminSetPasswordUserId} userName={adminUsers.find((u) => u.id === adminSetPasswordUserId)?.name} form={adminSetPasswordForm} setForm={setAdminSetPasswordForm} error={adminSetPasswordError} setError={setAdminSetPasswordError} success={adminSetPasswordSuccess} setSuccess={setAdminSetPasswordSuccess} loading={adminSetPasswordLoading} onSubmit={handleAdminSetPassword} onClose={() => setAdminSetPasswordUserId(null)} t={t} darkMode={darkMode} />
       <SubscriptionsModal show={showSubscriptionsModal} onClose={() => setShowSubscriptionsModal(false)} subscriptions={subscriptions} setSubscriptions={setSubscriptions} t={t} darkMode={darkMode} />

@@ -1,6 +1,6 @@
 import { AlertTriangleIcon } from "../Icons";
 
-export default function WarningModal({ warningModal, setWarningModal, t, darkMode }) {
+export default function WarningModal({ warningModal, setWarningModal, t, darkMode, onDeleteAll }) {
   if (!warningModal) return null;
 
   return (
@@ -28,7 +28,7 @@ export default function WarningModal({ warningModal, setWarningModal, t, darkMod
         style={{
           position: "relative",
           width: "100%",
-          maxWidth: 420,
+          maxWidth: 480,
           background: t.surface,
           border: `1px solid ${t.border}`,
           borderRadius: 14,
@@ -79,7 +79,7 @@ export default function WarningModal({ warningModal, setWarningModal, t, darkMod
           </div>
         </div>
         <div
-          style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}
+          style={{ display: "flex", justifyContent: "flex-end", gap: 8, flexWrap: "wrap" }}
         >
           <button
             onClick={() => setWarningModal(null)}
@@ -97,25 +97,72 @@ export default function WarningModal({ warningModal, setWarningModal, t, darkMod
           >
             Cancel
           </button>
-          <button
-            onClick={() => {
-              warningModal.onConfirm();
-              setWarningModal(null);
-            }}
-            style={{
-              background: t.error,
-              border: "none",
-              borderRadius: 8,
-              padding: "8px 18px",
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: "pointer",
-              color: "#fff",
-              fontFamily: "inherit",
-            }}
-          >
-            Yes, Unlink Files
-          </button>
+          {warningModal.onConfirmUnlink && (
+            <button
+              onClick={() => {
+                warningModal.onConfirmUnlink();
+                setWarningModal(null);
+              }}
+              style={{
+                background: t.warnSoft,
+                border: `1px solid ${t.warn}`,
+                borderRadius: 8,
+                padding: "8px 18px",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                color: t.warn,
+                fontFamily: "inherit",
+              }}
+            >
+              Yes, Unlink Files
+            </button>
+          )}
+          {warningModal.onConfirmDeleteAll && (
+            <button
+              onClick={() => {
+                if (warningModal.onDeleteAllClick) {
+                  warningModal.onDeleteAllClick();
+                } else if (onDeleteAll) {
+                  onDeleteAll();
+                }
+              }}
+              style={{
+                background: t.error,
+                border: "none",
+                borderRadius: 8,
+                padding: "8px 18px",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                color: "#fff",
+                fontFamily: "inherit",
+              }}
+            >
+              Delete Folder and Files
+            </button>
+          )}
+          {!warningModal.onConfirmUnlink && !warningModal.onConfirmDeleteAll && warningModal.onConfirm && (
+            <button
+              onClick={() => {
+                warningModal.onConfirm();
+                setWarningModal(null);
+              }}
+              style={{
+                background: t.error,
+                border: "none",
+                borderRadius: 8,
+                padding: "8px 18px",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                color: "#fff",
+                fontFamily: "inherit",
+              }}
+            >
+              Confirm
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -644,9 +644,6 @@ const handleStatusUpdate = async () => {
                             {getStatusBadge(inquiry.status_name, inquiry.status_color)}
                             <ChevronDown size={12} style={{ color: t.textMuted }} />
                           </button>
-                            {getStatusBadge(inquiry.status_name, inquiry.status_color)}
-                            <ChevronDown size={12} style={{ color: t.textMuted }} />
-                          </button>
                           {quickEditInquiryId === inquiry.id && (
                             <div
                               onClick={(e) => e.stopPropagation()}

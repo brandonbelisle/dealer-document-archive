@@ -34,10 +34,19 @@ export default function FileDetailPage({
 }) {
   const canDeleteFiles = loggedInUser?.permissions?.includes("deleteFiles");
   const [extracting, setExtracting] = useState(false);
-  const [vf, setVf] = useState(files.find((f) => f.id === viewingFileId));
+  const currentFile = files.find((f) => f.id === viewingFileId);
+  const [vf, setVf] = useState(currentFile);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
-  
+
+  useEffect(() => {
+    const newFile = files.find((f) => f.id === viewingFileId);
+    if (newFile && newFile.id !== vf?.id) {
+      setVf(newFile);
+      setPreviewUrl(null);
+    }
+  }, [viewingFileId, files]);
+
   if (!vf) return null;
 
   // Fetch fresh preview URL when file changes

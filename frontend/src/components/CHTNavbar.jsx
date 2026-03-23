@@ -346,7 +346,7 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
             </div>
           )}
         </div>
-        <AlertsDropdown darkMode={darkMode} onNavigate={(alert) => {
+        <AlertsDropdown darkMode={darkMode} currentUserId={loggedInUser?.id} onNavigate={(alert) => {
           const isCHT = alert.type === "cht_inquiry_assigned" || alert.type === "cht_inquiry_updated" ||
                         alert.notification_type === "cht_inquiry_assigned" || alert.notification_type === "cht_inquiry_updated";
           if (isCHT) {

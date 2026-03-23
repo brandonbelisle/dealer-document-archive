@@ -282,7 +282,7 @@ export default function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page,
             </div>
           )}
         </div>
-        <AlertsDropdown darkMode={darkMode} onNavigate={(alert) => {
+        <AlertsDropdown darkMode={darkMode} currentUserId={loggedInUser?.id} onNavigate={(alert) => {
             if (alert.file_id) {
               setPage("dashboard");
               setTimeout(() => {

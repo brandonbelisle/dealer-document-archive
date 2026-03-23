@@ -121,16 +121,14 @@ router.post('/inquiries/:id/accept', requireAuth, requirePermission('cht_inquiry
 
     // Notify the original submitter via socket
     const socket = require('../socket');
-    const io = socket.getIO();
-    if (io) {
-      io.to(`user-${inquiry.user_id}`).emit('notification', {
-        type: 'cht_inquiry_assigned',
-        title: 'Credit Hold Inquiry Assigned',
-        message: `Your inquiry for invoice "${inquiry.invoice_number}" has been assigned for review.`,
-        data: { inquiryId: id },
-        createdAt: new Date().toISOString(),
-      });
-    }
+    socket.notificationCreated(inquiry.user_id, {
+      id: `cht-assign-${id}-${Date.now()}`,
+      type: 'cht_inquiry_assigned',
+      title: 'Credit Hold Inquiry Assigned',
+      message: `Your inquiry for invoice "${inquiry.invoice_number}" has been assigned for review.`,
+      data: { inquiryId: id },
+      created_at: new Date().toISOString(),
+    });
 
     const [rows] = await db.execute(
       `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
@@ -351,16 +349,14 @@ router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
 
     // Notify the original submitter via socket
     const socket = require('../socket');
-    const io = socket.getIO();
-    if (io) {
-      io.to(`user-${inquiry.user_id}`).emit('notification', {
-        type: 'cht_inquiry_updated',
-        title: 'Credit Hold Inquiry Updated',
-        message: `Your inquiry for invoice "${inquiry.invoice_number}" has been updated to ${statusName}.`,
-        data: { inquiryId: id },
-        createdAt: new Date().toISOString(),
-      });
-    }
+    socket.notificationCreated(inquiry.user_id, {
+      id: `cht-update-${id}-${Date.now()}`,
+      type: 'cht_inquiry_updated',
+      title: 'Credit Hold Inquiry Updated',
+      message: `Your inquiry for invoice "${inquiry.invoice_number}" has been updated to ${statusName}.`,
+      data: { inquiryId: id },
+      created_at: new Date().toISOString(),
+    });
 
     // Return updated inquiry
     const [rows] = await db.execute(

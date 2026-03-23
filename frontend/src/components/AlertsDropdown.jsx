@@ -4,7 +4,7 @@ import { BellIcon, XIcon, TrashIcon, MapPinIcon, LayersIcon, FolderClosedIcon } 
 import { getTheme } from "../theme";
 import { useSocket } from "../hooks/useSocket";
 
-export default function AlertsDropdown({ darkMode, onNavigate }) {
+export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) {
   const t = getTheme(darkMode);
   const [showDropdown, setShowDropdown] = useState(false);
   const [alerts, setAlerts] = useState([]);
@@ -13,6 +13,11 @@ export default function AlertsDropdown({ darkMode, onNavigate }) {
 
   const handleNotificationCreated = (data) => {
     const notification = data.notification || data;
+    // For CHT notifications, only show if it's for the current user
+    const isCHT = notification.type === 'cht_inquiry_assigned' || notification.type === 'cht_inquiry_updated';
+    if (isCHT && data.userId && currentUserId && data.userId !== currentUserId) {
+      return;
+    }
     setAlerts((prev) => [{ ...notification, read_at: null }, ...prev.slice(0, 99)]);
     setUnreadCount((prev) => prev + 1);
   };

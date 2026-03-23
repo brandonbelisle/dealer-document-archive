@@ -1396,14 +1396,11 @@ const apps = [
             </div>
           )}
         </div>
-        <AlertsDropdown darkMode={darkMode} onNavigate={(alert) => {
+        <AlertsDropdown darkMode={darkMode} currentUserId={loggedInUser?.id} onNavigate={(alert) => {
             const isCHT = alert.type === "cht_inquiry_assigned" || alert.type === "cht_inquiry_updated" ||
                           alert.notification_type === "cht_inquiry_assigned" || alert.notification_type === "cht_inquiry_updated";
             if (isCHT) {
               setPage("cht-dashboard");
-              if (alert.data?.inquiryId && setViewingFileIdFromAlert) {
-                // Pass inquiry ID to CHTDashboardPage via state or context
-              }
             } else if (alert.file_id) {
               setActiveFolderId(alert.folder_id || null);
               if (alert.folder_id) {

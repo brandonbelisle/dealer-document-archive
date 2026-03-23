@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import * as api from "../api";
-import { PlusIcon, XIcon } from "../components/Icons";
+import { PlusIcon, XIcon, ChevronDown, SearchIcon } from "../components/Icons";
 
 export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab = "dashboard" }) {
   const [inquiries, setInquiries] = useState([]);
   const [statuses, setStatuses] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
@@ -19,6 +20,14 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  // Filters
+  const [statusFilter, setStatusFilter] = useState("open");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [userFilter, setUserFilter] = useState("");
+  const [userSearch, setUserSearch] = useState("");
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const userDropdownRef = useRef(null);
+
   const canSubmitInquiries = loggedInUser?.permissions?.includes("cht_inquiry_submit");
   const canViewAllInquiries = loggedInUser?.permissions?.includes("cht_inquiry_view_all");
   const canAcceptInquiries = loggedInUser?.permissions?.includes("cht_inquiry_accept");
@@ -32,8 +41,19 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
     if ((activeTab === "inquiries" || activeTab === "dashboard") && canViewInquiries) {
       loadInquiries();
       loadStatuses();
+      loadUsers();
     }
   }, [activeTab, canViewInquiries]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
+        setShowUserDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const loadInquiries = async () => {
     setLoading(true);
@@ -53,6 +73,25 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
       setStatuses(data.statuses || []);
     } catch (err) {
       console.error("Failed to load statuses:", err);
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      const data = await api.getUsers();
+      const uniqueSubmitters = new Map();
+      (inquiries || []).forEach((inq) => {
+        if (inq.user_id && inq.submitted_by && !uniqueSubmitters.has(inq.user_id)) {
+          uniqueSubmitters.set(inq.user_id, { id: inq.user_id, name: inq.submitted_by });
+        }
+      });
+      if (data.users) {
+        setUsers(data.users.map((u) => ({ id: u.id, name: u.name || u.display_name || u.email })));
+      } else {
+        setUsers(Array.from(uniqueSubmitters.values()));
+      }
+    } catch (err) {
+      console.error("Failed to load users:", err);
     }
   };
 
@@ -139,6 +178,40 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
     }
   };
 
+  // Filter inquiries
+  const getFilteredInquiries = () => {
+    let filtered = [...inquiries];
+
+    // Status filter
+    if (statusFilter === "open") {
+      filtered = filtered.filter((i) => i.status_name?.toLowerCase() !== "closed");
+    } else if (statusFilter && statusFilter !== "all") {
+      filtered = filtered.filter((i) => String(i.status_id) === statusFilter);
+    }
+
+    // Date filter
+    const now = new Date();
+    if (dateFilter === "today") {
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      filtered = filtered.filter((i) => new Date(i.created_at) >= today);
+    } else if (dateFilter === "month") {
+      const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      filtered = filtered.filter((i) => new Date(i.created_at) >= firstOfMonth);
+    } else if (dateFilter === "year") {
+      const firstOfYear = new Date(now.getFullYear(), 0, 1);
+      filtered = filtered.filter((i) => new Date(i.created_at) >= firstOfYear);
+    }
+
+    // User filter
+    if (userFilter) {
+      filtered = filtered.filter((i) => i.user_id === userFilter);
+    }
+
+    return filtered;
+  };
+
+  const filteredInquiries = getFilteredInquiries();
+
   const getStatusColor = (statusColor) => {
     return statusColor || (darkMode ? "#6b7280" : "#9ca3af");
   };
@@ -177,11 +250,19 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
     </span>
   );
 
-  const nonClosedInquiries = inquiries.filter(i => i.status_name?.toLowerCase() !== "closed");
-
   const myInquiries = canViewAllInquiries 
     ? inquiries 
     : inquiries.filter(i => i.submitted_by === loggedInUser?.name || i.user_id === loggedInUser?.id);
+
+  const filteredUsers = users.filter((u) => 
+    u.name?.toLowerCase().includes(userSearch.toLowerCase())
+  );
+
+  const getSelectedUserName = () => {
+    if (!userFilter) return "All Users";
+    const user = users.find((u) => u.id === userFilter);
+    return user?.name || "All Users";
+  };
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
@@ -193,15 +274,204 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
       <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
         {activeTab === "dashboard" && (
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-            <h2 style={{ fontSize: 20, fontWeight: 600, margin: "0 0 24px", color: t.text }}>
+            <h2 style={{ fontSize: 20, fontWeight: 600, margin: "0 0 20px", color: t.text }}>
               Credit Hold Dashboard
             </h2>
+
+            {/* Filters */}
+            <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+              {/* Status Filter */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Status
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  style={{
+                    padding: "8px 12px",
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 6,
+                    fontSize: 13,
+                    background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                    color: t.text,
+                    outline: "none",
+                    fontFamily: "inherit",
+                    minWidth: 140,
+                  }}
+                >
+                  <option value="open">Open (Not Closed)</option>
+                  <option value="all">All Statuses</option>
+                  {statuses.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Date Filter */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Date
+                </label>
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  style={{
+                    padding: "8px 12px",
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 6,
+                    fontSize: 13,
+                    background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                    color: t.text,
+                    outline: "none",
+                    fontFamily: "inherit",
+                    minWidth: 120,
+                  }}
+                >
+                  <option value="all">All Time</option>
+                  <option value="today">Today</option>
+                  <option value="month">This Month</option>
+                  <option value="year">This Year</option>
+                </select>
+              </div>
+
+              {/* User Filter */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, position: "relative" }} ref={userDropdownRef}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Submitted By
+                </label>
+                <div
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                  style={{
+                    padding: "8px 12px",
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 6,
+                    fontSize: 13,
+                    background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                    color: t.text,
+                    fontFamily: "inherit",
+                    minWidth: 180,
+                    cursor: "pointer",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {getSelectedUserName()}
+                  </span>
+                  <ChevronDown />
+                </div>
+                {showUserDropdown && (
+                  <div style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    right: 0,
+                    marginTop: 4,
+                    background: t.surface,
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 8,
+                    boxShadow: darkMode ? "0 8px 24px rgba(0,0,0,0.4)" : "0 8px 24px rgba(0,0,0,0.15)",
+                    zIndex: 100,
+                    maxHeight: 280,
+                    overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}>
+                    <div style={{ padding: 8, borderBottom: `1px solid ${t.border}` }}>
+                      <div style={{ position: "relative" }}>
+                        <SearchIcon size={14} />
+                        <input
+                          type="text"
+                          placeholder="Search users..."
+                          value={userSearch}
+                          onChange={(e) => setUserSearch(e.target.value)}
+                          style={{
+                            width: "100%",
+                            padding: "6px 8px 6px 28px",
+                            border: `1px solid ${t.border}`,
+                            borderRadius: 6,
+                            fontSize: 12,
+                            background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                            color: t.text,
+                            outline: "none",
+                            fontFamily: "inherit",
+                          }}
+                        />
+                        <div style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", color: t.textMuted }}>
+                          <SearchIcon size={14} />
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ overflow: "auto", flex: 1 }}>
+                      <div
+                        onClick={() => { setUserFilter(""); setShowUserDropdown(false); setUserSearch(""); }}
+                        style={{
+                          padding: "8px 12px",
+                          cursor: "pointer",
+                          fontSize: 13,
+                          background: !userFilter ? t.accentSoft : "transparent",
+                          color: !userFilter ? t.accent : t.text,
+                          fontWeight: !userFilter ? 600 : 400,
+                        }}
+                      >
+                        All Users
+                      </div>
+                      {filteredUsers.map((user) => (
+                        <div
+                          key={user.id}
+                          onClick={() => { setUserFilter(user.id); setShowUserDropdown(false); setUserSearch(""); }}
+                          style={{
+                            padding: "8px 12px",
+                            cursor: "pointer",
+                            fontSize: 13,
+                            background: userFilter === user.id ? t.accentSoft : "transparent",
+                            color: userFilter === user.id ? t.accent : t.text,
+                            fontWeight: userFilter === user.id ? 600 : 400,
+                          }}
+                        >
+                          {user.name}
+                        </div>
+                      ))}
+                      {filteredUsers.length === 0 && (
+                        <div style={{ padding: 12, color: t.textMuted, fontSize: 12, textAlign: "center" }}>
+                          No users found
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Clear Filters */}
+              {(statusFilter !== "open" || dateFilter !== "all" || userFilter) && (
+                <div style={{ display: "flex", alignItems: "flex-end" }}>
+                  <button
+                    onClick={() => { setStatusFilter("open"); setDateFilter("all"); setUserFilter(""); }}
+                    style={{
+                      padding: "8px 12px",
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 6,
+                      fontSize: 12,
+                      background: "transparent",
+                      color: t.textMuted,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+              )}
+            </div>
 
             {loading ? (
               <div style={{ textAlign: "center", padding: 60, color: t.textMuted }}>
                 Loading...
               </div>
-            ) : nonClosedInquiries.length === 0 ? (
+            ) : filteredInquiries.length === 0 ? (
               <div style={{
                 textAlign: "center",
                 padding: 80,
@@ -210,7 +480,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                 borderRadius: 12,
               }}>
                 <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
-                <p style={{ margin: 0, fontSize: 15 }}>No open credit hold inquiries</p>
+                <p style={{ margin: 0, fontSize: 15 }}>No inquiries match your filters</p>
               </div>
             ) : (
               <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
@@ -233,7 +503,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                   <div>Submitted</div>
                   <div style={{ textAlign: "right" }}>Assigned To</div>
                 </div>
-                {nonClosedInquiries.map((inquiry, idx) => (
+                {filteredInquiries.map((inquiry, idx) => (
                   <div
                     key={inquiry.id}
                     className="inquiry-row"
@@ -243,7 +513,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                       gridTemplateColumns: "1fr 100px 130px 130px 100px",
                       gap: 12,
                       padding: "14px 16px",
-                      borderBottom: idx < nonClosedInquiries.length - 1 ? `1px solid ${t.border}` : "none",
+                      borderBottom: idx < filteredInquiries.length - 1 ? `1px solid ${t.border}` : "none",
                       alignItems: "center",
                     }}
                   >
@@ -266,6 +536,10 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                 ))}
               </div>
             )}
+
+            <div style={{ marginTop: 12, fontSize: 12, color: t.textMuted }}>
+              Showing {filteredInquiries.length} of {inquiries.length} inquiries
+            </div>
           </div>
         )}
 
@@ -679,7 +953,6 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                 </div>
               )}
 
-              {/* Status Update Section */}
               {canAcceptInquiries && showStatusUpdate && (
                 <div style={{ marginBottom: 16, padding: 16, background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)", borderRadius: 8 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 12 }}>
@@ -773,7 +1046,6 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                 </div>
               )}
 
-              {/* Response History */}
               {responses.length > 0 && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
@@ -800,7 +1072,6 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                 </div>
               )}
 
-              {/* Action Buttons */}
               {canAcceptInquiries && !selectedInquiry.assigned_to && !showStatusUpdate && (
                 <button
                   onClick={() => handleAccept(selectedInquiry.id)}

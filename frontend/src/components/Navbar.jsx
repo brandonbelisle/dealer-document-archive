@@ -792,6 +792,7 @@ const apps = [
       {isLoggedIn && (
         <div
           style={{
+            position: "relative",
             flex: 1,
             maxWidth: 480,
             minWidth: 180,
@@ -799,7 +800,6 @@ const apps = [
         >
 <div
             style={{
-              position: "relative",
               width: "100%",
               display: "flex",
               alignItems: "center",

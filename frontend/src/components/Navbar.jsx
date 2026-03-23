@@ -1133,7 +1133,6 @@ const apps = [
               </div>
             )}
           </div>
-          </div>
         </div>
       )}
 

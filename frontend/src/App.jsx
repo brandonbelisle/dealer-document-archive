@@ -814,17 +814,33 @@ const t = getTheme(darkMode);
       ? `"${folder.name}" contains ${fileCount} file${fileCount !== 1 ? "s" : ""}. What would you like to do with the files?`
       : `Delete the folder "${folder.name}"? This cannot be undone.`;
     
+    // Helper to get all descendant folder IDs
+    const getAllDescendants = (pid) => { 
+      const ch = subfoldersOf(pid); 
+      let all = []; 
+      for (const c of ch) { all = [...all, ...getAllDescendants(c.id), c]; } 
+      return all; 
+    };
+    const descendants = getAllDescendants(folder.id); 
+    const allFolderIds = new Set([folder.id, ...descendants.map((d) => d.id)]);
+    
     // Unlink files (move them to unsorted) and delete folder
     const doUnlink = async () => { 
       try { 
-        const getAllDescendants = (pid) => { const ch = subfoldersOf(pid); let all = []; for (const c of ch) { all = [...all, ...getAllDescendants(c.id), c]; } return all; }; 
-        const descendants = getAllDescendants(folder.id); 
-        const allIds = new Set([folder.id, ...descendants.map((d) => d.id)]); 
-        setFiles((p) => p.filter((f) => !allIds.has(f.folderId))); 
+        // Backend will set folder_id = NULL for all files in this folder
         for (const desc of descendants) { await api.deleteFolder(desc.id).catch(console.error); } 
         await api.deleteFolder(folder.id); 
-        setFolders((p) => p.filter((f) => !allIds.has(f.id))); 
-        if (activeFolderId === folder.id || allIds.has(activeFolderId)) { if (folder.parentId) setActiveFolderId(folder.parentId); else { setActiveFolderId(null); setPage("folders"); } }
+        
+        // Update local state - set folderId to null for files in deleted folders
+        setFiles((p) => p.map((f) => 
+          allFolderIds.has(f.folderId) ? { ...f, folderId: null } : f
+        ));
+        setFolders((p) => p.filter((f) => !allFolderIds.has(f.id))); 
+        
+        if (activeFolderId === folder.id || allFolderIds.has(activeFolderId)) { 
+          if (folder.parentId) setActiveFolderId(folder.parentId); 
+          else { setActiveFolderId(null); setPage("folders"); } 
+        }
         addToast("Folder deleted", `"${folder.name}" has been deleted`, 4000, "delete");
       } catch (err) { console.error(err); } 
     };
@@ -832,36 +848,33 @@ const t = getTheme(darkMode);
     // Delete folder and all files inside it
     const doDeleteAll = async () => { 
       try { 
-        const getAllDescendants = (pid) => { const ch = subfoldersOf(pid); let all = []; for (const c of ch) { all = [...all, ...getAllDescendants(c.id), c]; } return all; }; 
-        const descendants = getAllDescendants(folder.id); 
-        const allIds = new Set([folder.id, ...descendants.map((d) => d.id)]); 
-        
         // Get all files in this folder and subfolders
-        const filesToDelete = files.filter((f) => allIds.has(f.folderId));
+        const filesToDelete = files.filter((f) => allFolderIds.has(f.folderId));
         
         // Delete all files first
         for (const file of filesToDelete) {
           await api.deleteFile(file.id).catch(console.error);
         }
         
-        // Remove from local state
-        setFiles((p) => p.filter((f) => !allIds.has(f.folderId))); 
-        
         // Delete subfolders then main folder
         for (const desc of descendants) { await api.deleteFolder(desc.id).catch(console.error); } 
         await api.deleteFolder(folder.id); 
-        setFolders((p) => p.filter((f) => !allIds.has(f.id))); 
-        if (activeFolderId === folder.id || allIds.has(activeFolderId)) { if (folder.parentId) setActiveFolderId(folder.parentId); else { setActiveFolderId(null); setPage("folders"); } }
+        
+        // Remove files and folders from local state
+        setFiles((p) => p.filter((f) => !allFolderIds.has(f.folderId))); 
+        setFolders((p) => p.filter((f) => !allFolderIds.has(f.id))); 
+        
+        if (activeFolderId === folder.id || allFolderIds.has(activeFolderId)) { 
+          if (folder.parentId) setActiveFolderId(folder.parentId); 
+          else { setActiveFolderId(null); setPage("folders"); } 
+        }
         addToast("Folder and files deleted", `"${folder.name}" and ${filesToDelete.length} file${filesToDelete.length !== 1 ? "s" : ""} have been deleted`, 4000, "delete");
       } catch (err) { console.error(err); } 
     };
     
     // Show confirmation modal for delete all
     const handleDeleteAllClick = () => {
-      const getAllDescendants = (pid) => { const ch = subfoldersOf(pid); let all = []; for (const c of ch) { all = [...all, ...getAllDescendants(c.id), c]; } return all; }; 
-      const descendants = getAllDescendants(folder.id); 
-      const allIds = new Set([folder.id, ...descendants.map((d) => d.id)]);
-      const filesToDelete = files.filter((f) => allIds.has(f.folderId));
+      const filesToDelete = files.filter((f) => allFolderIds.has(f.folderId));
       
       setDeleteConfirmModal({
         title: "Confirm Delete",

@@ -1,7 +1,9 @@
 import { AlertTriangleIcon } from "../Icons";
 
-export default function WarningModal({ warningModal, setWarningModal, t, darkMode, onDeleteAll }) {
+export default function WarningModal({ warningModal, setWarningModal, t, darkMode }) {
   if (!warningModal) return null;
+
+  const showThreeOptions = warningModal.onConfirmUnlink && warningModal.onConfirmDeleteAll;
 
   return (
     <div
@@ -79,7 +81,7 @@ export default function WarningModal({ warningModal, setWarningModal, t, darkMod
           </div>
         </div>
         <div
-          style={{ display: "flex", justifyContent: "flex-end", gap: 8, flexWrap: "wrap" }}
+          style={{ display: "flex", flexDirection: showThreeOptions ? "column" : "row", gap: 8 }}
         >
           <button
             onClick={() => setWarningModal(null)}
@@ -87,17 +89,64 @@ export default function WarningModal({ warningModal, setWarningModal, t, darkMod
               background: t.surface,
               border: `1px solid ${t.border}`,
               borderRadius: 8,
-              padding: "8px 18px",
+              padding: "10px 18px",
               fontSize: 13,
               fontWeight: 600,
               cursor: "pointer",
               color: t.text,
               fontFamily: "inherit",
+              flex: showThreeOptions ? "none" : 1,
             }}
           >
             Cancel
           </button>
-          {warningModal.onConfirmUnlink && (
+          
+          {showThreeOptions ? (
+            <>
+              <button
+                onClick={() => {
+                  warningModal.onConfirmUnlink();
+                  setWarningModal(null);
+                }}
+                style={{
+                  background: t.warnSoft,
+                  border: `1px solid ${t.warn}`,
+                  borderRadius: 8,
+                  padding: "10px 18px",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  color: t.warn,
+                  fontFamily: "inherit",
+                }}
+              >
+                Delete Folder Only
+              </button>
+              <button
+                onClick={() => {
+                  if (warningModal.onDeleteAllClick) {
+                    warningModal.onDeleteAllClick();
+                  } else if (warningModal.onConfirmDeleteAll) {
+                    warningModal.onConfirmDeleteAll();
+                    setWarningModal(null);
+                  }
+                }}
+                style={{
+                  background: t.error,
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "10px 18px",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  color: "#fff",
+                  fontFamily: "inherit",
+                }}
+              >
+                Delete Folder and Files
+              </button>
+            </>
+          ) : warningModal.onConfirmUnlink ? (
             <button
               onClick={() => {
                 warningModal.onConfirmUnlink();
@@ -117,32 +166,7 @@ export default function WarningModal({ warningModal, setWarningModal, t, darkMod
             >
               Yes, Unlink Files
             </button>
-          )}
-          {warningModal.onConfirmDeleteAll && (
-            <button
-              onClick={() => {
-                if (warningModal.onDeleteAllClick) {
-                  warningModal.onDeleteAllClick();
-                } else if (onDeleteAll) {
-                  onDeleteAll();
-                }
-              }}
-              style={{
-                background: t.error,
-                border: "none",
-                borderRadius: 8,
-                padding: "8px 18px",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                color: "#fff",
-                fontFamily: "inherit",
-              }}
-            >
-              Delete Folder and Files
-            </button>
-          )}
-          {!warningModal.onConfirmUnlink && !warningModal.onConfirmDeleteAll && warningModal.onConfirm && (
+          ) : warningModal.onConfirm && (
             <button
               onClick={() => {
                 warningModal.onConfirm();

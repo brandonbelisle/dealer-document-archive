@@ -1127,6 +1127,7 @@ const apps = [
                             {fmtSize(file.size)}
                           </span>
                     </div>
+                    ))}
                   </div>
                 )}
               </div>

@@ -783,50 +783,50 @@ const apps = [
       {isLoggedIn && (
         <div
           style={{
-            flex: 1,
+            flex: "1 1 auto",
             display: "flex",
             justifyContent: "center",
             padding: "0 16px",
-            minWidth: 0,
-            maxWidth: 520,
+            minWidth: 180,
+            maxWidth: 480,
             zIndex: 1,
           }}
         >
-          <div style={{ width: "100%", maxWidth: 480 }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                background: darkMode
-                  ? "rgba(255,255,255,0.05)"
-                  : "rgba(0,0,0,0.04)",
-                border: `1px solid ${showDropdown && hasResults ? t.accent : t.border}`,
-                borderRadius: 9,
-                padding: "6px 12px",
-                transition: "border-color 0.2s",
-              }}
-            >
-              <SearchIcon size={15} />
-              <input
-                ref={globalSearchRef}
-                value={globalSearch}
-                onChange={(e) => setGlobalSearch(e.target.value)}
-                onFocus={() => setGlobalSearchFocused(true)}
-                onBlur={() =>
-                  setTimeout(() => setGlobalSearchFocused(false), 200)
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              background: darkMode
+                ? "rgba(255,255,255,0.05)"
+                : "rgba(0,0,0,0.04)",
+              border: `1px solid ${showDropdown && hasResults ? t.accent : t.border}`,
+              borderRadius: 9,
+              padding: "6px 12px",
+              transition: "border-color 0.2s",
+            }}
+          >
+            <SearchIcon size={15} />
+            <input
+              ref={globalSearchRef}
+              value={globalSearch}
+              onChange={(e) => setGlobalSearch(e.target.value)}
+              onFocus={() => setGlobalSearchFocused(true)}
+              onBlur={() =>
+                setTimeout(() => setGlobalSearchFocused(false), 200)
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  setGlobalSearch("");
+                  globalSearchRef.current?.blur();
                 }
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") {
-                    setGlobalSearch("");
-                    globalSearchRef.current?.blur();
-                  }
-                }}
-                placeholder="Search folders & files..."
-                style={{
-                  flex: 1,
-                  background: "transparent",
-                  border: "none",
+              }}
+              placeholder="Search..."
+              style={{
+                flex: 1,
+                background: "transparent",
+                border: "none",
                   fontSize: 13,
                   color: t.text,
                   outline: "none",

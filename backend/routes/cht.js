@@ -120,8 +120,8 @@ router.post('/inquiries/:id/accept', requireAuth, requirePermission('cht_inquiry
     await logAudit('Credit Hold Inquiry Accepted', `Invoice: ${inquiry.invoice_number}`, req.user, req.ip);
 
     // Notify the original submitter
-    const { getIo } = require('../socket');
-    const io = getIo();
+    const socket = require('../socket');
+    const io = socket.getIO();
     if (io) {
       io.to(`user-${inquiry.user_id}`).emit('notification', {
         type: 'cht_inquiry_assigned',

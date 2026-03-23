@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import * as api from "../api";
-import { PlusIcon, XIcon, InboxIcon } from "../components/Icons";
+import { PlusIcon, XIcon } from "../components/Icons";
 
 export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab = "dashboard" }) {
   const [inquiries, setInquiries] = useState([]);
@@ -86,6 +86,15 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
       month: "short",
       day: "numeric",
       year: "numeric",
+    });
+  };
+
+  const formatDateTime = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -99,13 +108,17 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
       borderRadius: 6,
       background: getStatusColor(statusColor) + "20",
       color: getStatusColor(statusColor),
+      whiteSpace: "nowrap",
     }}>
       {statusName || "Pending"}
     </span>
   );
 
-  const pendingInquiries = inquiries.filter(i => !i.assigned_to);
-  const assignedInquiries = inquiries.filter(i => i.assigned_to);
+  const nonClosedInquiries = inquiries.filter(i => i.status_name?.toLowerCase() !== "closed");
+
+  const myInquiries = canViewAllInquiries 
+    ? inquiries 
+    : inquiries.filter(i => i.submitted_by === loggedInUser?.name || i.user_id === loggedInUser?.id);
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
@@ -148,7 +161,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
               <div style={{ textAlign: "center", padding: 60, color: t.textMuted }}>
                 Loading...
               </div>
-            ) : inquiries.length === 0 ? (
+            ) : nonClosedInquiries.length === 0 ? (
               <div style={{
                 textAlign: "center",
                 padding: 80,
@@ -156,77 +169,61 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
                 background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
                 borderRadius: 12,
               }}>
-                <InboxIcon size={48} />
-                <p style={{ margin: "16px 0 0", fontSize: 15 }}>No inquiries yet</p>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
+                <p style={{ margin: 0, fontSize: 15 }}>No open credit hold inquiries</p>
               </div>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: canViewAllInquiries ? "1fr1fr" : "1fr", gap: 24 }}>
-                {canViewAllInquiries && (
-                  <div>
-                    <h3 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px", color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                      Pending ({pendingInquiries.length})
-                    </h3>
-                    {pendingInquiries.length === 0 ? (
-                      <div style={{ padding: 20, textAlign: "center", color: t.textMuted, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, fontSize: 13 }}>
-                        No pending inquiries
-                      </div>
-                    ) : (
-                      <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
-                        {pendingInquiries.map((inquiry, idx) => (
-                          <div
-                            key={inquiry.id}
-                            className="inquiry-row"
-                            onClick={() => setSelectedInquiry(inquiry)}
-                            style={{
-                              padding: "14px 16px",
-                              borderBottom: idx < pendingInquiries.length - 1 ? `1px solid ${t.border}` : "none",
-                            }}
-                          >
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                              <span style={{ fontWeight: 600, color: t.text }}>{inquiry.invoice_number}</span>
-                              {getStatusBadge(inquiry.status_name, inquiry.status_color)}
-                            </div>
-                            <div style={{ fontSize: 12, color: t.textMuted }}>
-                              by {inquiry.submitted_by} · {formatDate(inquiry.created_at)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-                <div>
-                  <h3 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px", color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                    {canViewAllInquiries ? "In Progress" : "My Inquiries"} ({canViewAllInquiries ? assignedInquiries.length : inquiries.length})
-                  </h3>
-                  {(canViewAllInquiries ? assignedInquiries : inquiries).length === 0 ? (
-                    <div style={{ padding: 20, textAlign: "center", color: t.textMuted, background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, fontSize: 13 }}>
-                      No inquiries in progress
-                    </div>
-                  ) : (
-                    <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
-                      {(canViewAllInquiries ? assignedInquiries : inquiries).map((inquiry, idx, arr) => (
-                        <div
-                          key={inquiry.id}
-                          className="inquiry-row"
-                          onClick={() => setSelectedInquiry(inquiry)}
-                          style={{
-                            padding: "14px 16px",
-                            borderBottom: idx < arr.length - 1 ? `1px solid ${t.border}` : "none",
-                          }}
-                        >
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                            <span style={{ fontWeight: 600, color: t.text }}>{inquiry.invoice_number}</span>
-                            {getStatusBadge(inquiry.status_name, inquiry.status_color)}
-                          </div>
-                          <div style={{ fontSize: 12, color: t.textMuted }}>
-                            {inquiry.assigned_to_name ? `Assigned to ${inquiry.assigned_to_name}` : `by ${inquiry.submitted_by}`} · {formatDate(inquiry.created_at)}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+              <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 100px 130px 130px 100px",
+                  gap: 12,
+                  padding: "12px 16px",
+                  borderBottom: `1px solid ${t.border}`,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: t.textDim,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                }}>
+                  <div>Invoice Number</div>
+                  <div>Status</div>
+                  <div>Submitted By</div>
+                  <div>Submitted</div>
+                  <div style={{ textAlign: "right" }}>Assigned To</div>
                 </div>
+                {nonClosedInquiries.map((inquiry, idx) => (
+                  <div
+                    key={inquiry.id}
+                    className="inquiry-row"
+                    onClick={() => setSelectedInquiry(inquiry)}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 100px 130px 130px 100px",
+                      gap: 12,
+                      padding: "14px 16px",
+                      borderBottom: idx < nonClosedInquiries.length - 1 ? `1px solid ${t.border}` : "none",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, color: t.text }}>
+                      {inquiry.invoice_number}
+                    </div>
+                    <div>
+                      {getStatusBadge(inquiry.status_name, inquiry.status_color)}
+                    </div>
+                    <div style={{ fontSize: 13, color: t.textMuted }}>
+                      {inquiry.submitted_by}
+                    </div>
+                    <div style={{ fontSize: 12, color: t.textMuted }}>
+                      {formatDate(inquiry.created_at)}
+                    </div>
+                    <div style={{ fontSize: 12, color: inquiry.assigned_to_name ? t.text : t.textMuted, textAlign: "right" }}>
+                      {inquiry.assigned_to_name || "—"}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -265,84 +262,78 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
               <div style={{ textAlign: "center", padding: 40, color: t.textMuted }}>
                 Loading...
               </div>
-            ) : (() => {
-              const myInquiries = canViewAllInquiries 
-                ? inquiries 
-                : inquiries.filter(i => i.submitted_by === loggedInUser?.name || i.user_id === loggedInUser?.id);
-              return myInquiries.length === 0 ? (
+            ) : myInquiries.length === 0 ? (
+              <div style={{
+                textAlign: "center",
+                padding: 60,
+                color: t.textMuted,
+                background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                borderRadius: 12,
+              }}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>📋</div>
+                <p style={{ margin: 0, fontSize: 14 }}>No inquiries submitted yet</p>
+              </div>
+            ) : (
+              <div style={{
+                background: t.surface,
+                border: `1px solid ${t.border}`,
+                borderRadius: 12,
+                overflow: "hidden",
+              }}>
                 <div style={{
-                  textAlign: "center",
-                  padding: 60,
-                  color: t.textMuted,
-                  background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
-                  borderRadius: 12,
+                  display: "grid",
+                  gridTemplateColumns: "1fr 100px 140px",
+                  gap: 12,
+                  padding: "12px 16px",
+                  borderBottom: `1px solid ${t.border}`,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: t.textDim,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
                 }}>
-                  <InboxIcon size={40} />
-                  <p style={{ margin: "12px 0 0", fontSize: 14 }}>No inquiries submitted yet</p>
+                  <div>Invoice Number</div>
+                  <div>Status</div>
+                  <div style={{ textAlign: "right" }}>Submitted</div>
                 </div>
-              ) : (
-                <div style={{
-                  background: t.surface,
-                  border: `1px solid ${t.border}`,
-                  borderRadius: 12,
-                  overflow: "hidden",
-                }}>
-                  <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 120px 140px",
-                    gap: 12,
-                    padding: "12px 16px",
-                    borderBottom: `1px solid ${t.border}`,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    color: t.textDim,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                  }}>
-                    <div>Invoice Number</div>
-                    <div>Status</div>
-                    <div style={{ textAlign: "right" }}>Submitted</div>
-                  </div>
-                  {myInquiries.map((inquiry, idx) => (
-                    <div
-                      key={inquiry.id}
-                      className="inquiry-row"
-                      onClick={() => setSelectedInquiry(inquiry)}
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 120px 140px",
-                        gap: 12,
-                        padding: "14px 16px",
-                        borderBottom: idx < myInquiries.length - 1 ? `1px solid ${t.border}` : "none",
-                        alignItems: "center",
-                      }}
-                    >
-                      <div>
-                        <div style={{ fontWeight: 600, color: t.text, marginBottom: 4 }}>
-                          {inquiry.invoice_number}
+                {myInquiries.map((inquiry, idx) => (
+                  <div
+                    key={inquiry.id}
+                    className="inquiry-row"
+                    onClick={() => setSelectedInquiry(inquiry)}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 100px 140px",
+                      gap: 12,
+                      padding: "14px 16px",
+                      borderBottom: idx < myInquiries.length - 1 ? `1px solid ${t.border}` : "none",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 600, color: t.text, marginBottom: 4 }}>
+                        {inquiry.invoice_number}
+                      </div>
+                      {inquiry.notes && (
+                        <div style={{ fontSize: 12, color: t.textMuted }}>
+                          {inquiry.notes.length > 50 ? inquiry.notes.slice(0, 50) + "..." : inquiry.notes}
                         </div>
-                        {inquiry.notes && (
-                          <div style={{ fontSize: 12, color: t.textMuted }}>
-                            {inquiry.notes.length > 50 ? inquiry.notes.slice(0, 50) + "..." : inquiry.notes}
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        {getStatusBadge(inquiry.status_name, inquiry.status_color)}
-                      </div>
-                      <div style={{ fontSize: 12, color: t.textMuted, textAlign: "right" }}>
-                        {formatDate(inquiry.created_at)}
-                      </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              );
-            })()}
+                    <div>
+                      {getStatusBadge(inquiry.status_name, inquiry.status_color)}
+                    </div>
+                    <div style={{ fontSize: 12, color: t.textMuted, textAlign: "right" }}>
+                      {formatDate(inquiry.created_at)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* New Inquiry Modal */}
       {showModal && (
         <div
           style={{
@@ -545,7 +536,6 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
         </div>
       )}
 
-      {/* Inquiry Detail Modal */}
       {selectedInquiry && (
         <div
           style={{
@@ -601,21 +591,22 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, activeTab 
             </div>
 
             <div style={{ padding: 20 }}>
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
-                  Submitted By
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                    Submitted By
+                  </div>
+                  <div style={{ fontSize: 14, color: t.text }}>
+                    {selectedInquiry.submitted_by}
+                  </div>
                 </div>
-                <div style={{ fontSize: 14, color: t.text }}>
-                  {selectedInquiry.submitted_by}
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
-                  Submitted On
-                </div>
-                <div style={{ fontSize: 14, color: t.text }}>
-                  {formatDate(selectedInquiry.created_at)}
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                    Submitted On
+                  </div>
+                  <div style={{ fontSize: 14, color: t.text }}>
+                    {formatDateTime(selectedInquiry.created_at)}
+                  </div>
                 </div>
               </div>
 

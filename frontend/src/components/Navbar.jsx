@@ -283,7 +283,6 @@ const apps = [
           >
             <DashboardIcon size={15} /> Dashboard
           </button>
-          {/* Folders tab with dept dropdown on hover - only show if user has viewLocations permission */}
           {canViewLocations && (
             <div
               style={{ position: "relative" }}
@@ -291,173 +290,157 @@ const apps = [
               onMouseLeave={() => setShowDeptDropdown(false)}
             >
               <button
-              onClick={() => {
-                setShowDeptDropdown(false);
-                setPage("folders-browse");
-                setSelectedFile(null);
-              }}
-              className="nav-tab"
-              style={{
-                background:
-                  page === "folders-browse" ||
-                  page === "folders" ||
-                  page === "folder-detail"
-                    ? t.navActive
-                    : "transparent",
-                color:
-                  page === "folders-browse" ||
-                  page === "folders" ||
-                  page === "folder-detail"
-                    ? t.accent
-                    : t.textMuted,
-                border: "none",
-                borderRadius: 8,
-                padding: "7px 14px",
-                cursor: "pointer",
-                fontSize: 13,
-                fontWeight: 600,
-                display: "flex",
-                alignItems: "center",
-                gap: 7,
-                fontFamily: "inherit",
-                borderBottom:
-                  page === "folders-browse" ||
-                  page === "folders" ||
-                  page === "folder-detail"
-                    ? `2px solid ${t.accent}`
-                    : "2px solid transparent",
-              }}
-            >
-              <FolderClosedIcon size={15} /> Folders <ChevronDown />
-            </button>
-            {showDeptDropdown && (
-              <div
+                onClick={() => {
+                  setShowDeptDropdown(false);
+                  setPage("folders-browse");
+                  setSelectedFile(null);
+                }}
+                className="nav-tab"
                 style={{
-                  position: "absolute",
-                  top: "100%",
-                  left: 0,
-                  paddingTop: 6,
-                  zIndex: 200,
+                  background:
+                    page === "folders-browse" ||
+                    page === "folders" ||
+                    page === "folder-detail"
+                      ? t.navActive
+                      : "transparent",
+                  color:
+                    page === "folders-browse" ||
+                    page === "folders" ||
+                    page === "folder-detail"
+                      ? t.accent
+                      : t.textMuted,
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "7px 14px",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 7,
+                  fontFamily: "inherit",
+                  borderBottom:
+                    page === "folders-browse" ||
+                    page === "folders" ||
+                    page === "folder-detail"
+                      ? `2px solid ${t.accent}`
+                      : "2px solid transparent",
                 }}
               >
-              <div
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  background: t.surface,
-                  border: `1px solid ${t.border}`,
-                  borderRadius: 10,
-                  boxShadow: darkMode
-                    ? "0 8px 30px rgba(0,0,0,0.4)"
-                    : "0 8px 30px rgba(0,0,0,0.12)",
-                  padding: 4,
-                  minWidth: 340,
-                  maxWidth: 400,
-                  maxHeight: 480,
-                  overflowY: "auto",
-                  animation: "fadeIn 0.15s ease",
-                }}
-              >
-                {locations.map((loc) => {
-                  const le = expandedLocations[loc.id];
-                  return (
-                    <div key={loc.id}>
-                      <div
-                        onClick={() =>
-                          setExpandedLocations((p) => ({
-                            ...p,
-                            [loc.id]: !p[loc.id],
-                          }))
-                        }
-                        className="folder-select-item"
-                        style={{
-                          padding: "8px 10px",
-                          borderRadius: 7,
-                          cursor: "pointer",
-                          fontSize: 13,
-                          fontWeight: 600,
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          color:
-                            activeLocation === loc.id
-                              ? t.accent
-                              : t.text,
-                        }}
-                      >
-                        <ChevronIcon open={le} />
-                        <MapPinIcon size={14} />
-                        <span style={{ flex: 1 }}>{loc.name}</span>
-                        <span
-                          style={{ fontSize: 9.5, color: t.textDim }}
-                        >
-                          {dashboardData?.locationFolderCounts?.[loc.id] ?? 0} folders
-                        </span>
-                      </div>
-                      {le && (
-                        <div
-                          style={{ paddingLeft: 12, marginBottom: 4 }}
-                        >
-                          {deptsInLocation(loc.id).map((dept) => {
-                            const deptData = dashboardData?.deptCounts?.[dept.id] || { folderCount: 0, fileCount: 0 };
-                            const isAct =
-                              activeLocation === loc.id &&
-                              activeDepartment === dept.id &&
-                              (page === "folders" ||
-                                page === "folder-detail");
-                            return (
-                              <div
-                                key={dept.id}
-                                onClick={() => {
-                                  setActiveLocation(loc.id);
-                                  setActiveDepartment(dept.id);
-                                  setPage("folders");
-                                  setActiveFolderId(null);
-                                  setSelectedFile(null);
-                                  setFolderSearch("");
-                                  setShowDeptDropdown(false);
-                                }}
-                                className="folder-select-item"
-                                style={{
-                                  padding: "7px 12px",
-                                  borderRadius: 6,
-                                  cursor: "pointer",
-                                  fontSize: 12.5,
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 9,
-                                  background: isAct
-                                    ? t.accentSoft
-                                    : "transparent",
-                                  color: isAct
-                                    ? t.accent
-                                    : t.textMuted,
-                                  fontWeight: 500,
-                                }}
-                              >
-                                <FolderClosedIcon size={14} />
-                                <span style={{ flex: 1 }}>
-                                  {dept.name}
-                                </span>
-                                <span
-                                  style={{
-                                    fontSize: 9.5,
-                                    color: t.textDim,
-                                  }}
-                                >
-                                  {deptData.folderCount} · {deptData.fileCount} files
-                                </span>
-                              </div>
-                            );
-                          })}
+                <FolderClosedIcon size={15} /> Folders <ChevronDown />
+              </button>
+              {showDeptDropdown && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    paddingTop: 6,
+                    zIndex: 200,
+                  }}
+                >
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      background: t.surface,
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 10,
+                      boxShadow: darkMode
+                        ? "0 8px 30px rgba(0,0,0,0.4)"
+                        : "0 8px 30px rgba(0,0,0,0.12)",
+                      padding: 4,
+                      minWidth: 340,
+                      maxWidth: 400,
+                      maxHeight: 480,
+                      overflowY: "auto",
+                      animation: "fadeIn 0.15s ease",
+                    }}
+                  >
+                    {locations.map((loc) => {
+                      const le = expandedLocations[loc.id];
+                      return (
+                        <div key={loc.id}>
+                          <div
+                            onClick={() =>
+                              setExpandedLocations((p) => ({
+                                ...p,
+                                [loc.id]: !p[loc.id],
+                              }))
+                            }
+                            className="folder-select-item"
+                            style={{
+                              padding: "8px 10px",
+                              borderRadius: 7,
+                              cursor: "pointer",
+                              fontSize: 13,
+                              fontWeight: 600,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                              color:
+                                activeLocation === loc.id
+                                  ? t.accent
+                                  : t.text,
+                            }}
+                          >
+                            <ChevronIcon open={le} />
+                            <MapPinIcon size={14} />
+                            <span style={{ flex: 1 }}>{loc.name}</span>
+                            <span style={{ fontSize: 9.5, color: t.textDim }}>
+                              {dashboardData?.locationFolderCounts?.[loc.id] ?? 0} folders
+                            </span>
+                          </div>
+                          {le && (
+                            <div style={{ paddingLeft: 12, marginBottom: 4 }}>
+                              {deptsInLocation(loc.id).map((dept) => {
+                                const deptData = dashboardData?.deptCounts?.[dept.id] || { folderCount: 0, fileCount: 0 };
+                                const isAct =
+                                  activeLocation === loc.id &&
+                                  activeDepartment === dept.id &&
+                                  (page === "folders" || page === "folder-detail");
+                                return (
+                                  <div
+                                    key={dept.id}
+                                    onClick={() => {
+                                      setActiveLocation(loc.id);
+                                      setActiveDepartment(dept.id);
+                                      setPage("folders");
+                                      setActiveFolderId(null);
+                                      setSelectedFile(null);
+                                      setFolderSearch("");
+                                      setShowDeptDropdown(false);
+                                    }}
+                                    className="folder-select-item"
+                                    style={{
+                                      padding: "7px 12px",
+                                      borderRadius: 6,
+                                      cursor: "pointer",
+                                      fontSize: 12.5,
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 9,
+                                      background: isAct ? t.accentSoft : "transparent",
+                                      color: isAct ? t.accent : t.textMuted,
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    <FolderClosedIcon size={14} />
+                                    <span style={{ flex: 1 }}>{dept.name}</span>
+                                    <span style={{ fontSize: 9.5, color: t.textDim }}>
+                                      {deptData.folderCount} · {deptData.fileCount} files
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-          )}
           )}
           {/* Unsorted tab */}
           <button

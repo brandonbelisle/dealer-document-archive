@@ -783,17 +783,16 @@ const apps = [
       {isLoggedIn && (
         <div
           style={{
-            position: "absolute",
-            left: needsRightAlign ? "auto" : "50%",
-            right: needsRightAlign ? 16 : "auto",
-            transform: needsRightAlign ? "none" : "translateX(-50%)",
-            width: isMobile ? "auto" : "100%",
-            maxWidth: needsRightAlign ? 280 : 520,
+            flex: 1,
+            display: "flex",
+            justifyContent: "center",
+            padding: "0 16px",
+            minWidth: 0,
+            maxWidth: 520,
             zIndex: 1,
-            pointerEvents: "none",
           }}
         >
-          <div style={{ pointerEvents: "auto", position: "relative" }}>
+          <div style={{ width: "100%", maxWidth: 480 }}>
             <div
               style={{
                 display: "flex",
@@ -1133,6 +1132,7 @@ const apps = [
                 )}
               </div>
             )}
+          </div>
           </div>
         </div>
       )}

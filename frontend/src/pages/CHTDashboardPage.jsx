@@ -1197,8 +1197,6 @@ const handleStatusUpdate = async () => {
                         </div>
                       ))}
                     </div>
-                      ))}
-                    </div>
                   )}
                 </div>
               )}

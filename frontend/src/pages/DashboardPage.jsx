@@ -75,6 +75,8 @@ export default function DashboardPage({
   darkMode,
   setPage,
   setActiveFolderId,
+  setActiveLocation,
+  setActiveDepartment,
 }) {
   const dd = dashboardData || {};
   const year = new Date().getFullYear();
@@ -250,8 +252,10 @@ export default function DashboardPage({
                     <div
                       key={dept.id}
                       onClick={() => {
-                        setActiveFolderId(dept.id);
-                        setPage("folder-detail");
+                        setActiveLocation(loc.id);
+                        setActiveDepartment(dept.id);
+                        setActiveFolderId(null);
+                        setPage("folders");
                       }}
                       style={{
                         display: "flex",

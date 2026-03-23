@@ -169,8 +169,7 @@ const apps = [
         borderBottom: `1px solid ${t.border}`,
         display: "flex",
         alignItems: "center",
-        justifyContent: "flex-start",
-        gap: isMobile ? 8 : 16,
+        justifyContent: "center",
         padding: "0 24px",
         height: 54,
         backdropFilter: "blur(12px)",
@@ -182,14 +181,14 @@ const apps = [
         zIndex: 100,
       }}
     >
-      {/* Left: logo + tabs */}
+      {/* Left: logo */}
       <div
         style={{
+          position: "absolute",
+          left: 24,
           display: "flex",
           alignItems: "center",
           gap: isMobile ? 8 : 16,
-          flexShrink: 0,
-          position: "relative",
           zIndex: 2,
         }}
       >
@@ -253,8 +252,19 @@ const apps = [
             </span>
           )}
         </div>
+      </div>
+      {/* Center section: tabs + search + right */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flex: 1,
+          gap: 8,
+        }}
+      >
         {!isMobile && (
-          <div style={{ display: "flex", gap: 2, marginLeft: 8 }}>
+          <div style={{ display: "flex", gap: 2 }}>
           {/* Dashboard tab */}
           <button
             onClick={() => {
@@ -777,19 +787,14 @@ const apps = [
             </div>
           </div>
         )}
-      </div>
 
       {/* Center: Global search */}
       {isLoggedIn && (
         <div
           style={{
             flex: 1,
-            display: "flex",
-            justifyContent: "center",
-            padding: "0 16px",
+            maxWidth: 480,
             minWidth: 180,
-            maxWidth: 520,
-            zIndex: 1,
           }}
         >
           <div
@@ -1133,7 +1138,8 @@ const apps = [
               </div>
             )}
           </div>
-        )}
+        </div>
+      )}
 
       {/* Right: profile + dark mode */}
       {!isMobile && (
@@ -1418,6 +1424,7 @@ const apps = [
         </button>
       </div>
       )}
+      </div>
     </nav>
   );
 }

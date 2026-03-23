@@ -13,7 +13,7 @@ router.get('/inquiries', requireAuth, async (req, res) => {
     const canViewAll = req.user.permissions?.includes('cht_inquiry_view_all');
     
     let query = `
-      SELECT i.id, i.invoice_number, i.notes, i.status_id, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
+      SELECT i.id, i.invoice_number, i.notes, i.status_id, i.is_closed, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
              u.display_name as submitted_by,
              s.name as status_name, s.color as status_color,
              a.display_name as assigned_to_name
@@ -56,8 +56,8 @@ router.post('/inquiries', requireAuth, async (req, res) => {
 
     const id = uuidv4();
     await db.execute(
-      `INSERT INTO cht_inquiries (id, user_id, invoice_number, notes, status_id)
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO cht_inquiries (id, user_id, invoice_number, notes, status_id, is_closed)
+       VALUES (?, ?, ?, ?, ?, 0)`,
       [id, req.user.id, invoiceNumber.trim(), notes?.trim() || null, statusId]
     );
 
@@ -66,7 +66,7 @@ router.post('/inquiries', requireAuth, async (req, res) => {
     socket.chtInquiriesChanged();
 
     const [rows] = await db.execute(
-      `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
+      `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.is_closed, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
               u.display_name as submitted_by,
               s.name as status_name, s.color as status_color,
               a.display_name as assigned_to_name
@@ -135,7 +135,58 @@ router.post('/inquiries/:id/accept', requireAuth, requirePermission('cht_inquiry
     socket.chtInquiriesChanged();
 
     const [rows] = await db.execute(
-      `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
+      `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.is_closed, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
+              u.display_name as submitted_by,
+              s.name as status_name, s.color as status_color,
+              a.display_name as assigned_to_name
+       FROM cht_inquiries i
+       JOIN users u ON i.user_id = u.id
+       LEFT JOIN cht_statuses s ON i.status_id = s.id
+       LEFT JOIN users a ON i.assigned_to = a.id
+       WHERE i.id = ?`,
+      [id]
+    );
+
+    res.json({ inquiry: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Close/Reopen an inquiry
+router.post('/inquiries/:id/toggle-closed', requireAuth, requirePermission('cht_inquiry_accept'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const [existing] = await db.execute(
+      'SELECT id, invoice_number, is_closed, user_id FROM cht_inquiries WHERE id = ?',
+      [id]
+    );
+    
+    if (existing.length === 0) {
+      return res.status(404).json({ error: 'Inquiry not found' });
+    }
+
+    const inquiry = existing[0];
+    const newClosedState = inquiry.is_closed ? 0 : 1;
+
+    await db.execute(
+      'UPDATE cht_inquiries SET is_closed = ?, updated_at = NOW() WHERE id = ?',
+      [newClosedState, id]
+    );
+
+    await logAudit(
+      newClosedState ? 'Credit Hold Inquiry Closed' : 'Credit Hold Inquiry Reopened',
+      `Invoice: ${inquiry.invoice_number}`,
+      req.user,
+      req.ip
+    );
+
+    socket.chtInquiriesChanged();
+
+    const [rows] = await db.execute(
+      `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.is_closed, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
               u.display_name as submitted_by,
               s.name as status_name, s.color as status_color,
               a.display_name as assigned_to_name
@@ -366,7 +417,7 @@ router.post('/inquiries/:id/respond', requireAuth, async (req, res) => {
 
     // Return updated inquiry
     const [rows] = await db.execute(
-      `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
+      `SELECT i.id, i.invoice_number, i.notes, i.status_id, i.is_closed, i.assigned_to, i.created_at, i.updated_at, i.assigned_at,
               u.display_name as submitted_by,
               s.name as status_name, s.color as status_color,
               a.display_name as assigned_to_name

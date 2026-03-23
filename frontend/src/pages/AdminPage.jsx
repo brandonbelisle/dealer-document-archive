@@ -3845,10 +3845,10 @@ export default function AdminPage({
           {adminSection === "cht-statuses" && (
             <div style={{ animation: "fadeIn 0.25s ease" }}>
               <div style={{ marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: t.text }}>Inquiry Statuses</h3>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: t.text }}>Inquiry Decisions</h3>
                 {!addingChtStatus && (
                   <Btn primary darkMode={darkMode} t={t} onClick={() => setAddingChtStatus(true)} style={{ fontSize: 12 }}>
-                    <PlusIcon size={13} /> Add Status
+                    <PlusIcon size={13} /> Add Decision
                   </Btn>
                 )}
               </div>
@@ -3895,7 +3895,7 @@ export default function AdminPage({
                     </div>
                   )}
                   {chtStatuses.length === 0 && !addingChtStatus ? (
-                    <div style={{ padding: 40, textAlign: "center", color: t.textMuted }}>No statuses configured</div>
+                    <div style={{ padding: 40, textAlign: "center", color: t.textMuted }}>No decisions configured</div>
                   ) : (
                     chtStatuses.map((status, idx) => (
                       <div

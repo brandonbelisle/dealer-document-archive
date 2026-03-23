@@ -43,6 +43,7 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId, on
         message: notification.message,
         type: 'cht',
         duration: 6000,
+        onClick: onNavigate ? () => onNavigate(newAlert) : undefined,
       });
     }
   };

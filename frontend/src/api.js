@@ -586,3 +586,9 @@ export async function respondToCreditHoldInquiry(inquiryId, statusId, response) 
     body: JSON.stringify({ statusId, response }),
   });
 }
+
+export async function toggleCreditHoldInquiryClosed(inquiryId) {
+  return request(`/cht/inquiries/${inquiryId}/toggle-closed`, {
+    method: 'POST',
+  });
+}

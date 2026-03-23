@@ -85,6 +85,13 @@ function ToastItem({ toast, onClose, darkMode }) {
     setTimeout(onClose, 200);
   };
 
+  const handleClick = () => {
+    if (toast.onClick) {
+      toast.onClick();
+    }
+    handleClose();
+  };
+
   const typeColors = {
     delete: { border: "#ef4444", bg: darkMode ? "rgba(239, 68, 68, 0.1)" : "rgba(239, 68, 68, 0.05)" },
     create: { border: "#22c55e", bg: darkMode ? "rgba(34, 197, 94, 0.1)" : "rgba(34, 197, 94, 0.05)" },
@@ -115,11 +122,11 @@ function ToastItem({ toast, onClose, darkMode }) {
         animation: isExiting
           ? "toastOut 0.2s ease forwards"
           : "toastIn 0.3s ease",
-        cursor: "pointer",
+        cursor: toast.onClick ? "pointer" : "default",
         position: "relative",
         overflow: "hidden",
       }}
-      onClick={handleClose}
+      onClick={toast.onClick ? handleClick : undefined}
     >
       <div
         style={{

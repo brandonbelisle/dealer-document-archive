@@ -64,9 +64,9 @@ export const ADMIN_MENU = [
   },
   {
     id: "cht-statuses",
-    label: "Statuses",
+    label: "Decisions",
     icon: <LayersIcon size={17} />,
-    desc: "Manage inquiry statuses",
+    desc: "Manage inquiry decisions",
     category: "cht",
   },
   {
@@ -136,7 +136,7 @@ export const APP_PERMISSIONS = {
       { key: "cht_inquiry_view", label: "View Inquiries", desc: "View own credit hold inquiries" },
       { key: "cht_inquiry_view_all", label: "View All Inquiries", desc: "View all credit hold inquiries" },
       { key: "cht_inquiry_accept", label: "Accept Inquiries", desc: "Accept and assign credit hold inquiries to yourself" },
-      { key: "cht_manage_statuses", label: "Manage Statuses", desc: "Add, edit, and remove inquiry statuses" },
+      { key: "cht_manage_statuses", label: "Manage Decisions", desc: "Add, edit, and remove inquiry decisions" },
     ],
   },
   help: {

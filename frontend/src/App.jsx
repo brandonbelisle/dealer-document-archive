@@ -131,10 +131,10 @@ const [adminSetPasswordLoading, setAdminSetPasswordLoading] = useState(false);
 const [toasts, setToasts] = useState([]);
 const toastIdCounter = useRef(0);
 
-const addToast = useCallback((title, message, duration, type) => {
-  const id = ++toastIdCounter.current;
-  setToasts((prev) => [...prev, { id, title, message, duration: duration || 5000, type }]);
-}, []);
+const addToast = useCallback((title, message, duration, type, onClick) => {
+    const id = ++toastIdCounter.current;
+    setToasts((prev) => [...prev, { id, title, message, duration: duration || 5000, type, onClick }]);
+  }, []);
 
 const removeToast = useCallback((id) => {
   setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -969,7 +969,7 @@ const t = getTheme(darkMode);
 
       {page === "landing" && <LandingNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} />}
       {page === "admin" && <AdminNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} setAdminSection={setAdminSection} onOpenHelpTicket={() => setShowHelpTicketModal(true)} />}
-{page === "cht" && <CHTNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} setAdminSection={setAdminSection} onOpenHelpTicket={() => setShowHelpTicketModal(true)} onOpenInquiry={(inquiryId) => setChtInquiryIdFromAlert(inquiryId)} onShowToast={(toast) => addToast(toast.title, toast.message, toast.duration || 5000, toast.type || 'cht')} />}
+{page === "cht" && <CHTNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} setAdminSection={setAdminSection} onOpenHelpTicket={() => setShowHelpTicketModal(true)} onOpenInquiry={(inquiryId) => setChtInquiryIdFromAlert(inquiryId)} onShowToast={(toast) => addToast(toast.title, toast.message, toast.duration || 5000, toast.type || 'cht', toast.onClick)} />}
 {page !== "landing" && page !== "admin" && page !== "cht" && <Navbar page={page} setPage={setPage} darkMode={darkMode} setDarkMode={setDarkMode} isLoggedIn={isLoggedIn} loggedInUser={loggedInUser} locations={locations} departments={departments} folders={folders} files={files} unsortedFiles={unsortedFiles} stagedFiles={stagedFiles} activeLocation={activeLocation} setActiveLocation={setActiveLocation} activeDepartment={activeDepartment} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setFolderSearch={setFolderSearch} expandedLocations={expandedLocations} setExpandedLocations={setExpandedLocations} showDeptDropdown={showDeptDropdown} setShowDeptDropdown={setShowDeptDropdown} showProfileMenu={showProfileMenu} setShowProfileMenu={setShowProfileMenu} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} setAdminSection={setAdminSection} handleLogout={handleLogout} foldersInLocation={foldersInLocation} foldersInDepartment={foldersInDepartment} deptsInLocation={deptsInLocation} filesInFolder={filesInFolder} setShowSubscriptionsModal={setShowSubscriptionsModal} setViewingFileIdFromAlert={setViewingFileIdFromAlert} onOpenHelpTicket={() => setShowHelpTicketModal(true)} dashboardData={dashboardData} t={t} />}
 
 {page === "landing" && <LandingPage setPage={setPage} t={t} darkMode={darkMode} loggedInUser={loggedInUser} onOpenHelpTicket={() => setShowHelpTicketModal(true)} />}

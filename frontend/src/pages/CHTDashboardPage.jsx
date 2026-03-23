@@ -21,12 +21,14 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const [statusFilter, setStatusFilter] = useState("open");
+  const [decisionFilter, setDecisionFilter] = useState("all");
+  const [isOpenFilter, setIsOpenFilter] = useState("open");
   const [dateFilter, setDateFilter] = useState("all");
   const [userFilter, setUserFilter] = useState("");
   const [userSearch, setUserSearch] = useState("");
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const userDropdownRef = useRef(null);
+  const [closingInquiry, setClosingInquiry] = useState(false);
 
   const canSubmitInquiries = loggedInUser?.permissions?.includes("cht_inquiry_submit");
   const canViewAllInquiries = loggedInUser?.permissions?.includes("cht_inquiry_view_all");
@@ -196,15 +198,37 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
     }
   };
 
+  const handleToggleClosed = async () => {
+    if (!selectedInquiry) return;
+    setClosingInquiry(true);
+    try {
+      const data = await api.toggleCreditHoldInquiryClosed(selectedInquiry.id);
+      setInquiries((prev) =>
+        prev.map((inq) => (inq.id === selectedInquiry.id ? data.inquiry : inq))
+      );
+      setSelectedInquiry(data.inquiry);
+    } catch (err) {
+      console.error("Failed to toggle closed status:", err);
+    } finally {
+      setClosingInquiry(false);
+    }
+  };
+
   const getFilteredInquiries = () => {
     let filtered = canViewAllInquiries 
       ? [...inquiries] 
       : inquiries.filter(i => i.submitted_by === loggedInUser?.name || i.user_id === loggedInUser?.id);
 
-    if (statusFilter === "open") {
-      filtered = filtered.filter((i) => i.status_name?.toLowerCase() !== "closed");
-    } else if (statusFilter && statusFilter !== "all") {
-      filtered = filtered.filter((i) => String(i.status_id) === statusFilter);
+    // Filter by open/closed status
+    if (isOpenFilter === "open") {
+      filtered = filtered.filter((i) => !i.is_closed);
+    } else if (isOpenFilter === "closed") {
+      filtered = filtered.filter((i) => i.is_closed);
+    }
+
+    // Filter by decision
+    if (decisionFilter && decisionFilter !== "all") {
+      filtered = filtered.filter((i) => String(i.status_id) === decisionFilter);
     }
 
     const now = new Date();
@@ -320,8 +344,34 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                 Status
               </label>
               <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                value={isOpenFilter}
+                onChange={(e) => setIsOpenFilter(e.target.value)}
+                style={{
+                  padding: "8px 12px",
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 6,
+                  fontSize: 13,
+                  background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                  color: t.text,
+                  outline: "none",
+                  fontFamily: "inherit",
+                  minWidth: 120,
+                }}
+              >
+                <option value="open">Open</option>
+                <option value="closed">Closed</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+
+            {/* Decision Filter */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Decision
+              </label>
+              <select
+                value={decisionFilter}
+                onChange={(e) => setDecisionFilter(e.target.value)}
                 style={{
                   padding: "8px 12px",
                   border: `1px solid ${t.border}`,
@@ -334,8 +384,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                   minWidth: 140,
                 }}
               >
-                <option value="open">Open (Not Closed)</option>
-                <option value="all">All Statuses</option>
+                <option value="all">All Decisions</option>
                 {statuses.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
@@ -480,10 +529,10 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
             )}
 
             {/* Clear Filters */}
-            {(statusFilter !== "open" || dateFilter !== "all" || userFilter) && (
+            {(isOpenFilter !== "open" || decisionFilter !== "all" || dateFilter !== "all" || userFilter) && (
               <div style={{ display: "flex", alignItems: "flex-end" }}>
                 <button
-                  onClick={() => { setStatusFilter("open"); setDateFilter("all"); setUserFilter(""); }}
+                  onClick={() => { setIsOpenFilter("open"); setDecisionFilter("all"); setDateFilter("all"); setUserFilter(""); }}
                   style={{
                     padding: "8px 12px",
                     border: `1px solid ${t.border}`,
@@ -521,7 +570,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
             <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
               <div style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 100px 130px 130px 100px",
+                gridTemplateColumns: "1fr 80px 100px 120px 120px 100px",
                 gap: 12,
                 padding: "12px 16px",
                 borderBottom: `1px solid ${t.border}`,
@@ -534,6 +583,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
               }}>
                 <div>Invoice Number</div>
                 <div>Status</div>
+                <div>Decision</div>
                 <div>Submitted By</div>
                 <div>Submitted</div>
                 <div style={{ textAlign: "right" }}>Assigned To</div>
@@ -545,7 +595,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                   onClick={() => handleSelectInquiry(inquiry)}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "1fr 100px 130px 130px 100px",
+                    gridTemplateColumns: "1fr 80px 100px 120px 120px 100px",
                     gap: 12,
                     padding: "14px 16px",
                     borderBottom: idx < filteredInquiries.length - 1 ? `1px solid ${t.border}` : "none",
@@ -554,6 +604,19 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                 >
                   <div style={{ fontWeight: 600, color: t.text }}>
                     {inquiry.invoice_number}
+                  </div>
+                  <div>
+                    <span style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      padding: "3px 8px",
+                      borderRadius: 6,
+                      background: inquiry.is_closed ? (darkMode ? "rgba(239,68,68,0.15)" : "rgba(239,68,68,0.1)") : (darkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)"),
+                      color: inquiry.is_closed ? "#ef4444" : "#22c55e",
+                      whiteSpace: "nowrap",
+                    }}>
+                      {inquiry.is_closed ? "Closed" : "Open"}
+                    </span>
                   </div>
                   <div>
                     {getStatusBadge(inquiry.status_name, inquiry.status_color)}
@@ -816,7 +879,18 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: t.text }}>
                   {selectedInquiry.invoice_number}
                 </h3>
-                <div style={{ marginTop: 8 }}>
+                <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center" }}>
+                  <span style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    padding: "3px 8px",
+                    borderRadius: 6,
+                    background: selectedInquiry.is_closed ? (darkMode ? "rgba(239,68,68,0.15)" : "rgba(239,68,68,0.1)") : (darkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)"),
+                    color: selectedInquiry.is_closed ? "#ef4444" : "#22c55e",
+                    whiteSpace: "nowrap",
+                  }}>
+                    {selectedInquiry.is_closed ? "Closed" : "Open"}
+                  </span>
                   {getStatusBadge(selectedInquiry.status_name, selectedInquiry.status_color)}
                 </div>
               </div>
@@ -886,11 +960,11 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
               {canAcceptInquiries && showStatusUpdate && (
                 <div style={{ marginBottom: 16, padding: 16, background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)", borderRadius: 8 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 12 }}>
-                    Update Status
+                    Update Decision
                   </div>
                   <div style={{ marginBottom: 12 }}>
                     <label style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, marginBottom: 4, display: "block" }}>
-                      New Status *
+                      New Decision *
                     </label>
                     <select
                       value={selectedStatusId}
@@ -907,7 +981,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                         fontFamily: "inherit",
                       }}
                     >
-                      <option value="">Select status...</option>
+                      <option value="">Select decision...</option>
                       {statuses.map((s) => (
                         <option key={s.id} value={s.id}>{s.name}</option>
                       ))}
@@ -954,7 +1028,7 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                         opacity: !selectedStatusId || !responseText.trim() ? 0.5 : 1,
                       }}
                     >
-                      {submittingResponse ? "Updating..." : "Update Status"}
+                      {submittingResponse ? "Updating..." : "Update Decision"}
                     </button>
                     <button
                       onClick={() => { setShowStatusUpdate(false); setSelectedStatusId(""); setResponseText(""); }}
@@ -1040,7 +1114,30 @@ export default function CHTDashboardPage({ loggedInUser, t, darkMode, openInquir
                     marginTop: 8,
                   }}
                 >
-                  Update Status
+                  Update Decision
+                </button>
+              )}
+
+              {canAcceptInquiries && selectedInquiry.assigned_to && !showStatusUpdate && (
+                <button
+                  onClick={handleToggleClosed}
+                  disabled={closingInquiry}
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    background: selectedInquiry.is_closed ? "transparent" : `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+                    border: selectedInquiry.is_closed ? `1px solid ${chtAccent}` : "none",
+                    borderRadius: 8,
+                    color: selectedInquiry.is_closed ? chtAccent : "white",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: closingInquiry ? "not-allowed" : "pointer",
+                    fontFamily: "inherit",
+                    marginTop: 8,
+                    opacity: closingInquiry ? 0.7 : 1,
+                  }}
+                >
+                  {closingInquiry ? (selectedInquiry.is_closed ? "Reopening..." : "Closing...") : (selectedInquiry.is_closed ? "Reopen Inquiry" : "Close Inquiry")}
                 </button>
               )}
             </div>

@@ -797,8 +797,9 @@ const apps = [
             minWidth: 180,
           }}
         >
-          <div
+<div
             style={{
+              position: "relative",
               width: "100%",
               display: "flex",
               alignItems: "center",
@@ -811,7 +812,7 @@ const apps = [
               padding: "6px 12px",
               transition: "border-color 0.2s",
             }}
-            >
+          >
               <SearchIcon size={15} />
               <input
                 ref={globalSearchRef}
@@ -860,7 +861,7 @@ const apps = [
                   position: "absolute",
                   top: "calc(100% + 6px)",
                   left: 0,
-                  right: 0,
+                  width: "100%",
                   zIndex: 300,
                   background: t.surface,
                   border: `1px solid ${t.border}`,

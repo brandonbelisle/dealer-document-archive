@@ -35,22 +35,41 @@ const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
 const HOST = process.env.HOST || '0.0.0.0';
 
-// ── Security Headers ───────────────────────────────────────
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "fonts.googleapis.com", "cdn.jsdelivr.net"],
-      imgSrc: ["'self'", "data:", "blob:"],
-      fontSrc: ["'self'", "fonts.gstatic.com", "cdn.jsdelivr.net"],
-      connectSrc: ["'self'"],
-      frameSrc: ["'self'"],
-      frameAncestors: ["'self'"],
-    },
-  },
-  crossOriginEmbedderPolicy: false,
-}));
+// ── Dynamic CSP Middleware ─────────────────────────────────
+async function getAllowedIframeDomains() {
+  try {
+    const db = require('./config/db');
+    const [rows] = await db.execute(
+      'SELECT value FROM app_settings WHERE `key` = "allowed_iframe_domains"'
+    );
+    if (rows.length > 0 && rows[0].value) {
+      return rows[0].value.split(',').map(d => d.trim()).filter(d => d);
+    }
+  } catch (err) {
+    console.error('Failed to get allowed iframe domains:', err.message);
+  }
+  return ['*.blob.core.windows.net'];
+}
+
+app.use(async (req, res, next) => {
+  try {
+    const allowedDomains = await getAllowedIframeDomains();
+    const frameSrc = ["'self'", ...allowedDomains];
+    
+    res.setHeader('Content-Security-Policy', [
+      "default-src 'self'",
+      "script-src 'self'",
+      "style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net",
+      "img-src 'self' data: blob:",
+      "font-src 'self' fonts.gstatic.com cdn.jsdelivr.net",
+      `frame-src ${frameSrc.join(' ')}`,
+      "frame-ancestors 'self'",
+    ].join('; '));
+  } catch (err) {
+    console.error('CSP middleware error:', err);
+  }
+  next();
+});
 
 // ── CORS (failsecure)─────────────────────────────────────
 const frontendUrl = process.env.FRONTEND_URL;

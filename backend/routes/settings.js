@@ -458,4 +458,67 @@ router.get('/ssl/active', async (req, res) => {
   }
 });
 
+// ── GET /api/settings/security/iframe-domains ──────────────────
+// Public endpoint - returns allowed iframe domains for CSP
+router.get('/security/iframe-domains', async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      'SELECT value FROM app_settings WHERE `key` = "allowed_iframe_domains"'
+    );
+    const domains = rows.length > 0 && rows[0].value 
+      ? rows[0].value.split(',').map(d => d.trim()).filter(d => d)
+      : [];
+    res.json({ domains });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── GET /api/settings/security ─────────────────────────────────
+// Get all security settings (admin only)
+router.get('/security', requireAuth, requirePermission('manageSettings'), async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      'SELECT `key`, `value` FROM app_settings WHERE `key` LIKE "allowed_iframe_domains"'
+    );
+    const settings = {};
+    rows.forEach(row => {
+      settings[row.key] = row.value || '';
+    });
+    res.json({
+      allowedIframeDomains: settings.allowed_iframe_domains || '*.blob.core.windows.net'
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── PUT /api/settings/security ──────────────────────────────────
+// Update security settings (admin only)
+router.put('/security', requireAuth, requirePermission('manageSettings'), async (req, res) => {
+  try {
+    const { allowedIframeDomains } = req.body;
+    
+    await db.execute(
+      `INSERT INTO app_settings (\`key\`, \`value\`) VALUES ("allowed_iframe_domains", ?)
+       ON DUPLICATE KEY UPDATE \`value\` = VALUES(\`value\`)`,
+      [allowedIframeDomains || '']
+    );
+
+    logAudit(
+      'Security Settings Updated',
+      'Allowed iframe domains updated',
+      req.user,
+      req.ip
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

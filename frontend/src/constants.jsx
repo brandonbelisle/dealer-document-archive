@@ -68,6 +68,12 @@ export const ADMIN_MENU = [
     desc: "Configure SSO and SAML settings",
   },
   {
+    id: "security",
+    label: "Security",
+    icon: <ShieldIcon size={17} />,
+    desc: "Configure security settings like allowed iframe domains",
+  },
+  {
     id: "dms",
     label: "DMS Connection",
     icon: <WrenchIcon size={17} />,

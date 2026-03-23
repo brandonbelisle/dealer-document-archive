@@ -519,3 +519,14 @@ export async function testAzureConnection(settings) {
     body: JSON.stringify(settings),
   });
 }
+
+export async function getSecuritySettings() {
+  return request('/settings/security');
+}
+
+export async function saveSecuritySettings(settings) {
+  return request('/settings/security', {
+    method: 'PUT',
+    body: JSON.stringify(settings),
+  });
+}

@@ -2684,6 +2684,14 @@ export default function AdminPage({
   const [azureTesting, setAzureTesting] = useState(false);
   const [azureMessage, setAzureMessage] = useState({ type: '', text: '' });
 
+  // Security settings
+  const [securitySettings, setSecuritySettings] = useState({
+    allowedIframeDomains: '*.blob.core.windows.net',
+  });
+  const [securityLoading, setSecurityLoading] = useState(false);
+  const [securitySaving, setSecuritySaving] = useState(false);
+  const [securityMessage, setSecurityMessage] = useState({ type: '', text: '' });
+
   const editLocRef = useRef(null);
   const addLocRef = useRef(null);
   const editDeptRef = useRef(null);
@@ -2809,9 +2817,42 @@ export default function AdminPage({
     }
   };
 
+  // Security settings functions
+  const loadSecuritySettings = async () => {
+    setSecurityLoading(true);
+    try {
+      const settings = await api.getSecuritySettings();
+      setSecuritySettings({
+        allowedIframeDomains: settings.allowedIframeDomains || '*.blob.core.windows.net',
+      });
+    } catch (err) {
+      console.error('Failed to load security settings:', err);
+    } finally {
+      setSecurityLoading(false);
+    }
+  };
+
+  const handleSaveSecurity = async () => {
+    setSecuritySaving(true);
+    setSecurityMessage({ type: '', text: '' });
+    try {
+      await api.saveSecuritySettings({
+        allowedIframeDomains: securitySettings.allowedIframeDomains,
+      });
+      setSecurityMessage({ type: 'success', text: 'Security settings saved successfully!' });
+    } catch (err) {
+      setSecurityMessage({ type: 'error', text: 'Failed to save: ' + (err.message || 'Unknown error') });
+    } finally {
+      setSecuritySaving(false);
+    }
+  };
+
   useEffect(() => {
     if (adminSection === 'azure') {
       loadAzureSettings();
+    }
+    if (adminSection === 'security') {
+      loadSecuritySettings();
     }
   }, [adminSection]);
 
@@ -3645,6 +3686,71 @@ export default function AdminPage({
                     </Btn>
                     <Btn darkMode={darkMode} t={t} onClick={handleTestAzure} loading={azureTesting} style={{ fontSize: 13 }}>
                       Test Connection
+                    </Btn>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SECURITY */}
+          {adminSection === "security" && (
+            <div style={{ animation: "fadeIn 0.25s ease" }}>
+              <div style={{ marginBottom: 24 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, marginBottom: 8 }}>Security Settings</h2>
+                <p style={{ fontSize: 13, color: t.textMuted, margin: 0 }}>
+                  Configure security policies for the application.
+                </p>
+              </div>
+
+              {securityLoading ? (
+                <div style={{ textAlign: "center", padding: 40, color: t.textMuted }}>Loading...</div>
+              ) : (
+                <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, padding: "20px 24px" }}>
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6 }}>
+                      Allowed Iframe Domains
+                    </label>
+                    <textarea
+                      value={securitySettings.allowedIframeDomains}
+                      onChange={(e) => setSecuritySettings({ ...securitySettings, allowedIframeDomains: e.target.value })}
+                      placeholder="*.blob.core.windows.net, *.azureedge.net"
+                      rows={3}
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        fontSize: 13,
+                        fontFamily: "monospace",
+                        background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 8,
+                        color: t.text,
+                        outline: "none",
+                        boxSizing: "border-box",
+                        resize: "vertical",
+                      }}
+                    />
+                    <p style={{ fontSize: 11, color: t.textDim, marginTop: 4 }}>
+                      Comma-separated list of domains allowed in iframes (for file previews). Default: *.blob.core.windows.net
+                    </p>
+                  </div>
+
+                  {securityMessage.text && (
+                    <div style={{
+                      padding: "10px 14px",
+                      borderRadius: 8,
+                      marginBottom: 16,
+                      background: securityMessage.type === "success" ? t.successSoft : t.errorSoft,
+                      color: securityMessage.type === "success" ? t.success : t.error,
+                      fontSize: 13,
+                    }}>
+                      {securityMessage.text}
+                    </div>
+                  )}
+
+                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                    <Btn primary darkMode={darkMode} t={t} onClick={handleSaveSecurity} loading={securitySaving} style={{ fontSize: 13 }}>
+                      Save Settings
                     </Btn>
                   </div>
                 </div>

@@ -175,6 +175,36 @@ router.get('/:id/preview-url', requireAuth, async (req, res) => {
   }
 });
 
+// ── GET /api/files/:id/preview ───────────────────────────
+// Proxies the file content with headers that allow iframe embedding
+router.get('/:id/preview', requireAuth, async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      'SELECT name, file_storage_path, mime_type FROM files WHERE id = ?',
+      [req.params.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+
+    const file = rows[0];
+    const storagePath = file.file_storage_path;
+    if (!storagePath) return res.status(404).json({ error: 'No file stored' });
+
+    const blobName = storagePath.includes('/') ? storagePath.split('/').pop().split('?')[0] : storagePath;
+
+    const { buffer, contentType } = await downloadBlobBuffer(blobName);
+
+    res.setHeader('Content-Type', contentType || file.mime_type || 'application/pdf');
+    res.setHeader('Content-Length', buffer.length);
+    res.setHeader('X-Frame-Options', 'ALLOWALL');
+    res.setHeader('Content-Security-Policy', "frame-src 'self' 'unsafe-inline';");
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+    res.send(buffer);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to load preview' });
+  }
+});
+
 // ── POST /api/files/upload ────────────────────────────────
 // Multipart: file (PDF/image), folderId, extractedText (optional), pageCount (optional)
 router.post('/upload', requireAuth, requirePermission('uploadFiles'), upload.single('file'), async (req, res) => {

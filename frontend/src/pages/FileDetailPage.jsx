@@ -49,31 +49,6 @@ export default function FileDetailPage({
 
   if (!vf) return null;
 
-  // Fetch fresh preview URL when file changes
-  useEffect(() => {
-    let cancelled = false;
-    async function fetchPreviewUrl() {
-      if (!vf?.id) return;
-      setPreviewLoading(true);
-      try {
-        const url = await api.getFilePreviewUrlByFileId(vf.id);
-        if (!cancelled) setPreviewUrl(url);
-      } catch (err) {
-        console.error("Failed to get preview URL:", err);
-        if (!cancelled) setPreviewUrl(null);
-      } finally {
-        if (!cancelled) setPreviewLoading(false);
-      }
-    }
-    // If fileDataUrl is available (extracted text for PDF), use that instead
-    if (vf.fileDataUrl) {
-      setPreviewUrl(vf.fileDataUrl);
-    } else {
-      fetchPreviewUrl();
-    }
-    return () => { cancelled = true; };
-  }, [vf?.id, vf?.fileDataUrl]);
-
   const folder = folders.find((f) => f.id === vf.folderId);
   const loc = folder
     ? locations.find((l) => l.id === folder.locationId)
@@ -86,6 +61,73 @@ export default function FileDetailPage({
     vf.type === "application/pdf" ||
     vf.name.toLowerCase().endsWith(".pdf");
   const isImage = vf.type?.startsWith("image/");
+
+  // Fetch fresh preview URL when file changes
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+
+    async function fetchPreviewUrl() {
+      if (!vf?.id) return;
+      
+      // Skip if we have extracted data URL for PDF
+      if (vf.fileDataUrl) return;
+      
+      setPreviewLoading(true);
+      try {
+        const token = localStorage.getItem("dda_token");
+        const response = await fetch(`/api/files/${vf.id}/preview`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error("Failed to load preview");
+        const blob = await response.blob();
+        if (cancelled) return;
+        
+        // For images, create a blob URL
+        if (isImage) {
+          const url = URL.createObjectURL(blob);
+          setPreviewUrl(url);
+        } else {
+          // For PDFs, convert to base64 data URL for PdfCanvasPreview
+          const reader = new FileReader();
+          reader.onload = () => {
+            if (!cancelled) {
+              setPreviewUrl(reader.result);
+            }
+          };
+          reader.onerror = () => {
+            if (!cancelled) setPreviewUrl(null);
+          };
+          reader.readAsDataURL(blob);
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error("Failed to get preview URL:", err);
+          if (!cancelled) setPreviewUrl(null);
+        }
+      } finally {
+        if (!cancelled) setPreviewLoading(false);
+      }
+    }
+    
+    fetchPreviewUrl();
+    
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [vf?.id, vf?.fileDataUrl, isImage]);
+
+  // Cleanup blob URL on unmount
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   const FileTypeIcon = isImage ? ImageIcon : FileDocIcon;
   const fileIconBg = isImage ? "rgba(234,179,8,0.15)" : t.successSoft;
   const fileIconColor = isImage ? "#eab308" : t.success;
@@ -501,14 +543,33 @@ export default function FileDetailPage({
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 11, color: t.textDim }}>{vf.name}</span>
             <button
-              onClick={() => {
+              onClick={async () => {
+                // Cleanup old blob URL if exists
+                if (previewUrl && previewUrl.startsWith('blob:')) {
+                  URL.revokeObjectURL(previewUrl);
+                }
                 setPreviewLoading(true);
-                api.getFilePreviewUrlByFileId(vf.id)
-                  .then((data) => {
-                    setPreviewUrl(data.url || data);
-                    setPreviewLoading(false);
-                  })
-                  .catch(() => setPreviewLoading(false));
+                try {
+                  const token = localStorage.getItem("dda_token");
+                  const response = await fetch(`/api/files/${vf.id}/preview`, {
+                    headers: token ? { Authorization: `Bearer ${token}` } : {},
+                  });
+                  if (!response.ok) throw new Error("Failed to load preview");
+                  const blob = await response.blob();
+                  if (isImage) {
+                    setPreviewUrl(URL.createObjectURL(blob));
+                  } else {
+                    const reader = new FileReader();
+                    reader.onload = () => setPreviewUrl(reader.result);
+                    reader.onerror = () => setPreviewUrl(null);
+                    reader.readAsDataURL(blob);
+                  }
+                } catch (err) {
+                  console.error("Failed to refresh preview:", err);
+                  setPreviewUrl(null);
+                } finally {
+                  setPreviewLoading(false);
+                }
               }}
               style={{
                 background: "transparent",
@@ -559,14 +620,6 @@ export default function FileDetailPage({
                       border: "none",
                     }}
                     title="PDF Preview"
-                    sandbox="allow-scripts allow-same-origin allow-forms"
-                    onError={() => {
-                      setPreviewLoading(true);
-                      api.getFilePreviewUrlByFileId(vf.id)
-                        .then((data) => setPreviewUrl(data.url || data))
-                        .catch(() => setPreviewUrl(null))
-                        .finally(() => setPreviewLoading(false));
-                    }}
                   />
                 );
               }
@@ -591,13 +644,6 @@ export default function FileDetailPage({
                         maxHeight: "100%",
                         objectFit: "contain",
                         borderRadius: 4,
-                      }}
-                      onError={() => {
-                        setPreviewLoading(true);
-                        api.getFilePreviewUrlByFileId(vf.id)
-                          .then((data) => setPreviewUrl(data.url || data))
-                          .catch(() => setPreviewUrl(null))
-                          .finally(() => setPreviewLoading(false));
                       }}
                     />
                   </div>

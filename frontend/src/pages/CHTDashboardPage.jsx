@@ -277,6 +277,9 @@ const handleStatusUpdate = async () => {
       month: "short",
       day: "numeric",
       year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
   };
 
@@ -296,24 +299,34 @@ const handleStatusUpdate = async () => {
     const start = new Date(createdAt);
     const end = new Date(decisionAt);
     const diffMs = end - start;
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffSeconds = Math.floor(diffMs / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
     const diffDays = Math.floor(diffHours / 24);
-    const diffMinutes = Math.floor((diffMs / (1000 * 60)) % 60);
     
     if (diffDays > 0) {
       const remainingHours = diffHours % 24;
-      if (remainingHours > 0) {
-        return `${diffDays}d ${remainingHours}h`;
+      const remainingMinutes = diffMinutes % 60;
+      const remainingSeconds = diffSeconds % 60;
+      if (remainingHours > 0 && remainingMinutes > 0) {
+        return `${diffDays}d ${remainingHours}h ${remainingMinutes}m ${remainingSeconds}s`;
+      } else if (remainingHours > 0) {
+        return `${diffDays}d ${remainingHours}h ${remainingSeconds}s`;
+      } else if (remainingMinutes > 0) {
+        return `${diffDays}d ${remainingMinutes}m ${remainingSeconds}s`;
       }
-      return `${diffDays}d`;
+      return `${diffDays}d ${remainingSeconds}s`;
     }
     if (diffHours > 0) {
-      return `${diffHours}h ${diffMinutes}m`;
+      const remainingMinutes = diffMinutes % 60;
+      const remainingSeconds = diffSeconds % 60;
+      return `${diffHours}h ${remainingMinutes}m ${remainingSeconds}s`;
     }
     if (diffMinutes > 0) {
-      return `${diffMinutes}m`;
+      const remainingSeconds = diffSeconds % 60;
+      return `${diffMinutes}m ${remainingSeconds}s`;
     }
-    return "<1m";
+    return `${diffSeconds}s`;
   };
 
   const getStatusBadge = (statusName, statusColor) => (
@@ -648,9 +661,9 @@ const handleStatusUpdate = async () => {
                               onClick={(e) => e.stopPropagation()}
                               style={{
                                 position: "absolute",
-                                top: "100%",
+                                bottom: "100%",
                                 left: 0,
-                                marginTop: 4,
+                                marginBottom: 4,
                                 background: t.surface,
                                 border: `1px solid ${t.border}`,
                                 borderRadius: 8,

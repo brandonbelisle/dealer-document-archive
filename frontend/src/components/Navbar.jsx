@@ -84,6 +84,7 @@ export default function Navbar({
   const [customApps, setCustomApps] = useState([]);
 
   const isMobile = windowWidth < 1100;
+  const needsRightAlign = windowWidth < 1400;
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -783,11 +784,11 @@ const apps = [
         <div
           style={{
             position: "absolute",
-            left: isMobile ? 60 : "50%",
-            right: isMobile ? 16 : "auto",
-            transform: isMobile ? "none" : "translateX(-50%)",
+            left: needsRightAlign ? "auto" : "50%",
+            right: needsRightAlign ? 16 : "auto",
+            transform: needsRightAlign ? "none" : "translateX(-50%)",
             width: isMobile ? "auto" : "100%",
-            maxWidth: isMobile ? "none" : 520,
+            maxWidth: needsRightAlign ? 280 : 520,
             zIndex: 1,
             pointerEvents: "none",
           }}

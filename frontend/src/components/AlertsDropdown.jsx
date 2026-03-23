@@ -20,7 +20,20 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) 
       return;
     }
     
-    setAlerts((prev) => [{ ...notification, read_at: null }, ...prev.slice(0, 99)]);
+    // Add notification with proper ID
+    const newAlert = {
+      ...notification,
+      id: notification.id || `cht-${Date.now()}`,
+      created_at: notification.created_at || notification.createdAt || new Date().toISOString(),
+      read_at: null,
+    };
+    
+    setAlerts((prev) => {
+      // Avoid duplicates
+      const exists = prev.some((a) => a.id === newAlert.id);
+      if (exists) return prev;
+      return [newAlert, ...prev.slice(0, 99)];
+    });
     setUnreadCount((prev) => prev + 1);
   };
 
@@ -42,7 +55,16 @@ export default function AlertsDropdown({ darkMode, onNavigate, currentUserId }) 
     setLoading(true);
     try {
       const data = await api.getNotifications(false);
-      setAlerts(data);
+      // Merge database notifications with real-time notifications
+      // Real-time notifications (CHT) don't have an id field from the database
+      // We use the id or a composite key to avoid duplicates
+      setAlerts((prev) => {
+        const dbAlerts = data || [];
+        const rtAlerts = prev.filter((a) => !a.notification_type && !a.file_name); // Real-time CHT alerts
+        const existingIds = new Set(dbAlerts.map((a) => a.id));
+        const uniqueRtAlerts = rtAlerts.filter((a) => !existingIds.has(a.id));
+        return [...uniqueRtAlerts, ...dbAlerts].slice(0, 100);
+      });
     } catch (err) {
       console.error("Failed to load alerts:", err);
     } finally {

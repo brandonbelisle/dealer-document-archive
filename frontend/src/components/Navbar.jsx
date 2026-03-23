@@ -84,7 +84,6 @@ export default function Navbar({
   const [customApps, setCustomApps] = useState([]);
 
   const isMobile = windowWidth < 1100;
-  const needsRightAlign = windowWidth < 1400;
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -783,50 +782,51 @@ const apps = [
       {isLoggedIn && (
         <div
           style={{
-            flex: "1 1 auto",
-            display: "flex",
-            justifyContent: "center",
-            padding: "0 16px",
-            minWidth: 180,
-            maxWidth: 480,
+            position: "absolute",
+            left: isMobile ? 60 : "50%",
+            right: isMobile ? 16 : "auto",
+            transform: isMobile ? "none" : "translateX(-50%)",
+            width: isMobile ? "auto" : "100%",
+            maxWidth: isMobile ? "none" : 520,
             zIndex: 1,
+            pointerEvents: "none",
           }}
         >
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              background: darkMode
-                ? "rgba(255,255,255,0.05)"
-                : "rgba(0,0,0,0.04)",
-              border: `1px solid ${showDropdown && hasResults ? t.accent : t.border}`,
-              borderRadius: 9,
-              padding: "6px 12px",
-              transition: "border-color 0.2s",
-            }}
-          >
-            <SearchIcon size={15} />
-            <input
-              ref={globalSearchRef}
-              value={globalSearch}
-              onChange={(e) => setGlobalSearch(e.target.value)}
-              onFocus={() => setGlobalSearchFocused(true)}
-              onBlur={() =>
-                setTimeout(() => setGlobalSearchFocused(false), 200)
-              }
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  setGlobalSearch("");
-                  globalSearchRef.current?.blur();
-                }
-              }}
-              placeholder="Search..."
+          <div style={{ pointerEvents: "auto", position: "relative" }}>
+            <div
               style={{
-                flex: 1,
-                background: "transparent",
-                border: "none",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                background: darkMode
+                  ? "rgba(255,255,255,0.05)"
+                  : "rgba(0,0,0,0.04)",
+                border: `1px solid ${showDropdown && hasResults ? t.accent : t.border}`,
+                borderRadius: 9,
+                padding: "6px 12px",
+                transition: "border-color 0.2s",
+              }}
+            >
+              <SearchIcon size={15} />
+              <input
+                ref={globalSearchRef}
+                value={globalSearch}
+                onChange={(e) => setGlobalSearch(e.target.value)}
+                onFocus={() => setGlobalSearchFocused(true)}
+                onBlur={() =>
+                  setTimeout(() => setGlobalSearchFocused(false), 200)
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    setGlobalSearch("");
+                    globalSearchRef.current?.blur();
+                  }
+                }}
+                placeholder="Search folders & files..."
+                style={{
+                  flex: 1,
+                  background: "transparent",
+                  border: "none",
                   fontSize: 13,
                   color: t.text,
                   outline: "none",
@@ -1126,27 +1126,28 @@ const apps = [
                           >
                             {fmtSize(file.size)}
                           </span>
-                    </div>
+                        </div>
                     ))}
                   </div>
                 )}
               </div>
-            </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Right: profile + dark mode */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          flexShrink: 0,
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
+      {!isMobile && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexShrink: 0,
+            position: "relative",
+            zIndex: 2,
+          }}
+        >
         {loggedInUser && (
           <div style={{ position: "relative" }}>
             <div
@@ -1387,35 +1388,36 @@ const apps = [
               </div>
             </div>
           )}
-          <AlertsDropdown darkMode={darkMode} onNavigate={(alert) => {
-              if (alert.file_id) {
-                setActiveFolderId(alert.folder_id || null);
-                if (alert.folder_id) {
-                  setPage("folders");
-                } else {
-                  setPage("unsorted");
-                }
-                setTimeout(() => {
-                  setViewingFileIdFromAlert(alert.file_id);
-                }, 100);
-              }
-            }} />
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            style={{
-              background: t.surface,
-              border: `1px solid ${t.border}`,
-              borderRadius: 7,
-              padding: 6,
-              cursor: "pointer",
-              color: t.textMuted,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            {darkMode ? <SunIcon /> : <MoonIcon />}
-          </button>
         </div>
+        <AlertsDropdown darkMode={darkMode} onNavigate={(alert) => {
+            if (alert.file_id) {
+              setActiveFolderId(alert.folder_id || null);
+              if (alert.folder_id) {
+                setPage("folders");
+              } else {
+                setPage("unsorted");
+              }
+              setTimeout(() => {
+                setViewingFileIdFromAlert(alert.file_id);
+              }, 100);
+            }
+          }} />
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          style={{
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 7,
+            padding: 6,
+            cursor: "pointer",
+            color: t.textMuted,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          {darkMode ? <SunIcon /> : <MoonIcon />}
+        </button>
+      </div>
       )}
     </nav>
   );

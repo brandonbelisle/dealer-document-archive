@@ -594,7 +594,7 @@ const handleStatusUpdate = async () => {
               <p style={{ margin: 0, fontSize: 15 }}>No inquiries found</p>
             </div>
           ) : (
-            <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }}>
+            <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden", minHeight: 1144 }}>
               <div style={{
                 display: "grid",
                 gridTemplateColumns: canViewMetrics ? "1fr 120px 120px 120px 80px 100px" : "1fr 120px 120px 120px 100px",

@@ -75,7 +75,7 @@ export default function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page,
       backdropFilter: "blur(12px)",
       zIndex: 100,
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, color: darkMode ? "#e5e7eb" : "#1f2937" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, color: darkMode ? "#e5e7eb" : "#1f2937", cursor: "pointer" }} onClick={() => setPage("landing")}>
         <GearIcon size={16} />
         <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.03em" }}>Admin Center</span>
       </div>

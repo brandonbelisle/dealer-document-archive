@@ -1024,12 +1024,26 @@ const t = getTheme(darkMode);
       });
     };
     
+    const doDeleteEmptyFolder = async () => {
+      try {
+        for (const desc of descendants) { await api.deleteFolder(desc.id).catch(console.error); }
+        await api.deleteFolder(folder.id);
+        setFolders((p) => p.filter((f) => !allFolderIds.has(f.id)));
+        if (activeFolderId === folder.id || allFolderIds.has(activeFolderId)) {
+          if (folder.parentId) setActiveFolderId(folder.parentId);
+          else { setActiveFolderId(null); setPage("folders"); }
+        }
+        addToast("Folder deleted", `"${folder.name}" has been deleted`, 4000, "delete");
+      } catch (err) { console.error(err); }
+    };
+    
     setWarningModal({ 
       title: "Delete Folder", 
       message, 
       onConfirmUnlink: hasFiles ? doUnlink : undefined,
-      onConfirmDeleteAll: doDeleteAll,
-      onDeleteAllClick: handleDeleteAllClick
+      onConfirmDeleteAll: hasFiles ? doDeleteAll : undefined,
+      onDeleteAllClick: hasFiles ? handleDeleteAllClick : undefined,
+      onConfirm: hasFiles ? undefined : doDeleteEmptyFolder,
     });
   };
 

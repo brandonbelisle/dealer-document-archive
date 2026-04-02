@@ -764,6 +764,7 @@ const handleDeptDrop = useCallback(async (e) => {
       const cacheKey = parentId ? `${parentId}:${name}` : `root:${name}`;
       if (folderCache.has(cacheKey)) return folderCache.get(cacheKey);
       
+      // First, try to find existing folder
       try {
         const existingFolder = await api.findFolder(name, activeLocation, activeDepartment, parentId);
         if (existingFolder && existingFolder.id) {
@@ -774,6 +775,7 @@ const handleDeptDrop = useCallback(async (e) => {
         // Folder not found, will create below
       }
       
+      // Try to create the folder
       try {
         const created = await api.createFolder(name, activeLocation, activeDepartment, parentId);
         setFolders((p) => [...p, {
@@ -787,9 +789,9 @@ const handleDeptDrop = useCallback(async (e) => {
         folderCache.set(cacheKey, created.id);
         return created.id;
       } catch (createErr) {
-        // If duplicate error, try to find the existing folder again
+        // If conflict (duplicate), try to find the existing folder again
         const errMsg = createErr.message || '';
-        if (errMsg.includes('Duplicate') || errMsg.includes('unique')) {
+        if (errMsg.includes('already exists') || errMsg.includes('409') || errMsg.includes('Duplicate') || errMsg.includes('unique')) {
           try {
             const existingFolder = await api.findFolder(name, activeLocation, activeDepartment, parentId);
             if (existingFolder && existingFolder.id) {

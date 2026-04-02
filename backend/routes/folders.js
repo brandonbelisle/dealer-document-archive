@@ -177,6 +177,22 @@ router.post('/', requireAuth, requirePermission('createFolders'), async (req, re
       return res.status(400).json({ error: 'name, locationId, departmentId required' });
     }
 
+    // Check for existing folder with same name (case-insensitive)
+    let checkSql = `SELECT id FROM folders WHERE LOWER(name) = LOWER(?) AND location_id = ? AND department_id = ?`;
+    const checkParams = [name.trim(), locationId, departmentId];
+    
+    if (parentId) {
+      checkSql += ' AND parent_id = ?';
+      checkParams.push(parentId);
+    } else {
+      checkSql += ' AND parent_id IS NULL';
+    }
+    
+    const [existing] = await db.execute(checkSql, checkParams);
+    if (existing.length > 0) {
+      return res.status(409).json({ error: 'A folder with this name already exists', existingFolderId: existing[0].id });
+    }
+
     const id = uuidv4();
     await db.execute(
       'INSERT INTO folders (id, name, location_id, department_id, parent_id, created_by) VALUES (?, ?, ?, ?, ?, ?)',
@@ -211,7 +227,8 @@ router.get('/find', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'name, locationId, departmentId required' });
     }
 
-    let sql = `SELECT f.* FROM folders f WHERE f.name = ? AND f.location_id = ? AND f.department_id = ?`;
+    // Use LOWER() for case-insensitive name comparison
+    let sql = `SELECT f.* FROM folders f WHERE LOWER(f.name) = LOWER(?) AND f.location_id = ? AND f.department_id = ?`;
     const params = [name.trim(), locationId, departmentId];
 
     if (parentId === 'null' || parentId === '' || parentId === undefined) {

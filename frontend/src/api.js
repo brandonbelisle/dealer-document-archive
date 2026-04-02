@@ -610,3 +610,7 @@ export async function searchDcvCustomers(query) {
 export async function getDcvCustomer(id) {
   return request(`/dcv/${id}`);
 }
+
+export async function getDcvCustomerTimeline(id) {
+  return request(`/dcv/${id}/timeline`);
+}

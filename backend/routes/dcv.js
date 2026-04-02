@@ -69,6 +69,81 @@ router.get('/search', requireAuth, requirePermission('view_dcv'), async (req, re
   }
 });
 
+// Get customer timeline (folders, files, etc.)
+router.get('/:id/timeline', requireAuth, requirePermission('view_dcv'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const events = [];
+    
+    // Get folders with cus_id matching the customer
+    const [folders] = await db.execute(
+      `SELECT f.id, f.name, f.created_at, l.name as location_name, d.name as department_name, 'folder' as event_type
+       FROM folders f
+       LEFT JOIN locations l ON f.location_id = l.id
+       LEFT JOIN departments d ON f.department_id = d.id
+       WHERE f.cus_id = (SELECT cus_id FROM company_customer WHERE id = ?)
+       ORDER BY f.created_at DESC`,
+      [id]
+    );
+    
+    for (const folder of folders) {
+      events.push({
+        id: folder.id,
+        type: 'folder_created',
+        title: 'Folder Created',
+        description: `${folder.name} - ${folder.department_name || 'Department'} at ${folder.location_name || 'Location'}`,
+        timestamp: folder.created_at,
+        metadata: {
+          folderId: folder.id,
+          folderName: folder.name,
+          location: folder.location_name,
+          department: folder.department_name,
+        },
+      });
+    }
+    
+    // Get files in folders with cus_id matching the customer
+    const [files] = await db.execute(
+      `SELECT fi.id, fi.name, fi.created_at, fi.folder_id, f.name as folder_name, l.name as location_name, 'file' as event_type
+       FROM files fi
+       JOIN folders f ON fi.folder_id = f.id
+       LEFT JOIN locations l ON f.location_id = l.id
+       WHERE f.cus_id = (SELECT cus_id FROM company_customer WHERE id = ?) AND fi.status != 'deleted'
+       ORDER BY fi.created_at DESC
+       LIMIT 100`,
+      [id]
+    );
+    
+    for (const file of files) {
+      events.push({
+        id: file.id,
+        type: 'file_uploaded',
+        title: 'File Uploaded',
+        description: `${file.name} in ${file.folder_name || 'Folder'}`,
+        timestamp: file.created_at,
+        metadata: {
+          fileId: file.id,
+          fileName: file.name,
+          folderId: file.folder_id,
+          folderName: file.folder_name,
+          location: file.location_name,
+        },
+      });
+    }
+    
+    // Sort all events by timestamp (newest first)
+    events.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    console.log(`[DCV] Timeline for customer ${id}: ${events.length} events`);
+    
+    res.json(events);
+  } catch (err) {
+    console.error('[DCV] Timeline error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Get customer by ID
 router.get('/:id', requireAuth, requirePermission('view_dcv'), async (req, res) => {
   try {

@@ -1,11 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getTheme } from "../theme";
-import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon } from "../components/Icons";
+import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon, FolderIcon, FileIcon } from "../components/Icons";
+import * as api from "../api";
 
 export default function DCVPage({ t, darkMode, selectedCustomer }) {
   const theme = getTheme(darkMode);
+  const [activeTab, setActiveTab] = useState("timeline");
+  const [timeline, setTimeline] = useState([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
 
   const customer = selectedCustomer;
+
+  useEffect(() => {
+    if (customer && activeTab === "timeline") {
+      setTimelineLoading(true);
+      api.getDcvCustomerTimeline(customer.id)
+        .then(setTimeline)
+        .catch(console.error)
+        .finally(() => setTimelineLoading(false));
+    }
+  }, [customer, activeTab]);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "N/A";
@@ -23,6 +37,34 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
   const formatAddress = (addr1, addr2, city, state, post) => {
     const parts = [addr1, addr2, city, state, post].filter(Boolean);
     return parts.length > 0 ? parts.join(", ") : "N/A";
+  };
+
+  const tabs = [
+    { id: "timeline", label: "Timeline" },
+    { id: "service", label: "Service" },
+    { id: "parts", label: "Parts" },
+  ];
+
+  const getEventIcon = (type) => {
+    switch (type) {
+      case "folder_created":
+        return <FolderIcon size={16} />;
+      case "file_uploaded":
+        return <FileIcon size={16} />;
+      default:
+        return <ClockIcon size={16} />;
+    }
+  };
+
+  const getEventColor = (type) => {
+    switch (type) {
+      case "folder_created":
+        return "#0891b2";
+      case "file_uploaded":
+        return "#10b981";
+      default:
+        return "#8b5cf6";
+    }
   };
 
   return (
@@ -221,35 +263,159 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
         )}
       </div>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: 24 }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {customer ? (
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100%",
-            minHeight: 400,
-          }}>
+          <>
             <div style={{
-              width: 80,
-              height: 80,
-              borderRadius: 16,
-              background: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 24,
+              borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
+              padding: "0 24px",
+              background: darkMode ? "rgba(15,17,20,0.95)" : "#fff",
             }}>
-              <span style={{ color: "white", fontSize: 28, fontWeight: 800 }}>DCV</span>
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    padding: "16px 20px",
+                    background: "transparent",
+                    border: "none",
+                    borderBottom: activeTab === tab.id ? `2px solid #8b5cf6` : "2px solid transparent",
+                    color: activeTab === tab.id ? "#8b5cf6" : theme.textMuted,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
-            <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 12px", color: theme.text }}>
-              Customer Details Panel
-            </h2>
-            <p style={{ fontSize: 15, color: theme.textMuted, margin: 0, textAlign: "center", maxWidth: 500 }}>
-              Customer information is displayed in the left panel. Additional features and data visualization will be available here in future updates.
-            </p>
-          </div>
+
+            <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
+              {activeTab === "timeline" && (
+                <div>
+                  {timelineLoading ? (
+                    <div style={{ textAlign: "center", padding: 60, color: theme.textMuted }}>
+                      Loading timeline...
+                    </div>
+                  ) : timeline.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: 60 }}>
+                      <div style={{
+                        width: 64,
+                        height: 64,
+                        borderRadius: "50%",
+                        background: darkMode ? "rgba(139,92,246,0.1)" : "rgba(139,92,246,0.05)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        margin: "0 auto 16px",
+                      }}>
+                        <ClockIcon size={28} style={{ color: "#8b5cf6" }} />
+                      </div>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: theme.text, marginBottom: 8 }}>
+                        No Activity Yet
+                      </div>
+                      <div style={{ fontSize: 13, color: theme.textMuted }}>
+                        Timeline events will appear here when folders or files are created for this customer.
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {timeline.map((event, index) => (
+                        <div
+                          key={`${event.type}-${event.id}-${index}`}
+                          style={{
+                            display: "flex",
+                            gap: 16,
+                            padding: 16,
+                            background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+                            borderRadius: 12,
+                            border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+                          }}
+                        >
+                          <div style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 10,
+                            background: `${getEventColor(event.type)}15`,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: getEventColor(event.type),
+                            flexShrink: 0,
+                          }}>
+                            {getEventIcon(event.type)}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: theme.text, marginBottom: 4 }}>
+                              {event.title}
+                            </div>
+                            <div style={{ fontSize: 13, color: theme.textMuted, marginBottom: 8 }}>
+                              {event.description}
+                            </div>
+                            <div style={{ fontSize: 11, color: darkMode ? "#6b7280" : "#9ca3af", display: "flex", alignItems: "center", gap: 4 }}>
+                              <ClockIcon size={12} />
+                              {formatDate(event.timestamp)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "service" && (
+                <div style={{ textAlign: "center", padding: 60 }}>
+                  <div style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: "50%",
+                    background: darkMode ? "rgba(245,158,11,0.1)" : "rgba(245,158,11,0.05)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "0 auto 16px",
+                  }}>
+                    <FolderIcon size={28} style={{ color: "#f59e0b" }} />
+                  </div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: theme.text, marginBottom: 8 }}>
+                    Service History
+                  </div>
+                  <div style={{ fontSize: 13, color: theme.textMuted }}>
+                    Service records will appear here once connected to your DMS.
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "parts" && (
+                <div style={{ textAlign: "center", padding: 60 }}>
+                  <div style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: "50%",
+                    background: darkMode ? "rgba(16,185,129,0.1)" : "rgba(16,185,129,0.05)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "0 auto 16px",
+                  }}>
+                    <FolderIcon size={28} style={{ color: "#10b981" }} />
+                  </div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: theme.text, marginBottom: 8 }}>
+                    Parts History
+                  </div>
+                  <div style={{ fontSize: 13, color: theme.textMuted }}>
+                    Parts records will appear here once connected to your DMS.
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
         ) : (
           <div style={{
             display: "flex",

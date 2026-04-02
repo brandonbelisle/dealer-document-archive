@@ -750,7 +750,7 @@ const t = getTheme(darkMode);
 const handleDeptDrop = useCallback(async (e) => {
     e.preventDefault();
     setDeptDragOver(false);
-    if (!activeDepartment || !activeLocation) return;
+    if (!activeDepartment ||!activeLocation) return;
 
     const items = e.dataTransfer.items;
     if (!items) {
@@ -764,23 +764,29 @@ const handleDeptDrop = useCallback(async (e) => {
       const cacheKey = parentId ? `${parentId}:${name}` : `root:${name}`;
       if (folderCache.has(cacheKey)) return folderCache.get(cacheKey);
       
+      let existingFolder = null;
       try {
-        const existing = await api.findFolder(name, activeLocation, activeDepartment, parentId);
-        folderCache.set(cacheKey, existing.id);
-        return existing.id;
-      } catch {
-        const created = await api.createFolder(name, activeLocation, activeDepartment, parentId);
-        setFolders((p) => [...p, {
-          id: created.id,
-          name: created.name,
-          locationId: created.location_id || created.locationId,
-          departmentId: created.department_id || created.departmentId,
-          parentId: created.parent_id || created.parentId || null,
-          createdAt: created.created_at
-        }]);
-        folderCache.set(cacheKey, created.id);
-        return created.id;
+        existingFolder = await api.findFolder(name, activeLocation, activeDepartment, parentId);
+      } catch (err) {
+        // Folder not found, will create below
       }
+      
+      if (existingFolder) {
+        folderCache.set(cacheKey, existingFolder.id);
+        return existingFolder.id;
+      }
+      
+      const created = await api.createFolder(name, activeLocation, activeDepartment, parentId);
+      setFolders((p) => [...p, {
+        id: created.id,
+        name: created.name,
+        locationId: created.location_id || created.locationId,
+        departmentId: created.department_id || created.departmentId,
+        parentId: created.parent_id || created.parentId || null,
+        createdAt: created.created_at
+      }]);
+      folderCache.set(cacheKey, created.id);
+      return created.id;
     };
 
     for (const item of items) {

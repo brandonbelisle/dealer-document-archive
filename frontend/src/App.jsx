@@ -773,19 +773,26 @@ const t = getTheme(darkMode);
         const folderName = entry.name;
         
         try {
-          const created = await api.createFolder(folderName, activeLocation, activeDepartment, null);
-          setFolders((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: null, createdAt: created.created_at }]);
+          let folder;
+          try {
+            folder = await api.findFolder(folderName, activeLocation, activeDepartment, null);
+          } catch {
+            folder = await api.createFolder(folderName, activeLocation, activeDepartment, null);
+            setFolders((p) => [...p, { id: folder.id, name: folder.name, locationId: folder.location_id || folder.locationId, departmentId: folder.department_id || folder.departmentId, parentId: null, createdAt: folder.created_at }]);
+          }
+          
+          const folderId = folder.id;
           const msg = skipCount.value > 0 
-            ? `"${folderName}" created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} (${skipCount.value} skipped)`
-            : `"${folderName}" has been created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""}`;
-          addToast("Folder created", msg, 4000, "create");
+            ? `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} uploaded to "${folderName}" (${skipCount.value} skipped)`
+            : `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} uploaded to "${folderName}"`;
+          addToast("Upload complete", msg, 4000, "create");
           
           for (const { file } of allFiles) {
-            processFile(file, created.id);
+            processFile(file, folderId);
           }
         } catch (err) {
-          console.error("Failed to create folder:", err);
-          addToast("Error", `Failed to create folder "${folderName}"`, 4000, "error");
+          console.error("Failed to process folder:", err);
+          addToast("Error", `Failed to process folder "${folderName}"`, 4000, "error");
         }
       }
     }

@@ -1,4 +1,4 @@
--- Migration: Create company_customer table and CUSTOMER_SYNC scheduled task
+-- Migration: Create company_customer table and CUSTOMER SYNC scheduled tasks
 
 -- Create company_customer table to store synced customer data from DMS
 CREATE TABLE IF NOT EXISTS company_customer (
@@ -37,14 +37,26 @@ CREATE TABLE IF NOT EXISTS company_customer (
     INDEX idx_dms_deleted (dms_deleted)
 );
 
--- Add CUSTOMER_SYNC scheduled task (disabled by default)
+-- Add CUSTOMER SYNC scheduled task (manual run only - interval_minutes = 0)
 INSERT INTO dms_schedules (id, name, description, task_type, query_config, enabled, interval_minutes)
 VALUES (
     UUID(),
     'CUSTOMER SYNC',
-    'Syncs customer data from DMS (COCUS table) to Dealer Toolbox. Records deleted from DMS are marked but preserved.',
+    'Syncs ALL customer data from DMS (COCUS table) to Dealer Toolbox. This is a manual run only task - runs once when triggered. Records deleted from DMS are marked but preserved.',
     'CUSTOMER_SYNC',
     '{"table": "COCUS"}',
+    FALSE,
+    0
+);
+
+-- Add CUSTOMER SYNC 24HR scheduled task (runs every 24 hours, only syncs records created in last 24 hours)
+INSERT INTO dms_schedules (id, name, description, task_type, query_config, enabled, interval_minutes)
+VALUES (
+    UUID(),
+    'CUSTOMER SYNC 24HR',
+    'Syncs customer data created in the past 24 hours from DMS (COCUS table) to Dealer Toolbox. Runs automatically every 24 hours. Records deleted from DMS are marked but preserved.',
+    'CUSTOMER_SYNC_24HR',
+    '{"table": "COCUS", "dateColumn": "DateCreate", "lookbackHours": 24}',
     FALSE,
     1440
 );

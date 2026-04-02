@@ -747,10 +747,10 @@ const t = getTheme(darkMode);
   }, [processFile, activeFolderId, folders]);
   const handleFolderDetailFiles = useCallback((fl) => { if (!activeFolderId) return; Array.from(fl).forEach((f) => processFile(f, activeFolderId)); }, [processFile, activeFolderId]);
 
-  const handleDeptDrop = useCallback(async (e) => {
+const handleDeptDrop = useCallback(async (e) => {
     e.preventDefault();
     setDeptDragOver(false);
-    if (!activeDepartment ||!activeLocation) return;
+    if (!activeDepartment || !activeLocation) return;
 
     const items = e.dataTransfer.items;
     if (!items) {
@@ -760,46 +760,27 @@ const t = getTheme(darkMode);
 
     const folderCache = new Map();
     
-    const getOrCreateFolder = async (folderPath) => {
-      if (folderCache.has(folderPath)) return folderCache.get(folderPath);
+    const getOrCreateFolder = async (name, parentId) => {
+      const cacheKey = parentId ? `${parentId}:${name}` : `root:${name}`;
+      if (folderCache.has(cacheKey)) return folderCache.get(cacheKey);
       
-      const parts = folderPath.split('/');
-      let parentId = null;
-      let currentPath = "";
-      
-      for (const part of parts) {
-        currentPath = currentPath ? `${currentPath}/${part}` : part;
-        
-        if (folderCache.has(currentPath)) {
-          parentId = folderCache.get(currentPath);
-          continue;
-        }
-        
-        try {
-          const existing = await api.findFolder(part, activeLocation, activeDepartment, parentId);
-          folderCache.set(currentPath, existing.id);
-          parentId = existing.id;
-        } catch {
-          try {
-            const created = await api.createFolder(part, activeLocation, activeDepartment, parentId);
-            setFolders((p) => [...p, {
-              id: created.id,
-              name: created.name,
-              locationId: created.location_id || created.locationId,
-              departmentId: created.department_id || created.departmentId,
-              parentId: created.parent_id || created.parentId || null,
-              createdAt: created.created_at
-            }]);
-            folderCache.set(currentPath, created.id);
-            parentId = created.id;
-          } catch (err) {
-            console.error("Failed to create folder:", err);
-            return null;
-          }
-        }
+      try {
+        const existing = await api.findFolder(name, activeLocation, activeDepartment, parentId);
+        folderCache.set(cacheKey, existing.id);
+        return existing.id;
+      } catch {
+        const created = await api.createFolder(name, activeLocation, activeDepartment, parentId);
+        setFolders((p) => [...p, {
+          id: created.id,
+          name: created.name,
+          locationId: created.location_id || created.locationId,
+          departmentId: created.department_id || created.departmentId,
+          parentId: created.parent_id || created.parentId || null,
+          createdAt: created.created_at
+        }]);
+        folderCache.set(cacheKey, created.id);
+        return created.id;
       }
-      
-      return folderCache.get(folderPath);
     };
 
     for (const item of items) {
@@ -817,47 +798,24 @@ const t = getTheme(darkMode);
         const folderName = entry.name;
         
         try {
-          const rootFolderId = await getOrCreateFolder(folderName);
-          if (!rootFolderId) {
-            addToast("Error", `Failed to create folder "${folderName}"`, 4000, "error");
-            continue;
-          }
+          const rootFolderId = await getOrCreateFolder(folderName, null);
           
-          const subfolderPaths = new Set();
-          for (const { path } of allFiles) {
-            const parts = path.split('/');
-            if (parts.length > 1) {
-              let currentPath = folderName;
-              for (let i = 0; i < parts.length - 1; i++) {
-                currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i];
-                subfolderPaths.add(currentPath);
+          for (const { file, path } of allFiles) {
+            const pathParts = path.split('/');
+            let currentFolderId = rootFolderId;
+            
+            if (pathParts.length > 1) {
+              for (let i = 0; i < pathParts.length - 1; i++) {
+                currentFolderId = await getOrCreateFolder(pathParts[i], currentFolderId);
               }
             }
-          }
-          
-          const sortedSubfolderPaths = [...subfolderPaths].sort((a, b) => a.split('/').length - b.split('/').length);
-          for (const subfolderPath of sortedSubfolderPaths) {
-            await getOrCreateFolder(subfolderPath);
-          }
-          
-          let filesUploaded = 0;
-          for (const { file, path } of allFiles) {
-            const parts = path.split('/');
-            let targetFolderId = rootFolderId;
             
-            if (parts.length > 1) {
-              const folderPath = parts.slice(0, -1).join('/');
-              const fullPath = `${folderName}/${folderPath}`;
-              targetFolderId = folderCache.get(fullPath) || rootFolderId;
-            }
-            
-            processFile(file, targetFolderId);
-            filesUploaded++;
+            processFile(file, currentFolderId);
           }
           
           const msg = skipCount.value > 0 
-            ? `${filesUploaded} file${filesUploaded !== 1 ? "s" : ""} uploaded to "${folderName}" (${skipCount.value} skipped)`
-            : `${filesUploaded} file${filesUploaded !== 1 ? "s" : ""} uploaded to "${folderName}"`;
+            ? `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} uploaded to "${folderName}" (${skipCount.value} skipped)`
+            : `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} uploaded to "${folderName}"`;
           addToast("Upload complete", msg, 4000, "create");
         } catch (err) {
           console.error("Failed to process folder:", err);

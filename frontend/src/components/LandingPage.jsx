@@ -105,10 +105,12 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      justifyContent: "center",
       minHeight: "calc(100vh - 55px)",
       animation: "fadeIn 0.3s ease",
       paddingTop: 20,
+      padding: "20px 200px",
+      boxSizing: "border-box",
+      width: "100%",
     }}>
       {logoUrl && (
         <img
@@ -117,7 +119,7 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
           onError={() => setLogoUrl(null)}
           style={{
             height: 240,
-            maxWidth: 1120,
+            maxWidth: "100%",
             objectFit: "contain",
             marginBottom: 24,
           }}
@@ -127,10 +129,11 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
         Applications
       </h1>
       <div style={{
-        display: "flex",
+        display: "grid",
         gap: 32,
-        flexWrap: "wrap",
-        justifyContent: "center",
+        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+        width: "100%",
+        maxWidth: 1400,
       }}>
         {apps.map((app) => (
           <div
@@ -142,8 +145,8 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
               alignItems: "center",
               justifyContent: "center",
               gap: 14,
-              width: 200,
-              height: 200,
+              width: "100%",
+              aspectRatio: "1 / 1",
               background: t.surface,
               border: `1px solid ${t.border}`,
               borderRadius: 16,
@@ -162,7 +165,7 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
             }}
           >
             {app.icon}
-            <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: t.text, textAlign: "center", padding: "0 10px" }}>
               {app.name}
             </div>
           </div>

@@ -27,6 +27,8 @@ export default function FolderDetailPage({
   departments,
   folders,
   setActiveFolderId,
+  setActiveLocation,
+  setActiveDepartment,
   setPage,
   setSelectedFile,
   setViewingFileId,
@@ -183,6 +185,8 @@ export default function FolderDetailPage({
         <span style={{ color: t.textDim, fontSize: 11 }}>/</span>
         <button
           onClick={() => {
+            setActiveLocation(fl?.id);
+            setActiveDepartment(fd?.id);
             setPage("folders");
             setSelectedFile(null);
             setCreatingSubfolder(false);

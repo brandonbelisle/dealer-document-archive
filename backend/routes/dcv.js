@@ -76,15 +76,31 @@ router.get('/:id/timeline', requireAuth, requirePermission('view_dcv'), async (r
     
     const events = [];
     
+    // Get the cus_id first to avoid collation issues
+    const [customerRows] = await db.execute(
+      'SELECT cus_id FROM company_customer WHERE id = ?',
+      [id]
+    );
+    
+    if (customerRows.length === 0) {
+      return res.json([]);
+    }
+    
+    const cusId = customerRows[0].cus_id;
+    
+    if (!cusId) {
+      return res.json([]);
+    }
+    
     // Get folders with cus_id matching the customer
     const [folders] = await db.execute(
       `SELECT f.id, f.name, f.created_at, l.name as location_name, d.name as department_name, 'folder' as event_type
        FROM folders f
        LEFT JOIN locations l ON f.location_id = l.id
        LEFT JOIN departments d ON f.department_id = d.id
-       WHERE f.cus_id = (SELECT cus_id FROM company_customer WHERE id = ?)
+       WHERE f.cus_id = ?
        ORDER BY f.created_at DESC`,
-      [id]
+      [cusId]
     );
     
     for (const folder of folders) {
@@ -109,10 +125,10 @@ router.get('/:id/timeline', requireAuth, requirePermission('view_dcv'), async (r
        FROM files fi
        JOIN folders f ON fi.folder_id = f.id
        LEFT JOIN locations l ON f.location_id = l.id
-       WHERE f.cus_id = (SELECT cus_id FROM company_customer WHERE id = ?) AND fi.status != 'deleted'
+       WHERE f.cus_id = ? AND fi.status != 'deleted'
        ORDER BY fi.created_at DESC
        LIMIT 100`,
-      [id]
+      [cusId]
     );
     
     for (const file of files) {

@@ -618,3 +618,11 @@ export async function getDcvCustomerTimeline(id, page = 1, pageSize = 20, filter
   }
   return request(url);
 }
+
+export async function getDcvRepairOrders(id, page = 1, pageSize = 20, filterType = null) {
+  let url = `/dcv/${id}/repair-orders?page=${page}&pageSize=${pageSize}`;
+  if (filterType) {
+    url += `&filterType=${filterType}`;
+  }
+  return request(url);
+}

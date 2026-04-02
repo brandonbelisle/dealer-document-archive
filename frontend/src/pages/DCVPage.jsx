@@ -1,40 +1,74 @@
 import { useState, useEffect } from "react";
 import { getTheme } from "../theme";
-import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon, FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon } from "../components/Icons";
+import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon, FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon, WrenchIcon } from "../components/Icons";
 import * as api from "../api";
 
 export default function DCVPage({ t, darkMode, selectedCustomer }) {
   const theme = getTheme(darkMode);
   const [activeTab, setActiveTab] = useState("timeline");
+  
+  // Timeline state
   const [timeline, setTimeline] = useState([]);
   const [timelineLoading, setTimelineLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [pageSize] = useState(20);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [filterType, setFilterType] = useState(null);
+  const [timelinePage, setTimelinePage] = useState(1);
+  const [timelineTotalPages, setTimelineTotalPages] = useState(1);
+  const [timelineTotal, setTimelineTotal] = useState(0);
+  const [timelineFilter, setTimelineFilter] = useState(null);
+  
+  // Service state
+  const [repairOrders, setRepairOrders] = useState([]);
+  const [serviceLoading, setServiceLoading] = useState(false);
+  const [servicePage, setServicePage] = useState(1);
+  const [serviceTotalPages, setServiceTotalPages] = useState(1);
+  const [serviceTotal, setServiceTotal] = useState(0);
+  const [serviceFilter, setServiceFilter] = useState(null);
+  
+  const pageSize = 20;
 
   const customer = selectedCustomer;
 
   useEffect(() => {
     if (customer && activeTab === "timeline") {
       setTimelineLoading(true);
-      api.getDcvCustomerTimeline(customer.id, page, pageSize, filterType)
+      api.getDcvCustomerTimeline(customer.id, timelinePage, pageSize, timelineFilter)
         .then((data) => {
           setTimeline(data.events || []);
-          setTotal(data.total || 0);
-          setTotalPages(data.totalPages || 1);
+          setTimelineTotal(data.total || 0);
+          setTimelineTotalPages(data.totalPages || 1);
         })
         .catch(console.error)
         .finally(() => setTimelineLoading(false));
     }
-  }, [customer, activeTab, page, pageSize, filterType]);
+  }, [customer, activeTab, timelinePage, timelineFilter]);
+
+  useEffect(() => {
+    if (customer && activeTab === "service") {
+      setServiceLoading(true);
+      api.getDcvRepairOrders(customer.id, servicePage, pageSize, serviceFilter)
+        .then((data) => {
+          setRepairOrders(data.repairOrders || []);
+          setServiceTotal(data.total || 0);
+          setServiceTotalPages(data.totalPages || 1);
+        })
+        .catch(console.error)
+        .finally(() => setServiceLoading(false));
+    }
+  }, [customer, activeTab, servicePage, serviceFilter]);
 
   useEffect(() => {
     if (customer) {
-      setPage(1);
+      setTimelinePage(1);
+      setServicePage(1);
     }
-  }, [customer, filterType]);
+  }, [customer]);
+
+  useEffect(() => {
+    setTimelinePage(1);
+  }, [timelineFilter]);
+
+  useEffect(() => {
+    setServicePage(1);
+  }, [serviceFilter]);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "N/A";
@@ -88,6 +122,14 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
         return "#8b5cf6";
     }
   };
+
+  const activeFilter = activeTab === "timeline" ? timelineFilter : serviceFilter;
+  const setActiveFilter = activeTab === "timeline" ? setTimelineFilter : setServiceFilter;
+  const activePage = activeTab === "timeline" ? timelinePage : servicePage;
+  const setActivePage = activeTab === "timeline" ? setTimelinePage : setServicePage;
+  const activeTotalPages = activeTab === "timeline" ? timelineTotalPages : serviceTotalPages;
+  const activeTotal = activeTab === "timeline" ? timelineTotal : serviceTotal;
+  const activeLoading = activeTab === "timeline" ? timelineLoading : serviceLoading;
 
   return (
     <div style={{ display: "flex", minHeight: "calc(100vh - 55px)", marginTop: 55, background: darkMode ? "#0d1117" : "#f6f8fa" }}>
@@ -318,6 +360,7 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
             </div>
 
             <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
+              {/* Timeline Tab */}
               {activeTab === "timeline" && (
                 <div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
@@ -325,13 +368,13 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
                       {filterOptions.map((filter) => (
                         <button
                           key={filter.id || "all"}
-                          onClick={() => { setFilterType(filter.id); setPage(1); }}
+                          onClick={() => setTimelineFilter(filter.id)}
                           style={{
                             padding: "6px 12px",
-                            background: filterType === filter.id ? "#8b5cf6" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
-                            border: `1px solid ${filterType === filter.id ? "#8b5cf6" : darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                            background: timelineFilter === filter.id ? "#8b5cf6" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                            border: `1px solid ${timelineFilter === filter.id ? "#8b5cf6" : darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
                             borderRadius: 6,
-                            color: filterType === filter.id ? "#fff" : theme.textMuted,
+                            color: timelineFilter === filter.id ? "#fff" : theme.textMuted,
                             fontSize: 12,
                             fontWeight: 500,
                             cursor: "pointer",
@@ -344,23 +387,23 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
                       ))}
                     </div>
                     
-                    {total > 0 && (
+                    {timelineTotal > 0 && (
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <span style={{ fontSize: 12, color: theme.textMuted }}>
-                          {((page - 1) * pageSize) + 1}-{Math.min(page * pageSize, total)} of {total}
+                          {((timelinePage - 1) * pageSize) + 1}-{Math.min(timelinePage * pageSize, timelineTotal)} of {timelineTotal}
                         </span>
                         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                           <button
-                            onClick={() => setPage(Math.max(1, page - 1))}
-                            disabled={page === 1}
+                            onClick={() => setTimelinePage(Math.max(1, timelinePage - 1))}
+                            disabled={timelinePage === 1}
                             style={{
                               padding: 6,
-                              background: page === 1 ? "transparent" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                              background: timelinePage === 1 ? "transparent" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
                               border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
                               borderRadius: 4,
-                              color: page === 1 ? theme.textMuted : theme.text,
-                              cursor: page === 1 ? "not-allowed" : "pointer",
-                              opacity: page === 1 ? 0.5 : 1,
+                              color: timelinePage === 1 ? theme.textMuted : theme.text,
+                              cursor: timelinePage === 1 ? "not-allowed" : "pointer",
+                              opacity: timelinePage === 1 ? 0.5 : 1,
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
@@ -369,19 +412,19 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
                             <ChevronLeftIcon />
                           </button>
                           <span style={{ fontSize: 12, color: theme.text, padding: "0 8px" }}>
-                            Page {page} of {totalPages}
+                            Page {timelinePage} of {timelineTotalPages}
                           </span>
                           <button
-                            onClick={() => setPage(Math.min(totalPages, page + 1))}
-                            disabled={page === totalPages}
+                            onClick={() => setTimelinePage(Math.min(timelineTotalPages, timelinePage + 1))}
+                            disabled={timelinePage === timelineTotalPages}
                             style={{
                               padding: 6,
-                              background: page === totalPages ? "transparent" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                              background: timelinePage === timelineTotalPages ? "transparent" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
                               border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
                               borderRadius: 4,
-                              color: page === totalPages ? theme.textMuted : theme.text,
-                              cursor: page === totalPages ? "not-allowed" : "pointer",
-                              opacity: page === totalPages ? 0.5 : 1,
+                              color: timelinePage === timelineTotalPages ? theme.textMuted : theme.text,
+                              cursor: timelinePage === timelineTotalPages ? "not-allowed" : "pointer",
+                              opacity: timelinePage === timelineTotalPages ? 0.5 : 1,
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
@@ -413,7 +456,7 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
                         <ClockIcon size={28} style={{ color: "#8b5cf6" }} />
                       </div>
                       <div style={{ fontSize: 15, fontWeight: 600, color: theme.text, marginBottom: 8 }}>
-                        {filterType ? `No Activity in ${filterOptions.find(f => f.id === filterType)?.label || "Selected Period"}` : "No Activity Yet"}
+                        {timelineFilter ? `No Activity in ${filterOptions.find(f => f.id === timelineFilter)?.label || "Selected Period"}` : "No Activity Yet"}
                       </div>
                       <div style={{ fontSize: 13, color: theme.textMuted }}>
                         Timeline events will appear here when folders or files are created for this customer.
@@ -465,29 +508,172 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
                 </div>
               )}
 
+              {/* Service Tab */}
               {activeTab === "service" && (
-                <div style={{ textAlign: "center", padding: 60 }}>
-                  <div style={{
-                    width: 64,
-                    height: 64,
-                    borderRadius: "50%",
-                    background: darkMode ? "rgba(245,158,11,0.1)" : "rgba(245,158,11,0.05)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    margin: "0 auto 16px",
-                  }}>
-                    <FolderIcon size={28} style={{ color: "#f59e0b" }} />
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      {filterOptions.map((filter) => (
+                        <button
+                          key={filter.id || "all"}
+                          onClick={() => setServiceFilter(filter.id)}
+                          style={{
+                            padding: "6px 12px",
+                            background: serviceFilter === filter.id ? "#f59e0b" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                            border: `1px solid ${serviceFilter === filter.id ? "#f59e0b" : darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                            borderRadius: 6,
+                            color: serviceFilter === filter.id ? "#fff" : theme.textMuted,
+                            fontSize: 12,
+                            fontWeight: 500,
+                            cursor: "pointer",
+                            fontFamily: "inherit",
+                            transition: "all 0.15s",
+                          }}
+                        >
+                          {filter.label}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {serviceTotal > 0 && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <span style={{ fontSize: 12, color: theme.textMuted }}>
+                          {((servicePage - 1) * pageSize) + 1}-{Math.min(servicePage * pageSize, serviceTotal)} of {serviceTotal}
+                        </span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <button
+                            onClick={() => setServicePage(Math.max(1, servicePage - 1))}
+                            disabled={servicePage === 1}
+                            style={{
+                              padding: 6,
+                              background: servicePage === 1 ? "transparent" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                              border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                              borderRadius: 4,
+                              color: servicePage === 1 ? theme.textMuted : theme.text,
+                              cursor: servicePage === 1 ? "not-allowed" : "pointer",
+                              opacity: servicePage === 1 ? 0.5 : 1,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <ChevronLeftIcon />
+                          </button>
+                          <span style={{ fontSize: 12, color: theme.text, padding: "0 8px" }}>
+                            Page {servicePage} of {serviceTotalPages}
+                          </span>
+                          <button
+                            onClick={() => setServicePage(Math.min(serviceTotalPages, servicePage + 1))}
+                            disabled={servicePage === serviceTotalPages}
+                            style={{
+                              padding: 6,
+                              background: servicePage === serviceTotalPages ? "transparent" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                              border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                              borderRadius: 4,
+                              color: servicePage === serviceTotalPages ? theme.textMuted : theme.text,
+                              cursor: servicePage === serviceTotalPages ? "not-allowed" : "pointer",
+                              opacity: servicePage === serviceTotalPages ? 0.5 : 1,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <ChevronRightIcon />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: theme.text, marginBottom: 8 }}>
-                    Service History
-                  </div>
-                  <div style={{ fontSize: 13, color: theme.textMuted }}>
-                    Service records will appear here once connected to your DMS.
-                  </div>
+
+                  {serviceLoading ? (
+                    <div style={{ textAlign: "center", padding: 60, color: theme.textMuted }}>
+                      Loading repair orders...
+                    </div>
+                  ) : repairOrders.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: 60 }}>
+                      <div style={{
+                        width: 64,
+                        height: 64,
+                        borderRadius: "50%",
+                        background: darkMode ? "rgba(245,158,11,0.1)" : "rgba(245,158,11,0.05)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        margin: "0 auto 16px",
+                      }}>
+                        <WrenchIcon size={28} style={{ color: "#f59e0b" }} />
+                      </div>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: theme.text, marginBottom: 8 }}>
+                        {serviceFilter ? `No Repair Orders in ${filterOptions.find(f => f.id === serviceFilter)?.label || "Selected Period"}` : "No Repair Orders"}
+                      </div>
+                      <div style={{ fontSize: 13, color: theme.textMuted }}>
+                        Repair orders will appear here when service records are synced from your DMS.
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {repairOrders.map((ro) => (
+                        <div
+                          key={ro.id}
+                          style={{
+                            display: "flex",
+                            gap: 16,
+                            padding: 16,
+                            background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+                            borderRadius: 12,
+                            border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+                          }}
+                        >
+                          <div style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 10,
+                            background: "rgba(245,158,11,0.15)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#f59e0b",
+                            flexShrink: 0,
+                          }}>
+                            <WrenchIcon size={16} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: theme.text, marginBottom: 4 }}>
+                              Repair Order: {ro.slsId}
+                            </div>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 8, fontSize: 13, color: theme.textMuted }}>
+                              {ro.vin && <span>VIN: {ro.vin}</span>}
+                              {ro.tag && <span>Tag: {ro.tag}</span>}
+                              {ro.odomIn && <span>Odom In: {ro.odomIn?.toLocaleString()}</span>}
+                              {ro.odomOut && <span>Odom Out: {ro.odomOut?.toLocaleString()}</span>}
+                            </div>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, fontSize: 12, color: darkMode ? "#6b7280" : "#9ca3af" }}>
+                              {ro.locationName && (
+                                <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                  <MapPinIcon size={12} />
+                                  {ro.locationName}
+                                </span>
+                              )}
+                              {ro.folderName && (
+                                <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                  <FolderIcon size={12} />
+                                  {ro.folderName}
+                                </span>
+                              )}
+                              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                <ClockIcon size={12} />
+                                {formatDate(ro.dateCreate)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
+              {/* Parts Tab */}
               {activeTab === "parts" && (
                 <div style={{ textAlign: "center", padding: 60 }}>
                   <div style={{

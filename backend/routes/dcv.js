@@ -253,4 +253,86 @@ router.get('/:id', requireAuth, requirePermission('view_dcv'), async (req, res) 
   }
 });
 
+// Get repair orders for a customer
+router.get('/:id/repair-orders', requireAuth, requirePermission('view_dcv'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { page = 1, pageSize = 20, filterType } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(pageSize);
+    
+    // Get the cus_id first
+    const [customerRows] = await db.execute(
+      'SELECT cus_id FROM company_customer WHERE id = ?',
+      [id]
+    );
+    
+    if (customerRows.length === 0) {
+      return res.json({ repairOrders: [], total: 0, page: parseInt(page), pageSize: parseInt(pageSize), totalPages: 0 });
+    }
+    
+    const cusId = customerRows[0].cus_id;
+    
+    if (!cusId) {
+      return res.json({ repairOrders: [], total: 0, page: parseInt(page), pageSize: parseInt(pageSize), totalPages: 0 });
+    }
+    
+    // Build date filter
+    let dateCondition = '';
+    if (filterType === 'day') {
+      dateCondition = ' AND sro.date_create >= DATE_SUB(NOW(), INTERVAL 1 DAY)';
+    } else if (filterType === 'month') {
+      dateCondition = ' AND sro.date_create >= DATE_SUB(NOW(), INTERVAL 1 MONTH)';
+    } else if (filterType === 'year') {
+      dateCondition = ' AND sro.date_create >= DATE_SUB(NOW(), INTERVAL 1 YEAR)';
+    }
+    
+    // Get total count
+    const [countRows] = await db.execute(
+      `SELECT COUNT(*) as total FROM service_repairorders sro WHERE sro.cus_id = ?${dateCondition}`,
+      [cusId]
+    );
+    const total = countRows[0]?.total || 0;
+    
+    // Get repair orders with folder and location info
+    const [repairOrders] = await db.execute(
+      `SELECT sro.id, sro.sls_id, sro.vin, sro.odom_in, sro.odom_out, sro.tag, sro.cus_id, sro.emp_id, sro.emp_id_writer, sro.date_create, sro.folder_id,
+              f.name as folder_name, l.name as location_name
+       FROM service_repairorders sro
+       LEFT JOIN folders f ON sro.folder_id = f.id
+       LEFT JOIN locations l ON f.location_id = l.id
+       WHERE sro.cus_id = ?${dateCondition}
+       ORDER BY sro.date_create DESC
+       LIMIT ? OFFSET ?`,
+      [cusId, parseInt(pageSize), offset]
+    );
+    
+    console.log(`[DCV] Repair orders for customer ${id}: ${repairOrders.length} of ${total} total`);
+    
+    res.json({
+      repairOrders: repairOrders.map(ro => ({
+        id: ro.id,
+        slsId: ro.sls_id,
+        vin: ro.vin,
+        odomIn: ro.odom_in,
+        odomOut: ro.odom_out,
+        tag: ro.tag,
+        cusId: ro.cus_id,
+        empId: ro.emp_id,
+        empIdWriter: ro.emp_id_writer,
+        dateCreate: ro.date_create,
+        folderId: ro.folder_id,
+        folderName: ro.folder_name,
+        locationName: ro.location_name,
+      })),
+      total,
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+      totalPages: Math.ceil(total / parseInt(pageSize)),
+    });
+  } catch (err) {
+    console.error('[DCV] Repair orders error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

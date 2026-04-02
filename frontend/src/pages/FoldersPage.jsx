@@ -11,6 +11,7 @@ import {
   ChevronRightIcon,
   TrashIcon,
   ChevronDown,
+  ChevronUp,
   UploadCloudIcon,
 } from "../components/Icons";
 
@@ -60,14 +61,31 @@ export default function FoldersPage({
   const deptFileInputRef = useRef(null);
   const [sortCol] = useState("createdAt");
   const [sortDir] = useState("desc");
-  const [pageSize] = useState(25);
-  const [currentPage] = useState(1);
-  const [showPageSizeDropdown] = useState(false);
+  const [pageSize, setPageSize] = useState(25);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showPageSizeDropdown, setShowPageSizeDropdown] = useState(false);
+  const pageSizeDropdownRef = useRef(null);
   const [dateFilterType] = useState("all");
   const [filterYear] = useState("");
   const [filterMonth] = useState("");
   const [filterDay] = useState("");
   const [showDateFilterDropdown] = useState(false);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (pageSizeDropdownRef.current && !pageSizeDropdownRef.current.contains(e.target)) {
+        setShowPageSizeDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [folderSearch]);
 
   const handleSubscribe = (newSub) => {
     setSubscriptions((prev) => [...prev, newSub]);
@@ -92,7 +110,7 @@ export default function FoldersPage({
         .map((r) => r.folder)
     : df;
 
-  const withCounts = filtered.map((folder) => ({
+const withCounts = filtered.map((folder) => ({
     ...folder,
     _fileCount: folder.fileCount || 0,
     _subCount: folder.subfolderCount || 0,
@@ -103,6 +121,23 @@ export default function FoldersPage({
     const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
     return db - da;
   });
+
+  // Pagination
+  const totalItems = sorted.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalItems);
+  const paginatedFolders = sorted.slice(startIndex, endIndex);
+
+  const goToPage = (page) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const handlePageSizeChange = (newSize) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
+    setShowPageSizeDropdown(false);
+  };
 
   const totalFiles = df.reduce(
     (s, f) => s + (f.fileCount || 0),
@@ -396,6 +431,129 @@ export default function FoldersPage({
             overflow: "hidden",
           }}
         >
+          {/* Pagination Header */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "10px 14px",
+              borderBottom: `1px solid ${t.border}`,
+              background: t.surfaceHover || t.surface,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 12, color: t.textMuted }}>
+                {totalItems} folder{totalItems !== 1 ? "s" : ""}
+              </span>
+              
+              {/* Page Size Dropdown */}
+              <div style={{ position: "relative" }} ref={pageSizeDropdownRef}>
+                <button
+                  onClick={() => setShowPageSizeDropdown(!showPageSizeDropdown)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "6px 10px",
+                    fontSize: 12,
+                    background: t.surface,
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 6,
+                    cursor: "pointer",
+                    color: t.text,
+                    fontFamily: "inherit",
+                  }}
+                >
+                  {pageSize} per page
+                  {showPageSizeDropdown ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                </button>
+                {showPageSizeDropdown && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      marginTop: 4,
+                      background: t.surface,
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 6,
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                      zIndex: 10,
+                      minWidth: 100,
+                    }}
+                  >
+                    {[25, 50, 100, 150].map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => handlePageSizeChange(size)}
+                        style={{
+                          display: "block",
+                          width: "100%",
+                          padding: "8px 14px",
+                          fontSize: 12,
+                          background: pageSize === size ? t.accentSoft : "transparent",
+                          border: "none",
+                          textAlign: "left",
+                          cursor: "pointer",
+                          color: pageSize === size ? t.accent : t.text,
+                          fontFamily: "inherit",
+                        }}
+                      >
+                        {size} per page
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  style={{
+                    padding: "6px 10px",
+                    fontSize: 12,
+                    background: currentPage === 1 ? t.surfaceDisabled || "#f5f5f5" : t.surface,
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 6,
+                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                    color: currentPage === 1 ? t.textDim : t.text,
+                    fontFamily: "inherit",
+                    opacity: currentPage === 1 ? 0.5 : 1,
+                  }}
+                >
+                  Previous
+                </button>
+                
+                <span style={{ fontSize: 12, color: t.textMuted }}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                
+                <button
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    padding: "6px 10px",
+                    fontSize: 12,
+                    background: currentPage === totalPages ? t.surfaceDisabled || "#f5f5f5" : t.surface,
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 6,
+                    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                    color: currentPage === totalPages ? t.textDim : t.text,
+                    fontFamily: "inherit",
+                    opacity: currentPage === totalPages ? 0.5 : 1,
+                  }}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
+
           <table
             style={{
               width: "100%",
@@ -445,7 +603,7 @@ export default function FoldersPage({
               </tr>
             </thead>
             <tbody>
-              {sorted.map((folder, idx) => (
+              {paginatedFolders.map((folder, idx) => (
                 <tr
                   key={folder.id}
                   className="folder-row"
@@ -464,7 +622,7 @@ export default function FoldersPage({
                     style={{
                       padding: "12px 14px",
                       borderBottom:
-                        idx < sorted.length - 1
+                        idx < paginatedFolders.length - 1
                           ? `1px solid ${t.border}`
                           : "none",
                     }}
@@ -519,7 +677,7 @@ export default function FoldersPage({
                     style={{
                       padding: "12px 14px",
                       borderBottom:
-                        idx < sorted.length - 1
+                        idx < paginatedFolders.length - 1
                           ? `1px solid ${t.border}`
                           : "none",
                       textAlign: "center",
@@ -548,7 +706,7 @@ export default function FoldersPage({
                     style={{
                       padding: "12px 14px",
                       borderBottom:
-                        idx < sorted.length - 1
+                        idx < paginatedFolders.length - 1
                           ? `1px solid ${t.border}`
                           : "none",
                       fontSize: 11.5,
@@ -562,7 +720,7 @@ export default function FoldersPage({
                     style={{
                       padding: "12px 8px",
                       borderBottom:
-                        idx < sorted.length - 1
+                        idx < paginatedFolders.length - 1
                           ? `1px solid ${t.border}`
                           : "none",
                       textAlign: "center",

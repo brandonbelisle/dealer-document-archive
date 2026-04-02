@@ -276,8 +276,9 @@ router.get('/:id/repair-orders', requireAuth, requirePermission('view_dcv'), asy
       return res.json({ repairOrders: [], total: 0, page: parseInt(page), pageSize: parseInt(pageSize), totalPages: 0 });
     }
     
-    // Build date filter
+    // Build date filter with parameters
     let dateCondition = '';
+    let dateParams = [];
     if (filterType === 'day') {
       dateCondition = ' AND sro.date_create >= DATE_SUB(NOW(), INTERVAL 1 DAY)';
     } else if (filterType === 'month') {
@@ -287,24 +288,20 @@ router.get('/:id/repair-orders', requireAuth, requirePermission('view_dcv'), asy
     }
     
     // Get total count
-    const [countRows] = await db.execute(
-      `SELECT COUNT(*) as total FROM service_repairorders sro WHERE sro.cus_id = ?${dateCondition}`,
-      [cusId]
-    );
+    const countQuery = `SELECT COUNT(*) as total FROM service_repairorders sro WHERE sro.cus_id = ?${dateCondition}`;
+    const [countRows] = await db.execute(countQuery, [cusId, ...dateParams]);
     const total = countRows[0]?.total || 0;
     
     // Get repair orders with folder and location info
-    const [repairOrders] = await db.execute(
-      `SELECT sro.id, sro.sls_id, sro.vin, sro.odom_in, sro.odom_out, sro.tag, sro.cus_id, sro.emp_id, sro.emp_id_writer, sro.date_create, sro.folder_id,
+    const repairOrdersQuery = `SELECT sro.id, sro.sls_id, sro.vin, sro.odom_in, sro.odom_out, sro.tag, sro.cus_id, sro.emp_id, sro.emp_id_writer, sro.date_create, sro.folder_id,
               f.name as folder_name, l.name as location_name
        FROM service_repairorders sro
        LEFT JOIN folders f ON sro.folder_id = f.id
        LEFT JOIN locations l ON f.location_id = l.id
        WHERE sro.cus_id = ?${dateCondition}
        ORDER BY sro.date_create DESC
-       LIMIT ? OFFSET ?`,
-      [cusId, parseInt(pageSize), offset]
-    );
+       LIMIT ? OFFSET ?`;
+    const [repairOrders] = await db.execute(repairOrdersQuery, [cusId, ...dateParams, parseInt(pageSize), offset]);
     
     console.log(`[DCV] Repair orders for customer ${id}: ${repairOrders.length} of ${total} total`);
     

@@ -758,6 +758,50 @@ const t = getTheme(darkMode);
       return;
     }
 
+    const folderCache = new Map();
+    
+    const getOrCreateFolder = async (folderPath) => {
+      if (folderCache.has(folderPath)) return folderCache.get(folderPath);
+      
+      const parts = folderPath.split('/');
+      let parentId = null;
+      let currentPath = "";
+      
+      for (const part of parts) {
+        currentPath = currentPath ? `${currentPath}/${part}` : part;
+        
+        if (folderCache.has(currentPath)) {
+          parentId = folderCache.get(currentPath);
+          continue;
+        }
+        
+        try {
+          const existing = await api.findFolder(part, activeLocation, activeDepartment, parentId);
+          folderCache.set(currentPath, existing.id);
+          parentId = existing.id;
+        } catch {
+          try {
+            const created = await api.createFolder(part, activeLocation, activeDepartment, parentId);
+            setFolders((p) => [...p, {
+              id: created.id,
+              name: created.name,
+              locationId: created.location_id || created.locationId,
+              departmentId: created.department_id || created.departmentId,
+              parentId: created.parent_id || created.parentId || null,
+              createdAt: created.created_at
+            }]);
+            folderCache.set(currentPath, created.id);
+            parentId = created.id;
+          } catch (err) {
+            console.error("Failed to create folder:", err);
+            return null;
+          }
+        }
+      }
+      
+      return folderCache.get(folderPath);
+    };
+
     for (const item of items) {
       const entry = item.webkitGetAsEntry?.() || item.getAsEntry?.();
       if (!entry) continue;
@@ -773,23 +817,48 @@ const t = getTheme(darkMode);
         const folderName = entry.name;
         
         try {
-          let folder;
-          try {
-            folder = await api.findFolder(folderName, activeLocation, activeDepartment, null);
-          } catch {
-            folder = await api.createFolder(folderName, activeLocation, activeDepartment, null);
-            setFolders((p) => [...p, { id: folder.id, name: folder.name, locationId: folder.location_id || folder.locationId, departmentId: folder.department_id || folder.departmentId, parentId: null, createdAt: folder.created_at }]);
+          const rootFolderId = await getOrCreateFolder(folderName);
+          if (!rootFolderId) {
+            addToast("Error", `Failed to create folder "${folderName}"`, 4000, "error");
+            continue;
           }
           
-          const folderId = folder.id;
+          const subfolderPaths = new Set();
+          for (const { path } of allFiles) {
+            const parts = path.split('/');
+            if (parts.length > 1) {
+              let currentPath = folderName;
+              for (let i = 0; i < parts.length - 1; i++) {
+                currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i];
+                subfolderPaths.add(currentPath);
+              }
+            }
+          }
+          
+          const sortedSubfolderPaths = [...subfolderPaths].sort((a, b) => a.split('/').length - b.split('/').length);
+          for (const subfolderPath of sortedSubfolderPaths) {
+            await getOrCreateFolder(subfolderPath);
+          }
+          
+          let filesUploaded = 0;
+          for (const { file, path } of allFiles) {
+            const parts = path.split('/');
+            let targetFolderId = rootFolderId;
+            
+            if (parts.length > 1) {
+              const folderPath = parts.slice(0, -1).join('/');
+              const fullPath = `${folderName}/${folderPath}`;
+              targetFolderId = folderCache.get(fullPath) || rootFolderId;
+            }
+            
+            processFile(file, targetFolderId);
+            filesUploaded++;
+          }
+          
           const msg = skipCount.value > 0 
-            ? `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} uploaded to "${folderName}" (${skipCount.value} skipped)`
-            : `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} uploaded to "${folderName}"`;
+            ? `${filesUploaded} file${filesUploaded !== 1 ? "s" : ""} uploaded to "${folderName}" (${skipCount.value} skipped)`
+            : `${filesUploaded} file${filesUploaded !== 1 ? "s" : ""} uploaded to "${folderName}"`;
           addToast("Upload complete", msg, 4000, "create");
-          
-          for (const { file } of allFiles) {
-            processFile(file, folderId);
-          }
         } catch (err) {
           console.error("Failed to process folder:", err);
           addToast("Error", `Failed to process folder "${folderName}"`, 4000, "error");

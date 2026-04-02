@@ -424,13 +424,33 @@ async function runDmsTask(taskType, queryConfig) {
       console.log(`[FOLDER_BACKFILL] Loaded ${dmsData.size} records from DMS`);
       
       let updatedCount = 0;
+      let fuzzyMatchCount = 0;
       let notFoundCount = 0;
       const notFoundIds = [];
       
       // Update each folder with CusId and EmpId
       for (const folder of folders) {
         const slsId = String(folder.name || '').trim();
-        const dmsInfo = dmsData.get(slsId);
+        let dmsInfo = dmsData.get(slsId);
+        
+        // If exact match not found, try fuzzy search with first 10 characters
+        if (!dmsInfo && slsId.length >= 10) {
+          const fuzzyPrefix = slsId.substring(0, 10);
+          const fuzzyQuery = `SELECT TOP 1 SlsId, CusId, EmpId FROM dbo.${table} WHERE SlsId LIKE '${fuzzyPrefix}%'`;
+          try {
+            const fuzzyResult = await pool.request().query(fuzzyQuery);
+            if (fuzzyResult.recordset.length > 0) {
+              const fuzzyRecord = fuzzyResult.recordset[0];
+              dmsInfo = {
+                cusId: fuzzyRecord.CusId ? String(fuzzyRecord.CusId).substring(0, 100) : null,
+                empId: fuzzyRecord.EmpId ? String(fuzzyRecord.EmpId).substring(0, 100) : null,
+              };
+              console.log(`[FOLDER_BACKFILL] Fuzzy match: "${slsId}" -> "${fuzzyRecord.SlsId}"`);
+            }
+          } catch (fuzzyErr) {
+            console.error(`[FOLDER_BACKFILL] Fuzzy search error for "${slsId}":`, fuzzyErr.message);
+          }
+        }
         
         if (dmsInfo) {
           await db.execute(
@@ -438,6 +458,9 @@ async function runDmsTask(taskType, queryConfig) {
             [dmsInfo.cusId, dmsInfo.empId, folder.id]
           );
           updatedCount++;
+          if (dmsInfo !== dmsData.get(slsId)) {
+            fuzzyMatchCount++;
+          }
         } else {
           notFoundCount++;
           if (notFoundIds.length < 10) {
@@ -449,6 +472,9 @@ async function runDmsTask(taskType, queryConfig) {
       result.success = true;
       result.count = updatedCount;
       result.message = `Backfilled ${updatedCount} folders with CusId and EmpId from DMS.`;
+      if (fuzzyMatchCount > 0) {
+        result.message += ` (${fuzzyMatchCount} via fuzzy match)`;
+      }
       if (notFoundCount > 0) {
         result.message += ` ${notFoundCount} folders had no matching DMS record.`;
         if (notFoundIds.length > 0) {

@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS subscriptions (
 CREATE TABLE IF NOT EXISTS notifications (
   id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci PRIMARY KEY,
   user_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  notification_type ENUM('folder_upload', 'location_upload', 'department_upload') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'folder_upload',
+  notification_type ENUM('folder_upload', 'location_upload', 'department_upload', 'batch_upload') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'folder_upload',
   item_type ENUM('location', 'department', 'folder') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   item_id CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   item_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,

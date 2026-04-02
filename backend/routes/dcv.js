@@ -258,7 +258,9 @@ router.get('/:id/repair-orders', requireAuth, requirePermission('view_dcv'), asy
   try {
     const { id } = req.params;
     const { page = 1, pageSize = 20, filterType } = req.query;
-    const offset = (parseInt(page) - 1) * parseInt(pageSize);
+    const limitVal = Math.max(1, Math.min(100, parseInt(pageSize) || 20));
+    const pageVal = Math.max(1, parseInt(page) || 1);
+    const offsetVal = (pageVal - 1) * limitVal;
     
     // Get the cus_id first
     const [customerRows] = await db.execute(
@@ -267,18 +269,17 @@ router.get('/:id/repair-orders', requireAuth, requirePermission('view_dcv'), asy
     );
     
     if (customerRows.length === 0) {
-      return res.json({ repairOrders: [], total: 0, page: parseInt(page), pageSize: parseInt(pageSize), totalPages: 0 });
+      return res.json({ repairOrders: [], total: 0, page: pageVal, pageSize: limitVal, totalPages: 0 });
     }
     
     const cusId = customerRows[0].cus_id;
     
     if (!cusId) {
-      return res.json({ repairOrders: [], total: 0, page: parseInt(page), pageSize: parseInt(pageSize), totalPages: 0 });
+      return res.json({ repairOrders: [], total: 0, page: pageVal, pageSize: limitVal, totalPages: 0 });
     }
     
-    // Build date filter with parameters
+    // Build date filter
     let dateCondition = '';
-    let dateParams = [];
     if (filterType === 'day') {
       dateCondition = ' AND sro.date_create >= DATE_SUB(NOW(), INTERVAL 1 DAY)';
     } else if (filterType === 'month') {
@@ -289,10 +290,10 @@ router.get('/:id/repair-orders', requireAuth, requirePermission('view_dcv'), asy
     
     // Get total count
     const countQuery = `SELECT COUNT(*) as total FROM service_repairorders sro WHERE sro.cus_id = ?${dateCondition}`;
-    const [countRows] = await db.execute(countQuery, [cusId, ...dateParams]);
+    const [countRows] = await db.execute(countQuery, [cusId]);
     const total = countRows[0]?.total || 0;
     
-    // Get repair orders with folder and location info
+    // Get repair orders with folder and location info (use template literals for LIMIT/OFFSET)
     const repairOrdersQuery = `SELECT sro.id, sro.sls_id, sro.vin, sro.odom_in, sro.odom_out, sro.tag, sro.cus_id, sro.emp_id, sro.emp_id_writer, sro.date_create, sro.folder_id,
               f.name as folder_name, l.name as location_name
        FROM service_repairorders sro
@@ -300,8 +301,8 @@ router.get('/:id/repair-orders', requireAuth, requirePermission('view_dcv'), asy
        LEFT JOIN locations l ON f.location_id = l.id
        WHERE sro.cus_id = ?${dateCondition}
        ORDER BY sro.date_create DESC
-       LIMIT ? OFFSET ?`;
-    const [repairOrders] = await db.execute(repairOrdersQuery, [cusId, ...dateParams, parseInt(pageSize), offset]);
+       LIMIT ${limitVal} OFFSET ${offsetVal}`;
+    const [repairOrders] = await db.execute(repairOrdersQuery, [cusId]);
     
     console.log(`[DCV] Repair orders for customer ${id}: ${repairOrders.length} of ${total} total`);
     
@@ -322,9 +323,9 @@ router.get('/:id/repair-orders', requireAuth, requirePermission('view_dcv'), asy
         locationName: ro.location_name,
       })),
       total,
-      page: parseInt(page),
-      pageSize: parseInt(pageSize),
-      totalPages: Math.ceil(total / parseInt(pageSize)),
+      page: pageVal,
+      pageSize: limitVal,
+      totalPages: Math.ceil(total / limitVal),
     });
   } catch (err) {
     console.error('[DCV] Repair orders error:', err);

@@ -120,7 +120,7 @@ export default function WarningModal({ warningModal, setWarningModal, t, darkMod
                   fontFamily: "inherit",
                 }}
               >
-                Delete Folder Only
+                Delete Folder and Unlink Files
               </button>
               <button
                 onClick={() => {

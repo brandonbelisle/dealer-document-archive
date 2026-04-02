@@ -1013,7 +1013,7 @@ const handleDeptDrop = useCallback(async (e) => {
           if (folder.parentId) setActiveFolderId(folder.parentId); 
           else { setActiveFolderId(null); setPage("folders"); } 
         }
-        addToast("Folder deleted", `"${folder.name}" has been deleted`, 4000, "delete");
+        addToast("Folder deleted", `"${folder.name}" has been deleted. Files moved to Unsorted.`, 4000, "delete");
       } catch (err) { console.error(err); } 
     };
     

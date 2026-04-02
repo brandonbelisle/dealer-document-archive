@@ -980,10 +980,24 @@ const handleDeptDrop = useCallback(async (e) => {
 
   const handleDeleteFolder = (folder) => {
     const childFolders = subfoldersOf(folder.id);
-    const fileCount = allFilesInFolderRecursive(folder.id);
-    const hasFiles = fileCount > 0;
+    const loadedFileCount = allFilesInFolderRecursive(folder.id);
+    
+    // Recursively count files from folder's fileCount property and subfolders
+    const countFilesRecursive = (f) => {
+      const direct = f.fileCount || 0;
+      const subs = subfoldersOf(f.id);
+      return direct + subs.reduce((sum, sub) => sum + countFilesRecursive(sub), 0);
+    };
+    const totalFileCount = countFilesRecursive(folder);
+    
+    const hasFiles = totalFileCount > 0 || loadedFileCount > 0;
+    const displayFileCount = Math.max(totalFileCount, loadedFileCount);
+    const hasSubfolders = childFolders.length > 0;
+    
     const message = hasFiles
-      ? `"${folder.name}" contains ${fileCount} file${fileCount !== 1 ? "s" : ""}. What would you like to do with the files?`
+      ? `"${folder.name}" contains ${displayFileCount} file${displayFileCount !== 1 ? "s" : ""}. What would you like to do with the files?`
+      : hasSubfolders
+      ? `"${folder.name}" contains ${childFolders.length} subfolder${childFolders.length !== 1 ? "s" : ""}. Delete the folder?`
       : `Delete the folder "${folder.name}"? This cannot be undone.`;
     
     // Helper to get all descendant folder IDs

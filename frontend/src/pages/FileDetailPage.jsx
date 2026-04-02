@@ -11,6 +11,7 @@ import {
   MapPinIcon,
   LayersIcon,
   RefreshIcon,
+  ChevronRightIcon,
 } from "../components/Icons";
 import PdfCanvasPreview from "../components/PdfCanvasPreview";
 import * as api from "../api";
@@ -31,6 +32,7 @@ export default function FileDetailPage({
   loggedInUser,
   t,
   darkMode,
+  activeFolderId,
 }) {
   const canDeleteFiles = loggedInUser?.permissions?.includes("deleteFiles");
   const [extracting, setExtracting] = useState(false);
@@ -39,6 +41,23 @@ export default function FileDetailPage({
   const [previewUrl, setPreviewUrl] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [textExpanded, setTextExpanded] = useState(false);
+
+  // Get files in the current folder (sorted by name) for navigation
+  const folderFiles = files
+    .filter((f) => f.folderId === (vf?.folderId || activeFolderId))
+    .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  
+  const currentFileIndex = folderFiles.findIndex((f) => f.id === viewingFileId);
+  const hasPrev = currentFileIndex > 0;
+  const hasNext = currentFileIndex < folderFiles.length - 1;
+
+  const goToPrev = () => {
+    if (hasPrev) setViewingFileId(folderFiles[currentFileIndex - 1].id);
+  };
+
+  const goToNext = () => {
+    if (hasNext) setViewingFileId(folderFiles[currentFileIndex + 1].id);
+  };
 
   useEffect(() => {
     const newFile = files.find((f) => f.id === viewingFileId);
@@ -192,31 +211,85 @@ export default function FileDetailPage({
         }}
       >
         <div style={{ padding: "20px 20px 0", flexShrink: 0 }}>
-          <button
-            onClick={() => {
-              setViewingFileId(null);
-              if (folder) {
-                setActiveFolderId(folder.id);
-                setPage("folder-detail");
-              } else setPage("folders");
-            }}
-            style={{
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              color: t.accent,
-              fontSize: 12.5,
-              fontWeight: 500,
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              padding: 0,
-              fontFamily: "inherit",
-              marginBottom: 16,
-            }}
-          >
-            <ArrowLeftIcon /> Back to {folder?.name || "Folder"}
-          </button>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <button
+              onClick={() => {
+                setViewingFileId(null);
+                if (folder) {
+                  setActiveFolderId(folder.id);
+                  setPage("folder-detail");
+                } else setPage("folders");
+              }}
+              style={{
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: t.accent,
+                fontSize: 12.5,
+                fontWeight: 500,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: 0,
+                fontFamily: "inherit",
+              }}
+            >
+              <ArrowLeftIcon /> Back to {folder?.name || "Folder"}
+            </button>
+            
+            {/* File Navigation */}
+            {folderFiles.length > 1 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 11, color: t.textMuted }}>
+                  {currentFileIndex + 1} of {folderFiles.length}
+                </span>
+                <button
+                  onClick={goToPrev}
+                  disabled={!hasPrev}
+                  style={{
+                    background: hasPrev ? t.surface : "transparent",
+                    border: `1px solid ${hasPrev ? t.border : 'transparent'}`,
+                    borderRadius: 6,
+                    padding: "6px 10px",
+                    cursor: hasPrev ? "pointer" : "not-allowed",
+                    color: hasPrev ? t.text : t.textDim,
+                    fontSize: 11,
+                    fontWeight: 500,
+                    fontFamily: "inherit",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    opacity: hasPrev ? 1 : 0.5,
+                  }}
+                >
+                  <span style={{ transform: "rotate(180deg)", display: "flex" }}><ChevronRightIcon /></span>
+                  Prev
+                </button>
+                <button
+                  onClick={goToNext}
+                  disabled={!hasNext}
+                  style={{
+                    background: hasNext ? t.surface : "transparent",
+                    border: `1px solid ${hasNext ? t.border : 'transparent'}`,
+                    borderRadius: 6,
+                    padding: "6px 10px",
+                    cursor: hasNext ? "pointer" : "not-allowed",
+                    color: hasNext ? t.text : t.textDim,
+                    fontSize: 11,
+                    fontWeight: 500,
+                    fontFamily: "inherit",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    opacity: hasNext ? 1 : 0.5,
+                  }}
+                >
+                  Next
+                  <ChevronRightIcon />
+                </button>
+              </div>
+            )}
+          </div>
           <div
             style={{
               display: "flex",

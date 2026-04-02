@@ -479,7 +479,6 @@ const t = getTheme(darkMode);
       undefined,
       "upload"
     );
-    api.markNotificationRead(notification.id).catch(console.error);
   }, [isLoggedIn, addToast]);
 
   useSocket({

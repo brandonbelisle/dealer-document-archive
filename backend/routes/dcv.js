@@ -121,12 +121,12 @@ router.get('/:id/timeline', requireAuth, requirePermission('view_dcv'), async (r
     
     // Get files in folders with cus_id matching the customer
     const [files] = await db.execute(
-      `SELECT fi.id, fi.name, fi.created_at, fi.folder_id, f.name as folder_name, l.name as location_name, 'file' as event_type
+      `SELECT fi.id, fi.name, fi.uploaded_at as created_at, fi.folder_id, f.name as folder_name, l.name as location_name, 'file' as event_type
        FROM files fi
        JOIN folders f ON fi.folder_id = f.id
        LEFT JOIN locations l ON f.location_id = l.id
        WHERE f.cus_id = ? AND fi.status != 'deleted'
-       ORDER BY fi.created_at DESC
+       ORDER BY fi.uploaded_at DESC
        LIMIT 100`,
       [cusId]
     );

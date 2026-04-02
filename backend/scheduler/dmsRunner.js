@@ -135,13 +135,23 @@ async function runDmsTask(taskType, queryConfig) {
           continue;
         }
 
+        // Check if folder already exists
         const [existing] = await db.execute(
-          'SELECT id FROM folders WHERE department_id = ? AND name = ?',
+          'SELECT id, cus_id, emp_id FROM folders WHERE department_id = ? AND name = ?',
           [deptId, slsId]
         );
 
         if (existing.length > 0) {
+          const existingFolder = existing[0];
           existingFolderNames.add(folderKey);
+          
+          // If cus_id or emp_id is null/empty in MySQL, update from DMS
+          if ((!existingFolder.cus_id || !existingFolder.emp_id) && (cusId || empId)) {
+            await db.execute(
+              'UPDATE folders SET cus_id = COALESCE(?, cus_id), emp_id = COALESCE(?, emp_id), updated_at = NOW() WHERE id = ?',
+              [cusId, empId, existingFolder.id]
+            );
+          }
           skippedCount++;
           continue;
         }

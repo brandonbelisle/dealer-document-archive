@@ -175,6 +175,15 @@ export async function createFolder(name, locationId, departmentId, parentId) {
     body: JSON.stringify({ name, locationId, departmentId, parentId: parentId || null }),
   });
 }
+export async function findFolder(name, locationId, departmentId, parentId) {
+  const q = new URLSearchParams({
+    name,
+    locationId,
+    departmentId,
+    parentId: parentId || 'null',
+  });
+  return request(`/folders/find?${q}`, { method: 'GET' });
+}
 export async function deleteFolder(id) {
   return request(`/folders/${id}`, { method: 'DELETE' });
 }

@@ -52,6 +52,7 @@ export default function FoldersPage({
   deptDragOver,
   setDeptDragOver,
   handleDeptFiles,
+  handleBulkFolderUpload,
 }) {
   const canDeleteFolders = loggedInUser?.permissions?.includes("deleteFolders");
   const canUploadFiles = loggedInUser?.permissions?.includes("uploadFiles");
@@ -182,6 +183,17 @@ export default function FoldersPage({
           e.target.value = "";
         }}
         style={{ display: "none" }}
+      />
+      <input
+        type="file"
+        webkitdirectory=""
+        multiple
+        onChange={(e) => {
+          handleBulkFolderUpload?.(e.target.files);
+          e.target.value = "";
+        }}
+        style={{ display: "none" }}
+        id="bulk-folder-upload"
       />
       <div
         style={{
@@ -329,6 +341,29 @@ export default function FoldersPage({
             Files will be added to Unsorted in this department
           </div>
         </div>
+        <label
+          htmlFor="bulk-folder-upload"
+          style={{
+            flex: 1,
+            border: `2px dashed ${t.border}`,
+            borderRadius: 14,
+            padding: "24px 20px",
+            textAlign: "center",
+            cursor: "pointer",
+            background: t.dropzone,
+            transition: "all 0.2s",
+          }}
+        >
+          <div style={{ color: t.textDim, marginBottom: 8 }}>
+            <UploadCloudIcon size={28} />
+          </div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: t.text, marginBottom: 4 }}>
+            Upload folders with files
+          </div>
+          <div style={{ fontSize: 11, color: t.textMuted }}>
+            Preserves folder hierarchy
+          </div>
+        </label>
       )}
 
       <div

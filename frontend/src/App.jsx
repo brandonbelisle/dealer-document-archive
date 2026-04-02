@@ -795,6 +795,115 @@ const t = getTheme(darkMode);
     handleUploadFiles(fl);
   }, [handleUploadFiles]);
 
+  const handleBulkFolderUpload = useCallback(async (fileList) => {
+    if (!activeDepartment || !activeLocation) return;
+
+    const validExtensions = [".pdf", ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"];
+    const folderCache = new Map();
+
+    const processFilesFromList = async () => {
+      const fileData = Array.from(fileList).filter(f => {
+        const lowerName = f.name.toLowerCase();
+        const dotIdx = lowerName.lastIndexOf('.');
+        const ext = dotIdx >= 0 ? lowerName.slice(dotIdx) : '';
+        return !lowerName.startsWith('.') && validExtensions.includes(ext);
+      });
+
+      const pathMap = new Map();
+      for (const file of fileData) {
+        const relPath = file.webkitRelativePath || file.name;
+        pathMap.set(relPath, file);
+      }
+
+      const uniquePaths = [...pathMap.keys()].sort();
+
+      const getFolderPathParts = (relPath) => {
+        const parts = relPath.split('/');
+        return parts.slice(0, -1);
+      };
+
+      const allFolderPaths = new Set();
+      for (const relPath of uniquePaths) {
+        const folderParts = getFolderPathParts(relPath);
+        let currentPath = "";
+        for (const part of folderParts) {
+          currentPath = currentPath ? `${currentPath}/${part}` : part;
+          allFolderPaths.add(currentPath);
+        }
+      }
+
+      const sortedFolderPaths = [...allFolderPaths].sort((a, b) => a.split('/').length - b.split('/').length);
+
+      const createOrFindFolder = async (folderPath) => {
+        if (folderCache.has(folderPath)) return folderCache.get(folderPath);
+
+        const parts = folderPath.split('/');
+        let parentId = null;
+        let currentPath = "";
+
+        for (const part of parts) {
+          currentPath = currentPath ? `${currentPath}/${part}` : part;
+
+          if (folderCache.has(currentPath)) {
+            parentId = folderCache.get(currentPath);
+            continue;
+          }
+
+          try {
+            const existing = await api.findFolder(part, activeLocation, activeDepartment, parentId);
+            folderCache.set(currentPath, existing.id);
+            parentId = existing.id;
+          } catch {
+            try {
+              const created = await api.createFolder(part, activeLocation, activeDepartment, parentId);
+              setFolders((p) => [...p, {
+                id: created.id,
+                name: created.name,
+                locationId: created.location_id || created.locationId,
+                departmentId: created.department_id || created.departmentId,
+                parentId: created.parent_id || created.parentId || null,
+                createdAt: created.created_at
+              }]);
+              folderCache.set(currentPath, created.id);
+              parentId = created.id;
+            } catch (err) {
+              console.error("Failed to create folder:", err);
+              return null;
+            }
+          }
+        }
+
+        return folderCache.get(folderPath);
+      };
+
+      for (const folderPath of sortedFolderPaths) {
+        await createOrFindFolder(folderPath);
+      }
+
+      let filesUploaded = 0;
+      for (const file of fileData) {
+        const relPath = file.webkitRelativePath || file.name;
+        const folderParts = getFolderPathParts(relPath);
+        const folderPath = folderParts.join('/');
+
+        let targetFolderId = null;
+        if (folderPath) {
+          const fid = await createOrFindFolder(folderPath);
+          targetFolderId = fid;
+        }
+
+        processFile(file, targetFolderId);
+        filesUploaded++;
+      }
+
+      if (filesUploaded > 0) {
+        addToast("Upload complete", `${filesUploaded} file${filesUploaded !== 1 ? "s" : ""} uploaded`, 4000, "create");
+      }
+    };
+
+    processFilesFromList();
+  }, [activeDepartment, activeLocation, processFile, setFolders, addToast]);
+
   const removeFile = async (id) => { 
     const file = files.find((f) => f.id === id);
     try { await api.deleteFile(id); } catch (err) { console.error(err); } 
@@ -989,7 +1098,7 @@ const t = getTheme(darkMode);
       {page === "settings" && <SettingsPage darkMode={darkMode} setDarkMode={setDarkMode} t={t} />}
       {page === "dashboard" && <DashboardPage dashboardData={dashboardData} loggedInUser={loggedInUser} locations={locations} departments={departments} setPage={setPage} setActiveFolderId={setActiveFolderId} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setViewingFileId={setViewingFileId} t={t} darkMode={darkMode} />}
       {page === "folders-browse" && <FoldersBrowsePage locations={locations} departments={departments} deptsInLocation={deptsInLocation} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setFolderSearch={setFolderSearch} setSelectedFile={setSelectedFile} setPage={setPage} subscriptions={subscriptions} setSubscriptions={setSubscriptions} t={t} darkMode={darkMode} />}
-      {page === "folders" && <FoldersPage currentLocation={currentLocation} currentDept={currentDept} currentDeptFolders={currentDeptFolders} folderSearch={folderSearch} setFolderSearch={setFolderSearch} creatingDeptFolder={creatingDeptFolder} setCreatingDeptFolder={setCreatingDeptFolder} newDeptFolderName={newDeptFolderName} setNewDeptFolderName={setNewDeptFolderName} createDeptFolder={createDeptFolder} setActiveFolderId={setActiveFolderId} setPage={setPage} setCreatingSubfolder={setCreatingSubfolder} handleDeleteFolder={handleDeleteFolder} subscriptions={subscriptions} setSubscriptions={setSubscriptions} loggedInUser={loggedInUser} t={t} darkMode={darkMode} handleDeptDrop={handleDeptDrop} deptDragOver={deptDragOver} setDeptDragOver={setDeptDragOver} handleDeptFiles={handleDeptFiles} />}
+      {page === "folders" && <FoldersPage currentLocation={currentLocation} currentDept={currentDept} currentDeptFolders={currentDeptFolders} folderSearch={folderSearch} setFolderSearch={setFolderSearch} creatingDeptFolder={creatingDeptFolder} setCreatingDeptFolder={setCreatingDeptFolder} newDeptFolderName={newDeptFolderName} setNewDeptFolderName={setNewDeptFolderName} createDeptFolder={createDeptFolder} setActiveFolderId={setActiveFolderId} setPage={setPage} setCreatingSubfolder={setCreatingSubfolder} handleDeleteFolder={handleDeleteFolder} subscriptions={subscriptions} setSubscriptions={setSubscriptions} loggedInUser={loggedInUser} t={t} darkMode={darkMode} handleDeptDrop={handleDeptDrop} deptDragOver={deptDragOver} setDeptDragOver={setDeptDragOver} handleDeptFiles={handleDeptFiles} handleBulkFolderUpload={handleBulkFolderUpload} />}
       {page === "folder-detail" && <FolderDetailPage activeFolder={activeFolder} activeFolderId={activeFolderId} filesInFolder={filesInFolder} subfoldersOf={subfoldersOf} allFilesInFolderRecursive={allFilesInFolderRecursive} getBreadcrumb={getBreadcrumb} locations={locations} departments={departments} folders={folders} setActiveFolderId={setActiveFolderId} setPage={setPage} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} copyText={copyText} removeFile={removeFile} handleDeleteFolder={handleDeleteFolder} creatingSubfolder={creatingSubfolder} setCreatingSubfolder={setCreatingSubfolder} newSubfolderName={newSubfolderName} setNewSubfolderName={setNewSubfolderName} createSubfolder={createSubfolder} folderDetailDragOver={folderDetailDragOver} setFolderDetailDragOver={setFolderDetailDragOver} handleFolderDetailDrop={handleFolderDetailDrop} handleFolderDetailFiles={handleFolderDetailFiles} subscriptions={subscriptions} setSubscriptions={setSubscriptions} loggedInUser={loggedInUser} t={t} darkMode={darkMode} />}
       {page === "file-detail" && <FileDetailPage viewingFileId={viewingFileId} files={files} folders={folders} locations={locations} departments={departments} getBreadcrumb={getBreadcrumb} setViewingFileId={setViewingFileId} setActiveFolderId={setActiveFolderId} setPage={setPage} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} removeFile={removeFile} loggedInUser={loggedInUser} t={t} darkMode={darkMode} />}
       {page === "unsorted" && <UnsortedPage unsortedFiles={unsortedFiles} folders={folders} locations={locations} departments={departments} deptsInLocation={deptsInLocation} handleMoveFile={handleMoveFile} removeFile={removeFile} setUnsortedFiles={setUnsortedFiles} setWarningModal={setWarningModal} loggedInUser={loggedInUser} t={t} darkMode={darkMode} />}

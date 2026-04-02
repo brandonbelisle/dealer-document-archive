@@ -83,11 +83,11 @@ async function runDmsTask(taskType, queryConfig) {
       }
 
       const [existingFolders] = await db.execute(`
-        SELECT f.name, f.department_id FROM folders f
+        SELECT f.id, f.name, f.department_id, f.cus_id, f.emp_id FROM folders f
         JOIN departments d ON f.department_id = d.id
         WHERE d.name = ?
       `, ['Service']);
-      const existingFolderNames = new Set(existingFolders.map(f => `${f.department_id}:${f.name}`));
+      const existingFolderMap = new Map(existingFolders.map(f => [`${f.department_id}:${f.name}`, f]));
 
       // Get existing repair orders to avoid duplicates
       const [existingRepairOrders] = await db.execute('SELECT sls_id FROM service_repairorders');
@@ -141,22 +141,13 @@ async function runDmsTask(taskType, queryConfig) {
         }
 
         const folderKey = `${deptId}:${slsId}`;
-        if (existingFolderNames.has(folderKey)) {
-          skippedCount++;
-          continue;
-        }
+        let folderId = null;
+        let folderCreated = false;
 
         // Check if folder already exists
-        const [existing] = await db.execute(
-          'SELECT id, cus_id, emp_id FROM folders WHERE department_id = ? AND name = ?',
-          [deptId, slsId]
-        );
+        const existingFolder = existingFolderMap.get(folderKey);
 
-        let folderId = null;
-
-        if (existing.length > 0) {
-          const existingFolder = existing[0];
-          existingFolderNames.add(folderKey);
+        if (existingFolder) {
           folderId = existingFolder.id;
           
           // If cus_id or emp_id is null/empty in MySQL, update from DMS
@@ -166,19 +157,19 @@ async function runDmsTask(taskType, queryConfig) {
               [cusId, empId, existingFolder.id]
             );
           }
-          skippedCount++;
         } else {
+          // Create new folder
           folderId = uuidv4();
           await db.execute(
             'INSERT INTO folders (id, name, location_id, department_id, cus_id, emp_id, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
             [folderId, slsId, locationId, deptId, cusId, empId]
           );
-          
-          existingFolderNames.add(folderKey);
+          existingFolderMap.set(folderKey, { id: folderId, name: slsId, department_id: deptId, cus_id: cusId, emp_id: empId });
+          folderCreated = true;
           createdCount++;
         }
 
-        // Create or update repair order record
+        // Create repair order if it doesn't exist
         if (!existingSlsIds.has(slsId)) {
           const repairOrderId = uuidv4();
           try {
@@ -187,16 +178,21 @@ async function runDmsTask(taskType, queryConfig) {
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
               [repairOrderId, slsId, vin, odomIn, odomOut, tag, cusId, empId, empIdWriter, dateCreate, folderId]
             );
+            existingSlsIds.add(slsId);
             repairOrderCount++;
           } catch (insertErr) {
             console.error(`[DMS_TO_DDA] Failed to insert repair order ${slsId}:`, insertErr.message);
           }
         }
+
+        if (!folderCreated) {
+          skippedCount++;
+        }
       }
 
       result.success = true;
       result.count = createdCount;
-      result.message = `Successfully processed ${records.length} records. Created ${createdCount} folders, ${repairOrderCount} repair orders, skipped ${skippedCount} existing/invalid.`;
+      result.message = `Successfully processed ${records.length} records. Created ${createdCount} folders, ${repairOrderCount} repair orders, skipped ${skippedCount} existing folders.`;
       if (errors.length > 0) {
         result.message += ` Errors: ${errors.slice(0, 3).join('; ')}`;
       }
@@ -424,20 +420,24 @@ async function runDmsTask(taskType, queryConfig) {
         'SELECT id, name FROM folders WHERE cus_id IS NULL OR emp_id IS NULL'
       );
       
-      if (folders.length === 0) {
-        result.success = true;
-        result.message = 'No folders need backfilling - all folders already have CusId and EmpId.';
-        return result;
-      }
+      // Get all folders (for repair order creation)
+      const [allFolders] = await db.execute(
+        'SELECT id, name FROM folders'
+      );
+      const folderMap = new Map(allFolders.map(f => [String(f.name || '').trim(), f.id]));
       
-      console.log(`[FOLDER_BACKFILL] Found ${folders.length} folders to backfill`);
+      // Get existing repair orders to avoid duplicates
+      const [existingRepairOrders] = await db.execute('SELECT sls_id FROM service_repairorders');
+      const existingSlsIds = new Set(existingRepairOrders.map(r => r.sls_id));
       
-      // Query DMS for all SlsId, CusId, EmpId from SVSLS
+      console.log(`[FOLDER_BACKFILL] Found ${folders.length} folders to backfill, ${existingSlsIds.size} existing repair orders`);
+      
+      // Query DMS for all SlsId, CusId, EmpId, Vin, OdomIn, OdomOut, Tag, EmpIdWriter, DateCreate from SVSLS
       const table = 'SVSLS';
-      const query = `SELECT SlsId, CusId, EmpId FROM dbo.${table}`;
+      const query = `SELECT SlsId, CusId, EmpId, Vin, OdomIn, OdomOut, Tag, EmpIdWriter, DateCreate FROM dbo.${table}`;
       const dmsResult = await pool.request().query(query);
       
-      // Build a map of SlsId -> { CusId, EmpId }
+      // Build a map of SlsId -> { CusId, EmpId, Vin, OdomIn, OdomOut, Tag, EmpIdWriter, DateCreate }
       const dmsData = new Map();
       for (const record of dmsResult.recordset) {
         const slsId = String(record.SlsId || '').trim();
@@ -445,6 +445,12 @@ async function runDmsTask(taskType, queryConfig) {
           dmsData.set(slsId, {
             cusId: record.CusId ? String(record.CusId).substring(0, 100) : null,
             empId: record.EmpId ? String(record.EmpId).substring(0, 100) : null,
+            vin: record.Vin ? String(record.Vin).substring(0, 100) : null,
+            odomIn: record.OdomIn ? parseInt(record.OdomIn) : null,
+            odomOut: record.OdomOut ? parseInt(record.OdomOut) : null,
+            tag: record.Tag ? String(record.Tag).substring(0, 50) : null,
+            empIdWriter: record.EmpIdWriter ? String(record.EmpIdWriter).substring(0, 100) : null,
+            dateCreate: record.DateCreate || null,
           });
         }
       }
@@ -454,6 +460,7 @@ async function runDmsTask(taskType, queryConfig) {
       let updatedCount = 0;
       let fuzzyMatchCount = 0;
       let notFoundCount = 0;
+      let repairOrderCount = 0;
       const notFoundIds = [];
       
       // Update each folder with CusId and EmpId
@@ -464,7 +471,7 @@ async function runDmsTask(taskType, queryConfig) {
         // If exact match not found, try fuzzy search with first 10 characters
         if (!dmsInfo && slsId.length >= 10) {
           const fuzzyPrefix = slsId.substring(0, 10);
-          const fuzzyQuery = `SELECT TOP 1 SlsId, CusId, EmpId FROM dbo.${table} WHERE SlsId LIKE '${fuzzyPrefix}%'`;
+          const fuzzyQuery = `SELECT TOP 1 SlsId, CusId, EmpId, Vin, OdomIn, OdomOut, Tag, EmpIdWriter, DateCreate FROM dbo.${table} WHERE SlsId LIKE '${fuzzyPrefix}%'`;
           try {
             const fuzzyResult = await pool.request().query(fuzzyQuery);
             if (fuzzyResult.recordset.length > 0) {
@@ -472,6 +479,12 @@ async function runDmsTask(taskType, queryConfig) {
               dmsInfo = {
                 cusId: fuzzyRecord.CusId ? String(fuzzyRecord.CusId).substring(0, 100) : null,
                 empId: fuzzyRecord.EmpId ? String(fuzzyRecord.EmpId).substring(0, 100) : null,
+                vin: fuzzyRecord.Vin ? String(fuzzyRecord.Vin).substring(0, 100) : null,
+                odomIn: fuzzyRecord.OdomIn ? parseInt(fuzzyRecord.OdomIn) : null,
+                odomOut: fuzzyRecord.OdomOut ? parseInt(fuzzyRecord.OdomOut) : null,
+                tag: fuzzyRecord.Tag ? String(fuzzyRecord.Tag).substring(0, 50) : null,
+                empIdWriter: fuzzyRecord.EmpIdWriter ? String(fuzzyRecord.EmpIdWriter).substring(0, 100) : null,
+                dateCreate: fuzzyRecord.DateCreate || null,
               };
               console.log(`[FOLDER_BACKFILL] Fuzzy match: "${slsId}" -> "${fuzzyRecord.SlsId}"`);
             }
@@ -497,11 +510,29 @@ async function runDmsTask(taskType, queryConfig) {
         }
       }
       
+      // Create repair orders for all matching SlsIds that don't exist yet
+      for (const [slsId, dmsInfo] of dmsData) {
+        if (!existingSlsIds.has(slsId)) {
+          const folderId = folderMap.get(slsId) || null;
+          const repairOrderId = uuidv4();
+          try {
+            await db.execute(
+              `INSERT INTO service_repairorders (id, sls_id, vin, odom_in, odom_out, tag, cus_id, emp_id, emp_id_writer, date_create, folder_id, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+              [repairOrderId, slsId, dmsInfo.vin, dmsInfo.odomIn, dmsInfo.odomOut, dmsInfo.tag, dmsInfo.cusId, dmsInfo.empId, dmsInfo.empIdWriter, dmsInfo.dateCreate, folderId]
+            );
+            repairOrderCount++;
+          } catch (insertErr) {
+            console.error(`[FOLDER_BACKFILL] Failed to insert repair order ${slsId}:`, insertErr.message);
+          }
+        }
+      }
+      
       result.success = true;
       result.count = updatedCount;
-      result.message = `Backfilled ${updatedCount} folders with CusId and EmpId from DMS.`;
+      result.message = `Backfilled ${updatedCount} folders from DMS. Created ${repairOrderCount} repair orders.`;
       if (fuzzyMatchCount > 0) {
-        result.message += ` (${fuzzyMatchCount} via fuzzy match)`;
+        result.message += ` (${fuzzyMatchCount} folder matches via fuzzy)`;
       }
       if (notFoundCount > 0) {
         result.message += ` ${notFoundCount} folders had no matching DMS record.`;

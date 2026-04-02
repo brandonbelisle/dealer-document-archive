@@ -66,7 +66,7 @@ async function runDmsTask(taskType, queryConfig) {
       const dateColumn = cfg.dateColumn || 'DateOpen';
       const lookbackHours = cfg.lookbackHours || 48;
 
-      const query = `SELECT SlsId, ${dateColumn} FROM dbo.${table} WHERE ${dateColumn} >= DATEADD(hour, -${lookbackHours}, GETDATE())`;
+      const query = `SELECT SlsId, ${dateColumn}, CusId, EmpId FROM dbo.${table} WHERE ${dateColumn} >= DATEADD(hour, -${lookbackHours}, GETDATE())`;
       const dmsResult = await pool.request().query(query);
       const records = dmsResult.recordset;
 
@@ -99,6 +99,9 @@ async function runDmsTask(taskType, queryConfig) {
           skippedCount++;
           continue;
         }
+
+        const cusId = record.CusId ? String(record.CusId).substring(0, 100) : null;
+        const empId = record.EmpId ? String(record.EmpId).substring(0, 100) : null;
 
         const locationCode = slsId.substring(0, 4);
         const locationId = locationMap[locationCode];
@@ -145,8 +148,8 @@ async function runDmsTask(taskType, queryConfig) {
 
         const folderId = uuidv4();
         await db.execute(
-          'INSERT INTO folders (id, name, location_id, department_id, created_at) VALUES (?, ?, ?, ?, NOW())',
-          [folderId, slsId, locationId, deptId]
+          'INSERT INTO folders (id, name, location_id, department_id, cus_id, emp_id, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
+          [folderId, slsId, locationId, deptId, cusId, empId]
         );
         
         existingFolderNames.add(folderKey);

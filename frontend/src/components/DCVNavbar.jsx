@@ -153,7 +153,9 @@ export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, s
       <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, maxWidth: 400, margin: "0 20px" }}>
         <div ref={searchRef} style={{ position: "relative", width: "100%" }}>
           <div style={{ position: "relative" }}>
-            <SearchIcon size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: darkMode ? "#6b7280" : "#9ca3af" }} />
+            <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: darkMode ? "#6b7280" : "#9ca3af", display: "flex", alignItems: "center" }}>
+              <SearchIcon size={16} />
+            </span>
             <input
               type="text"
               placeholder="Search customers by ID or name..."

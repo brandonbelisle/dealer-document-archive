@@ -26,7 +26,7 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "calc(100vh - 55px)", background: darkMode ? "#0d1117" : "#f6f8fa" }}>
+    <div style={{ display: "flex", minHeight: "calc(100vh - 55px)", marginTop: 55, background: darkMode ? "#0d1117" : "#f6f8fa" }}>
       <div style={{
         width: 360,
         minWidth: 360,

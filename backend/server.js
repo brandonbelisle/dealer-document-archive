@@ -139,6 +139,7 @@ app.use('/api/custom-apps', require('./routes/custom-apps'));
 app.use('/api/dms-settings', require('./routes/dms'));
 app.use('/api/help-ticket', require('./routes/help-ticket'));
 app.use('/api/cht', require('./routes/cht'));
+app.use('/api/dcv', require('./routes/dcv'));
 
 // ── Health check ──────────────────────────────────────────
 app.get('/api/health', (req, res) => {

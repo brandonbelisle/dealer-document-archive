@@ -30,15 +30,15 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
 
   const apps = [
     { id: "home", name: "Home", icon: <HomeIcon size={20} />, onClick: () => { setPage("landing"); setShowAppsDropdown(false); } },
-    { id: "dda", name: "Dealer Document Archive", icon: (
+    { id: "dda", name: "Dealer Document Archive", permission: "view_dda", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#88c0d0,#88c0d0)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>DDA</div>
     ), onClick: () => { setPage("dashboard"); setShowAppsDropdown(false); } },
-    { id: "cht", name: "Credit Hold Tracker", icon: (
-      <div style={{ width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
-    ), onClick: () => { setPage("cht"); setShowAppsDropdown(false); } },
-    { id: "dcv", name: "Dealer Customer Vision", icon: (
+    { id: "dcv", name: "Dealer Customer Vision", permission: "view_dcv", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>DCV</div>
     ), onClick: () => { setPage("dcv"); setShowAppsDropdown(false); } },
+    { id: "cht", name: "Credit Hold Tracker", permission: "view_cht", icon: (
+      <div style={{ width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
+    ), onClick: () => { setPage("cht"); setShowAppsDropdown(false); } },
     { id: "help", name: "Submit Help Ticket", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
         <TicketIcon size={14} />
@@ -56,6 +56,8 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
     })),
     ...(isAdmin ? [{ id: "admin", name: "Admin Center", icon: <GearIcon size={20} />, onClick: () => { setPage("admin"); setAdminSection?.("users"); setShowAppsDropdown(false); } }] : []),
   ];
+
+  const filteredApps = apps.filter(app => !app.permission || loggedInUser?.permissions?.includes(app.permission));
 
   const navActiveBg = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)";
 
@@ -313,7 +315,7 @@ export default function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, s
               }}
             >
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4 }}>
-                {apps.map((app) => (
+                {filteredApps.map((app) => (
                   <div
                     key={app.id}
                     onClick={app.onClick}

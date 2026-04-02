@@ -1,12 +1,18 @@
-import { useState, useEffect } from "react";
-import { UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon, TicketIcon } from "./Icons";
+import { useState, useEffect, useRef } from "react";
+import { UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon, TicketIcon, SearchIcon } from "./Icons";
 import AlertsDropdown from "./AlertsDropdown";
 import * as api from "../api";
 
-export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket }) {
+export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket, onSelectCustomer }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
   const [customApps, setCustomApps] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchRef = useRef(null);
+  const searchTimeoutRef = useRef(null);
 
   const isAdmin = loggedInUser?.groups?.includes("Administrator");
   const dcvAccent = "#8b5cf6";
@@ -19,13 +25,13 @@ export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, s
 
   const apps = [
     { id: "home", name: "Home", icon: <HomeIcon size={20} />, onClick: () => { setPage("landing"); setShowAppsDropdown(false); } },
-    { id: "dda", name: "Dealer Document Archive", icon: (
+    { id: "dda", name: "Dealer Document Archive", permission: "view_dda", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#0891b2,#0e7490)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>DDA</div>
     ), onClick: () => { setPage("dashboard"); setShowAppsDropdown(false); } },
-    { id: "dcv", name: "Dealer Customer Vision", icon: (
+    { id: "dcv", name: "Dealer Customer Vision", permission: "view_dcv", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${dcvAccent},${dcvAccentDark})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>DCV</div>
     ), onClick: () => { setPage("dcv"); setShowAppsDropdown(false); } },
-    { id: "cht", name: "Credit Hold Tracker", icon: (
+    { id: "cht", name: "Credit Hold Tracker", permission: "view_cht", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
     ), onClick: () => { setPage("cht"); setShowAppsDropdown(false); } },
     { id: "help", name: "Submit Help Ticket", icon: (
@@ -46,6 +52,8 @@ export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, s
     ...(isAdmin ? [{ id: "admin", name: "Admin Center", icon: <GearIcon size={20} />, onClick: () => { setPage("admin"); setAdminSection?.("users"); setShowAppsDropdown(false); } }] : []),
   ];
 
+  const filteredApps = apps.filter(app => !app.permission || loggedInUser?.permissions?.includes(app.permission));
+
   const navActiveBg = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)";
   const surfaceBg = darkMode ? "rgba(15,17,20,0.98)" : "#fff";
 
@@ -54,14 +62,58 @@ export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, s
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = () => {
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSearchResults(false);
+      }
       setShowAppsDropdown(false);
     };
-    if (showAppsDropdown) {
+    if (showAppsDropdown || showSearchResults) {
       setTimeout(() => document.addEventListener("click", handleClickOutside), 0);
     }
     return () => document.removeEventListener("click", handleClickOutside);
-  }, [showAppsDropdown]);
+  }, [showAppsDropdown, showSearchResults]);
+
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    if (searchQuery.trim().length < 1) {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    }
+
+    searchTimeoutRef.current = setTimeout(async () => {
+      setSearching(true);
+      setShowSearchResults(true);
+      try {
+        const results = await api.searchDcvCustomers(searchQuery);
+        setSearchResults(results);
+      } catch (err) {
+        console.error('Search error:', err);
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery]);
+
+  const handleSelectCustomer = (customer) => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setShowSearchResults(false);
+    if (onSelectCustomer) {
+      onSelectCustomer(customer);
+    }
+  };
 
   return (
     <div style={{
@@ -97,6 +149,100 @@ export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, s
         </div>
         <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.03em" }}>Dealer Customer Vision</span>
       </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, maxWidth: 400, margin: "0 20px" }}>
+        <div ref={searchRef} style={{ position: "relative", width: "100%" }}>
+          <div style={{ position: "relative" }}>
+            <SearchIcon size={16} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: darkMode ? "#6b7280" : "#9ca3af" }} />
+            <input
+              type="text"
+              placeholder="Search customers by ID or name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => searchQuery.trim().length >= 1 && setShowSearchResults(true)}
+              style={{
+                width: "100%",
+                padding: "8px 12px 8px 36px",
+                fontSize: 13,
+                border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+                borderRadius: 8,
+                background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                color: darkMode ? "#e5e7eb" : "#1f2937",
+                fontFamily: "inherit",
+                outline: "none",
+              }}
+            />
+          </div>
+          {showSearchResults && (searching || searchResults.length > 0 || searchQuery.trim().length >= 1) && (
+            <div style={{
+              position: "absolute",
+              top: "calc(100% + 4px)",
+              left: 0,
+              right: 0,
+              background: surfaceBg,
+              border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+              borderRadius: 8,
+              boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
+              maxHeight: 300,
+              overflowY: "auto",
+              zIndex: 200,
+            }}>
+              {searching ? (
+                <div style={{ padding: 16, textAlign: "center", color: darkMode ? "#6b7280" : "#9ca3af", fontSize: 13 }}>
+                  Searching...
+                </div>
+              ) : searchResults.length === 0 ? (
+                <div style={{ padding: 16, textAlign: "center", color: darkMode ? "#6b7280" : "#9ca3af", fontSize: 13 }}>
+                  No customers found
+                </div>
+              ) : (
+                searchResults.map((customer) => (
+                  <div
+                    key={customer.id}
+                    onClick={() => handleSelectCustomer(customer)}
+                    style={{
+                      padding: "10px 12px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}`,
+                      transition: "background 0.15s",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                  >
+                    <div style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      background: `linear-gradient(135deg,${dcvAccent},${dcvAccentDark})`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "white",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      flexShrink: 0,
+                    }}>
+                      {customer.name?.charAt(0)?.toUpperCase() || "C"}
+                    </div>
+                    <div style={{ flex: 1,minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: darkMode ? "#e5e7eb" : "#1f2937", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {customer.name || "Unknown"}
+                      </div>
+                      <div style={{ fontSize: 11, color: darkMode ? "#6b7280" : "#9ca3af" }}>
+                        ID: {customer.cusId}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
       <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative" }}>
         {loggedInUser && (
           <div style={{ position: "relative" }}>
@@ -284,7 +430,7 @@ export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, s
               }}
             >
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4 }}>
-                {apps.map((app) => (
+                {filteredApps.map((app) => (
                   <div
                     key={app.id}
                     onClick={app.onClick}

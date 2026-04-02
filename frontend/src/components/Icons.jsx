@@ -457,3 +457,54 @@ export const CalendarIcon = ({ size = 16 }) =>
     size,
     1.8
   );
+
+export const MailIcon = ({ size = 16 }) =>
+  I(
+    <>
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2" />
+      <polyline points="22,6 12,13 2,6" />
+    </>,
+    size
+  );
+
+export const PhoneIcon = ({ size = 16 }) =>
+  I(
+    <>
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+    </>,
+    size
+  );
+
+export const ClockIcon = ({ size = 16 }) =>
+  I(
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </>,
+    size
+  );
+
+export const CreditCardIcon = ({ size = 16 }) =>
+  I(
+    <>
+      <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+      <line x1="1" y1="10" x2="23" y2="10" />
+    </>,
+    size
+  );
+
+export const BuildingIcon = ({ size = 16 }) =>
+  I(
+    <>
+      <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+      <line x1="9" y1="22" x2="9" y2="18" />
+      <line x1="15" y1="22" x2="15" y2="18" />
+      <line x1="8" y1="6" x2="8" y2="6.01" />
+      <line x1="12" y1="6" x2="12" y2="6.01" />
+      <line x1="16" y1="6" x2="16" y2="6.01" />
+      <line x1="8" y1="10" x2="8" y2="10.01" />
+      <line x1="12" y1="10" x2="12" y2="10.01" />
+      <line x1="16" y1="10" x2="16" y2="10.01" />
+    </>,
+    size
+  );

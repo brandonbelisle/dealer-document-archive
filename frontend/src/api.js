@@ -601,3 +601,12 @@ export async function toggleCreditHoldInquiryClosed(inquiryId) {
     method: 'POST',
   });
 }
+
+// ── DCV (Dealer Customer Vision) ──────────────────────────────
+export async function searchDcvCustomers(query) {
+  return request(`/dcv/search?q=${encodeURIComponent(query)}`);
+}
+
+export async function getDcvCustomer(id) {
+  return request(`/dcv/${id}`);
+}

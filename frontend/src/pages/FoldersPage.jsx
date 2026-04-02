@@ -318,32 +318,8 @@ export default function FoldersPage({
       )}
 
       {canUploadFiles && (
-        <>
-          <div
-            onClick={() => deptFileInputRef.current?.click()}
-            style={{
-              border: `2px dashed ${t.border}`,
-              borderRadius: 14,
-              padding: "24px 20px",
-              textAlign: "center",
-              cursor: "pointer",
-              background: t.dropzone,
-              marginBottom: 16,
-              transition: "all 0.2s",
-            }}
-          >
-            <div style={{ color: t.textDim, marginBottom: 8 }}>
-              <UploadCloudIcon size={28} />
-            </div>
-            <div style={{ fontSize: 13, fontWeight: 500, color: t.text, marginBottom: 4 }}>
-              Drag & drop files here or click to browse
-            </div>
-            <div style={{ fontSize: 11, color: t.textMuted }}>
-              Files will be added to Unsorted in this department
-            </div>
-          </div>
-          <label
-            htmlFor="bulk-folder-upload"
+        <label
+          htmlFor="bulk-folder-upload"
           style={{
             flex: 1,
             border: `2px dashed ${t.border}`,
@@ -365,7 +341,6 @@ export default function FoldersPage({
             Preserves folder hierarchy
           </div>
         </label>
-        </>
       )}
 
       <div

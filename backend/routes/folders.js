@@ -178,19 +178,20 @@ router.post('/', requireAuth, requirePermission('createFolders'), async (req, re
     }
 
     // Check for existing folder with same name (case-insensitive)
-    let checkSql = `SELECT id FROM folders WHERE LOWER(name) = LOWER(?) AND location_id = ? AND department_id = ?`;
+    let checkSql = `SELECT f.*, l.name AS location_name, d.name AS department_name FROM folders f JOIN locations l ON f.location_id = l.id JOIN departments d ON f.department_id = d.id WHERE LOWER(f.name) = LOWER(?) AND f.location_id = ? AND f.department_id = ?`;
     const checkParams = [name.trim(), locationId, departmentId];
     
     if (parentId) {
-      checkSql += ' AND parent_id = ?';
+      checkSql += ' AND f.parent_id = ?';
       checkParams.push(parentId);
     } else {
-      checkSql += ' AND parent_id IS NULL';
+      checkSql += ' AND f.parent_id IS NULL';
     }
     
     const [existing] = await db.execute(checkSql, checkParams);
     if (existing.length > 0) {
-      return res.status(409).json({ error: 'A folder with this name already exists', existingFolderId: existing[0].id });
+      // Return existing folder instead of creating duplicate
+      return res.status(200).json(existing[0]);
     }
 
     const id = uuidv4();

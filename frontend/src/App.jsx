@@ -762,6 +762,7 @@ const handleDeptDrop = useCallback(async (e) => {
     const itemsArray = Array.from(items);
     
     const folderCache = new Map();
+    const createdFolders = [];
     
     const getOrCreateFolder = async (name, parentId) => {
       const cacheKey = parentId ? `${parentId}:${name}` : `root:${name}`;
@@ -782,22 +783,17 @@ const handleDeptDrop = useCallback(async (e) => {
       try {
         const created = await api.createFolder(name, activeLocation, activeDepartment, parentId);
         folderCache.set(cacheKey, created.id);
-        // Only add to state if not already present
-        setFolders((p) => {
-          if (p.some(f => f.id === created.id)) return p;
-          return [...p, {
-            id: created.id,
-            name: created.name,
-            locationId: created.location_id || created.locationId,
-            departmentId: created.department_id || created.departmentId,
-            parentId: created.parent_id || created.parentId || null,
-            createdAt: created.created_at
-          }];
+        createdFolders.push({
+          id: created.id,
+          name: created.name,
+          locationId: created.location_id || created.locationId,
+          departmentId: created.department_id || created.departmentId,
+          parentId: created.parent_id || created.parentId || null,
+          createdAt: created.created_at
         });
         return created.id;
       } catch (createErr) {
         // If creation failed, try to find the existing folder one more time
-        // (it may have been created by another request or already existed)
         try {
           const existingFolder = await api.findFolder(name, activeLocation, activeDepartment, parentId);
           if (existingFolder && existingFolder.id) {
@@ -814,19 +810,22 @@ const handleDeptDrop = useCallback(async (e) => {
 
     for (const item of itemsArray) {
       const entry = item.webkitGetAsEntry?.() || item.getAsEntry?.();
-      if (!entry) continue;
+      if (!entry) {
+        console.log("Skipping item - no entry");
+        continue;
+      }
 
-      if (entry.isFile) {
-        const file = await new Promise((resolve, reject) => {
-          entry.file(resolve, reject);
-        });
-        processFile(file, null);
-      } else if (entry.isDirectory) {
-        const skipCount = { value: 0 };
-        const allFiles = await readDirectoryContents(entry, "", skipCount);
-        const folderName = entry.name;
-        
-        try {
+      try {
+        if (entry.isFile) {
+          const file = await new Promise((resolve, reject) => {
+            entry.file(resolve, reject);
+          });
+          processFile(file, null);
+        } else if (entry.isDirectory) {
+          const skipCount = { value: 0 };
+          const allFiles = await readDirectoryContents(entry, "", skipCount);
+          const folderName = entry.name;
+          
           const rootFolderId = await getOrCreateFolder(folderName, null);
           
           for (const { file, path } of allFiles) {
@@ -846,11 +845,21 @@ const handleDeptDrop = useCallback(async (e) => {
             ? `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} uploaded to "${folderName}" (${skipCount.value} skipped)`
             : `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} uploaded to "${folderName}"`;
           addToast("Upload complete", msg, 4000, "create");
-        } catch (err) {
-          console.error("Failed to process folder:", err);
-          addToast("Error", `Failed to process folder "${folderName}"`, 4000, "error");
         }
+      } catch (err) {
+        const folderName = entry?.name || 'unknown';
+        console.error(`Failed to process "${folderName}":`, err);
+        addToast("Error", `Failed to process "${folderName}": ${err.message || 'Unknown error'}`, 6000, "error");
       }
+    }
+    
+    // Update folders state once at the end with all created folders
+    if (createdFolders.length > 0) {
+      setFolders((p) => {
+        const existingIds = new Set(p.map(f => f.id));
+        const newFolders = createdFolders.filter(f => !existingIds.has(f.id));
+        return [...p, ...newFolders];
+      });
     }
   }, [processFile, handleUploadFiles, activeDepartment, activeLocation, addToast, setFolders]);
 

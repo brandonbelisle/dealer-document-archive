@@ -151,14 +151,11 @@ export default function LoginScreen({
               fontSize: 24,
               fontWeight: 700,
               color: t.text,
-              margin: "0 0 4px",
+              margin: 0,
             }}
           >
-            Dealer Document Archive
+            Dealer Toolbox
           </h1>
-          <p style={{ fontSize: 13.5, color: t.textMuted, margin: 0 }}>
-            Sign in to access your documents
-          </p>
         </div>
 
         {/* SSO Login Button */}

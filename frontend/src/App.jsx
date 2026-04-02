@@ -772,7 +772,7 @@ const handleDeptDrop = useCallback(async (e) => {
           return existingFolder.id;
         }
       } catch (err) {
-        // Folder not found, will create below
+        // Folder not found, will try to create below
       }
       
       // Try to create the folder
@@ -789,18 +789,16 @@ const handleDeptDrop = useCallback(async (e) => {
         folderCache.set(cacheKey, created.id);
         return created.id;
       } catch (createErr) {
-        // If conflict (duplicate), try to find the existing folder again
-        const errMsg = createErr.message || '';
-        if (errMsg.includes('already exists') || errMsg.includes('409') || errMsg.includes('Duplicate') || errMsg.includes('unique')) {
-          try {
-            const existingFolder = await api.findFolder(name, activeLocation, activeDepartment, parentId);
-            if (existingFolder && existingFolder.id) {
-              folderCache.set(cacheKey, existingFolder.id);
-              return existingFolder.id;
-            }
-          } catch (findErr) {
-            // Still not found, rethrow original error
+        // If creation failed, try to find the existing folder one more time
+        // (it may have been created by another request or already existed)
+        try {
+          const existingFolder = await api.findFolder(name, activeLocation, activeDepartment, parentId);
+          if (existingFolder && existingFolder.id) {
+            folderCache.set(cacheKey, existingFolder.id);
+            return existingFolder.id;
           }
+        } catch (findErr) {
+          // Really couldn't find or create the folder
         }
         console.error("Failed to create folder:", createErr);
         throw createErr;

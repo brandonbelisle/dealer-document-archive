@@ -321,7 +321,7 @@ export default function FoldersPage({
         <label
           htmlFor="bulk-folder-upload"
           style={{
-            flex: 1,
+            display: "block",
             border: `2px dashed ${t.border}`,
             borderRadius: 14,
             padding: "24px 20px",
@@ -329,6 +329,7 @@ export default function FoldersPage({
             cursor: "pointer",
             background: t.dropzone,
             transition: "all 0.2s",
+            marginBottom: 16,
           }}
         >
           <div style={{ color: t.textDim, marginBottom: 8 }}>

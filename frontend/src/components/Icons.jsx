@@ -528,3 +528,15 @@ export const FileIcon = ({ size = 16 }) =>
     </>,
     size
   );
+
+export const CarIcon = ({ size = 16 }) =>
+  I(
+    <>
+      <path d="M14 16H9m10 0h2v-4a1 1 0 0 0-.667-.944L14 8H8L2.667 11.056A1 1 0 0 0 2 12v4h2" />
+      <path d="M4 16v-2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1" />
+      <path d="M16 16v-2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1" />
+      <circle cx="7" cy="8.5" r=".5" />
+      <circle cx="17" cy="8.5" r=".5" />
+    </>,
+    size
+  );

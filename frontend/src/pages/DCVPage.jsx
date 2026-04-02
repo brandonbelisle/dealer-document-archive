@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { getTheme } from "../theme";
-import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon, FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon, WrenchIcon } from "../components/Icons";
+import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon, FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon, WrenchIcon, CarIcon } from "../components/Icons";
 import * as api from "../api";
 
 export default function DCVPage({ t, darkMode, selectedCustomer }) {
@@ -22,6 +23,10 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
   const [serviceTotalPages, setServiceTotalPages] = useState(1);
   const [serviceTotal, setServiceTotal] = useState(0);
   const [serviceFilter, setServiceFilter] = useState(null);
+  const [selectedRepairOrder, setSelectedRepairOrder] = useState(null);
+  const [vinDetails, setVinDetails] = useState(null);
+  const [vinLoading, setVinLoading] = useState(false);
+  const history = useHistory();
   
   const pageSize = 20;
 
@@ -59,6 +64,8 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
     if (customer) {
       setTimelinePage(1);
       setServicePage(1);
+      setSelectedRepairOrder(null);
+      setVinDetails(null);
     }
   }, [customer]);
 
@@ -69,6 +76,23 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
   useEffect(() => {
     setServicePage(1);
   }, [serviceFilter]);
+
+  useEffect(() => {
+    if (selectedRepairOrder && selectedRepairOrder.vin) {
+      setVinLoading(true);
+      api.getDcvVinLookup(selectedRepairOrder.vin)
+        .then((data) => {
+          setVinDetails(data);
+        })
+        .catch((err) => {
+          console.error('[DCV] VIN lookup error:', err);
+          setVinDetails({ error: 'Failed to decode VIN' });
+        })
+        .finally(() => setVinLoading(false));
+    } else {
+      setVinDetails(null);
+    }
+  }, [selectedRepairOrder]);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "N/A";
@@ -509,7 +533,7 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
               )}
 
               {/* Service Tab */}
-              {activeTab === "service" && (
+              {activeTab === "service" && !selectedRepairOrder && (
                 <div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -615,6 +639,7 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
                       {repairOrders.map((ro) => (
                         <div
                           key={ro.id}
+                          onClick={() => setSelectedRepairOrder(ro)}
                           style={{
                             display: "flex",
                             gap: 16,
@@ -622,6 +647,8 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
                             background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
                             borderRadius: 12,
                             border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+                            cursor: "pointer",
+                            transition: "all 0.15s",
                           }}
                         >
                           <div style={{
@@ -668,6 +695,308 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
                           </div>
                         </div>
                       ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ServiceTab - Repair Order Detail View */}
+              {activeTab === "service" && selectedRepairOrder && (
+                <div>
+                  <button
+                    onClick={() => setSelectedRepairOrder(null)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "8px 16px",
+                      background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                      border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                      borderRadius: 8,
+                      color: theme.text,
+                      fontSize: 13,
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      marginBottom: 20,
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    <ChevronLeftIcon />
+                    <span>Back to Repair Orders</span>
+                  </button>
+
+                  <div style={{
+                    display: "flex",
+                    gap: 16,
+                    padding: 20,
+                    background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+                    borderRadius: 12,
+                    border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+                    marginBottom: 20,
+                  }}>
+                    <div style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: 12,
+                      background: "rgba(245,158,11,0.15)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#f59e0b",
+                      flexShrink: 0,
+                    }}>
+                      <WrenchIcon size={24} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: theme.text, marginBottom: 8 }}>
+                        Repair Order: {selectedRepairOrder.slsId}
+                      </div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 16, fontSize: 13, color: theme.textMuted }}>
+                        {selectedRepairOrder.tag && <span>Tag: <strong style={{ color: theme.text }}>{selectedRepairOrder.tag}</strong></span>}
+                        {selectedRepairOrder.locationName && <span>Location: <strong style={{ color: theme.text }}>{selectedRepairOrder.locationName}</strong></span>}
+                        <span>Created: <strong style={{ color: theme.text }}>{formatDate(selectedRepairOrder.dateCreate)}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                    gap: 16,
+                    marginBottom: 20,
+                  }}>
+                    <div style={{
+                      padding: 16,
+                      background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+                      borderRadius: 12,
+                      border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+                    }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
+                        Odometer In
+                      </div>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: theme.text }}>
+                        {selectedRepairOrder.odomIn ? selectedRepairOrder.odomIn.toLocaleString() : "N/A"}
+                      </div>
+                    </div>
+                    <div style={{
+                      padding: 16,
+                      background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+                      borderRadius: 12,
+                      border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+                    }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
+                        Odometer Out
+                      </div>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: theme.text }}>
+                        {selectedRepairOrder.odomOut ? selectedRepairOrder.odomOut.toLocaleString() : "N/A"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {selectedRepairOrder.folderId && (
+                    <button
+                      onClick={() => history.push(`/folders/${selectedRepairOrder.folderId}`)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "12px 20px",
+                        background: "linear-gradient(135deg, #0891b2, #0e7490)",
+                        border: "none",
+                        borderRadius: 8,
+                        color: "white",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        marginBottom: 20,
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      <FolderIcon size={16} />
+                      <span>View Folder: {selectedRepairOrder.folderName || "View Folder"}</span>
+                    </button>
+                  )}
+
+                  {selectedRepairOrder.vin && (
+                    <div style={{
+                      padding: 20,
+                      background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+                      borderRadius: 12,
+                      border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+                        <div style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 8,
+                          background: "rgba(139,92,246,0.15)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#8b5cf6",
+                        }}>
+                          <CarIcon size={18} />
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: theme.text }}>
+                            Vehicle Information
+                          </div>
+                          <div style={{ fontSize: 12, color: theme.textMuted, fontFamily: "monospace" }}>
+                            VIN: {selectedRepairOrder.vin}
+                          </div>
+                        </div>
+                      </div>
+
+                      {vinLoading ? (
+                        <div style={{ textAlign: "center", padding: 20, color: theme.textMuted }}>
+                          Looking up VIN...
+                        </div>
+                      ) : vinDetails ? (
+                        vinDetails.error && vinDetails.error !== "0" ? (
+                          <div style={{ fontSize: 13, color: theme.textMuted, textAlign: "center", padding: 20 }}>
+                            {vinDetails.error || "Unable to decode VIN"}
+                          </div>
+                        ) : (
+                          <div style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                            gap: 12,
+                          }}>
+                            {vinDetails.modelYear && (
+                              <div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                  Year
+                                </div>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: theme.text }}>
+                                  {vinDetails.modelYear}
+                                </div>
+                              </div>
+                            )}
+                            {vinDetails.make && (
+                              <div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                  Make
+                                </div>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: theme.text }}>
+                                  {vinDetails.make}
+                                </div>
+                              </div>
+                            )}
+                            {vinDetails.model && (
+                              <div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                  Model
+                                </div>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: theme.text }}>
+                                  {vinDetails.model}
+                                </div>
+                              </div>
+                            )}
+                            {vinDetails.trim && (
+                              <div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                  Trim
+                                </div>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: theme.text }}>
+                                  {vinDetails.trim}
+                                </div>
+                              </div>
+                            )}
+                            {vinDetails.bodyClass && (
+                              <div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                  Body Class
+                                </div>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: theme.text }}>
+                                  {vinDetails.bodyClass}
+                                </div>
+                              </div>
+                            )}
+                            {vinDetails.vehicleType && (
+                              <div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                  Vehicle Type
+                                </div>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: theme.text }}>
+                                  {vinDetails.vehicleType}
+                                </div>
+                              </div>
+                            )}
+                            {vinDetails.doors && (
+                              <div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                  Doors
+                                </div>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: theme.text }}>
+                                  {vinDetails.doors}
+                                </div>
+                              </div>
+                            )}
+                            {vinDetails.engineModel && (
+                              <div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                  Engine
+                                </div>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: theme.text }}>
+                                  {vinDetails.engineModel}
+                                </div>
+                              </div>
+                            )}
+                            {vinDetails.engineCylinders && (
+                              <div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                  Cylinders
+                                </div>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: theme.text }}>
+                                  {vinDetails.engineCylinders}
+                                </div>
+                              </div>
+                            )}
+                            {vinDetails.displacementL && (
+                              <div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                  Displacement
+                                </div>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: theme.text }}>
+                                  {vinDetails.displacementL}L
+                                </div>
+                              </div>
+                            )}
+                            {vinDetails.fuelTypePrimary && (
+                              <div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                  Fuel Type
+                                </div>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: theme.text }}>
+                                  {vinDetails.fuelTypePrimary}
+                                </div>
+                              </div>
+                            )}
+                            {vinDetails.manufacturer && (
+                              <div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                  Manufacturer
+                                </div>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: theme.text }}>
+                                  {vinDetails.manufacturer}
+                                </div>
+                              </div>
+                            )}
+                            {vinDetails.plantCountry && (
+                              <div>
+                                <div style={{ fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                  Plant Country
+                                </div>
+                                <div style={{ fontSize: 14, fontWeight: 500, color: theme.text }}>
+                                  {vinDetails.plantCountry}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      ) : null}
                     </div>
                   )}
                 </div>

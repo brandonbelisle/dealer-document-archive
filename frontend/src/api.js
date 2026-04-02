@@ -626,3 +626,7 @@ export async function getDcvRepairOrders(id, page = 1, pageSize = 20, filterType
   }
   return request(url);
 }
+
+export async function getDcvVinLookup(vin) {
+  return request(`/dcv/vin/${vin}`);
+}

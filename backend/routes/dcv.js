@@ -253,6 +253,52 @@ router.get('/:id', requireAuth, requirePermission('view_dcv'), async (req, res) 
   }
 });
 
+// Get VIN details from NHTSA vPIC API
+router.get('/vin/:vin', requireAuth, requirePermission('view_dcv'), async (req, res) => {
+  try {
+    const { vin } = req.params;
+    
+    if (!vin || vin.length < 11) {
+      return res.status(400).json({ error: 'Invalid VIN' });
+    }
+    
+    const fetch = (await import('node-fetch')).default;
+    const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`);
+    const data = await response.json();
+    
+    if (data.Results && data.Results.length > 0) {
+      const result = data.Results[0];
+      res.json({
+        make: result.Make || null,
+        model: result.Model || null,
+        modelYear: result.ModelYear || null,
+        bodyClass: result.BodyClass || null,
+        vehicleType: result.VehicleType || null,
+        engineModel: result.EngineModel || null,
+        engineCylinders: result.EngineCylinders || null,
+        displacementL: result.DisplacementL || null,
+        fuelTypePrimary: result.FuelTypePrimary || null,
+        manufacturer: result.Manufacturer || null,
+        plantCountry: result.PlantCountry || null,
+        plantState: result.PlantState || null,
+        trim: result.Trim || null,
+        doors: result.Doors || null,
+        error: result.ErrorCode || null,
+      });
+    } else {
+      res.json({
+        make: null,
+        model: null,
+        modelYear: null,
+        error: 'VIN not found',
+      });
+    }
+  } catch (err) {
+    console.error('[DCV] VIN lookup error:', err.message);
+    res.status(500).json({ error: 'Failed to lookup VIN' });
+  }
+});
+
 // Get repair orders for a customer
 router.get('/:id/repair-orders', requireAuth, requirePermission('view_dcv'), async (req, res) => {
   try {

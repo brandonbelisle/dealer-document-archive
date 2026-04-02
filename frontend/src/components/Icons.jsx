@@ -199,6 +199,9 @@ export const ChevronIcon = ({ open }) => (
 export const ChevronRightIcon = () =>
   I(<polyline points="9 18 15 12 9 6" />);
 
+export const ChevronLeftIcon = () =>
+  I(<polyline points="15 18 9 12 15 6" />);
+
 export const MapPinIcon = ({ size = 15 }) =>
   I(
     <>

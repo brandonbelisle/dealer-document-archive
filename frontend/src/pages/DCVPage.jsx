@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getTheme } from "../theme";
-import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon, FolderIcon, FileIcon } from "../components/Icons";
+import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon, FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon } from "../components/Icons";
 import * as api from "../api";
 
 export default function DCVPage({ t, darkMode, selectedCustomer }) {
@@ -8,18 +8,33 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
   const [activeTab, setActiveTab] = useState("timeline");
   const [timeline, setTimeline] = useState([]);
   const [timelineLoading, setTimelineLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(20);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [filterType, setFilterType] = useState(null);
 
   const customer = selectedCustomer;
 
   useEffect(() => {
     if (customer && activeTab === "timeline") {
       setTimelineLoading(true);
-      api.getDcvCustomerTimeline(customer.id)
-        .then(setTimeline)
+      api.getDcvCustomerTimeline(customer.id, page, pageSize, filterType)
+        .then((data) => {
+          setTimeline(data.events || []);
+          setTotal(data.total || 0);
+          setTotalPages(data.totalPages || 1);
+        })
         .catch(console.error)
         .finally(() => setTimelineLoading(false));
     }
-  }, [customer, activeTab]);
+  }, [customer, activeTab, page, pageSize, filterType]);
+
+  useEffect(() => {
+    if (customer) {
+      setPage(1);
+    }
+  }, [customer, filterType]);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "N/A";
@@ -43,6 +58,13 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
     { id: "timeline", label: "Timeline" },
     { id: "service", label: "Service" },
     { id: "parts", label: "Parts" },
+  ];
+
+  const filterOptions = [
+    { id: null, label: "All Time" },
+    { id: "day", label: "Last 24 Hours" },
+    { id: "month", label: "Last Month" },
+    { id: "year", label: "Last Year" },
   ];
 
   const getEventIcon = (type) => {
@@ -298,6 +320,80 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
             <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
               {activeTab === "timeline" && (
                 <div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      {filterOptions.map((filter) => (
+                        <button
+                          key={filter.id || "all"}
+                          onClick={() => { setFilterType(filter.id); setPage(1); }}
+                          style={{
+                            padding: "6px 12px",
+                            background: filterType === filter.id ? "#8b5cf6" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                            border: `1px solid ${filterType === filter.id ? "#8b5cf6" : darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                            borderRadius: 6,
+                            color: filterType === filter.id ? "#fff" : theme.textMuted,
+                            fontSize: 12,
+                            fontWeight: 500,
+                            cursor: "pointer",
+                            fontFamily: "inherit",
+                            transition: "all 0.15s",
+                          }}
+                        >
+                          {filter.label}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {total > 0 && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <span style={{ fontSize: 12, color: theme.textMuted }}>
+                          {((page - 1) * pageSize) + 1}-{Math.min(page * pageSize, total)} of {total}
+                        </span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <button
+                            onClick={() => setPage(Math.max(1, page - 1))}
+                            disabled={page === 1}
+                            style={{
+                              padding: 6,
+                              background: page === 1 ? "transparent" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                              border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                              borderRadius: 4,
+                              color: page === 1 ? theme.textMuted : theme.text,
+                              cursor: page === 1 ? "not-allowed" : "pointer",
+                              opacity: page === 1 ? 0.5 : 1,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <ChevronLeftIcon />
+                          </button>
+                          <span style={{ fontSize: 12, color: theme.text, padding: "0 8px" }}>
+                            Page {page} of {totalPages}
+                          </span>
+                          <button
+                            onClick={() => setPage(Math.min(totalPages, page + 1))}
+                            disabled={page === totalPages}
+                            style={{
+                              padding: 6,
+                              background: page === totalPages ? "transparent" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                              border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                              borderRadius: 4,
+                              color: page === totalPages ? theme.textMuted : theme.text,
+                              cursor: page === totalPages ? "not-allowed" : "pointer",
+                              opacity: page === totalPages ? 0.5 : 1,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <ChevronRightIcon />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   {timelineLoading ? (
                     <div style={{ textAlign: "center", padding: 60, color: theme.textMuted }}>
                       Loading timeline...
@@ -317,7 +413,7 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
                         <ClockIcon size={28} style={{ color: "#8b5cf6" }} />
                       </div>
                       <div style={{ fontSize: 15, fontWeight: 600, color: theme.text, marginBottom: 8 }}>
-                        No Activity Yet
+                        {filterType ? `No Activity in ${filterOptions.find(f => f.id === filterType)?.label || "Selected Period"}` : "No Activity Yet"}
                       </div>
                       <div style={{ fontSize: 13, color: theme.textMuted }}>
                         Timeline events will appear here when folders or files are created for this customer.

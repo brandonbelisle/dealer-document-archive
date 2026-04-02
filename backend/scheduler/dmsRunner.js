@@ -66,7 +66,7 @@ async function runDmsTask(taskType, queryConfig) {
       const dateColumn = cfg.dateColumn || 'DateOpen';
       const lookbackHours = cfg.lookbackHours || 48;
 
-      const query = `SELECT SlsId, ${dateColumn}, CusId, EmpId FROM dbo.${table} WHERE ${dateColumn} >= DATEADD(hour, -${lookbackHours}, GETDATE())`;
+      const query = `SELECT SlsId, ${dateColumn}, CusId, EmpId, Vin, OdomIn, OdomOut, Tag, EmpIdWriter, DateCreate FROM dbo.${table} WHERE ${dateColumn} >= DATEADD(hour, -${lookbackHours}, GETDATE())`;
       const dmsResult = await pool.request().query(query);
       const records = dmsResult.recordset;
 
@@ -89,8 +89,13 @@ async function runDmsTask(taskType, queryConfig) {
       `, ['Service']);
       const existingFolderNames = new Set(existingFolders.map(f => `${f.department_id}:${f.name}`));
 
+      // Get existing repair orders to avoid duplicates
+      const [existingRepairOrders] = await db.execute('SELECT sls_id FROM service_repairorders');
+      const existingSlsIds = new Set(existingRepairOrders.map(r => r.sls_id));
+
       let createdCount = 0;
       let skippedCount = 0;
+      let repairOrderCount = 0;
       const errors = [];
 
       for (const record of records) {
@@ -102,6 +107,12 @@ async function runDmsTask(taskType, queryConfig) {
 
         const cusId = record.CusId ? String(record.CusId).substring(0, 100) : null;
         const empId = record.EmpId ? String(record.EmpId).substring(0, 100) : null;
+        const vin = record.Vin ? String(record.Vin).substring(0, 100) : null;
+        const odomIn = record.OdomIn ? parseInt(record.OdomIn) : null;
+        const odomOut = record.OdomOut ? parseInt(record.OdomOut) : null;
+        const tag = record.Tag ? String(record.Tag).substring(0, 50) : null;
+        const empIdWriter = record.EmpIdWriter ? String(record.EmpIdWriter).substring(0, 100) : null;
+        const dateCreate = record.DateCreate || record[dateColumn] || null;
 
         const locationCode = slsId.substring(0, 4);
         const locationId = locationMap[locationCode];
@@ -141,9 +152,12 @@ async function runDmsTask(taskType, queryConfig) {
           [deptId, slsId]
         );
 
+        let folderId = null;
+
         if (existing.length > 0) {
           const existingFolder = existing[0];
           existingFolderNames.add(folderKey);
+          folderId = existingFolder.id;
           
           // If cus_id or emp_id is null/empty in MySQL, update from DMS
           if ((!existingFolder.cus_id || !existingFolder.emp_id) && (cusId || empId)) {
@@ -153,22 +167,36 @@ async function runDmsTask(taskType, queryConfig) {
             );
           }
           skippedCount++;
-          continue;
+        } else {
+          folderId = uuidv4();
+          await db.execute(
+            'INSERT INTO folders (id, name, location_id, department_id, cus_id, emp_id, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
+            [folderId, slsId, locationId, deptId, cusId, empId]
+          );
+          
+          existingFolderNames.add(folderKey);
+          createdCount++;
         }
 
-        const folderId = uuidv4();
-        await db.execute(
-          'INSERT INTO folders (id, name, location_id, department_id, cus_id, emp_id, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
-          [folderId, slsId, locationId, deptId, cusId, empId]
-        );
-        
-        existingFolderNames.add(folderKey);
-        createdCount++;
+        // Create or update repair order record
+        if (!existingSlsIds.has(slsId)) {
+          const repairOrderId = uuidv4();
+          try {
+            await db.execute(
+              `INSERT INTO service_repairorders (id, sls_id, vin, odom_in, odom_out, tag, cus_id, emp_id, emp_id_writer, date_create, folder_id, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+              [repairOrderId, slsId, vin, odomIn, odomOut, tag, cusId, empId, empIdWriter, dateCreate, folderId]
+            );
+            repairOrderCount++;
+          } catch (insertErr) {
+            console.error(`[DMS_TO_DDA] Failed to insert repair order ${slsId}:`, insertErr.message);
+          }
+        }
       }
 
       result.success = true;
       result.count = createdCount;
-      result.message = `Successfully processed ${records.length} records. Created ${createdCount} folders, skipped ${skippedCount} existing/invalid.`;
+      result.message = `Successfully processed ${records.length} records. Created ${createdCount} folders, ${repairOrderCount} repair orders, skipped ${skippedCount} existing/invalid.`;
       if (errors.length > 0) {
         result.message += ` Errors: ${errors.slice(0, 3).join('; ')}`;
       }

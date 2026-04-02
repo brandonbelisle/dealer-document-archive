@@ -73,8 +73,19 @@ router.get('/search', requireAuth, requirePermission('view_dcv'), async (req, re
 router.get('/:id/timeline', requireAuth, requirePermission('view_dcv'), async (req, res) => {
   try {
     const { id } = req.params;
+    const { page = 1, pageSize = 20, filterType } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(pageSize);
     
-    const events = [];
+    // Build date filter condition
+    let dateCondition = '';
+    const now = new Date();
+    if (filterType === 'day') {
+      dateCondition = ` AND timestamp >= DATE_SUB(NOW(), INTERVAL 1 DAY)`;
+    } else if (filterType === 'month') {
+      dateCondition = ` AND timestamp >= DATE_SUB(NOW(), INTERVAL 1 MONTH)`;
+    } else if (filterType === 'year') {
+      dateCondition = ` AND timestamp >= DATE_SUB(NOW(), INTERVAL 1 YEAR)`;
+    }
     
     // Get the cus_id first to avoid collation issues
     const [customerRows] = await db.execute(
@@ -83,18 +94,20 @@ router.get('/:id/timeline', requireAuth, requirePermission('view_dcv'), async (r
     );
     
     if (customerRows.length === 0) {
-      return res.json([]);
+      return res.json({ events: [], total: 0, page: parseInt(page), pageSize: parseInt(pageSize) });
     }
     
     const cusId = customerRows[0].cus_id;
     
     if (!cusId) {
-      return res.json([]);
+      return res.json({ events: [], total: 0, page: parseInt(page), pageSize: parseInt(pageSize) });
     }
+    
+    const events = [];
     
     // Get folders with cus_id matching the customer
     const [folders] = await db.execute(
-      `SELECT f.id, f.name, f.created_at, l.name as location_name, d.name as department_name, 'folder' as event_type
+      `SELECT f.id, f.name, f.created_at as timestamp, l.name as location_name, d.name as department_name, 'folder' as event_type
        FROM folders f
        LEFT JOIN locations l ON f.location_id = l.id
        LEFT JOIN departments d ON f.department_id = d.id
@@ -109,7 +122,7 @@ router.get('/:id/timeline', requireAuth, requirePermission('view_dcv'), async (r
         type: 'folder_created',
         title: 'Folder Created',
         description: `${folder.name} - ${folder.department_name || 'Department'} at ${folder.location_name || 'Location'}`,
-        timestamp: folder.created_at,
+        timestamp: folder.timestamp,
         metadata: {
           folderId: folder.id,
           folderName: folder.name,
@@ -121,13 +134,12 @@ router.get('/:id/timeline', requireAuth, requirePermission('view_dcv'), async (r
     
     // Get files in folders with cus_id matching the customer
     const [files] = await db.execute(
-      `SELECT fi.id, fi.name, fi.uploaded_at as created_at, fi.folder_id, f.name as folder_name, l.name as location_name, 'file' as event_type
+      `SELECT fi.id, fi.name, fi.uploaded_at as timestamp, fi.folder_id, f.name as folder_name, l.name as location_name, 'file' as event_type
        FROM files fi
        JOIN folders f ON fi.folder_id = f.id
        LEFT JOIN locations l ON f.location_id = l.id
        WHERE f.cus_id = ? AND fi.status != 'deleted'
-       ORDER BY fi.uploaded_at DESC
-       LIMIT 100`,
+       ORDER BY fi.uploaded_at DESC`,
       [cusId]
     );
     
@@ -137,7 +149,7 @@ router.get('/:id/timeline', requireAuth, requirePermission('view_dcv'), async (r
         type: 'file_uploaded',
         title: 'File Uploaded',
         description: `${file.name} in ${file.folder_name || 'Folder'}`,
-        timestamp: file.created_at,
+        timestamp: file.timestamp,
         metadata: {
           fileId: file.id,
           fileName: file.name,
@@ -151,9 +163,35 @@ router.get('/:id/timeline', requireAuth, requirePermission('view_dcv'), async (r
     // Sort all events by timestamp (newest first)
     events.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     
-    console.log(`[DCV] Timeline for customer ${id}: ${events.length} events`);
+    // Apply date filter
+    let filteredEvents = events;
+    if (dateCondition) {
+      const nowTime = now.getTime();
+      let cutoffTime;
+      if (filterType === 'day') {
+        cutoffTime = nowTime - (24 * 60 * 60 * 1000);
+      } else if (filterType === 'month') {
+        cutoffTime = nowTime - (30 * 24 * 60 * 60 * 1000);
+      } else if (filterType === 'year') {
+        cutoffTime = nowTime - (365 * 24 * 60 * 60 * 1000);
+      }
+      if (cutoffTime) {
+        filteredEvents = events.filter(e => new Date(e.timestamp).getTime() >= cutoffTime);
+      }
+    }
     
-    res.json(events);
+    const total = filteredEvents.length;
+    const paginatedEvents = filteredEvents.slice(offset, offset + parseInt(pageSize));
+    
+    console.log(`[DCV] Timeline for customer ${id}: ${total} events (page ${page})`);
+    
+    res.json({
+      events: paginatedEvents,
+      total,
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+      totalPages: Math.ceil(total / parseInt(pageSize)),
+    });
   } catch (err) {
     console.error('[DCV] Timeline error:', err);
     res.status(500).json({ error: 'Internal server error' });

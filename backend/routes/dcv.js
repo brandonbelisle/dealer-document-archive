@@ -262,7 +262,6 @@ router.get('/vin/:vin', requireAuth, requirePermission('view_dcv'), async (req, 
       return res.status(400).json({ error: 'Invalid VIN' });
     }
     
-    const fetch = (await import('node-fetch')).default;
     const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`);
     const data = await response.json();
     

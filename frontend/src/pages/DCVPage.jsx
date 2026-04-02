@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom";
 import { getTheme } from "../theme";
 import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon, FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon, WrenchIcon, CarIcon } from "../components/Icons";
 import * as api from "../api";
 
-export default function DCVPage({ t, darkMode, selectedCustomer }) {
+export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setActiveFolderId }) {
   const theme = getTheme(darkMode);
   const [activeTab, setActiveTab] = useState("timeline");
   
@@ -26,7 +25,6 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
   const [selectedRepairOrder, setSelectedRepairOrder] = useState(null);
   const [vinDetails, setVinDetails] = useState(null);
   const [vinLoading, setVinLoading] = useState(false);
-  const history = useHistory();
   
   const pageSize = 20;
 
@@ -796,7 +794,10 @@ export default function DCVPage({ t, darkMode, selectedCustomer }) {
 
                   {selectedRepairOrder.folderId && (
                     <button
-                      onClick={() => history.push(`/folders/${selectedRepairOrder.folderId}`)}
+                      onClick={() => {
+                        setActiveFolderId(selectedRepairOrder.folderId);
+                        setPage("folder-detail");
+                      }}
                       style={{
                         display: "flex",
                         alignItems: "center",

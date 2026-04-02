@@ -1209,7 +1209,7 @@ const handleDeptDrop = useCallback(async (e) => {
 
 {page === "landing" && <LandingPage setPage={setPage} t={t} darkMode={darkMode} loggedInUser={loggedInUser} onOpenHelpTicket={() => setShowHelpTicketModal(true)} />}
 {page === "cht" && <CHTDashboardPage loggedInUser={loggedInUser} t={t} darkMode={darkMode} openInquiryId={chtInquiryIdFromAlert} onInquiryOpened={() => setChtInquiryIdFromAlert(null)} />}
-      {page === "dcv" && <DCVPage t={t} darkMode={darkMode} selectedCustomer={selectedCustomer} />}
+      {page === "dcv" && <DCVPage t={t} darkMode={darkMode} selectedCustomer={selectedCustomer} setPage={setPage} setActiveFolderId={setActiveFolderId} />}
       {page === "settings" && <SettingsPage darkMode={darkMode} setDarkMode={setDarkMode} t={t} />}
       {page === "dashboard" && <DashboardPage dashboardData={dashboardData} loggedInUser={loggedInUser} locations={locations} departments={departments} setPage={setPage} setActiveFolderId={setActiveFolderId} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setViewingFileId={setViewingFileId} t={t} darkMode={darkMode} />}
       {page === "folders-browse" && <FoldersBrowsePage locations={locations} departments={departments} deptsInLocation={deptsInLocation} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setFolderSearch={setFolderSearch} setSelectedFile={setSelectedFile} setPage={setPage} subscriptions={subscriptions} setSubscriptions={setSubscriptions} t={t} darkMode={darkMode} />}

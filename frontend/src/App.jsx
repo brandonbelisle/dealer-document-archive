@@ -758,6 +758,9 @@ const handleDeptDrop = useCallback(async (e) => {
       return;
     }
 
+    // Convert items to array first (DataTransferItemList gets consumed after reading)
+    const itemsArray = Array.from(items);
+    
     const folderCache = new Map();
     
     const getOrCreateFolder = async (name, parentId) => {
@@ -778,15 +781,19 @@ const handleDeptDrop = useCallback(async (e) => {
       // Try to create the folder
       try {
         const created = await api.createFolder(name, activeLocation, activeDepartment, parentId);
-        setFolders((p) => [...p, {
-          id: created.id,
-          name: created.name,
-          locationId: created.location_id || created.locationId,
-          departmentId: created.department_id || created.departmentId,
-          parentId: created.parent_id || created.parentId || null,
-          createdAt: created.created_at
-        }]);
         folderCache.set(cacheKey, created.id);
+        // Only add to state if not already present
+        setFolders((p) => {
+          if (p.some(f => f.id === created.id)) return p;
+          return [...p, {
+            id: created.id,
+            name: created.name,
+            locationId: created.location_id || created.locationId,
+            departmentId: created.department_id || created.departmentId,
+            parentId: created.parent_id || created.parentId || null,
+            createdAt: created.created_at
+          }];
+        });
         return created.id;
       } catch (createErr) {
         // If creation failed, try to find the existing folder one more time
@@ -805,7 +812,7 @@ const handleDeptDrop = useCallback(async (e) => {
       }
     };
 
-    for (const item of items) {
+    for (const item of itemsArray) {
       const entry = item.webkitGetAsEntry?.() || item.getAsEntry?.();
       if (!entry) continue;
 

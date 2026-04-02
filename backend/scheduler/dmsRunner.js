@@ -380,6 +380,71 @@ async function runDmsTask(taskType, queryConfig) {
       result.success = true;
       result.count = createdCount + updatedCount;
       result.message = `Processed ${records.length} DMS records (last 24 hours). Created: ${createdCount}, Updated: ${updatedCount}, Skipped: ${skippedCount}`;
+    } else if (taskType === 'FOLDER_BACKFILL') {
+      // Get all folders that don't have cus_id or emp_id set
+      const [folders] = await db.execute(
+        'SELECT id, name FROM folders WHERE cus_id IS NULL OR emp_id IS NULL'
+      );
+      
+      if (folders.length === 0) {
+        result.success = true;
+        result.message = 'No folders need backfilling - all folders already have CusId and EmpId.';
+        return result;
+      }
+      
+      console.log(`[FOLDER_BACKFILL] Found ${folders.length} folders to backfill`);
+      
+      // Query DMS for all SlsId, CusId, EmpId from SVSLS
+      const table = 'SVSLS';
+      const query = `SELECT SlsId, CusId, EmpId FROM dbo.${table}`;
+      const dmsResult = await pool.request().query(query);
+      
+      // Build a map of SlsId -> { CusId, EmpId }
+      const dmsData = new Map();
+      for (const record of dmsResult.recordset) {
+        const slsId = String(record.SlsId || '').trim();
+        if (slsId) {
+          dmsData.set(slsId, {
+            cusId: record.CusId ? String(record.CusId).substring(0, 100) : null,
+            empId: record.EmpId ? String(record.EmpId).substring(0, 100) : null,
+          });
+        }
+      }
+      
+      console.log(`[FOLDER_BACKFILL] Loaded ${dmsData.size} records from DMS`);
+      
+      let updatedCount = 0;
+      let notFoundCount = 0;
+      const notFoundIds = [];
+      
+      // Update each folder with CusId and EmpId
+      for (const folder of folders) {
+        const slsId = String(folder.name || '').trim();
+        const dmsInfo = dmsData.get(slsId);
+        
+        if (dmsInfo) {
+          await db.execute(
+            'UPDATE folders SET cus_id = ?, emp_id = ?, updated_at = NOW() WHERE id = ?',
+            [dmsInfo.cusId, dmsInfo.empId, folder.id]
+          );
+          updatedCount++;
+        } else {
+          notFoundCount++;
+          if (notFoundIds.length < 10) {
+            notFoundIds.push(slsId);
+          }
+        }
+      }
+      
+      result.success = true;
+      result.count = updatedCount;
+      result.message = `Backfilled ${updatedCount} folders with CusId and EmpId from DMS.`;
+      if (notFoundCount > 0) {
+        result.message += ` ${notFoundCount} folders had no matching DMS record.`;
+        if (notFoundIds.length > 0) {
+          result.message += ` Examples: ${notFoundIds.join(', ')}`;
+        }
+      }
     } else {
       result.message = `Unknown task type: ${taskType}`;
     }

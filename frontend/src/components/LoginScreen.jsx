@@ -16,6 +16,7 @@ export default function LoginScreen({
   const [ssoEnabled, setSsoEnabled] = useState(false);
   const [allowLocalLogin, setAllowLocalLogin] = useState(true);
   const [ssoLoading, setSsoLoading] = useState(false);
+  const [logoUrl, setLogoUrl] = useState(null);
 
   // Check SSO status on mount
   useEffect(() => {
@@ -30,6 +31,13 @@ export default function LoginScreen({
     };
     checkSsoStatus();
   }, []);
+
+  // Fetch logo based on dark mode
+  useEffect(() => {
+    const logoType = darkMode ? "dark" : "light";
+    const url = `/api/settings/logo/${logoType}?t=${Date.now()}`;
+    setLogoUrl(url);
+  }, [darkMode]);
 
   // Handle SSO login redirect
   const handleSsoLogin = () => {
@@ -106,24 +114,38 @@ export default function LoginScreen({
         }}
       >
         <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <div
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 14,
-              margin: "0 auto 16px",
-              background: `linear-gradient(135deg,${t.accent},${t.accentDark})`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              fontSize: 16,
-              fontWeight: 800,
-              letterSpacing: "-0.03em",
-            }}
-          >
-            DDA
-          </div>
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt="Logo"
+              onError={() => setLogoUrl(null)}
+              style={{
+                height: 52,
+                maxWidth: 200,
+                objectFit: "contain",
+                marginBottom: 16,
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 14,
+                margin: "0 auto 16px",
+                background: `linear-gradient(135deg,${t.accent},${t.accentDark})`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                fontSize: 16,
+                fontWeight: 800,
+                letterSpacing: "-0.03em",
+              }}
+            >
+              DDA
+            </div>
+          )}
           <h1
             style={{
               fontSize: 24,

@@ -11,7 +11,6 @@ import {
   ChevronRightIcon,
   TrashIcon,
   ChevronDown,
-  ChevronUp,
   UploadCloudIcon,
 } from "../components/Icons";
 
@@ -466,7 +465,13 @@ const withCounts = filtered.map((folder) => ({
                   }}
                 >
                   {pageSize} per page
-                  {showPageSizeDropdown ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                  {showPageSizeDropdown ? (
+                    <span style={{ display: 'inline-flex', transform: 'rotate(180deg)' }}>
+                      <ChevronDown />
+                    </span>
+                  ) : (
+                    <ChevronDown />
+                  )}
                 </button>
                 {showPageSizeDropdown && (
                   <div

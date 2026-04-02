@@ -175,7 +175,7 @@ export const APP_PERMISSIONS = {
   },
 };
 
-export const APP_PERMISSION_TABS = ["dda", "dcv", "cht", "admin"];
+export const APP_PERMISSION_TABS = ["dda", "dcv", "cht", "help", "admin"];
 
 // Legacy permission labels (for backward compatibility)
 export const PERMISSION_LABELS = {

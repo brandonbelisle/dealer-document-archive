@@ -5,7 +5,7 @@ import PermToggle from "../components/ui/PermToggle";
 import GroupAccessEditor from "../components/GroupAccessEditor";
 import AddUserModal from "../components/modals/AddUserModal";
 import EditUserModal from "../components/modals/EditUserModal";
-import { ADMIN_MENU, PERMISSION_LABELS, APP_PERMISSIONS } from "../constants";
+import { ADMIN_MENU, PERMISSION_LABELS, APP_PERMISSIONS, APP_PERMISSION_TABS } from "../constants";
 import {
   PlusIcon,
   XIcon,
@@ -3324,7 +3324,7 @@ export default function AdminPage({
                         </div>
                       </div>
                       <div style={{ padding: "12px 20px", borderBottom: `1px solid ${t.border}`, display: "flex", gap: 6, overflowX: "auto" }}>
-                        {["dda", "cht", "help", "admin", "custom"].map((appId) => {
+                        {[...APP_PERMISSION_TABS, "custom"].map((appId) => {
                           const app = APP_PERMISSIONS[appId];
                           const isActive = permTab === appId;
                           const appColor = appId === "custom" ? "#8b5cf6" : app?.color || "#6b7280";

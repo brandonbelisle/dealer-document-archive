@@ -1960,6 +1960,24 @@ function DmsSection({ t, darkMode, addToast }) {
     }
   };
 
+  const handleUpdateScheduleDay = async (scheduleId, scheduleDay) => {
+    try {
+      await api.updateDmsSchedule(scheduleId, { scheduleDay });
+      setSchedules(prev => prev.map(s => s.id === scheduleId ? { ...s, scheduleDay } : s));
+    } catch (err) {
+      addToast('Error', err.message || 'Failed to update schedule day', 5000, 'error');
+    }
+  };
+
+  const handleUpdateScheduleTime = async (scheduleId, scheduleTime) => {
+    try {
+      await api.updateDmsSchedule(scheduleId, { scheduleTime });
+      setSchedules(prev => prev.map(s => s.id === scheduleId ? { ...s, scheduleTime } : s));
+    } catch (err) {
+      addToast('Error', err.message || 'Failed to update schedule time', 5000, 'error');
+    }
+  };
+
   const handleRunSchedule = async (scheduleId) => {
     try {
       const result = await api.runDmsSchedule(scheduleId);
@@ -2206,16 +2224,22 @@ function DmsSection({ t, darkMode, addToast }) {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 12, flexWrap: 'wrap' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted }}>Interval (minutes):</label>
-                    <input
-                      type="number"
-                      value={schedule.intervalMinutes || 0}
-                      onChange={(e) => handleUpdateInterval(schedule.id, parseInt(e.target.value) || 0)}
-                      min={0}
-                      max={1440}
+                    <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted }}>Scheduling:</label>
+                    <select
+                      value={schedule.scheduleDay && schedule.scheduleTime ? 'weekly' : 'interval'}
+                      onChange={(e) => {
+                        if (e.target.value === 'weekly') {
+                          handleUpdateScheduleDay(schedule.id, 'mon');
+                          handleUpdateScheduleTime(schedule.id, '09:00');
+                          handleUpdateInterval(schedule.id, 0);
+                        } else {
+                          handleUpdateScheduleDay(schedule.id, null);
+                          handleUpdateScheduleTime(schedule.id, null);
+                          handleUpdateInterval(schedule.id, 30);
+                        }
+                      }}
                       disabled={!schedule.enabled}
                       style={{
-                        width: 80,
                         padding: '6px 10px',
                         fontSize: 13,
                         border: `1px solid ${t.border}`,
@@ -2224,13 +2248,92 @@ function DmsSection({ t, darkMode, addToast }) {
                         color: t.text,
                         fontFamily: 'inherit',
                         opacity: schedule.enabled ? 1 : 0.5,
+                        cursor: schedule.enabled ? 'pointer' : 'not-allowed',
                       }}
-                    />
-                    <span style={{ fontSize: 11, color: t.textMuted }}>{schedule.intervalMinutes === 0 ? '(manual only)' : ''}</span>
+                    >
+                      <option value="interval">Interval (minutes)</option>
+                      <option value="weekly">Weekly (day/time)</option>
+                    </select>
                   </div>
+                  
+                  {schedule.scheduleDay && schedule.scheduleTime ? (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted }}>Day:</label>
+                        <select
+                          value={schedule.scheduleDay || 'mon'}
+                          onChange={(e) => handleUpdateScheduleDay(schedule.id, e.target.value)}
+                          disabled={!schedule.enabled}
+                          style={{
+                            padding: '6px 10px',
+                            fontSize: 13,
+                            border: `1px solid ${t.border}`,
+                            borderRadius: 6,
+                            background: schedule.enabled ? (darkMode ? '#1a1a1a' : '#fff') : (darkMode ? '#2a2a2a' : '#f5f5f5'),
+                            color: t.text,
+                            fontFamily: 'inherit',
+                            opacity: schedule.enabled ? 1 : 0.5,
+                            cursor: schedule.enabled ? 'pointer' : 'not-allowed',
+                          }}
+                        >
+                          <option value="sun">Sunday</option>
+                          <option value="mon">Monday</option>
+                          <option value="tue">Tuesday</option>
+                          <option value="wed">Wednesday</option>
+                          <option value="thu">Thursday</option>
+                          <option value="fri">Friday</option>
+                          <option value="sat">Saturday</option>
+                        </select>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted }}>Time:</label>
+                        <input
+                          type="time"
+                          value={schedule.scheduleTime || '09:00'}
+                          onChange={(e) => handleUpdateScheduleTime(schedule.id, e.target.value)}
+                          disabled={!schedule.enabled}
+                          style={{
+                            width: 100,
+                            padding: '6px 10px',
+                            fontSize: 13,
+                            border: `1px solid ${t.border}`,
+                            borderRadius: 6,
+                            background: schedule.enabled ? (darkMode ? '#1a1a1a' : '#fff') : (darkMode ? '#2a2a2a' : '#f5f5f5'),
+                            color: t.text,
+                            fontFamily: 'inherit',
+                            opacity: schedule.enabled ? 1 : 0.5,
+                          }}
+                        />
+                        <span style={{ fontSize: 10, color: t.textMuted }}>(server time)</span>
+                      </div>
+                    </> ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: t.textMuted }}>Interval:</label>
+                      <input
+                        type="number"
+                        value={schedule.intervalMinutes || 0}
+                        onChange={(e) => handleUpdateInterval(schedule.id, parseInt(e.target.value) || 0)}
+                        min={0}
+                        max={1440}
+                        disabled={!schedule.enabled}
+                        style={{
+                          width: 80,
+                          padding: '6px 10px',
+                          fontSize: 13,
+                          border: `1px solid ${t.border}`,
+                          borderRadius: 6,
+                          background: schedule.enabled ? (darkMode ? '#1a1a1a' : '#fff') : (darkMode ? '#2a2a2a' : '#f5f5f5'),
+                          color: t.text,
+                          fontFamily: 'inherit',
+                          opacity: schedule.enabled ? 1 : 0.5,
+                        }}
+                      />
+                      <span style={{ fontSize: 11, color: t.textMuted }}>minutes{schedule.intervalMinutes === 0 ? ' (manual only)' : ''}</span>
+                    </div>
+                  )}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12, flexWrap: 'wrap' }}>
                   <div style={{ fontSize: 12, color: t.textMuted }}>
                     <span style={{ fontWeight: 600 }}>Last run:</span>{' '}
                     <span style={{ 
@@ -2244,6 +2347,11 @@ function DmsSection({ t, darkMode, addToast }) {
                   {schedule.lastRunCount > 0 && (
                     <div style={{ fontSize: 12, color: t.textMuted }}>
                       <span style={{ fontWeight: 600 }}>Created:</span> {schedule.lastRunCount} folders
+                    </div>
+                  )}
+                  {schedule.scheduleDay && schedule.scheduleTime && (
+                    <div style={{ fontSize: 12, color: '#8b5cf6' }}>
+                      <span style={{ fontWeight: 600 }}>Schedule:</span> Every {schedule.scheduleDay.charAt(0).toUpperCase() + schedule.scheduleDay.slice(1)} at {schedule.scheduleTime}
                     </div>
                   )}
                 </div>

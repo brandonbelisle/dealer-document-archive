@@ -226,8 +226,16 @@ router.post('/test', requireAuth, requirePermission('manageSettings'), async (re
 router.get('/schedules', requireAuth, requirePermission('manageSettings'), async (req, res) => {
   try {
     const [rows] = await db.execute(
-      'SELECT id, name, description, task_type, query_config, enabled, interval_minutes, last_run_at, last_run_status, last_run_message, last_run_count, created_at, updated_at FROM dms_schedules ORDER BY name'
+      'SELECT id, name, description, task_type, query_config, enabled, interval_minutes, schedule_day, schedule_time, last_run_at, last_run_status, last_run_message, last_run_count, created_at, updated_at FROM dms_schedules ORDER BY name'
     );
+    console.log(`[Scheduler] API: Loaded ${rows.length} scheduled task(s)`);
+    rows.forEach(row => {
+      if (row.schedule_day && row.schedule_time) {
+        console.log(`[Scheduler] API:   - "${row.name}" (ID: ${row.id}, enabled: ${row.enabled ? 'yes' : 'no'}, scheduled: ${row.schedule_day} ${row.schedule_time}, lastRun: ${row.last_run_at || 'never'})`);
+      } else {
+        console.log(`[Scheduler] API:   - "${row.name}" (ID: ${row.id}, enabled: ${row.enabled ? 'yes' : 'no'}, interval: ${row.interval_minutes || 0}min, lastRun: ${row.last_run_at || 'never'})`);
+      }
+    });
     res.json(rows.map(row => ({
       id: row.id,
       name: row.name,
@@ -236,6 +244,8 @@ router.get('/schedules', requireAuth, requirePermission('manageSettings'), async
       queryConfig: typeof row.query_config === 'string' ? JSON.parse(row.query_config) : row.query_config,
       enabled: Boolean(row.enabled),
       intervalMinutes: row.interval_minutes || 0,
+      scheduleDay: row.schedule_day,
+      scheduleTime: row.schedule_time,
       lastRunAt: row.last_run_at,
       lastRunStatus: row.last_run_status,
       lastRunMessage: row.last_run_message,
@@ -254,7 +264,7 @@ router.get('/schedules', requireAuth, requirePermission('manageSettings'), async
 router.put('/schedules/:id', requireAuth, requirePermission('manageSettings'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { enabled, intervalMinutes } = req.body;
+    const { enabled, intervalMinutes, scheduleDay, scheduleTime } = req.body;
 
     const updates = [];
     const params = [];
@@ -267,6 +277,14 @@ router.put('/schedules/:id', requireAuth, requirePermission('manageSettings'), a
       updates.push('interval_minutes = ?');
       params.push(intervalMinutes);
     }
+    if (scheduleDay !== undefined) {
+      updates.push('schedule_day = ?');
+      params.push(scheduleDay);
+    }
+    if (scheduleTime !== undefined) {
+      updates.push('schedule_time = ?');
+      params.push(scheduleTime);
+    }
 
     if (updates.length === 0) {
       return res.json({ success: true });
@@ -277,6 +295,8 @@ router.put('/schedules/:id', requireAuth, requirePermission('manageSettings'), a
       `UPDATE dms_schedules SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
       params
     );
+
+    console.log(`[Scheduler] API: Updated schedule ID ${id}: ${updates.join(', ')}`);
 
     await logAudit('DMS Schedule Updated', `Schedule ID: ${id}`, req.user, req.ip);
     res.json({ success: true });
@@ -299,9 +319,12 @@ router.post('/schedules/:id/run', requireAuth, requirePermission('manageSettings
     }
     
     const schedule = schedules[0];
+    console.log(`[Scheduler] API: Manual run requested for "${schedule.name}" (ID: ${schedule.id}, type: ${schedule.task_type})`);
     
     // Run the task
     const result = await runDmsTask(schedule.task_type, schedule.query_config);
+    
+    console.log(`[Scheduler] API: Manual run of "${schedule.name}" completed: ${result.success ? 'success' : 'failed'} - ${result.message} (${result.count || 0} records)`);
     
     // Update last run info
     await db.execute(

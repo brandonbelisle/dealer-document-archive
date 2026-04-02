@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SunIcon, MoonIcon, UserIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon, TicketIcon } from "./Icons";
+import { UserIcon, ShieldIcon, GearIcon, LogOutIcon, ChevronDown, BellIcon, AppsIcon, HomeIcon, TicketIcon } from "./Icons";
 import AlertsDropdown from "./AlertsDropdown";
 import * as api from "../api";
 
@@ -15,10 +15,6 @@ export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, s
     accent: dcvAccent,
     accentSoft: darkMode ? "rgba(139,92,246,0.15)" : "rgba(139,92,246,0.08)",
     textMuted: darkMode ? "#94a3b8" : "#57606a",
-    text: darkMode ? "#e5e7eb" : "#1f2937",
-    border: darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
-    surface: darkMode ? "#0d1117" : "#fff",
-    navActive: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
   };
 
   const apps = [
@@ -26,7 +22,7 @@ export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, s
     { id: "dda", name: "Dealer Document Archive", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#0891b2,#0e7490)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>DDA</div>
     ), onClick: () => { setPage("dashboard"); setShowAppsDropdown(false); } },
-    { id: "dcv", name: "Dealer Customer Vision", permission: "view_dcv", icon: (
+    { id: "dcv", name: "Dealer Customer Vision", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${dcvAccent},${dcvAccentDark})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>DCV</div>
     ), onClick: () => { setPage("dcv"); setShowAppsDropdown(false); } },
     { id: "cht", name: "Credit Hold Tracker", icon: (
@@ -50,9 +46,8 @@ export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, s
     ...(isAdmin ? [{ id: "admin", name: "Admin Center", icon: <GearIcon size={20} />, onClick: () => { setPage("admin"); setAdminSection?.("users"); setShowAppsDropdown(false); } }] : []),
   ];
 
-  const filteredApps = apps.filter(app => !app.permission || loggedInUser?.permissions?.includes(app.permission));
-
   const navActiveBg = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)";
+  const surfaceBg = darkMode ? "rgba(15,17,20,0.98)" : "#fff";
 
   useEffect(() => {
     api.getCustomApps().then(setCustomApps).catch(() => {});
@@ -69,129 +64,40 @@ export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, s
   }, [showAppsDropdown]);
 
   return (
-    <nav style={{
-      borderBottom: `1px solid ${t.border}`,
+    <div style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 55,
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      padding: "0 24px",
-      height: 54,
+      padding: "0 20px",
+      gap: 12,
+      borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
+      background: darkMode ? "rgba(13,17,23,0.95)" : "rgba(255,255,255,0.95)",
       backdropFilter: "blur(12px)",
-      background: darkMode ? "rgba(15,17,20,0.92)" : "rgba(240,237,232,0.88)",
-      position: "sticky",
-      top: 0,
       zIndex: 100,
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div onClick={() => setPage("landing")} style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer" }}>
-          <div style={{
-            width: 28,
-            height: 28,
-            borderRadius: 7,
-            background: `linear-gradient(135deg,${dcvAccent},${dcvAccentDark})`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            fontSize: 9,
-            fontWeight: 800,
-            letterSpacing: "-0.02em",
-          }}>
-            DCV
-          </div>
-          <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.03em", color: t.text }}>
-            Dealer Customer Vision
-          </span>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, color: darkMode ? "#e5e7eb" : "#1f2937", cursor: "pointer" }} onClick={() => setPage("landing")}>
+        <div style={{
+          width: 24,
+          height: 24,
+          borderRadius: 6,
+          background: `linear-gradient(135deg,${dcvAccent},${dcvAccentDark})`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          fontSize: 8,
+          fontWeight: 800,
+        }}>
+          DCV
         </div>
+        <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.03em" }}>Dealer Customer Vision</span>
       </div>
-
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0, position: "relative", zIndex: 2 }}>
-        {loggedInUser && (
-          <div style={{ position: "relative" }}>
-            <AlertsDropdown
-              darkMode={darkMode}
-              currentUserId={loggedInUser?.id}
-              onNavigate={(alert) => {
-                if (alert.type === 'cht_inquiry_assigned' || alert.type === 'cht_inquiry_updated') {
-                  setPage("cht");
-                }
-              }}
-              onShowToast={() => {}}
-            />
-          </div>
-        )}
-
-        <div style={{ position: "relative" }}>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowAppsDropdown(!showAppsDropdown);
-            }}
-            style={{
-              background: showAppsDropdown ? navActiveBg : "transparent",
-              border: "none",
-              borderRadius: 8,
-              padding: "6px 10px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              color: t.textMuted,
-              fontFamily: "inherit",
-              fontSize: 12,
-              fontWeight: 500,
-            }}
-          >
-            <AppsIcon size={18} />
-            <span style={{ display: window.innerWidth < 600 ? "none" : "inline" }}>Apps</span>
-            <ChevronDown />
-          </button>
-          {showAppsDropdown && (
-            <div
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                position: "absolute",
-                top: "calc(100% + 6px)",
-                right: 0,
-                zIndex: 200,
-                background: t.surface,
-                border: `1px solid ${t.border}`,
-                borderRadius: 10,
-                boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
-                padding: 4,
-                minWidth: 220,
-                animation: "fadeIn 0.15s ease",
-              }}
-            >
-              {filteredApps.map((app) => (
-                <button
-                  key={app.id}
-                  onClick={() => app.onClick?.()}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    width: "100%",
-                    padding: "10px 12px",
-                    background: "transparent",
-                    border: "none",
-                    borderRadius: 6,
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: t.text,
-                    textAlign: "left",
-                  }}
-                >
-                  {app.icon}
-                  {app.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
+      <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative" }}>
         {loggedInUser && (
           <div style={{ position: "relative" }}>
             <div
@@ -209,29 +115,36 @@ export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, s
                 background: showProfileMenu ? navActiveBg : "transparent",
               }}
             >
-              <div style={{
-                width: 28,
-                height: 28,
-                borderRadius: "50%",
-                background: loggedInUser.avatarUrl ? "transparent" : t.accentSoft,
-                color: dcvAccent,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 11,
-                fontWeight: 700,
-                textTransform: "uppercase",
-                overflow: "hidden",
-              }}>
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  background: loggedInUser.avatarUrl ? "transparent" : (darkMode ? "rgba(139,92,246,0.15)" : "rgba(139,92,246,0.08)"),
+                  color: dcvAccent,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  overflow: "hidden",
+                }}
+              >
                 {loggedInUser.avatarUrl ? (
-                  <img src={loggedInUser.avatarUrl} alt={loggedInUser.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }} />
+                  <img
+                    src={loggedInUser.avatarUrl}
+                    alt={loggedInUser.name || "User"}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+                  />
                 ) : null}
                 <span style={{ display: loggedInUser.avatarUrl ? "none" : "flex" }}>
-                  {loggedInUser.name.charAt(0)}
+                  {loggedInUser.name?.charAt(0) || "U"}
                 </span>
               </div>
-              <span style={{ fontSize: 12, fontWeight: 500, color: t.textMuted }}>
-                {loggedInUser.name}
+              <span style={{ fontSize: 12, fontWeight: 500, color: darkMode ? "#94a3b8" : "#57606a" }}>
+                {loggedInUser.name || "User"}
               </span>
               <ChevronDown />
             </div>
@@ -243,8 +156,8 @@ export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, s
                   top: "calc(100% + 6px)",
                   right: 0,
                   zIndex: 200,
-                  background: t.surface,
-                  border: `1px solid ${t.border}`,
+                  background: surfaceBg,
+                  border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
                   borderRadius: 10,
                   boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
                   padding: 4,
@@ -252,128 +165,154 @@ export default function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, s
                   animation: "fadeIn 0.15s ease",
                 }}
               >
-                <div style={{ padding: "10px 12px 8px", borderBottom: `1px solid ${t.border}`, marginBottom: 4 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>{loggedInUser.name}</div>
+                <div style={{ padding: "10px 12px 8px", borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`, marginBottom: 4 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: darkMode ? "#e5e7eb" : "#1f2937" }}>
+                    {loggedInUser.name}
+                  </div>
                   <div style={{ fontSize: 10.5, color: darkMode ? "#6b7280" : "#9ca3af", marginTop: 2 }}>
                     {loggedInUser.groups?.join(", ")}
                   </div>
                 </div>
-                {isAdmin && (
-                  <button
+                {[
+                  { l: "My Account", i: <UserIcon /> },
+                  ...(loggedInUser?.authProvider !== 'saml' ? [{ l: "Change Password", i: <ShieldIcon /> }] : []),
+                  { l: "My Subscriptions", i: <BellIcon /> },
+                  { l: "Settings", i: <GearIcon /> },
+                ].map((item) => (
+                  <div
+                    key={item.l}
                     onClick={() => {
-                      setPage("admin");
-                      setAdminSection?.("users");
                       setShowProfileMenu(false);
+                      if (item.l === "Change Password") {
+                        setShowChangePassword(true);
+                        setChangePasswordForm({ current: "", new: "", confirm: "" });
+                        setChangePasswordError("");
+                        setChangePasswordSuccess("");
+                      }
+                      if (item.l === "My Subscriptions") {
+                        setShowSubscriptionsModal(true);
+                      }
+                      if (item.l === "Settings") {
+                        setPage("settings");
+                      }
                     }}
+                    className="folder-select-item"
                     style={{
+                      padding: "8px 12px",
+                      borderRadius: 7,
+                      cursor: "pointer",
+                      fontSize: 13,
                       display: "flex",
                       alignItems: "center",
                       gap: 10,
-                      width: "100%",
-                      padding: "10px 12px",
-                      background: "transparent",
-                      border: "none",
-                      borderRadius: 6,
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                      fontSize: 13,
+                      color: darkMode ? "#e5e7eb" : "#1f2937",
                       fontWeight: 500,
-                      color: t.text,
-                      textAlign: "left",
                     }}
                   >
-                    <GearIcon size={16} /> Admin Center
-                  </button>
-                )}
-                {(loggedInUser?.permissions?.includes("view_dda") || loggedInUser?.permissions?.includes("viewLocations") || loggedInUser?.permissions?.includes("viewFiles")) && (
-                  <button
+                    <span style={{ color: darkMode ? "#6b7280" : "#9ca3af" }}>{item.i}</span> {item.l}
+                  </div>
+                ))}
+                <div style={{ borderTop: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`, marginTop: 4, paddingTop: 4 }}>
+                  <div
                     onClick={() => {
-                      setPage("dashboard");
                       setShowProfileMenu(false);
+                      handleLogout();
                     }}
+                    className="folder-select-item"
                     style={{
+                      padding: "8px 12px",
+                      borderRadius: 7,
+                      cursor: "pointer",
+                      fontSize: 13,
                       display: "flex",
                       alignItems: "center",
                       gap: 10,
-                      width: "100%",
-                      padding: "10px 12px",
-                      background: "transparent",
-                      border: "none",
-                      borderRadius: 6,
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                      fontSize: 13,
+                      color: darkMode ? "#f87171" : "#ef4444",
                       fontWeight: 500,
-                      color: t.text,
-                      textAlign: "left",
                     }}
                   >
-                    Dashboard
-                  </button>
-                )}
-                <button
-                  onClick={() => { setDarkMode(!darkMode); setShowProfileMenu(false); }}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    width: "100%",
-                    padding: "10px 12px",
-                    background: "transparent",
-                    border: "none",
-                    borderRadius: 6,
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: t.text,
-                    textAlign: "left",
-                  }}
-                >
-                  {darkMode ? <SunIcon size={16} /> : <MoonIcon size={16} />}
-                  {darkMode ? "Light Mode" : "Dark Mode"}
-                </button>
-                <button
-                  onClick={() => { handleLogout(); setShowProfileMenu(false); }}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    width: "100%",
-                    padding: "10px 12px",
-                    background: "transparent",
-                    border: "none",
-                    borderRadius: 6,
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: "#ef4444",
-                    textAlign: "left",
-                  }}
-                >
-                  <LogOutIcon size={16} /> Logout
-                </button>
+                    <LogOutIcon /> Sign Out
+                  </div>
+                </div>
               </div>
             )}
           </div>
         )}
-
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          style={{
-            background: "transparent",
-            border: `1px solid ${t.border}`,
-            borderRadius: 8,
-            padding: 8,
-            cursor: "pointer",
-            color: t.textMuted,
-            display: "flex",
-          }}
-        >
-          {darkMode ? <SunIcon /> : <MoonIcon />}
-        </button>
+        <AlertsDropdown darkMode={darkMode} currentUserId={loggedInUser?.id} onNavigate={(alert) => {
+            if (alert.file_id) {
+              setPage("dashboard");
+              setTimeout(() => {
+                setPage("folders");
+                setTimeout(() => setPage("file-detail"), 100);
+              }, 100);
+            }
+          }} />
+        <div style={{ position: "relative" }}>
+          <button
+            onClick={() => setShowAppsDropdown(!showAppsDropdown)}
+            style={{
+              background: showAppsDropdown ? navActiveBg : "transparent",
+              border: "none",
+              cursor: "pointer",
+              color: darkMode ? "#c9d1d9" : "#57606a",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 8,
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: "inherit",
+              transition: "background 0.2s",
+            }}
+          >
+            <AppsIcon size={14} />
+          </button>
+          {showAppsDropdown && (
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 6px)",
+                right: 0,
+                zIndex: 200,
+                background: surfaceBg,
+                border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+                borderRadius: 12,
+                boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
+                padding: 8,
+                animation: "fadeIn 0.15s ease",
+              }}
+            >
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4 }}>
+                {apps.map((app) => (
+                  <div
+                    key={app.id}
+                    onClick={app.onClick}
+                    title={app.name}
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 10,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "transparent",
+                      transition: "background 0.15s",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = t.accentSoft}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                  >
+                    <div style={{ color: t.accent, display: "flex", alignItems: "center" }}>
+                      {app.icon}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </nav>
+    </div>
   );
 }

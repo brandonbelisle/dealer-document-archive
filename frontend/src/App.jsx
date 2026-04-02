@@ -764,29 +764,45 @@ const handleDeptDrop = useCallback(async (e) => {
       const cacheKey = parentId ? `${parentId}:${name}` : `root:${name}`;
       if (folderCache.has(cacheKey)) return folderCache.get(cacheKey);
       
-      let existingFolder = null;
       try {
-        existingFolder = await api.findFolder(name, activeLocation, activeDepartment, parentId);
+        const existingFolder = await api.findFolder(name, activeLocation, activeDepartment, parentId);
+        if (existingFolder && existingFolder.id) {
+          folderCache.set(cacheKey, existingFolder.id);
+          return existingFolder.id;
+        }
       } catch (err) {
         // Folder not found, will create below
       }
       
-      if (existingFolder) {
-        folderCache.set(cacheKey, existingFolder.id);
-        return existingFolder.id;
+      try {
+        const created = await api.createFolder(name, activeLocation, activeDepartment, parentId);
+        setFolders((p) => [...p, {
+          id: created.id,
+          name: created.name,
+          locationId: created.location_id || created.locationId,
+          departmentId: created.department_id || created.departmentId,
+          parentId: created.parent_id || created.parentId || null,
+          createdAt: created.created_at
+        }]);
+        folderCache.set(cacheKey, created.id);
+        return created.id;
+      } catch (createErr) {
+        // If duplicate error, try to find the existing folder again
+        const errMsg = createErr.message || '';
+        if (errMsg.includes('Duplicate') || errMsg.includes('unique')) {
+          try {
+            const existingFolder = await api.findFolder(name, activeLocation, activeDepartment, parentId);
+            if (existingFolder && existingFolder.id) {
+              folderCache.set(cacheKey, existingFolder.id);
+              return existingFolder.id;
+            }
+          } catch (findErr) {
+            // Still not found, rethrow original error
+          }
+        }
+        console.error("Failed to create folder:", createErr);
+        throw createErr;
       }
-      
-      const created = await api.createFolder(name, activeLocation, activeDepartment, parentId);
-      setFolders((p) => [...p, {
-        id: created.id,
-        name: created.name,
-        locationId: created.location_id || created.locationId,
-        departmentId: created.department_id || created.departmentId,
-        parentId: created.parent_id || created.parentId || null,
-        createdAt: created.created_at
-      }]);
-      folderCache.set(cacheKey, created.id);
-      return created.id;
     };
 
     for (const item of items) {

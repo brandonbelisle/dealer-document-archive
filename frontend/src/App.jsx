@@ -758,8 +758,17 @@ const handleDeptDrop = useCallback(async (e) => {
       return;
     }
 
-    // Convert items to array first (DataTransferItemList gets consumed after reading)
+    // Collect all entries synchronously BEFORE any async operations
     const itemsArray = Array.from(items);
+    const entries = [];
+    for (const item of itemsArray) {
+      const entry = item.webkitGetAsEntry?.() || item.getAsEntry?.();
+      if (entry) {
+        entries.push(entry);
+      }
+    }
+    
+    console.log(`Collected ${entries.length} entries from ${itemsArray.length} items`);
     
     const folderCache = new Map();
     const createdFolders = [];
@@ -808,19 +817,9 @@ const handleDeptDrop = useCallback(async (e) => {
       }
     };
 
-    console.log(`Processing ${itemsArray.length} dropped item(s)`);
-    
-    for (let i = 0; i < itemsArray.length; i++) {
-      const item = itemsArray[i];
-      console.log(`Processing item ${i + 1} of ${itemsArray.length}`);
-      
-      const entry = item.webkitGetAsEntry?.() || item.getAsEntry?.();
-      if (!entry) {
-        console.log(`Item ${i + 1}: No entry, skipping`);
-        continue;
-      }
-
-      console.log(`Item ${i + 1}: ${entry.isDirectory ? 'Directory' : 'File'} - ${entry.name}`);
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      console.log(`Processing entry ${i + 1} of ${entries.length}: ${entry.name}`);
 
       try {
         if (entry.isFile) {
@@ -828,16 +827,12 @@ const handleDeptDrop = useCallback(async (e) => {
             entry.file(resolve, reject);
           });
           processFile(file, null);
-          console.log(`Item ${i + 1}: File processed`);
         } else if (entry.isDirectory) {
-          console.log(`Item ${i + 1}: Reading directory contents...`);
           const skipCount = { value: 0 };
           const allFiles = await readDirectoryContents(entry, "", skipCount);
           const folderName = entry.name;
-          console.log(`Item ${i + 1}: Found ${allFiles.length} files in "${folderName}"`);
           
           const rootFolderId = await getOrCreateFolder(folderName, null);
-          console.log(`Item ${i + 1}: Folder "${folderName}" ID: ${rootFolderId}`);
           
           for (const { file, path } of allFiles) {
             const pathParts = path.split('/');
@@ -856,18 +851,13 @@ const handleDeptDrop = useCallback(async (e) => {
             ? `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} uploaded to "${folderName}" (${skipCount.value} skipped)`
             : `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} uploaded to "${folderName}"`;
           addToast("Upload complete", msg, 4000, "create");
-          console.log(`Item ${i + 1}: Completed upload for "${folderName}"`);
         }
       } catch (err) {
         const folderName = entry?.name || 'unknown';
-        console.error(`Item ${i + 1}: Failed to process "${folderName}":`, err);
+        console.error(`Failed to process "${folderName}":`, err);
         addToast("Error", `Failed to process "${folderName}": ${err.message || 'Unknown error'}`, 6000, "error");
       }
-      
-      console.log(`Item ${i + 1}: Done, continuing to next item`);
     }
-    
-    console.log(`All ${itemsArray.length} items processed`);
     
     // Update folders state once at the end with all created folders
     if (createdFolders.length > 0) {

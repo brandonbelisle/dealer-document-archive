@@ -105,6 +105,9 @@ const apps = [
     { id: "dda", name: "Dealer Document Archive", permission: "view_dda", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${t.accent},${t.accentDark || t.accent})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>DDA</div>
     ), onClick: () => { setPage("dashboard"); setSelectedFile(null); setShowAppsDropdown(false); } },
+    { id: "dcv", name: "Dealer Customer Vision", permission: "view_dcv", icon: (
+      <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>DCV</div>
+    ), onClick: () => { setPage("dcv"); setShowAppsDropdown(false); } },
     { id: "cht", name: "Credit Hold Tracker", permission: "view_cht", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
     ), onClick: () => { setPage("cht"); setShowAppsDropdown(false); } },

@@ -35,6 +35,22 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
       onClick: () => setPage("dashboard"),
     },
     {
+      id: "dcv",
+      name: "Dealer Customer Vision",
+      permission: "view_dcv",
+      icon: (
+        <div style={{
+          width: 56, height: 56, borderRadius: 14,
+          background: "linear-gradient(135deg,#8b5cf6,#6d28d9)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          color: "white", fontSize: 16, fontWeight: 800,
+        }}>
+          DCV
+        </div>
+      ),
+      onClick: () => setPage("dcv"),
+    },
+    {
       id: "cht",
       name: "Credit Hold Tracker",
       permission: "view_cht",

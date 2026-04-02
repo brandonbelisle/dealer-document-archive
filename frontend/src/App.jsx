@@ -23,11 +23,13 @@ import UnsortedPage from "./pages/UnsortedPage";
 import UploadPage from "./pages/UploadPage";
 import AdminPage from "./pages/AdminPage";
 import CHTDashboardPage from "./pages/CHTDashboardPage";
+import DCVPage from "./pages/DCVPage";
 import SettingsPage from "./pages/SettingsPage";
 import LandingPage from "./components/LandingPage";
 import LandingNavbar from "./components/LandingNavbar";
 import AdminNavbar from "./components/AdminNavbar";
 import CHTNavbar from "./components/CHTNavbar";
+import DCVNavbar from "./components/DCVNavbar";
 import Toast from "./components/ui/Toast";
 
 function getThemeCookie() {
@@ -156,20 +158,21 @@ const isPopStateRef = useRef(false);
 const isInitialMount = useRef(true);
 
 const pageToPath = useCallback((page, activeFolderId, activeLocation, activeDepartment, viewingFileId, adminSection) => {
-  switch (page) {
-    case "landing": return "/";
-    case "dashboard": return "/dashboard";
-    case "folders-browse": return "/folders";
-    case "folders": return `/folders/${activeLocation || "all"}/${activeDepartment || "all"}`;
-    case "folder-detail": return `/folder/${activeFolderId || ""}`;
-    case "file-detail": return `/file/${viewingFileId || ""}`;
-    case "unsorted": return "/unsorted";
-    case "upload": return "/upload";
-    case "admin": return `/admin/${adminSection || "users"}`;
-    case "cht": return "/credit-hold";
-    default: return "/";
-  }
-}, []);
+    switch (page) {
+      case "landing": return "/";
+      case "dashboard": return "/dashboard";
+      case "folders-browse": return "/folders";
+      case "folders": return `/folders/${activeLocation || "all"}/${activeDepartment || "all"}`;
+      case "folder-detail": return `/folder/${activeFolderId || ""}`;
+      case "file-detail": return `/file/${viewingFileId || ""}`;
+      case "unsorted": return "/unsorted";
+      case "upload": return "/upload";
+      case "admin": return `/admin/${adminSection || "users"}`;
+      case "cht": return "/credit-hold";
+      case "dcv": return "/customer-vision";
+      default: return "/";
+    }
+  }, []);
 
 const pathToPage = useCallback((path) => {
   const parts = path.split("/").filter(Boolean);
@@ -197,6 +200,8 @@ const pathToPage = useCallback((path) => {
       return { page: "admin", adminSection: "users" };
     case "credit-hold":
       return { page: "cht" };
+    case "customer-vision":
+      return { page: "dcv" };
     default: return { page: "landing" };
   }
 }, []);
@@ -1196,10 +1201,12 @@ const handleDeptDrop = useCallback(async (e) => {
       {page === "landing" && <LandingNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} />}
       {page === "admin" && <AdminNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} setAdminSection={setAdminSection} onOpenHelpTicket={() => setShowHelpTicketModal(true)} />}
 {page === "cht" && <CHTNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} setAdminSection={setAdminSection} onOpenHelpTicket={() => setShowHelpTicketModal(true)} onOpenInquiry={(inquiryId) => setChtInquiryIdFromAlert(inquiryId)} onShowToast={(toast) => addToast(toast.title, toast.message, toast.duration || 5000, toast.type || 'cht', toast.onClick)} />}
-{page !== "landing" && page !== "admin" && page !== "cht" && <Navbar page={page} setPage={setPage} darkMode={darkMode} setDarkMode={setDarkMode} isLoggedIn={isLoggedIn} loggedInUser={loggedInUser} locations={locations} departments={departments} folders={folders} files={files} unsortedFiles={unsortedFiles} stagedFiles={stagedFiles} activeLocation={activeLocation} setActiveLocation={setActiveLocation} activeDepartment={activeDepartment} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setFolderSearch={setFolderSearch} expandedLocations={expandedLocations} setExpandedLocations={setExpandedLocations} showDeptDropdown={showDeptDropdown} setShowDeptDropdown={setShowDeptDropdown} showProfileMenu={showProfileMenu} setShowProfileMenu={setShowProfileMenu} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} setAdminSection={setAdminSection} handleLogout={handleLogout} foldersInLocation={foldersInLocation} foldersInDepartment={foldersInDepartment} deptsInLocation={deptsInLocation} filesInFolder={filesInFolder} setShowSubscriptionsModal={setShowSubscriptionsModal} setViewingFileIdFromAlert={setViewingFileIdFromAlert} onOpenHelpTicket={() => setShowHelpTicketModal(true)} dashboardData={dashboardData} t={t} />}
+      {page === "dcv" && <DCVNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} setAdminSection={setAdminSection} onOpenHelpTicket={() => setShowHelpTicketModal(true)} />}
+      {page !== "landing" && page !== "admin" && page !== "cht" && page !== "dcv" && <Navbar page={page} setPage={setPage} darkMode={darkMode} setDarkMode={setDarkMode} isLoggedIn={isLoggedIn} loggedInUser={loggedInUser} locations={locations} departments={departments} folders={folders} files={files} unsortedFiles={unsortedFiles} stagedFiles={stagedFiles} activeLocation={activeLocation} setActiveLocation={setActiveLocation} activeDepartment={activeDepartment} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setFolderSearch={setFolderSearch} expandedLocations={expandedLocations} setExpandedLocations={setExpandedLocations} showDeptDropdown={showDeptDropdown} setShowDeptDropdown={setShowDeptDropdown} showProfileMenu={showProfileMenu} setShowProfileMenu={setShowProfileMenu} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} setAdminSection={setAdminSection} handleLogout={handleLogout} foldersInLocation={foldersInLocation} foldersInDepartment={foldersInDepartment} deptsInLocation={deptsInLocation} filesInFolder={filesInFolder} setShowSubscriptionsModal={setShowSubscriptionsModal} setViewingFileIdFromAlert={setViewingFileIdFromAlert} onOpenHelpTicket={() => setShowHelpTicketModal(true)} dashboardData={dashboardData} t={t} />}
 
 {page === "landing" && <LandingPage setPage={setPage} t={t} darkMode={darkMode} loggedInUser={loggedInUser} onOpenHelpTicket={() => setShowHelpTicketModal(true)} />}
 {page === "cht" && <CHTDashboardPage loggedInUser={loggedInUser} t={t} darkMode={darkMode} openInquiryId={chtInquiryIdFromAlert} onInquiryOpened={() => setChtInquiryIdFromAlert(null)} />}
+      {page === "dcv" && <DCVPage t={t} darkMode={darkMode} />}
       {page === "settings" && <SettingsPage darkMode={darkMode} setDarkMode={setDarkMode} t={t} />}
       {page === "dashboard" && <DashboardPage dashboardData={dashboardData} loggedInUser={loggedInUser} locations={locations} departments={departments} setPage={setPage} setActiveFolderId={setActiveFolderId} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setViewingFileId={setViewingFileId} t={t} darkMode={darkMode} />}
       {page === "folders-browse" && <FoldersBrowsePage locations={locations} departments={departments} deptsInLocation={deptsInLocation} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setFolderSearch={setFolderSearch} setSelectedFile={setSelectedFile} setPage={setPage} subscriptions={subscriptions} setSubscriptions={setSubscriptions} t={t} darkMode={darkMode} />}

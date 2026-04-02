@@ -125,6 +125,15 @@ export const APP_PERMISSIONS = {
       { key: "deleteFolders", label: "Delete Folders", desc: "Remove folders and their contents" },
     ],
   },
+  dcv: {
+    id: "dcv",
+    name: "Dealer Customer Vision",
+    icon: "DCV",
+    color: "#8b5cf6",
+    permissions: [
+      { key: "view_dcv", label: "View App", desc: "Access Dealer Customer Vision" },
+    ],
+  },
   cht: {
     id: "cht",
     name: "Credit Hold Tracker",
@@ -166,7 +175,7 @@ export const APP_PERMISSIONS = {
   },
 };
 
-export const APP_PERMISSION_TABS = ["dda", "cht", "admin"];
+export const APP_PERMISSION_TABS = ["dda", "dcv", "cht", "admin"];
 
 // Legacy permission labels (for backward compatibility)
 export const PERMISSION_LABELS = {

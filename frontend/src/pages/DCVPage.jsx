@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getTheme } from "../theme";
-import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon, FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon, WrenchIcon, CarIcon } from "../components/Icons";
+import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon, FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon, WrenchIcon, CarIcon, SearchIcon } from "../components/Icons";
 import * as api from "../api";
 
 export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setActiveFolderId }) {
@@ -22,6 +22,7 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
   const [serviceTotalPages, setServiceTotalPages] = useState(1);
   const [serviceTotal, setServiceTotal] = useState(0);
   const [serviceFilter, setServiceFilter] = useState(null);
+  const [serviceSearch, setServiceSearch] = useState("");
   const [selectedRepairOrder, setSelectedRepairOrder] = useState(null);
   const [vinDetails, setVinDetails] = useState(null);
   const [vinLoading, setVinLoading] = useState(false);
@@ -47,7 +48,7 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
   useEffect(() => {
     if (customer && activeTab === "service") {
       setServiceLoading(true);
-      api.getDcvRepairOrders(customer.id, servicePage, pageSize, serviceFilter)
+      api.getDcvRepairOrders(customer.id, servicePage, pageSize, serviceFilter, serviceSearch)
         .then((data) => {
           setRepairOrders(data.repairOrders || []);
           setServiceTotal(data.total || 0);
@@ -56,7 +57,7 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
         .catch(console.error)
         .finally(() => setServiceLoading(false));
     }
-  }, [customer, activeTab, servicePage, serviceFilter]);
+  }, [customer, activeTab, servicePage, serviceFilter, serviceSearch]);
 
   useEffect(() => {
     if (customer) {
@@ -64,6 +65,7 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
       setServicePage(1);
       setSelectedRepairOrder(null);
       setVinDetails(null);
+      setServiceSearch("");
     }
   }, [customer]);
 
@@ -74,6 +76,10 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
   useEffect(() => {
     setServicePage(1);
   }, [serviceFilter]);
+
+  useEffect(() => {
+    setServicePage(1);
+  }, [serviceSearch]);
 
   useEffect(() => {
     if (selectedRepairOrder && selectedRepairOrder.vin) {
@@ -108,6 +114,24 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
   const formatAddress = (addr1, addr2, city, state, post) => {
     const parts = [addr1, addr2, city, state, post].filter(Boolean);
     return parts.length > 0 ? parts.join(", ") : "N/A";
+  };
+
+  const formatPhoneForTel = (phone) => {
+    if (!phone) return null;
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 10) {
+      return `+1${digits}`;
+    } else if (digits.length === 11 &&digits.startsWith("1")) {
+      return `+${digits}`;
+    }
+    return `+1${digits}`;
+  };
+
+  const openGoogleMaps = (addr1, addr2, city, state, post) => {
+    const parts = [addr1, addr2, city, state, post].filter(Boolean);
+    if (parts.length === 0) return;
+    const address = parts.join(", ");
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, "_blank");
   };
 
   const tabs = [
@@ -215,7 +239,9 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
                 <MapPinIcon size={12} style={{ marginRight: 4, verticalAlign: "middle" }} />
                 Address
               </div>
-              <div style={{ fontSize: 14, color: theme.text, lineHeight: 1.6 }}>
+              <div 
+                onClick={() => openGoogleMaps(customer.addr1, customer.addr2, customer.city, customer.state, customer.post)}
+                style={{ fontSize: 14, color: theme.text, lineHeight: 1.6, cursor: "pointer", textDecoration: "underline", textDecorationColor: darkMode ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)" }}>
                 {formatAddress(customer.addr1, customer.addr2, customer.city, customer.state, customer.post)}
               </div>
               {customer.county && (
@@ -235,19 +261,25 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
                   {customer.phoneHome && (
                     <div style={{ fontSize: 13, color: theme.text }}>
                       <span style={{ color: theme.textMuted, marginRight: 8 }}>Home:</span>
-                      {customer.phoneHome}
+                      <a href={`tel:${formatPhoneForTel(customer.phoneHome)}`} style={{ color: "#0891b2", textDecoration: "none" }}>
+                        {customer.phoneHome}
+                      </a>
                     </div>
                   )}
                   {customer.phoneWork && (
                     <div style={{ fontSize: 13, color: theme.text }}>
                       <span style={{ color: theme.textMuted, marginRight: 8 }}>Work:</span>
-                      {customer.phoneWork}
+                      <a href={`tel:${formatPhoneForTel(customer.phoneWork)}`} style={{ color: "#0891b2", textDecoration: "none" }}>
+                        {customer.phoneWork}
+                      </a>
                     </div>
                   )}
                   {customer.phoneOther && (
                     <div style={{ fontSize: 13, color: theme.text }}>
                       <span style={{ color: theme.textMuted, marginRight: 8 }}>Other:</span>
-                      {customer.phoneOther}
+                      <a href={`tel:${formatPhoneForTel(customer.phoneOther)}`} style={{ color: "#0891b2", textDecoration: "none" }}>
+                        {customer.phoneOther}
+                      </a>
                     </div>
                   )}
                 </div>
@@ -264,19 +296,25 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
                   {customer.emailHome && (
                     <div style={{ fontSize: 13, color: theme.text }}>
                       <span style={{ color: theme.textMuted, marginRight: 8 }}>Home:</span>
-                      {customer.emailHome}
+                      <a href={`mailto:${customer.emailHome}`} style={{ color: "#0891b2", textDecoration: "none" }}>
+                        {customer.emailHome}
+                      </a>
                     </div>
                   )}
                   {customer.emailWork && (
                     <div style={{ fontSize: 13, color: theme.text }}>
                       <span style={{ color: theme.textMuted, marginRight: 8 }}>Work:</span>
-                      {customer.emailWork}
+                      <a href={`mailto:${customer.emailWork}`} style={{ color: "#0891b2", textDecoration: "none" }}>
+                        {customer.emailWork}
+                      </a>
                     </div>
                   )}
                   {customer.emailOther && (
                     <div style={{ fontSize: 13, color: theme.text }}>
                       <span style={{ color: theme.textMuted, marginRight: 8 }}>Other:</span>
-                      {customer.emailOther}
+                      <a href={`mailto:${customer.emailOther}`} style={{ color: "#0891b2", textDecoration: "none" }}>
+                        {customer.emailOther}
+                      </a>
                     </div>
                   )}
                 </div>
@@ -293,7 +331,9 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
                   ID: {customer.billCusId}
                 </div>
                 {customer.billAddr1 && (
-                  <div style={{ fontSize: 13, color: theme.text }}>
+                  <div 
+                    onClick={() => openGoogleMaps(customer.billAddr1, customer.billAddr2, customer.billCity, customer.billState, customer.billPost)}
+                    style={{ fontSize: 13, color: theme.text, cursor: "pointer", textDecoration: "underline", textDecorationColor: darkMode ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)" }}>
                     {formatAddress(customer.billAddr1, customer.billAddr2, customer.billCity, customer.billState, customer.billPost)}
                   </div>
                 )}
@@ -533,6 +573,32 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
               {/* Service Tab */}
               {activeTab === "service" && !selectedRepairOrder && (
                 <div>
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type="text"
+                        placeholder="Search repair orders..."
+                        value={serviceSearch}
+                        onChange={(e) => setServiceSearch(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "10px 12px 10px 36px",
+                          background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                          border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                          borderRadius: 8,
+                          color: theme.text,
+                          fontSize: 14,
+                          fontFamily: "inherit",
+                          outline: "none",
+                          transition: "all 0.15s",
+                        }}
+                      />
+                      <div style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: theme.textMuted, pointerEvents: "none" }}>
+                        <SearchIcon size={16} />
+                      </div>
+                    </div>
+                  </div>
+
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       {filterOptions.map((filter) => (

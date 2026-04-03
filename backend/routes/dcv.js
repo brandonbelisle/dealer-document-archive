@@ -302,10 +302,11 @@ router.get('/vin/:vin', requireAuth, requirePermission('view_dcv'), async (req, 
 router.get('/:id/repair-orders', requireAuth, requirePermission('view_dcv'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { page = 1, pageSize = 20, filterType } = req.query;
+    const { page = 1, pageSize = 20, filterType, search } = req.query;
     const limitVal = Math.max(1, Math.min(100, parseInt(pageSize) || 20));
     const pageVal = Math.max(1, parseInt(page) || 1);
     const offsetVal = (pageVal - 1) * limitVal;
+    const searchParam = search ? search.trim() : null;
     
     // Get the cus_id first
     const [customerRows] = await db.execute(
@@ -333,15 +334,24 @@ router.get('/:id/repair-orders', requireAuth, requirePermission('view_dcv'), asy
       dateCondition = ' AND sro.date_create >= DATE_SUB(NOW(), INTERVAL 1 YEAR)';
     }
     
-    // Get all repair orders (we need to filter in code for the suffix pattern)
+    // Build search condition (fuzzy search on sls_id, vin, tag)
+    let searchCondition = '';
+    const searchParams = [cusId];
+    if (searchParam) {
+      searchCondition = ' AND (sro.sls_id LIKE ? OR sro.vin LIKE ? OR sro.tag LIKE ?)';
+      const searchPattern = `%${searchParam}%`;
+      searchParams.push(searchPattern, searchPattern, searchPattern);
+    }
+    
+    // Get all matching repair orders (we need to filter in code for the suffix pattern)
     const allOrdersQuery = `SELECT sro.id, sro.sls_id, sro.vin, sro.odom_in, sro.odom_out, sro.tag, sro.cus_id, sro.emp_id, sro.emp_id_writer, sro.date_create, sro.folder_id,
               f.name as folder_name, l.name as location_name
        FROM service_repairorders sro
        LEFT JOIN folders f ON sro.folder_id = f.id
        LEFT JOIN locations l ON f.location_id = l.id
-       WHERE sro.cus_id = ?${dateCondition}
+       WHERE sro.cus_id = ?${dateCondition}${searchCondition}
        ORDER BY sro.date_create DESC`;
-    const [allRepairOrders] = await db.execute(allOrdersQuery, [cusId]);
+    const [allRepairOrders] = await db.execute(allOrdersQuery, searchParams);
     
     // Filter repair orders: if multiple share same first 10 chars of sls_id,
     // keep only the one with highest suffix number (e.g., :04 over :01, :02, :03)
@@ -373,7 +383,7 @@ router.get('/:id/repair-orders', requireAuth, requirePermission('view_dcv'), asy
     // Apply pagination to filtered results
     const paginatedOrders = filteredOrders.slice(offsetVal, offsetVal + limitVal);
     
-    console.log(`[DCV] Repair orders for customer ${id}: ${paginatedOrders.length} of ${total} total (after filtering)`);
+    console.log(`[DCV] Repair orders for customer ${id}: ${paginatedOrders.length} of ${total} total (after filtering${searchParam ? ' with search' : ''})`);
     
     res.json({
       repairOrders: paginatedOrders.map(ro => ({

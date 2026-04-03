@@ -322,91 +322,24 @@ const scanWatchedFolder = useCallback(async () => {
   }
 }, [watchedFolderHandle, watchFolderEnabled]);
 
-const autoUploadWatchedFiles = useCallback(async (files) => {
-  if (!files || files.length === 0) return;
-  
-  console.log('Auto-upload triggered with', files.length, 'files');
-  console.log('Auto-upload enabled:', autoUploadEnabled);
-  console.log('Watched folder handle exists:', !!watchedFolderHandle);
-  console.log('Handled folder handle exists:', !!handledFolderHandle);
-  
-  let successCount = 0;
-  for (const wf of files) {
-    try {
-      const v = validateFile(wf.file);
-      if (!v.valid) {
-        console.log(`Skipping invalid file: ${wf.name}`, v.error);
-        continue;
-      }
-      
-      const isPdf = isPdfFile(wf.file);
-      
-      let text = null;
-      let pages = 0;
-      
-      if (isPdf) {
-        try {
-          const result = await extractTextFromPDF(wf.file);
-          text = result.text;
-          pages = result.pages;
-        } catch (err) {
-          console.error(`Failed to extract PDF text for ${wf.name}:`, err);
-        }
-      }
-      
-      console.log('Uploading file:', wf.name);
-      await api.uploadFile(wf.file, null, text, pages);
-      console.log('Successfully uploaded:', wf.name);
-      successCount++;
-
-      if (handledFolderHandle && wf.handle) {
-        console.log('Moving file to handled folder:', wf.name);
-        try {
-          const destFileHandle = await handledFolderHandle.getFileHandle(wf.name, { create: true });
-          const writable = await destFileHandle.createWritable();
-          await writable.write(wf.file);
-          await writable.close();
-          
-          const pathParts = wf.path.split('/');
-          if (pathParts.length > 1) {
-            let currentDir = watchedFolderHandle;
-            for (let i = 0; i < pathParts.length - 1; i++) {
-              currentDir = await currentDir.getDirectoryHandle(pathParts[i]);
-            }
-            await currentDir.removeEntry(pathParts[pathParts.length - 1]);
-          } else {
-            await watchedFolderHandle.removeEntry(wf.name);
-          }
-          console.log('Successfully moved to handled folder:', wf.name);
-        } catch (moveErr) {
-          console.error(`Failed to move ${wf.name} to handled folder:`, moveErr);
-        }
-      }
-      
-      setWatchedFiles((prev) => prev.filter(f => f.name !== wf.name || f.path !== wf.path));
-    } catch (err) {
-      console.error(`Failed to auto-upload ${wf.name}:`, err);
-    }
-  }
-  
-  if (successCount > 0) {
-    addToast("Auto-uploaded", `${successCount} file${successCount !== 1 ? "s" : ""} uploaded from watched folder`, 5000, "upload");
-    api.getUnsortedFiles().then((rows) => { setUnsortedFiles(rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: null, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 }))); }).catch(console.error);
-  }
-}, [addToast, handledFolderHandle, watchedFolderHandle]);
-
 useEffect(() => {
-  if (watchFolderEnabled && !isScanning) {
-    scanWatchedFolder();
-    
-    if (autoUploadEnabled && !scanIntervalRef.current) {
-      console.log('Starting auto-upload scan interval (60 seconds)');
-      scanIntervalRef.current = setInterval(scanWatchedFolder, 60000);
-    } else if (!autoUploadEnabled && scanIntervalRef.current) {
-      console.log('Stopping auto-upload scan interval');
+  if (!watchFolderEnabled) {
+    if (scanIntervalRef.current) {
       clearInterval(scanIntervalRef.current);
       scanIntervalRef.current = null;
     }
+    return;
+  }
+  
+  scanWatchedFolder();
+  
+  if (autoUploadEnabled && !scanIntervalRef.current) {
+    console.log('Starting auto-upload scan interval (60 seconds)');
+    scanIntervalRef.current = setInterval(scanWatchedFolder, 60000);
+  } else if (!autoUploadEnabled && scanIntervalRef.current) {
+    console.log('Stopping auto-upload scan interval');
+    clearInterval(scanIntervalRef.current);
+    scanIntervalRef.current = null;
   }
   
   return () => {
@@ -415,21 +348,15 @@ useEffect(() => {
       scanIntervalRef.current = null;
     }
   };
-}, [watchFolderEnabled, autoUploadEnabled, scanWatchedFolder, isScanning]);
+}, [watchFolderEnabled, autoUploadEnabled]);
 
 useEffect(() => {
-  console.log('Auto-upload check:', { 
-    autoUploadEnabled, 
-    watchedFilesCount: watchedFiles.length, 
-    isScanning,
-    hasHandle: !!watchedFolderHandle 
-  });
-  
-  if (autoUploadEnabled && watchedFiles.length > 0 && !isScanning) {
+  if (autoUploadEnabled && watchedFiles.length > 0 && !isScanning && !uploadingRef.current) {
     console.log('Triggering auto-upload for', watchedFiles.length, 'files');
+    const filesToUpload = [...watchedFiles];
     const timer = setTimeout(() => {
-      autoUploadWatchedFiles(watchedFiles);
-    }, 1000);
+      autoUploadWatchedFiles(filesToUpload);
+    }, 500);
     return () => clearTimeout(timer);
   }
 }, [autoUploadEnabled, watchedFiles, isScanning, autoUploadWatchedFiles]);

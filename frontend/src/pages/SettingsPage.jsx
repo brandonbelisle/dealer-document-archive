@@ -327,7 +327,7 @@ export default function SettingsPage({ darkMode, setDarkMode, t }) {
             </button>
           </div>
 
-          {autoUploadEnabled && (
+          {watchFolderEnabled && (
             <div style={{ 
               marginTop: 16,
               paddingTop: 16,
@@ -337,7 +337,7 @@ export default function SettingsPage({ darkMode, setDarkMode, t }) {
                 Handled Folder
               </div>
               <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 12 }}>
-                Folder where uploaded files will be moved after being processed. If not set, files will remain in the watch folder.
+                Folder where auto-uploaded files will be moved after being processed. Files are moved after successful upload when Auto Upload is enabled. If not set, files will remain in the watch folder.
               </div>
               
               {handledFolderPath ? (

@@ -4,13 +4,29 @@ Windows print connector that monitors a folder for PDF files and automatically u
 
 ## Overview
 
-Thisconnector enables "Print to DDA" functionality:
+This connector enables "Print to DDA" functionality:
 
 1. Configure "Microsoft Print to PDF" or any PDF printer to save files to a watched folder
 2. The connector automatically detects new files
-3. Files are uploaded to your DDA server
-4. Successfully uploaded files are moved to a `processed` folder
-5. Failed uploads are moved to a `failed` folder for retry
+3. **PDFs are scanned for RO (Repair Order) numbers** and matched to existing folders
+4. Files with matching RO numbers upload to the correct folder; others go to Unsorted
+5. Successfully uploaded files are moved to a `processed` folder
+6. Failed uploads are moved to a `failed` folder for retry
+
+## RO Number Matching
+
+The connector automatically extracts RO numbers from filenames and matches them to folders:
+
+- **RO Format:** 10-character string starting with "R10" (e.g., R101234567)
+- **Extraction:** RO number is extracted from the filename, not the PDF content
+  
+- **Matching logic:**
+  1. Exact match: Folder name equals RO number (R101234567)
+  2. Partial match: Folder name contains RO number
+  3. Numeric match: Folder name equals just the 7-digit number (101234567)
+  4. No match: File goes to Unsorted for manual sorting
+
+- **Example:** A file named "R101234567_invoice.pdf" uploads to folder named "R101234567" or "101234567"
 
 ## Requirements
 

@@ -117,6 +117,24 @@ class FileWatcher {
     this.isProcessing = false;
   }
 
+  async extractPdfText(filePath) {
+    try {
+      const pdfParse = require('pdf-parse');
+      const dataBuffer = fs.readFileSync(filePath);
+      const data = await pdfParse(dataBuffer);
+      
+      this.logger.info(`Extracted text from PDF: ${path.basename(filePath)} (${data.numpages} pages)`);
+      
+      return {
+        text: data.text,
+        pageCount: data.numpages
+      };
+    } catch (err) {
+      this.logger.warn(`Failed to extract text from PDF ${path.basename(filePath)}: ${err.message}`);
+      return { text: null, pageCount: 0 };
+    }
+  }
+
   async uploadFile(filePath) {
     if (!fs.existsSync(filePath)) {
       this.logger.warn(`File no longer exists: ${filePath}`);
@@ -127,18 +145,35 @@ class FileWatcher {
     const startTime = Date.now();
 
     try {
-      const result = await this.ddaClient.uploadFile(filePath);
+      const ext = path.extname(filePath).toLowerCase();
+      let extractedText = null;
+      let pageCount = 0;
+      
+      // Extract text from PDFs
+      if (ext === '.pdf') {
+        const extracted = await this.extractPdfText(filePath);
+        extractedText = extracted.text;
+        pageCount = extracted.pageCount;
+      }
+
+      const result = await this.ddaClient.uploadFile(filePath, extractedText, { pageCount });
 
       if (result.success) {
         const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-        this.logger.info(`Upload completed in ${duration}s: ${result.fileName}`);
+        const folderInfo = result.matchedFolder 
+          ? ` → ${result.matchedFolder} (${result.matchConfidence} match)`
+          : ' → Unsorted';
         
-        this.moveToProcessed(filePath, result.fileId);
+        this.logger.info(`Upload completed in ${duration}s: ${result.fileName}${folderInfo}`);
+        
+        this.moveToProcessed(filePath, result.fileId, result.matchedFolder);
         
         if (this.notifier && this.notifier.showSuccess) {
           this.notifier.notify({
             title: 'DDA Upload Successful',
-            message: `${result.fileName} uploaded successfully`,
+            message: result.matchedFolder 
+              ? `${result.fileName} uploaded to ${result.matchedFolder}`
+              : `${result.fileName} uploaded to Unsorted`,
             sound: false
           });
         }
@@ -162,7 +197,7 @@ class FileWatcher {
     }
   }
 
-  moveToProcessed(filePath, fileId) {
+  moveToProcessed(filePath, fileId, matchedFolder) {
     try {
       const baseName = path.basename(filePath);
       const nameWithoutExt = path.parse(baseName).name;
@@ -179,6 +214,7 @@ class FileWatcher {
       fs.writeFileSync(metadataPath, JSON.stringify({
         originalName: baseName,
         fileId: fileId,
+        matchedFolder: matchedFolder || 'Unsorted',
         processedAt: new Date().toISOString()
       }, null, 2));
     } catch (err) {

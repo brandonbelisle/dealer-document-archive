@@ -79,15 +79,17 @@ function AppInner() {
   const [pendingUploads, setPendingUploads] = useState({}); // { folderId: { fileIds: [], timer: null } }
   const uploadNotificationTimeoutRef = useRef(null);
   
-  // ── Watched folder state ──────────────────────────────────
-  const [watchedFolderHandle, setWatchedFolderHandle] = useState(null);
-  const [watchedFolderPath, setWatchedFolderPath] = useState(null);
-  const [watchFolderEnabled, setWatchFolderEnabled] = useState(false);
-  const [autoUploadEnabled, setAutoUploadEnabled] = useState(false);
-  const [watchedFiles, setWatchedFiles] = useState([]);
-  const [isScanning, setIsScanning] = useState(false);
-  const [lastScanTime, setLastScanTime] = useState(null);
-  const scanIntervalRef = useRef(null);
+// ── Watched folder state ──────────────────────────────────
+const [watchedFolderHandle, setWatchedFolderHandle] = useState(null);
+const [watchedFolderPath, setWatchedFolderPath] = useState(null);
+const [watchFolderEnabled, setWatchFolderEnabled] = useState(false);
+const [autoUploadEnabled, setAutoUploadEnabled] = useState(false);
+const [watchedFiles, setWatchedFiles] = useState([]);
+const [isScanning, setIsScanning] = useState(false);
+const [lastScanTime, setLastScanTime] = useState(null);
+const scanIntervalRef = useRef(null);
+const [handledFolderHandle, setHandledFolderHandle] = useState(null);
+const [handledFolderPath, setHandledFolderPath] = useState(null);
 
   // ── Folder state ────────────────────────────────────────
   const [folderSearch, setFolderSearch] = useState("");
@@ -189,23 +191,36 @@ useEffect(() => {
   const handleAutoUploadChanged = (e) => {
     setAutoUploadEnabled(e.detail.enabled);
   };
+
+  const handleHandledFolderChanged = (e) => {
+    const { handle, path } = e.detail;
+    setHandledFolderHandle(handle || null);
+    setHandledFolderPath(path || null);
+  };
   
   window.addEventListener('watchFolderChanged', handleWatchFolderChanged);
   window.addEventListener('autoUploadChanged', handleAutoUploadChanged);
+  window.addEventListener('handledFolderChanged', handleHandledFolderChanged);
   
   const savedEnabled = localStorage.getItem('dda_watch_folder_enabled');
   const savedAutoUpload = localStorage.getItem('dda_auto_upload_enabled');
   const savedPath = localStorage.getItem('dda_watched_folder_path');
+  const savedHandledFolderPath = localStorage.getItem('dda_handled_folder_path');
   
   if (savedEnabled === 'true') {
     setWatchFolderEnabled(true);
     if (savedPath) setWatchedFolderPath(savedPath);
     if (savedAutoUpload === 'true') setAutoUploadEnabled(true);
   }
+
+  if (savedHandledFolderPath) {
+    setHandledFolderPath(savedHandledFolderPath);
+  }
   
   return () => {
     window.removeEventListener('watchFolderChanged', handleWatchFolderChanged);
     window.removeEventListener('autoUploadChanged', handleAutoUploadChanged);
+    window.removeEventListener('handledFolderChanged', handleHandledFolderChanged);
     if (scanIntervalRef.current) {
       clearInterval(scanIntervalRef.current);
     }
@@ -319,6 +334,28 @@ const autoUploadWatchedFiles = useCallback(async (files) => {
       
       await api.uploadFile(wf.file, null, text, pages);
       successCount++;
+
+      if (handledFolderHandle && wf.handle) {
+        try {
+          const destFileHandle = await handledFolderHandle.getFileHandle(wf.name, { create: true });
+          const writable = await destFileHandle.createWritable();
+          await writable.write(wf.file);
+          await writable.close();
+          
+          const pathParts = wf.path.split('/');
+          if (pathParts.length > 1) {
+            let currentDir = watchedFolderHandle;
+            for (let i = 0; i < pathParts.length - 1; i++) {
+              currentDir = await currentDir.getDirectoryHandle(pathParts[i]);
+            }
+            await currentDir.removeEntry(pathParts[pathParts.length - 1]);
+          } else {
+            await watchedFolderHandle.removeEntry(wf.name);
+          }
+        } catch (moveErr) {
+          console.error(`Failed to move ${wf.name} to handled folder:`, moveErr);
+        }
+      }
       
       setWatchedFiles((prev) => prev.filter(f => f.name !== wf.name || f.path !== wf.path));
     } catch (err) {
@@ -328,9 +365,9 @@ const autoUploadWatchedFiles = useCallback(async (files) => {
   
   if (successCount > 0) {
     addToast("Auto-uploaded", `${successCount} file${successCount !== 1 ? "s" : ""} uploaded from watched folder`, 5000, "upload");
-api.getUnsortedFiles().then((rows) => { setUnsortedFiles(rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: null, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 }))); }).catch(console.error);
+ api.getUnsortedFiles().then((rows) => { setUnsortedFiles(rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: null, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 }))); }).catch(console.error);
   }
-}, [addToast]);
+}, [addToast, handledFolderHandle, watchedFolderHandle]);
 
 useEffect(() => {
   if (autoUploadEnabled && watchedFiles.length > 0 && !isScanning) {

@@ -7,15 +7,19 @@ export default function SettingsPage({ darkMode, setDarkMode, t }) {
   const [watchedFolderPath, setWatchedFolderPath] = useState(null);
   const [watchedFolderHandle, setWatchedFolderHandle] = useState(null);
   const [folderPermissionStatus, setFolderPermissionStatus] = useState(null);
+  const [handledFolderPath, setHandledFolderPath] = useState(null);
+  const [handledFolderHandle, setHandledFolderHandle] = useState(null);
 
   useEffect(() => {
     const savedWatchFolder = localStorage.getItem('dda_watch_folder_enabled');
     const savedAutoUpload = localStorage.getItem('dda_auto_upload_enabled');
     const savedFolderPath = localStorage.getItem('dda_watched_folder_path');
+    const savedHandledFolderPath = localStorage.getItem('dda_handled_folder_path');
     
     if (savedWatchFolder === 'true') setWatchFolderEnabled(true);
     if (savedAutoUpload === 'true') setAutoUploadEnabled(true);
     if (savedFolderPath) setWatchedFolderPath(savedFolderPath);
+    if (savedHandledFolderPath) setHandledFolderPath(savedHandledFolderPath);
   }, []);
 
   const handleSelectFolder = async () => {
@@ -77,6 +81,46 @@ export default function SettingsPage({ darkMode, setDarkMode, t }) {
     
     window.dispatchEvent(new CustomEvent('autoUploadChanged', { 
       detail: { enabled: newValue }
+    }));
+  };
+
+  const handleSelectHandledFolder = async () => {
+    if (!('showDirectoryPicker' in window)) {
+      alert('Your browser does not support folder access. Please use Chrome, Edge, or another Chromium-based browser.');
+      return;
+    }
+
+    try {
+      const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      const permission = await handle.requestPermission({ mode: 'readwrite' });
+      
+      if (permission === 'granted') {
+        setHandledFolderHandle(handle);
+        setHandledFolderPath(handle.name);
+        
+        localStorage.setItem('dda_handled_folder_path', handle.name);
+        
+        window.dispatchEvent(new CustomEvent('handledFolderChanged', { 
+          detail: { handle, path: handle.name }
+        }));
+      } else {
+        alert('Permission denied. Please allow access to the folder.');
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Error selecting folder:', err);
+        alert('Failed to select folder. Please try again.');
+      }
+    }
+  };
+
+  const handleClearHandledFolder = () => {
+    setHandledFolderPath(null);
+    setHandledFolderHandle(null);
+    localStorage.removeItem('dda_handled_folder_path');
+    
+    window.dispatchEvent(new CustomEvent('handledFolderChanged', { 
+      detail: { handle: null, path: null }
     }));
   };
 
@@ -282,6 +326,95 @@ export default function SettingsPage({ darkMode, setDarkMode, t }) {
               {autoUploadEnabled ? "Enabled" : "Disabled"}
             </button>
           </div>
+
+          {autoUploadEnabled && (
+            <div style={{ 
+              marginTop: 16,
+              paddingTop: 16,
+              borderTop: `1px solid ${t.border}`
+            }}>
+              <div style={{ fontSize: 14, fontWeight: 500, color: t.text, marginBottom: 8 }}>
+                Handled Folder
+              </div>
+              <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 12 }}>
+                Folder where uploaded files will be moved after being processed. If not set, files will remain in the watch folder.
+              </div>
+              
+              {handledFolderPath ? (
+                <div style={{ 
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "10px 12px",
+                  background: darkMode ? "rgba(34,197,94,0.1)" : "rgba(34,197,94,0.05)",
+                  border: `1px solid ${darkMode ? "rgba(34,197,94,0.3)" : "rgba(34,197,94,0.2)"}`,
+                  borderRadius: 8
+                }}>
+                  <FolderClosedIcon size={18} />
+                  <div style={{ flex: 1, fontSize: 13, color: t.text, fontWeight: 500 }}>
+                    {handledFolderPath}
+                  </div>
+                  <button
+                    onClick={handleSelectHandledFolder}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "6px 12px",
+                      background: t.accent,
+                      border: "none",
+                      borderRadius: 6,
+                      color: "white",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    <RefreshIcon size={14} />
+                    Change
+                  </button>
+                  <button
+                    onClick={handleClearHandledFolder}
+                    style={{
+                      padding: "6px 12px",
+                      background: "transparent",
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 6,
+                      color: t.textMuted,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    Clear
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={handleSelectHandledFolder}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "10px 16px",
+                    background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 8,
+                    color: t.textMuted,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  <FolderClosedIcon size={16} />
+                  Select Handled Folder
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

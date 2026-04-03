@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SunIcon, MoonIcon, FolderClosedIcon, RefreshIcon } from "../components/Icons";
-import { saveHandle, getHandle, removeHandle, requestPermission } from "../utils/fileHandles";
+import { saveHandle, getHandle, removeHandle, checkPermission } from "../utils/fileHandles";
 
 export default function SettingsPage({ darkMode, setDarkMode, t }) {
   const [watchFolderEnabled, setWatchFolderEnabled] = useState(false);
@@ -24,12 +24,12 @@ export default function SettingsPage({ darkMode, setDarkMode, t }) {
 
     const initHandles = async () => {
       const savedWatchHandle = await getHandle('watchedFolder');
-      if (savedWatchHandle && await requestPermission(savedWatchHandle)) {
+      if (savedWatchHandle && await checkPermission(savedWatchHandle)) {
         setWatchedFolderHandle(savedWatchHandle);
       }
       
       const savedHandledHandle = await getHandle('handledFolder');
-      if (savedHandledHandle && await requestPermission(savedHandledHandle)) {
+      if (savedHandledHandle && await checkPermission(savedHandledHandle)) {
         setHandledFolderHandle(savedHandledHandle);
       }
     };

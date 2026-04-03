@@ -4,7 +4,7 @@ import { getTheme } from "./theme";
 import { extractTextFromPDF, uid, extractRO, copyText, ACCEPTED_TYPE, ACCEPTED_IMAGE_TYPES, ACCEPTED_EXTENSIONS, isImageFile, isPdfFile, isValidFileType, MAX_FILE_SIZE } from "./utils/helpers";
 import { DEFAULT_LOCATIONS, DEFAULT_DEPARTMENTS } from "./constants";
 import { useSocket } from "./hooks/useSocket";
-import { saveHandle, getHandle, removeHandle, requestPermission } from "./utils/fileHandles";
+import { saveHandle, getHandle, removeHandle, checkPermission } from "./utils/fileHandles";
 import ErrorBoundary from "./components/ErrorBoundary";
 import LoginScreen from "./components/LoginScreen";
 import Navbar from "./components/Navbar";
@@ -227,8 +227,13 @@ useEffect(() => {
       if (savedAutoUpload === 'true') setAutoUploadEnabled(true);
       
       const savedWatchHandle = await getHandle('watchedFolder');
-      if (savedWatchHandle && await requestPermission(savedWatchHandle)) {
-        setWatchedFolderHandle(savedWatchHandle);
+      if (savedWatchHandle) {
+        const hasPermission = await checkPermission(savedWatchHandle);
+        if (hasPermission) {
+          setWatchedFolderHandle(savedWatchHandle);
+        } else {
+          console.log('Watch folder permission expired, user needs to re-select in Settings');
+        }
       }
     }
 
@@ -236,8 +241,13 @@ useEffect(() => {
       setHandledFolderPath(savedHandledFolderPath);
       
       const savedHandledHandle = await getHandle('handledFolder');
-      if (savedHandledHandle && await requestPermission(savedHandledHandle)) {
-        setHandledFolderHandle(savedHandledHandle);
+      if (savedHandledHandle) {
+        const hasPermission = await checkPermission(savedHandledHandle);
+        if (hasPermission) {
+          setHandledFolderHandle(savedHandledHandle);
+        } else {
+          console.log('Handled folder permission expired, user needs to re-select in Settings');
+        }
       }
     }
   };

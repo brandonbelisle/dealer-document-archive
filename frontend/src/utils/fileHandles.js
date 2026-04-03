@@ -73,17 +73,12 @@ export async function removeHandle(key) {
   }
 }
 
-export async function requestPermission(handle) {
+export async function checkPermission(handle) {
   try {
     const permission = await handle.queryPermission({ mode: 'readwrite' });
-    if (permission === 'granted') {
-      return true;
-    }
-    
-    const request = await handle.requestPermission({ mode: 'readwrite' });
-    return request === 'granted';
+    return permission === 'granted';
   } catch (error) {
-    console.error('Failed to request permission:', error);
+    console.error('Failed to check permission:', error);
     return false;
   }
 }

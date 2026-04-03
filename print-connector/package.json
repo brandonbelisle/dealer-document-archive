@@ -36,7 +36,6 @@
     "winston": "^3.13.0"
   },
   "devDependencies": {
-    "@yao-pkg/pkg": "^5.11.2",
-    "msi-packager": "^0.1.0"
+    "@yao-pkg/pkg": "^5.11.2"
   }
 }

@@ -1,0 +1,22 @@
+{
+  "name": "dda-print-connector",
+  "version": "1.0.0",
+  "description": "Windows print connector for DDA - watches folder for PDFs and uploads to Dealer Document Archive",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "install-service": "node install-service.js",
+    "uninstall-service": "node uninstall-service.js"
+  },
+  "keywords": ["dda", "printer", "pdf", "upload", "windows"],
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.0",
+    "chokidar": "^3.6.0",
+    "config": "^3.3.12",
+    "form-data": "^4.0.0",
+    "node-notifier": "^10.0.1",
+    "winser": "^1.0.2",
+    "winston": "^3.13.0"
+  }
+}

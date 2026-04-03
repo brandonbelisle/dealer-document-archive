@@ -333,26 +333,50 @@ router.get('/:id/repair-orders', requireAuth, requirePermission('view_dcv'), asy
       dateCondition = ' AND sro.date_create >= DATE_SUB(NOW(), INTERVAL 1 YEAR)';
     }
     
-    // Get total count
-    const countQuery = `SELECT COUNT(*) as total FROM service_repairorders sro WHERE sro.cus_id = ?${dateCondition}`;
-    const [countRows] = await db.execute(countQuery, [cusId]);
-    const total = countRows[0]?.total || 0;
-    
-    // Get repair orders with folder and location info (use template literals for LIMIT/OFFSET)
-    const repairOrdersQuery = `SELECT sro.id, sro.sls_id, sro.vin, sro.odom_in, sro.odom_out, sro.tag, sro.cus_id, sro.emp_id, sro.emp_id_writer, sro.date_create, sro.folder_id,
+    // Get all repair orders (we need to filter in code for the suffix pattern)
+    const allOrdersQuery = `SELECT sro.id, sro.sls_id, sro.vin, sro.odom_in, sro.odom_out, sro.tag, sro.cus_id, sro.emp_id, sro.emp_id_writer, sro.date_create, sro.folder_id,
               f.name as folder_name, l.name as location_name
        FROM service_repairorders sro
        LEFT JOIN folders f ON sro.folder_id = f.id
        LEFT JOIN locations l ON f.location_id = l.id
        WHERE sro.cus_id = ?${dateCondition}
-       ORDER BY sro.date_create DESC
-       LIMIT ${limitVal} OFFSET ${offsetVal}`;
-    const [repairOrders] = await db.execute(repairOrdersQuery, [cusId]);
+       ORDER BY sro.date_create DESC`;
+    const [allRepairOrders] = await db.execute(allOrdersQuery, [cusId]);
     
-    console.log(`[DCV] Repair orders for customer ${id}: ${repairOrders.length} of ${total} total`);
+    // Filter repair orders: if multiple share same first 10 chars of sls_id,
+    // keep only the one with highest suffix number (e.g., :04 over :01, :02, :03)
+    const prefixMap = new Map();
+    allRepairOrders.forEach((ro) => {
+      const slsId = ro.sls_id || '';
+      if (slsId.length > 10) {
+        const prefix = slsId.substring(0, 10);
+        const suffix = slsId.substring(10);
+        const match = suffix.match(/:(\d+)/);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (!prefixMap.has(prefix) || prefixMap.get(prefix).num < num) {
+            prefixMap.set(prefix, { num, ro });
+          }
+          return;
+        }
+      }
+      // For orders without the pattern, use the sls_id as key directly
+      const key = slsId.length > 10 ? slsId.substring(0, 10) : slsId;
+      if (!prefixMap.has(key)) {
+        prefixMap.set(key, { num: 0, ro });
+      }
+    });
+    
+    const filteredOrders = Array.from(prefixMap.values()).map(item => item.ro);
+    const total = filteredOrders.length;
+    
+    // Apply pagination to filtered results
+    const paginatedOrders = filteredOrders.slice(offsetVal, offsetVal + limitVal);
+    
+    console.log(`[DCV] Repair orders for customer ${id}: ${paginatedOrders.length} of ${total} total (after filtering)`);
     
     res.json({
-      repairOrders: repairOrders.map(ro => ({
+      repairOrders: paginatedOrders.map(ro => ({
         id: ro.id,
         slsId: ro.sls_id,
         vin: ro.vin,

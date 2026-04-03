@@ -78,6 +78,16 @@ function AppInner() {
   // ── Upload batch tracking for notifications ───────────────
   const [pendingUploads, setPendingUploads] = useState({}); // { folderId: { fileIds: [], timer: null } }
   const uploadNotificationTimeoutRef = useRef(null);
+  
+  // ── Watched folder state ──────────────────────────────────
+  const [watchedFolderHandle, setWatchedFolderHandle] = useState(null);
+  const [watchedFolderPath, setWatchedFolderPath] = useState(null);
+  const [watchFolderEnabled, setWatchFolderEnabled] = useState(false);
+  const [autoUploadEnabled, setAutoUploadEnabled] = useState(false);
+  const [watchedFiles, setWatchedFiles] = useState([]);
+  const [isScanning, setIsScanning] = useState(false);
+  const [lastScanTime, setLastScanTime] = useState(null);
+  const scanIntervalRef = useRef(null);
 
   // ── Folder state ────────────────────────────────────────
   const [folderSearch, setFolderSearch] = useState("");
@@ -157,6 +167,179 @@ const addToast = useCallback((title, message, duration, type, onClick) => {
 const removeToast = useCallback((id) => {
   setToasts((prev) => prev.filter((t) => t.id !== id));
 }, []);
+
+// ── Watched folder event listeners ─────────────────────────
+useEffect(() => {
+  const handleWatchFolderChanged = (e) => {
+    const { handle, path, enabled, autoUpload } = e.detail;
+    setWatchedFolderHandle(enabled ? handle : null);
+    setWatchedFolderPath(enabled ? path : null);
+    setWatchFolderEnabled(enabled);
+    setAutoUploadEnabled(autoUpload || false);
+    
+    if (!enabled) {
+      setWatchedFiles([]);
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current);
+        scanIntervalRef.current = null;
+      }
+    }
+  };
+  
+  const handleAutoUploadChanged = (e) => {
+    setAutoUploadEnabled(e.detail.enabled);
+  };
+  
+  window.addEventListener('watchFolderChanged', handleWatchFolderChanged);
+  window.addEventListener('autoUploadChanged', handleAutoUploadChanged);
+  
+  const savedEnabled = localStorage.getItem('dda_watch_folder_enabled');
+  const savedAutoUpload = localStorage.getItem('dda_auto_upload_enabled');
+  const savedPath = localStorage.getItem('dda_watched_folder_path');
+  
+  if (savedEnabled === 'true') {
+    setWatchFolderEnabled(true);
+    if (savedPath) setWatchedFolderPath(savedPath);
+    if (savedAutoUpload === 'true') setAutoUploadEnabled(true);
+  }
+  
+  return () => {
+    window.removeEventListener('watchFolderChanged', handleWatchFolderChanged);
+    window.removeEventListener('autoUploadChanged', handleAutoUploadChanged);
+    if (scanIntervalRef.current) {
+      clearInterval(scanIntervalRef.current);
+    }
+  };
+}, []);
+
+const scanWatchedFolder = useCallback(async () => {
+  if (!watchedFolderHandle || !watchFolderEnabled) return;
+  
+  setIsScanning(true);
+  const files = [];
+  const validExtensions = [".pdf", ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"];
+  
+  try {
+    const permission = await watchedFolderHandle.queryPermission({ mode: 'read' });
+    if (permission !== 'granted') {
+      const requestPermission = await watchedFolderHandle.requestPermission({ mode: 'read' });
+      if (requestPermission !== 'granted') {
+        setIsScanning(false);
+        return;
+      }
+    }
+    
+    async function scanDirectory(dirHandle, path = "") {
+      for await (const entry of dirHandle.values()) {
+        if (entry.kind === 'file') {
+          const lowerName = entry.name.toLowerCase();
+          const dotIdx = lowerName.lastIndexOf('.');
+          const ext = dotIdx >= 0 ? lowerName.slice(dotIdx) : '';
+          
+          if (!lowerName.startsWith('.') && validExtensions.includes(ext)) {
+            try {
+              const file = await entry.getFile();
+              files.push({
+                name: entry.name,
+                path: path ? `${path}/${entry.name}` : entry.name,
+                size: file.size,
+                type: file.type,
+                file: file,
+                handle: entry,
+                lastModified: file.lastModified
+              });
+            } catch (err) {
+              console.error(`Failed to read file ${entry.name}:`, err);
+            }
+          }
+        } else if (entry.kind === 'directory') {
+          await scanDirectory(entry, path ? `${path}/${entry.name}` : entry.name);
+        }
+      }
+    }
+    
+    await scanDirectory(watchedFolderHandle);
+    setWatchedFiles(files);
+    setLastScanTime(new Date());
+  } catch (err) {
+    console.error('Error scanning folder:', err);
+  } finally {
+    setIsScanning(false);
+  }
+}, [watchedFolderHandle, watchFolderEnabled]);
+
+useEffect(() => {
+  if (watchFolderEnabled && !isScanning) {
+    scanWatchedFolder();
+    
+    if (autoUploadEnabled && !scanIntervalRef.current) {
+      scanIntervalRef.current = setInterval(scanWatchedFolder, 10000);
+    } else if (!autoUploadEnabled &&scanIntervalRef.current) {
+      clearInterval(scanIntervalRef.current);
+      scanIntervalRef.current = null;
+    }
+  }
+  
+  return () => {
+    if (scanIntervalRef.current) {
+      clearInterval(scanIntervalRef.current);
+      scanIntervalRef.current = null;
+    }
+  };
+}, [watchFolderEnabled, autoUploadEnabled, scanWatchedFolder, isScanning]);
+
+const autoUploadWatchedFiles = useCallback(async (files) => {
+  if (!files || files.length === 0) return;
+  
+  let successCount = 0;
+  for (const wf of files) {
+    try {
+      const id = uid();
+      const v = validateFile(wf.file);
+      if (!v.valid) {
+        console.log(`Skipping invalid file: ${wf.name}`);
+        continue;
+      }
+      
+      const isImage = isImageFile(wf.file);
+      const isPdf = isPdfFile(wf.file);
+      
+      let text = null;
+      let pages = 0;
+      
+      if (isPdf) {
+        try {
+          const result = await extractTextFromPDF(wf.file);
+          text = result.text;
+          pages = result.pages;
+        } catch (err) {
+          console.error(`Failed to extract PDF text for ${wf.name}:`, err);
+        }
+      }
+      
+      await api.uploadFile(wf.file, null, text, pages);
+      successCount++;
+      
+      setWatchedFiles((prev) => prev.filter(f => f.name !== wf.name || f.path !== wf.path));
+    } catch (err) {
+      console.error(`Failed to auto-upload ${wf.name}:`, err);
+    }
+  }
+  
+  if (successCount > 0) {
+    addToast("Auto-uploaded", `${successCount} file${successCount !== 1 ? "s" : ""} uploaded from watched folder`, 5000, "upload");
+api.getUnsortedFiles().then((rows) => { setUnsortedFiles(rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: null, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 }))); }).catch(console.error);
+  }
+}, [addToast]);
+
+useEffect(() => {
+  if (autoUploadEnabled && watchedFiles.length > 0 && !isScanning) {
+    const timer = setTimeout(() => {
+      autoUploadWatchedFiles(watchedFiles);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }
+}, [autoUploadEnabled, watchedFiles, isScanning, autoUploadWatchedFiles]);
 
 // ── Browser history navigation ───────────────────────────
 const isPopStateRef = useRef(false);
@@ -1219,7 +1402,7 @@ const handleDeptDrop = useCallback(async (e) => {
 {page === "folder-detail" && <FolderDetailPage activeFolder={activeFolder} activeFolderId={activeFolderId} filesInFolder={filesInFolder} subfoldersOf={subfoldersOf} allFilesInFolderRecursive={allFilesInFolderRecursive} getBreadcrumb={getBreadcrumb} locations={locations} departments={departments} folders={folders} setActiveFolderId={setActiveFolderId} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setPage={setPage} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} copyText={copyText} removeFile={removeFile} handleDeleteFolder={handleDeleteFolder} creatingSubfolder={creatingSubfolder} setCreatingSubfolder={setCreatingSubfolder} newSubfolderName={newSubfolderName} setNewSubfolderName={setNewSubfolderName} createSubfolder={createSubfolder} folderDetailDragOver={folderDetailDragOver} setFolderDetailDragOver={setFolderDetailDragOver} handleFolderDetailDrop={handleFolderDetailDrop} handleFolderDetailFiles={handleFolderDetailFiles} subscriptions={subscriptions} setSubscriptions={setSubscriptions} loggedInUser={loggedInUser} t={t} darkMode={darkMode} setSelectedCustomer={setSelectedCustomer} setInitialRepairOrderSlsId={setInitialRepairOrderSlsId} setDcvInitialTab={setDcvInitialTab} />}
       {page === "file-detail" && <FileDetailPage viewingFileId={viewingFileId} files={files} folders={folders} locations={locations} departments={departments} getBreadcrumb={getBreadcrumb} setViewingFileId={setViewingFileId} setActiveFolderId={setActiveFolderId} setPage={setPage} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} removeFile={removeFile} loggedInUser={loggedInUser} t={t} darkMode={darkMode} activeFolderId={activeFolderId} />}
       {page === "unsorted" && <UnsortedPage unsortedFiles={unsortedFiles} folders={folders} locations={locations} departments={departments} deptsInLocation={deptsInLocation} handleMoveFile={handleMoveFile} removeFile={removeFile} setUnsortedFiles={setUnsortedFiles} setWarningModal={setWarningModal} loggedInUser={loggedInUser} t={t} darkMode={darkMode} />}
-      {page === "upload" && <UploadPage stagedFiles={stagedFiles} setStagedFiles={setStagedFiles} stagedFolderAssignments={stagedFolderAssignments} setStagedFolderAssignments={setStagedFolderAssignments} stagedSuggestions={stagedSuggestions} setStagedSuggestions={setStagedSuggestions} folders={folders} locations={locations} departments={departments} deptsInLocation={deptsInLocation} handleDrop={handleDrop} handleUploadFiles={handleUploadFiles} dragOver={dragOver} setDragOver={setDragOver} uploadAllStaged={uploadAllStaged} removeStagedFile={removeStagedFile} t={t} darkMode={darkMode} />}
+      {page === "upload" && <UploadPage stagedFiles={stagedFiles} setStagedFiles={setStagedFiles} stagedFolderAssignments={stagedFolderAssignments} setStagedFolderAssignments={setStagedFolderAssignments} stagedSuggestions={stagedSuggestions} setStagedSuggestions={setStagedSuggestions} folders={folders} locations={locations} departments={departments} deptsInLocation={deptsInLocation} handleDrop={handleDrop} handleUploadFiles={handleUploadFiles} dragOver={dragOver} setDragOver={setDragOver} uploadAllStaged={uploadAllStaged} removeStagedFile={removeStagedFile} t={t} darkMode={darkMode} watchedFiles={watchedFiles} setWatchedFiles={setWatchedFiles} watchedFolderPath={watchedFolderPath} watchFolderEnabled={watchFolderEnabled} autoUploadEnabled={autoUploadEnabled} scanWatchedFolder={scanWatchedFolder} isScanning={isScanning} lastScanTime={lastScanTime} />}
       {page === "admin" && <AdminPage adminSection={adminSection} setAdminSection={setAdminSection} setPage={setPage} adminUsers={adminUsers} setAdminUsers={setAdminUsers} setAdminSetPasswordUserId={setAdminSetPasswordUserId} setAdminSetPasswordForm={setAdminSetPasswordForm} setAdminSetPasswordError={setAdminSetPasswordError} setAdminSetPasswordSuccess={setAdminSetPasswordSuccess} securityGroups={securityGroups} setSecurityGroups={setSecurityGroups} editingGroupId={editingGroupId} setEditingGroupId={setEditingGroupId} addingGroup={addingGroup} setAddingGroup={setAddingGroup} newGroupName={newGroupName} setNewGroupName={setNewGroupName} newGroupDesc={newGroupDesc} setNewGroupDesc={setNewGroupDesc} setWarningModal={setWarningModal} loggedInUser={loggedInUser} locations={locations} setLocations={setLocations} addingLocation={addingLocation} setAddingLocation={setAddingLocation} newLocationName={newLocationName} setNewLocationName={setNewLocationName} newLocationCode={newLocationCode} setNewLocationCode={setNewLocationCode} editingLocationId={editingLocationId} setEditingLocationId={setEditingLocationId} editingLocationName={editingLocationName} setEditingLocationName={setEditingLocationName} editingLocationCode={editingLocationCode} setEditingLocationCode={setEditingLocationCode} foldersInLocation={foldersInLocation} filesInFolder={filesInFolder} handleDeleteLocation={handleDeleteLocation} departments={departments} setDepartments={setDepartments} deptsInLocation={deptsInLocation} foldersInDepartment={foldersInDepartment} addingDept={addingDept} setAddingDept={setAddingDept} addingDeptLocId={addingDeptLocId} setAddingDeptLocId={setAddingDeptLocId} newDeptName={newDeptName} setNewDeptName={setNewDeptName} editingDeptId={editingDeptId} setEditingDeptId={setEditingDeptId} editingDeptName={editingDeptName} setEditingDeptName={setEditingDeptName} handleDeleteDept={handleDeleteDept} auditLog={auditLog} auditFilterUser={auditFilterUser} setAuditFilterUser={setAuditFilterUser} auditFilterAction={auditFilterAction} setAuditFilterAction={setAuditFilterAction} auditFilterDate={auditFilterDate} setAuditFilterDate={setAuditFilterDate} locationAccess={locationAccess} setLocationAccess={setLocationAccess} departmentAccess={departmentAccess} setDepartmentAccess={setDepartmentAccess} subscriptions={subscriptions} setSubscriptions={setSubscriptions} totalPermissionCount={totalPermissionCount} setTotalPermissionCount={setTotalPermissionCount} t={t} darkMode={darkMode} addToast={addToast} />}
 
       <RenameModal renamingFileId={renamingFileId} renamingFileName={renamingFileName} setRenamingFileId={setRenamingFileId} setRenamingFileName={setRenamingFileName} renameFile={renameFile} t={t} darkMode={darkMode} />

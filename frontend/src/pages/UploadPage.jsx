@@ -10,6 +10,7 @@ import {
   TrashIcon,
   SearchIcon,
   ChevronDown,
+  RefreshIcon,
 } from "../components/Icons";
 
 export default function UploadPage({
@@ -31,6 +32,14 @@ export default function UploadPage({
   removeStagedFile,
   t,
   darkMode,
+  watchedFiles,
+  setWatchedFiles,
+  watchedFolderPath,
+  watchFolderEnabled,
+  autoUploadEnabled,
+  scanWatchedFolder,
+  isScanning,
+  lastScanTime,
 }) {
   const fileInputRef = useRef(null);
   const [openStagedDropdown, setOpenStagedDropdown] = useState(null);
@@ -122,6 +131,181 @@ export default function UploadPage({
           style={{ display: "none" }}
         />
       </div>
+
+      {/* Watched folder files section */}
+      {watchFolderEnabled && (
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ 
+            display: "flex", 
+            justifyContent: "space-between", 
+            alignItems: "center",
+            marginBottom: 12 
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <FolderClosedIcon size={16} style={{ color: t.accent }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: t.text }}>
+                Watched Folder: {watchedFolderPath || "Unknown"}
+              </span>
+              {autoUploadEnabled && (
+                <span style={{ 
+                  fontSize: 10, 
+                  fontWeight: 600,
+                  background: darkMode ? "rgba(34,197,94,0.2)" : "rgba(34,197,94,0.1)",
+                  color: darkMode ? "#22c55e" : "#16a34a",
+                  padding: "2px 8px",
+                  borderRadius: 4,
+                  marginLeft: 8
+                }}>
+                  Auto Upload
+                </span>
+              )}
+            </div>
+            <button
+              onClick={scanWatchedFolder}
+              disabled={isScanning}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 12px",
+                background: isScanning ? t.border : t.accent,
+                border: "none",
+                borderRadius: 6,
+                color: "white",
+                fontSize: 11,
+                fontWeight: 600,
+                cursor: isScanning ? "not-allowed" : "pointer",
+                fontFamily: "inherit",
+                opacity: isScanning ? 0.6 : 1,
+              }}
+            >
+              <RefreshIcon size={14} spin={isScanning} />
+              {isScanning ? "Scanning..." : "Scan Now"}
+            </button>
+          </div>
+
+          {watchedFiles.length > 0 ? (
+            <div style={{ 
+              border: `1px solid ${t.border}`, 
+              borderRadius: 10, 
+              overflow: "visible",
+              background: darkMode ? "rgba(255,255,255,0.01)" : "rgba(0,0,0,0.01)"
+            }}>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "8px 14px",
+                background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                borderBottom: `1px solid ${t.border}`,
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                color: t.textDim,
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>File</div>
+                <div style={{ width: 80, textAlign: "right", flexShrink: 0 }}>
+                  Size
+                </div>
+                <div style={{ width: 80, textAlign: "center", flexShrink: 0, paddingLeft: 12 }}>
+                  Action
+                </div>
+              </div>
+
+              {watchedFiles.slice(0, 10).map((wf, idx) => (
+                <div
+                  key={`${wf.name}-${idx}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "10px 14px",
+                    borderBottom: idx < Math.min(watchedFiles.length, 10) - 1 ? `1px solid ${t.border}` : "none",
+                  }}
+                >
+                  <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                    <div style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: 7,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      background: t.accentSoft,
+                      color: t.accent,
+                    }}>
+                      <FileDocIcon size={14} />
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}>
+                        {wf.name}
+                      </div>
+                      {wf.path !== wf.name && (
+                        <div style={{ fontSize: 10, color: t.textDim }}>
+                          {wf.path}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ width: 80, textAlign: "right", fontSize: 11, color: t.textMuted, flexShrink: 0 }}>
+                    {fmtSize(wf.size)}
+                  </div>
+
+                  <div style={{ width: 80, display: "flex", justifyContent: "center", flexShrink: 0, paddingLeft: 12 }}>
+                    <SmallBtn
+                      t={t}
+                      title="Add to upload queue"
+                      onClick={() => {
+                        handleUploadFiles([wf.file]);
+                      }}
+                    >
+                      Add
+                    </SmallBtn>
+                  </div>
+                </div>
+              ))}
+
+              {watchedFiles.length > 10 && (
+                <div style={{ 
+                  padding: "8px 14px", 
+                  fontSize: 11, 
+                  color: t.textMuted,
+                  textAlign: "center",
+                  borderTop: `1px solid ${t.border}`,
+                  background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)"
+                }}>
+                    And {watchedFiles.length - 10} more file{watchedFiles.length - 10 !== 1 ? "s" : ""}...
+                  </div>
+              )}
+            </div>
+          ) : (
+            <div style={{
+              padding: "32px 24px",
+              textAlign: "center",
+              border: `1px dashed ${t.border}`,
+              borderRadius: 10,
+              background: darkMode ? "rgba(255,255,255,0.01)" : "rgba(0,0,0,0.01)"
+            }}>
+              <FileDocIcon size={32} style={{ color: t.textDim, marginBottom: 8 }} />
+              <div style={{ fontSize: 13, color: t.textMuted }}>
+                {isScanning ? "Scanning folder..." : "No files found in watched folder"}
+              </div>
+              {lastScanTime && !isScanning && (
+                <div style={{ fontSize: 11, color: t.textDim, marginTop: 4 }}>
+                  Last scanned: {lastScanTime.toLocaleTimeString()}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Staged files table */}
       {stagedFiles.length > 0 && (

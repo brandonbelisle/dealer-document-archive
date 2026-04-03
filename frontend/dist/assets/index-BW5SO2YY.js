@@ -17,7 +17,7 @@ var __privateWrapper = (obj, member, setter, getter) => ({
     return __privateGet(obj, member, getter);
   }
 });
-var _Util_static, getExtremumOnCurve_fn, getExtremum_fn, _regex, _idToPageNumber, _pageNumberToId, _prevPageNumbers, _pagesNumber, _listeners, _copiedPageIds, _copiedPageNumbers, _PagesMapper_instances, reset_fn, updateListeners_fn, init_fn, updateIdToPageNumber_fn, setPrevPageNumbers_fn, _toolbar, _colorPicker, _editor, _buttons, _altText, _comment, _commentButtonDivider, _signatureDescriptionButton, _l10nRemove, _EditorToolbar_static, pointerDown_fn, _EditorToolbar_instances, focusIn_fn, focusOut_fn, addListenersToElement_fn, divider_get, _buttons2, _toolbar2, _uiManager, _FloatingToolbar_instances, render_fn, getLastPoint_fn, makeButton_fn, _pointerId, _pointerIds, _moveTimestamp, _pointerType, _id, _baseId, _id2, _cache, _ImageManager_instances, get_fn, _commands, _locked, _maxSize, _position, _KeyboardManager_instances, serialize_fn, _abortController, _activeEditor, _allEditableAnnotations, _allEditors, _allLayers, _altTextManager, _annotationStorage, _changedExistingAnnotations, _commandManager, _commentManager, _copyPasteAC, _currentDrawingSession, _currentPageIndex, _deletedAnnotationsElementIds, _draggingEditors, _editorTypes, _editorsToRescale, _enableHighlightFloatingButton, _enableUpdatedAddImage, _enableNewAltTextWhenAddingImage, _filterFactory, _focusMainContainerTimeoutId, _focusManagerAC, _highlightColors, _highlightWhenShiftUp, _floatingToolbar, _idManager, _isEnabled, _isPointerDown, _isWaiting, _keyboardManagerAC, _lastActiveElement, _mainHighlightColorPicker, _missingCanvases, _mlManager, _mode, _selectedEditors, _selectedTextNode, _signatureManager, _pageColors, _showAllStates, _pdfDocument, _previousStates, _translation, _translationTimeoutId, _container, _viewer, _viewerAlert, _updateModeCapability, _AnnotationEditorUIManager_instances, getAnchorElementForSelection_fn, getLayerForTextLayer_fn, beforeUnload_fn, displayFloatingToolbar_fn, selectionChange_fn, onSelectEnd_fn, addSelectionListener_fn, addFocusManager_fn, removeFocusManager_fn, addKeyboardManager_fn, removeKeyboardManager_fn, addCopyPasteListeners_fn, removeCopyPasteListeners_fn, addDragAndDropListeners_fn, dispatchUpdateStates_fn, dispatchUpdateUI_fn, enableAll_fn, disableAll_fn, addEditorToLayer_fn, lastSelectedEditor_get, isEmpty_fn, selectEditors_fn, _altText2, _altTextDecorative, _altTextButton, _altTextButtonLabel, _altTextTooltip, _altTextTooltipTimeout, _altTextWasFromKeyBoard, _badge, _editor2, _guessedText, _textWithDisclaimer, _useNewAltTextFlow, _l10nNewButton, _AltText_instances, label_get, setState_fn, _commentStandaloneButton, _commentToolbarButton, _commentWasFromKeyBoard, _editor3, _initialText, _richText, _text, _date, _deleted, _popupPosition, _Comment_instances, render_fn2, _container2, _isPinching, _isPinchingStopped, _isPinchingDisabled, _onPinchStart, _onPinching, _onPinchEnd, _pointerDownAC, _signal, _touchInfo, _touchManagerAC, _touchMoveAC, _TouchManager_instances, onTouchStart_fn, onTouchMove_fn, onTouchEnd_fn, _accessibilityData, _allResizerDivs, _altText3, _comment2, _commentStandaloneButton2, _disabled, _dragPointerId, _dragPointerType, _resizersDiv, _lastPointerCoords, _savedDimensions, _fakeAnnotation, _focusAC, _focusedResizerName, _hasBeenClicked, _initialRect, _isEditing, _isInEditMode, _isResizerEnabledForKeyboard, _moveInDOMTimeout, _prevDragX, _prevDragY, _telemetryTimeouts, _touchManager, _isDraggable, _zIndex, _AnnotationEditor_instances, translate_fn, _AnnotationEditor_static, rotatePoint_fn, getRotationMatrix_fn, createResizers_fn, resizerPointerdown_fn, resize_fn, addResizeToUndoStack_fn, resizerPointermove_fn, touchPinchStartCallback_fn, touchPinchCallback_fn, touchPinchEndCallback_fn, selectOnPointerEvent_fn, setUpDragSession_fn, addFocusListeners_fn, resizerKeydown_fn, resizerBlur_fn, resizerFocus_fn, setResizerTabIndex_fn, stopResizing_fn, _modified, _modifiedIds, _editorsMap, _storage, _AnnotationStorage_instances, setModified_fn, _serializable, _systemFonts, _fontData, _buffer, _view, _decoder, _CssFontInfo_instances, readString_fn, _buffer2, _view2, _decoder2, _SystemFontInfo_instances, readString_fn2, _OFFSET_NUMBERS, _OFFSET_BBOX, _OFFSET_FONT_MATRIX, _OFFSET_DEFAULT_VMETRICS, _OFFSET_STRINGS, _buffer3, _decoder3, _view3, _FontInfo_instances, readBoolean_fn, readNumber_fn, readString_fn3, _KIND, _HAS_BBOX, _HAS_BACKGROUND, _SHADING_TYPE, _N_COORD, _N_COLOR, _N_STOP, _N_FIGURES, _buffer4, _listeners2, _deferred, _messageAC, _MessageHandler_instances, onMessage_fn, createStreamSink_fn, processStreamMessage_fn, deleteStreamController_fn, _enableHWA, _baseUrl, __cache, __defs, _docId, _document, __hcmCache, _id3, _DOMFilterFactory_instances, cache_get, hcmCache_get, defs_get, createTables_fn, createUrl_fn, addLuminosityConversion_fn, addGrayConversion_fn, createFilter_fn, appendFeFunc_fn, addTransferMapConversion_fn, addTransferMapAlphaConversion_fn, getRGB_fn, _bboxes, _coords, _simple, _incremental, _namedDependencies, _savesStack, _markedContentStack, _baseTransformStack, _clipBox, _pendingBBox, _pendingBBoxIdx, _pendingDependencies, _operations, _fontBBoxTrustworthy, _canvasWidth, _canvasHeight, _bboxesCoords, _bboxes2, _debugMetadata, _CanvasDependencyTracker_instances, initializeBBoxes_fn, _dependencyTracker, _opIdx, _ignoreBBoxes, _nestingLevel, _savesLevel, _CanvasGraphics_instances, restoreInitialState_fn, drawFilter_fn, getScaledPath_fn, _port, _src, _map, _data, _isDisplay, _isPrint, _userSet, _visible, _cachedGetHash, _groups, _initialHash, _order, _OptionalContentConfig_instances, evaluateVisibilityExpression_fn, _PDFStreamReader, _PDFStreamRangeReader, _PDFDataTransportStream_instances, onReceiveData_fn, _endRequests, _endRequests2, _pendingRequests, _PDFNetworkStream_instances, onProgress_fn, onStateChange_fn, _endRequests3, _PDFNetworkStreamReader_instances, onHeadersReceived_fn, onDone_fn, onError_fn, onProgress_fn2, _endRequests4, _PDFNetworkStreamRangeReader_instances, onHeadersReceived_fn2, onDone_fn2, onError_fn2, _objs, _PDFObjects_instances, ensureObj_fn, _a, _capability, _container3, _disableProcessItems, _fontInspectorEnabled, _lang, _layoutTextParams, _pageHeight, _pageWidth, _reader, _rootContainer, _rotation, _scale, _styleCache, _textContentItemsStr, _textContentSource, _textDivs, _textDivProperties, _transform, _ascentCache, _canvasContexts, _canvasCtxFonts, _minFontSize, _pendingTextLayers, _TextLayer_instances, processItems_fn, appendText_fn, layout_fn, _TextLayer_static, getCtx_fn, ensureCtxFont_fn, ensureMinFontSizeComputed_fn, getAscent_fn, _docId2, _capability2, _progressiveDoneListeners, _progressiveReadListeners, _rangeListeners, _pendingCleanup, _pagesMapper, _PDFPageProxy_instances, tryCleanup_fn, _capability3, _messageHandler, _port2, _webWorker, _fakeWorkerId, _isWorkerDisabled, _workerPorts, _PDFWorker_instances, resolve_fn, initializeFromPort_fn, initialize_fn, setupFakeWorker_fn, _PDFWorker_static, mainThreadWorkerMessageHandler_get, _fullReader, _methodPromises, _networkStream, _pageCache, _pagePromises, _pageRefCache, _passwordCapability, _copiedPageInfo, _WorkerTransport_instances, updateCaches_fn, cacheSimpleMethod_fn, onProgress_fn3, _rAF, _canvasInUse, _button, _buttonSwatch, _defaultColor, _dropdown, _dropdownWasFromKeyboard, _isMainColorPicker, _editor4, _eventBus, _openDropdownAC, _uiManager2, _l10nColor, _ColorPicker_instances, getDropdownRoot_fn, colorSelect_fn, keyDown_fn, openDropdown_fn, pointerDown_fn2, isDropdownVisible_get, _input, _editor5, _uiManager3, _l10nColor2, _updates, _hasBorder, _popupElement, _AnnotationElement_instances, setRectEdited_fn, _LinkAnnotationElement_instances, setInternalLink_fn, bindAttachment_fn, bindSetOCGState_fn, _PopupAnnotationElement_instances, createPopup_fn, _commentManager2, _boundKeyDown, _boundHide, _boundShow, _boundToggle, _color, _container4, _contentsObj, _dateObj, _elements, _parent, _parentRect, _pinned, _popup, _popupAbortController, _position2, _commentButton, _commentButtonPosition, _popupPosition2, _rect, _richText2, _titleObj, _updates2, _wasVisible, _firstElement, _commentText, _PopupElement_instances, addEventListeners_fn, setCommentButtonPosition_fn, updateCommentButtonPosition_fn, updateColor_fn, html_get, fontSize_get, fontColor_get, makePopupContent_fn, keyDown_fn2, setPosition_fn, toggle_fn, show_fn, hide_fn, _line, _square, _circle, _polyline, _polylinesGroupElement, _polylines, _InkAnnotationElement_instances, getTransform_fn, _trigger, _FileAttachmentAnnotationElement_instances, download_fn, _accessibilityManager, _annotationCanvasMap, _annotationStorage2, _editableAnnotations, _structTreeLayer, _linkService, _elements2, _hasAriaAttributesFromStructTree, _AnnotationLayer_instances, addElementsToDOM_fn, setAnnotationCanvasMap_fn, _content, _editorDivId, _editModeAC, _fontSize, _FreeTextEditor_instances, updateFontSize_fn, updateColor_fn2, extractText_fn, setEditorDimensions_fn, _FreeTextEditor_static, getNodeContent_fn, setContent_fn, serializeContent_fn, deserializeContent_fn, hasElementChanged_fn, _box, _bottom, _innerMargin, _isLTR, _top, _last, _lastX, _lastY, _min, _min_dist, _scaleFactor, _thickness, _points, _MIN_DIST, _MIN_DIFF, _MIN, _FreeDrawOutliner_instances, getLastCoords_fn, toSVGPathTwoPoints_fn, toSVGPathStart_fn, toSVGPathEnd_fn, getOutlineTwoPoints_fn, getOutlineStart_fn, getOutlineEnd_fn, _box2, _bbox, _innerMargin2, _isLTR2, _points2, _scaleFactor2, _outline, _FreeDrawOutline_instances, computeMinMax_fn, _box3, _firstPoint, _lastPoint, _verticalEdges, _intervals, _HighlightOutliner_instances, getOutlines_fn, binarySearch_fn, insert_fn, remove_fn, breakEdge_fn, _box4, _outlines, _anchorNode, _anchorOffset, _boxes, _clipPathId, _colorPicker2, _focusOutlines, _focusNode, _focusOffset, _highlightDiv, _highlightOutlines, _id4, _isFreeHighlight, _firstPoint2, _lastPoint2, _outlineId, _text2, _thickness2, _methodOfCreation, _HighlightEditor_instances, createOutlines_fn, createFreeOutlines_fn, updateColor_fn3, updateThickness_fn, changeThickness_fn, cleanDrawLayer_fn, addToDrawLayer_fn, _HighlightEditor_static, rotateBbox_fn, keydown_fn, setCaret_fn, getRotation_fn, serializeBoxes_fn, serializeOutlines_fn, highlightMove_fn, endHighlight_fn, hasElementChanged_fn2, _svgProperties, _drawOutlines, _mustBeCommitted, _currentDraw, _currentDrawingAC, _currentDrawingOptions, _DrawingEditor_instances, createDrawOutlines_fn, createDrawing_fn, cleanDrawLayer_fn2, addToDrawLayer_fn2, convertToParentSpace_fn, convertToDrawSpace_fn, updateBbox_fn, rotateBox_fn, _last2, _line2, _lines, _rotation2, _thickness3, _points3, _lastSVGPath, _lastIndex, _outlines2, _parentWidth, _parentHeight, _InkDrawOutliner_instances, normalizePoint_fn, _bbox2, _currentRotation, _innerMargin3, _lines2, _parentWidth2, _parentHeight2, _parentScale, _rotation3, _thickness4, _InkDrawOutline_instances, getMarginComponents_fn, getBBoxWithNoMargin_fn, computeBbox_fn, updateThickness_fn2, _InkEditor_instances, hasElementChanged_fn3, _PARAMETERS, _SignatureExtractor_static, neighborIndexToId_fn, _neighborIdToIndex, clockwiseNonZero_fn, counterClockwiseNonZero_fn, findContours_fn, douglasPeuckerHelper_fn, douglasPeucker_fn, bilateralFilter_fn, getHistogram_fn, toUint8_fn, guessThreshold_fn, getGrayPixels_fn, _isExtracted, _description, _signatureData, _signatureUUID, _bitmap, _bitmapId, _bitmapPromise, _bitmapUrl, _bitmapFile, _bitmapFileName, _canvas, _missingCanvas, _resizeTimeoutId, _isSvg, _hasBeenAddedInUndoStack, _StampEditor_instances, getBitmapFetched_fn, getBitmapDone_fn, getBitmap_fn, createCanvas_fn, scaleBitmap_fn, drawBitmap_fn, serializeBitmap_fn, hasElementChanged_fn4, _accessibilityManager2, _allowClick, _annotationLayer, _clickAC, _editorFocusTimeoutId, _editors, _hadPointerDown, _isDisabling, _isEnabling, _drawingAC, _focusedElement, _textLayer, _textSelectionAC, _textLayerDblClickAC, _lastPointerDownTimestamp, _uiManager4, _editorTypes2, _AnnotationEditorLayer_instances, allEditorsIterator_get, textLayerPointerDown_fn, currentEditorType_get, createNewEditor_fn, getCenterPoint_fn, cleanup_fn, _parent2, _mapping, _toUpdate, _id5, _DrawLayer_static, setBox_fn, _DrawLayer_instances, createSVG_fn, createClipPath_fn, updateProperties_fn;
+var _Util_static, getExtremumOnCurve_fn, getExtremum_fn, _started, _regex, _toolbar, _colorPicker, _editor, _buttons, _altText, _comment, _commentButtonDivider, _signatureDescriptionButton, _l10nRemove, _EditorToolbar_static, pointerDown_fn, _EditorToolbar_instances, focusIn_fn, focusOut_fn, addListenersToElement_fn, divider_get, _buttons2, _toolbar2, _uiManager, _FloatingToolbar_instances, render_fn, getLastPoint_fn, makeButton_fn, _pointerId, _pointerIds, _moveTimestamp, _pointerType, _id, _baseId, _id2, _cache, _ImageManager_instances, get_fn, _commands, _locked, _maxSize, _position, _KeyboardManager_instances, serialize_fn, _abortController, _activeEditor, _allEditableAnnotations, _allEditors, _allLayers, _savedAllLayers, _altTextManager, _annotationStorage, _changedExistingAnnotations, _commandManager, _commentManager, _copyPasteAC, _currentDrawingSession, _currentPageIndex, _deletedAnnotationsElementIds, _draggingEditors, _editorTypes, _editorsToRescale, _enableHighlightFloatingButton, _enableUpdatedAddImage, _enableNewAltTextWhenAddingImage, _filterFactory, _focusMainContainerTimeoutId, _focusManagerAC, _highlightColors, _highlightWhenShiftUp, _floatingToolbar, _idManager, _isEnabled, _isPointerDown, _isWaiting, _keyboardManagerAC, _lastActiveElement, _mainHighlightColorPicker, _missingCanvases, _mlManager, _mode, _selectedEditors, _selectedTextNode, _signatureManager, _pageColors, _showAllStates, _pdfDocument, _previousStates, _translation, _translationTimeoutId, _container, _viewer, _viewerAlert, _updateModeCapability, _AnnotationEditorUIManager_instances, getAnchorElementForSelection_fn, getLayerForTextLayer_fn, beforeUnload_fn, displayFloatingToolbar_fn, selectionChange_fn, onSelectEnd_fn, addSelectionListener_fn, addFocusManager_fn, removeFocusManager_fn, addKeyboardManager_fn, removeKeyboardManager_fn, addCopyPasteListeners_fn, removeCopyPasteListeners_fn, addDragAndDropListeners_fn, dispatchUpdateStates_fn, dispatchUpdateUI_fn, enableAll_fn, disableAll_fn, addEditorToLayer_fn, lastSelectedEditor_get, isEmpty_fn, selectEditors_fn, _altText2, _altTextDecorative, _altTextButton, _altTextButtonLabel, _altTextTooltip, _altTextTooltipTimeout, _altTextWasFromKeyBoard, _badge, _editor2, _guessedText, _textWithDisclaimer, _useNewAltTextFlow, _l10nNewButton, _AltText_instances, label_get, setState_fn, _commentStandaloneButton, _commentToolbarButton, _commentWasFromKeyBoard, _editor3, _initialText, _richText, _text, _date, _deleted, _popupPosition, _Comment_instances, render_fn2, _container2, _isPinching, _isPinchingStopped, _isPinchingDisabled, _onPinchStart, _onPinching, _onPinchEnd, _pointerDownAC, _signal, _touchInfo, _touchManagerAC, _touchMoveAC, _TouchManager_instances, onTouchStart_fn, onTouchMove_fn, onTouchEnd_fn, _accessibilityData, _allResizerDivs, _altText3, _comment2, _commentStandaloneButton2, _disabled, _dragPointerId, _dragPointerType, _resizersDiv, _lastPointerCoords, _savedDimensions, _fakeAnnotation, _focusAC, _focusedResizerName, _hasBeenClicked, _initialRect, _isEditing, _isInEditMode, _isResizerEnabledForKeyboard, _moveInDOMTimeout, _prevDragX, _prevDragY, _telemetryTimeouts, _touchManager, _isDraggable, _zIndex, _AnnotationEditor_instances, translate_fn, _AnnotationEditor_static, rotatePoint_fn, getRotationMatrix_fn, createResizers_fn, resizerPointerdown_fn, resize_fn, addResizeToUndoStack_fn, resizerPointermove_fn, touchPinchStartCallback_fn, touchPinchCallback_fn, touchPinchEndCallback_fn, selectOnPointerEvent_fn, setUpDragSession_fn, addFocusListeners_fn, resizerKeydown_fn, resizerBlur_fn, resizerFocus_fn, setResizerTabIndex_fn, stopResizing_fn, _modified, _modifiedIds, _editorsMap, _storage, _AnnotationStorage_instances, setModified_fn, _serializable, _bboxes, _coords, _baseTransformStack, _clipBox, _pendingBBox, _canvasWidth, _canvasHeight, _bboxesCoords, _bboxes2, _CanvasBBoxTracker_instances, initializeBBoxes_fn, _simple, _incremental, _namedDependencies, _pendingDependencies, _fontBBoxTrustworthy, _debugMetadata, _recordDebugMetadataDepenencyAfterRestore, _bboxTracker, _dependencyTracker, _opIdx, _ignoreBBoxes, _nestingLevel, _savesLevel, _canvasWidth2, _canvasHeight2, _capacity, _count, _coords2, _CoordsArray, _systemFonts, _fontData, _buffer, _decoder, _view, _CssFontInfo_instances, readString_fn, _buffer2, _decoder2, _view2, _SystemFontInfo_instances, readString_fn2, _buffer3, _decoder3, _view3, _FontInfo_instances, readBoolean_fn, readNumber_fn, readArray_fn, readString_fn3, getDataOffsets_fn, _buffer4, _listeners, _deferred, _messageAC, _MessageHandler_instances, onMessage_fn, createStreamSink_fn, processStreamMessage_fn, deleteStreamController_fn, _errorStr, _enableHWA, _baseUrl, __cache, __defs, _docId, _document, __hcmCache, _id3, _DOMFilterFactory_instances, cache_get, hcmCache_get, defs_get, createTables_fn, createUrl_fn, addLuminosityConversion_fn, addGrayConversion_fn, createFilter_fn, appendFeFunc_fn, addTransferMapConversion_fn, addTransferMapAlphaConversion_fn, getRGB_fn, _initPromise, _device, _pipeline, _preferredFormat, _WebGPUMesh_instances, initGPU_fn, buildVertexStreams_fn, _CanvasGraphics_instances, restoreInitialState_fn, drawFilter_fn, getScaledPath_fn, _PDFStreamReader, _PDFStreamRangeReader, _PDFDataTransportStream_instances, onReceiveData_fn, _endRequests, _endRequests2, _pendingRequests, _PDFNetworkStream_instances, onProgress_fn, onStateChange_fn, _endRequests3, _PDFNetworkStreamReader_instances, onHeadersReceived_fn, onDone_fn, onError_fn, onProgress_fn2, _endRequests4, _PDFNetworkStreamRangeReader_instances, onHeadersReceived_fn2, onDone_fn2, onError_fn2, _port, _src, _map, _data, _isDisplay, _isPrint, _userSet, _visible, _cachedGetHash, _groups, _initialHash, _order, _OptionalContentConfig_instances, evaluateVisibilityExpression_fn, _pageNumberToId, _prevPageNumbers, _pagesNumber, _clipboard, _savedData, _PagesMapper_instances, ensureInit_fn, buildIdToPageNumber_fn, updatePrevPageNumbers_fn, _objs, _a, _capability, _container3, _disableProcessItems, _fontInspectorEnabled, _imagesHandler, _lang, _layoutTextParams, _pageHeight, _pageWidth, _reader, _rootContainer, _rotation, _scale, _styleCache, _textContentItemsStr, _textContentSource, _textDivs, _textDivProperties, _transform, _ascentCache, _canvasContexts, _canvasCtxFonts, _minFontSize, _pendingTextLayers, _TextLayer_instances, processItems_fn, appendText_fn, layout_fn, _TextLayer_static, getCtx_fn, ensureCtxFont_fn, ensureMinFontSizeComputed_fn, getAscent_fn, _docId2, _capability2, _progressiveDoneListeners, _progressiveReadListeners, _rangeListeners, _pendingCleanup, _pagesMapper, _PDFPageProxy_instances, tryCleanup_fn, _capability3, _messageHandler, _port2, _webWorker, _fakeWorkerId, _isWorkerDisabled, _workerPorts, _PDFWorker_instances, resolve_fn, initializeFromPort_fn, initialize_fn, setupFakeWorker_fn, _PDFWorker_static, mainThreadWorkerMessageHandler_get, _fullReader, _methodPromises, _networkStream, _pageCache, _pagePromises, _pageRefCache, _passwordCapability, _WorkerTransport_instances, cacheSimpleMethod_fn, onProgress_fn3, _rAF, _canvasInUse, _button, _buttonSwatch, _defaultColor, _dropdown, _dropdownWasFromKeyboard, _isMainColorPicker, _editor4, _eventBus, _openDropdownAC, _uiManager2, _l10nColor, _ColorPicker_instances, getDropdownRoot_fn, colorSelect_fn, keyDown_fn, openDropdown_fn, pointerDown_fn2, isDropdownVisible_get, _input, _editor5, _uiManager3, _l10nColor2, _updates, _hasBorder, _popupElement, _AnnotationElement_instances, setRectEdited_fn, _LinkAnnotationElement_instances, setInternalLink_fn, bindAttachment_fn, bindSetOCGState_fn, _PopupAnnotationElement_instances, createPopup_fn, _commentManager2, _boundKeyDown, _boundHide, _boundShow, _boundToggle, _color, _container4, _contentsObj, _dateObj, _elements, _parent, _parentRect, _pinned, _popup, _popupAbortController, _position2, _commentButton, _commentButtonPosition, _popupPosition2, _rect, _richText2, _titleObj, _updates2, _wasVisible, _firstElement, _commentText, _PopupElement_instances, addEventListeners_fn, setCommentButtonPosition_fn, updateCommentButtonPosition_fn, updateColor_fn, html_get, fontSize_get, fontColor_get, makePopupContent_fn, keyDown_fn2, setPosition_fn, toggle_fn, show_fn, hide_fn, _line, _square, _circle, _polyline, _polylinesGroupElement, _polylines, _InkAnnotationElement_instances, getTransform_fn, _trigger, _FileAttachmentAnnotationElement_instances, download_fn, _accessibilityManager, _annotationCanvasMap, _annotationStorage2, _editableAnnotations, _structTreeLayer, _linkService, _elements2, _hasAriaAttributesFromStructTree, _AnnotationLayer_instances, addElementsToDOM_fn, setAnnotationCanvasMap_fn, _content, _editorDivId, _editModeAC, _fontSize, _FreeTextEditor_instances, updateFontSize_fn, updateColor_fn2, extractText_fn, setEditorDimensions_fn, _FreeTextEditor_static, getNodeContent_fn, setContent_fn, serializeContent_fn, deserializeContent_fn, hasElementChanged_fn, _box, _bottom, _innerMargin, _isLTR, _top, _last, _lastX, _lastY, _min, _min_dist, _scaleFactor, _thickness, _points, _MIN_DIST, _MIN_DIFF, _MIN, _FreeDrawOutliner_instances, getLastCoords_fn, toSVGPathTwoPoints_fn, toSVGPathStart_fn, toSVGPathEnd_fn, getOutlineTwoPoints_fn, getOutlineStart_fn, getOutlineEnd_fn, _box2, _bbox, _innerMargin2, _isLTR2, _points2, _scaleFactor2, _outline, _FreeDrawOutline_instances, computeMinMax_fn, _box3, _firstPoint, _lastPoint, _verticalEdges, _intervals, _HighlightOutliner_instances, getOutlines_fn, binarySearch_fn, insert_fn, remove_fn, breakEdge_fn, _box4, _outlines, _anchorNode, _anchorOffset, _boxes, _clipPathId, _colorPicker2, _focusOutlines, _focusNode, _focusOffset, _highlightDiv, _highlightOutlines, _id4, _isFreeHighlight, _firstPoint2, _lastPoint2, _outlineId, _text2, _thickness2, _methodOfCreation, _HighlightEditor_instances, createOutlines_fn, createFreeOutlines_fn, updateColor_fn3, updateThickness_fn, changeThickness_fn, cleanDrawLayer_fn, addToDrawLayer_fn, _HighlightEditor_static, rotateBbox_fn, keydown_fn, setCaret_fn, getRotation_fn, serializeBoxes_fn, serializeOutlines_fn, highlightMove_fn, endHighlight_fn, hasElementChanged_fn2, _svgProperties, _drawOutlines, _mustBeCommitted, _currentDraw, _currentDrawingAC, _currentDrawingOptions, _DrawingEditor_instances, createDrawOutlines_fn, createDrawing_fn, cleanDrawLayer_fn2, addToDrawLayer_fn2, convertToParentSpace_fn, convertToDrawSpace_fn, updateBbox_fn, rotateBox_fn, _last2, _line2, _lines, _rotation2, _thickness3, _points3, _lastSVGPath, _lastIndex, _outlines2, _parentWidth, _parentHeight, _InkDrawOutliner_instances, normalizePoint_fn, _bbox2, _currentRotation, _innerMargin3, _lines2, _parentWidth2, _parentHeight2, _parentScale, _rotation3, _thickness4, _InkDrawOutline_instances, getMarginComponents_fn, getBBoxWithNoMargin_fn, computeBbox_fn, updateThickness_fn2, _InkEditor_instances, hasElementChanged_fn3, _PARAMETERS, _SignatureExtractor_static, neighborIndexToId_fn, _neighborIdToIndex, clockwiseNonZero_fn, counterClockwiseNonZero_fn, findContours_fn, douglasPeuckerHelper_fn, douglasPeucker_fn, bilateralFilter_fn, getHistogram_fn, toUint8_fn, guessThreshold_fn, getGrayPixels_fn, _isExtracted, _description, _signatureData, _signatureUUID, _bitmap, _bitmapId, _bitmapPromise, _bitmapUrl, _bitmapFile, _bitmapFileName, _canvas, _missingCanvas, _resizeTimeoutId, _isSvg, _hasBeenAddedInUndoStack, _StampEditor_instances, getBitmapFetched_fn, getBitmapDone_fn, getBitmap_fn, createCanvas_fn, scaleBitmap_fn, drawBitmap_fn, serializeBitmap_fn, hasElementChanged_fn4, _accessibilityManager2, _allowClick, _annotationLayer, _clickAC, _editorFocusTimeoutId, _editors, _hadPointerDown, _isDisabling, _isEnabling, _drawingAC, _focusedElement, _textLayer, _textSelectionAC, _textLayerDblClickAC, _lastPointerDownTimestamp, _uiManager4, _editorTypes2, _AnnotationEditorLayer_instances, allEditorsIterator_get, textLayerPointerDown_fn, currentEditorType_get, createNewEditor_fn, getCenterPoint_fn, cleanup_fn, _parent2, _mapping, _toUpdate, _id5, _DrawLayer_static, setBox_fn, _DrawLayer_instances, createSVG_fn, createClipPath_fn, updateProperties_fn, _coordinates, _coordinatesByElement, _getPageCanvas, _minSize, _pageWidth2, _pageHeight2, _activeImage, _TextLayerImages_instances, createImagePlaceholder_fn;
 (function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) {
@@ -12692,6 +12692,15 @@ async function createFolder(name, locationId, departmentId, parentId) {
     body: JSON.stringify({ name, locationId, departmentId, parentId: parentId || null })
   });
 }
+async function findFolder(name, locationId, departmentId, parentId) {
+  const q = new URLSearchParams({
+    name,
+    locationId,
+    departmentId,
+    parentId: parentId || "null"
+  });
+  return request(`/folders/find?${q}`, { method: "GET" });
+}
 async function deleteFolder(id) {
   return request(`/folders/${id}`, { method: "DELETE" });
 }
@@ -12980,6 +12989,74 @@ async function saveSecuritySettings(settings) {
     method: "PUT",
     body: JSON.stringify(settings)
   });
+}
+async function getCreditHoldInquiries() {
+  return request("/cht/inquiries");
+}
+async function createCreditHoldInquiry(invoiceNumber, notes) {
+  return request("/cht/inquiries", {
+    method: "POST",
+    body: JSON.stringify({ invoiceNumber, notes })
+  });
+}
+async function acceptCreditHoldInquiry(inquiryId) {
+  return request(`/cht/inquiries/${inquiryId}/accept`, { method: "POST" });
+}
+async function getCreditHoldStatuses() {
+  return request("/cht/statuses");
+}
+async function createCreditHoldStatus(name, color, sortOrder) {
+  return request("/cht/statuses", {
+    method: "POST",
+    body: JSON.stringify({ name, color, sortOrder })
+  });
+}
+async function updateCreditHoldStatus(id, name, color, sortOrder, isDefault) {
+  return request(`/cht/statuses/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ name, color, sortOrder, isDefault })
+  });
+}
+async function deleteCreditHoldStatus(id) {
+  return request(`/cht/statuses/${id}`, { method: "DELETE" });
+}
+async function getCreditHoldInquiryResponses(inquiryId) {
+  return request(`/cht/inquiries/${inquiryId}/responses`);
+}
+async function respondToCreditHoldInquiry(inquiryId, statusId, response) {
+  return request(`/cht/inquiries/${inquiryId}/respond`, {
+    method: "POST",
+    body: JSON.stringify({ statusId, response })
+  });
+}
+async function searchDcvCustomers(query) {
+  return request(`/dcv/search?q=${encodeURIComponent(query)}`);
+}
+async function getDcvCustomerByCusId(cusId) {
+  return request(`/dcv/by-cus-id/${encodeURIComponent(cusId)}`);
+}
+async function getDcvCustomerByRO(slsId) {
+  return request(`/dcv/by-RO/${encodeURIComponent(slsId)}`);
+}
+async function getDcvCustomerTimeline(id, page = 1, pageSize = 20, filterType = null) {
+  let url2 = `/dcv/${id}/timeline?page=${page}&pageSize=${pageSize}`;
+  if (filterType) {
+    url2 += `&filterType=${filterType}`;
+  }
+  return request(url2);
+}
+async function getDcvRepairOrders(id, page = 1, pageSize = 20, filterType = null, search = null) {
+  let url2 = `/dcv/${id}/repair-orders?page=${page}&pageSize=${pageSize}`;
+  if (filterType) {
+    url2 += `&filterType=${filterType}`;
+  }
+  if (search) {
+    url2 += `&search=${encodeURIComponent(search)}`;
+  }
+  return request(url2);
+}
+async function getDcvVinLookup(vin) {
+  return request(`/dcv/vin/${vin}`);
 }
 const darkTheme = {
   bg: "#0f1114",
@@ -14260,45 +14337,33 @@ function getPdfFilenameFromUrl(url2, defaultFilename = "document.pdf") {
 }
 class StatTimer {
   constructor() {
-    __publicField(this, "started", /* @__PURE__ */ Object.create(null));
+    __privateAdd(this, _started, /* @__PURE__ */ new Map());
     __publicField(this, "times", []);
   }
   time(name) {
-    if (name in this.started) {
+    if (__privateGet(this, _started).has(name)) {
       warn(`Timer is already running for ${name}`);
     }
-    this.started[name] = Date.now();
+    __privateGet(this, _started).set(name, Date.now());
   }
   timeEnd(name) {
-    if (!(name in this.started)) {
+    if (!__privateGet(this, _started).has(name)) {
       warn(`Timer has not been started for ${name}`);
     }
     this.times.push({
       name,
-      start: this.started[name],
+      start: __privateGet(this, _started).get(name),
       end: Date.now()
     });
-    delete this.started[name];
+    __privateGet(this, _started).delete(name);
   }
   toString() {
-    const outBuf = [];
-    let longest = 0;
-    for (const {
-      name
-    } of this.times) {
-      longest = Math.max(name.length, longest);
-    }
-    for (const {
-      name,
-      start,
-      end
-    } of this.times) {
-      outBuf.push(`${name.padEnd(longest)} ${end - start}ms
-`);
-    }
-    return outBuf.join("");
+    const longest = Math.max(...this.times.map((t) => t.name.length));
+    return this.times.map((t) => `${t.name.padEnd(longest)} ${t.end - t.start}ms
+`).join("");
   }
 }
+_started = new WeakMap();
 function isValidFetchUrl(url2, baseUrl) {
   const res = baseUrl ? URL.parse(url2, baseUrl) : URL.parse(url2);
   return /https?:/.test((res == null ? void 0 : res.protocol) ?? "");
@@ -14379,7 +14444,7 @@ function getRGB(color) {
     return color.slice(4, -1).split(",").map((x) => parseInt(x));
   }
   if (color.startsWith("rgba(")) {
-    return color.slice(5, -1).split(",").map((x) => parseInt(x)).slice(0, 3);
+    return color.slice(5, -1).split(",", 3).map((x) => parseInt(x));
   }
   warn(`Not a valid color format: "${color}"`);
   return [0, 0, 0];
@@ -14510,13 +14575,10 @@ class CSSConstants {
     return shadow(this, "commentForegroundColor", getRGB(color));
   }
 }
-function applyOpacity(r, g, b, opacity) {
+function applyOpacity(color, opacity) {
   opacity = MathClamp(opacity ?? 1, 0, 1);
   const white = 255 * (1 - opacity);
-  r = Math.round(r * opacity + white);
-  g = Math.round(g * opacity + white);
-  b = Math.round(b * opacity + white);
-  return [r, g, b];
+  return color.map((c) => Math.round(c * opacity + white));
 }
 function RGBToHSL(rgb, output) {
   const r = rgb[0] / 255;
@@ -14695,241 +14757,6 @@ function makePathFromDrawOPS(data) {
   }
   return path;
 }
-class PagesMapper {
-  constructor() {
-    __privateAdd(this, _PagesMapper_instances);
-    __privateAdd(this, _idToPageNumber, null);
-    __privateAdd(this, _pageNumberToId, null);
-    __privateAdd(this, _prevPageNumbers, null);
-    __privateAdd(this, _pagesNumber, 0);
-    __privateAdd(this, _listeners, []);
-    __privateAdd(this, _copiedPageIds, null);
-    __privateAdd(this, _copiedPageNumbers, null);
-  }
-  get pagesNumber() {
-    return __privateGet(this, _pagesNumber);
-  }
-  set pagesNumber(n) {
-    if (__privateGet(this, _pagesNumber) === n) {
-      return;
-    }
-    __privateSet(this, _pagesNumber, n);
-    __privateMethod(this, _PagesMapper_instances, reset_fn).call(this);
-  }
-  addListener(listener) {
-    __privateGet(this, _listeners).push(listener);
-  }
-  removeListener(listener) {
-    const index = __privateGet(this, _listeners).indexOf(listener);
-    if (index >= 0) {
-      __privateGet(this, _listeners).splice(index, 1);
-    }
-  }
-  movePages(selectedPages, pagesToMove, index) {
-    __privateMethod(this, _PagesMapper_instances, init_fn).call(this, true);
-    const pageNumberToId = __privateGet(this, _pageNumberToId);
-    const idToPageNumber = __privateGet(this, _idToPageNumber);
-    const movedCount = pagesToMove.length;
-    const mappedPagesToMove = new Uint32Array(movedCount);
-    let removedBeforeTarget = 0;
-    for (let i = 0; i < movedCount; i++) {
-      const pageIndex = pagesToMove[i] - 1;
-      mappedPagesToMove[i] = pageNumberToId[pageIndex];
-      if (pageIndex < index) {
-        removedBeforeTarget += 1;
-      }
-    }
-    const pagesNumber = __privateGet(this, _pagesNumber);
-    let adjustedTarget = index - removedBeforeTarget;
-    const remainingLen = pagesNumber - movedCount;
-    adjustedTarget = MathClamp(adjustedTarget, 0, remainingLen);
-    for (let i = 0, r = 0; i < pagesNumber; i++) {
-      if (!selectedPages.has(i + 1)) {
-        pageNumberToId[r++] = pageNumberToId[i];
-      }
-    }
-    pageNumberToId.copyWithin(adjustedTarget + movedCount, adjustedTarget, remainingLen);
-    pageNumberToId.set(mappedPagesToMove, adjustedTarget);
-    __privateMethod(this, _PagesMapper_instances, setPrevPageNumbers_fn).call(this, idToPageNumber, null);
-    __privateMethod(this, _PagesMapper_instances, updateIdToPageNumber_fn).call(this);
-    __privateMethod(this, _PagesMapper_instances, updateListeners_fn).call(this, {
-      type: "move"
-    });
-    if (pageNumberToId.every((id, i) => id === i + 1)) {
-      __privateMethod(this, _PagesMapper_instances, reset_fn).call(this);
-    }
-  }
-  deletePages(pagesToDelete) {
-    __privateMethod(this, _PagesMapper_instances, init_fn).call(this, true);
-    const pageNumberToId = __privateGet(this, _pageNumberToId);
-    const prevIdToPageNumber = __privateGet(this, _idToPageNumber);
-    this.pagesNumber -= pagesToDelete.length;
-    __privateMethod(this, _PagesMapper_instances, init_fn).call(this, false);
-    const newPageNumberToId = __privateGet(this, _pageNumberToId);
-    let sourceIndex = 0;
-    let destIndex = 0;
-    for (const pageNumber of pagesToDelete) {
-      const pageIndex = pageNumber - 1;
-      if (pageIndex !== sourceIndex) {
-        newPageNumberToId.set(pageNumberToId.subarray(sourceIndex, pageIndex), destIndex);
-        destIndex += pageIndex - sourceIndex;
-      }
-      sourceIndex = pageIndex + 1;
-    }
-    if (sourceIndex < pageNumberToId.length) {
-      newPageNumberToId.set(pageNumberToId.subarray(sourceIndex), destIndex);
-    }
-    __privateMethod(this, _PagesMapper_instances, setPrevPageNumbers_fn).call(this, prevIdToPageNumber, null);
-    __privateMethod(this, _PagesMapper_instances, updateIdToPageNumber_fn).call(this);
-    __privateMethod(this, _PagesMapper_instances, updateListeners_fn).call(this, {
-      type: "delete",
-      pageNumbers: pagesToDelete
-    });
-  }
-  copyPages(pagesToCopy) {
-    __privateMethod(this, _PagesMapper_instances, init_fn).call(this, true);
-    __privateSet(this, _copiedPageNumbers, pagesToCopy);
-    __privateSet(this, _copiedPageIds, pagesToCopy.map((pageNumber) => __privateGet(this, _pageNumberToId)[pageNumber - 1]));
-    __privateMethod(this, _PagesMapper_instances, updateListeners_fn).call(this, {
-      type: "copy",
-      pageNumbers: pagesToCopy
-    });
-  }
-  pastePages(index) {
-    __privateMethod(this, _PagesMapper_instances, init_fn).call(this, true);
-    const pageNumberToId = __privateGet(this, _pageNumberToId);
-    const prevIdToPageNumber = __privateGet(this, _idToPageNumber);
-    const copiedPageNumbers = __privateGet(this, _copiedPageNumbers);
-    const copiedPageMapping = /* @__PURE__ */ new Map();
-    let base = index;
-    for (const pageNumber of copiedPageNumbers) {
-      copiedPageMapping.set(++base, pageNumber);
-    }
-    this.pagesNumber += copiedPageNumbers.length;
-    __privateMethod(this, _PagesMapper_instances, init_fn).call(this, false);
-    const newPageNumberToId = __privateGet(this, _pageNumberToId);
-    newPageNumberToId.set(pageNumberToId.subarray(0, index), 0);
-    newPageNumberToId.set(__privateGet(this, _copiedPageIds), index);
-    newPageNumberToId.set(pageNumberToId.subarray(index), index + copiedPageNumbers.length);
-    __privateMethod(this, _PagesMapper_instances, setPrevPageNumbers_fn).call(this, prevIdToPageNumber, copiedPageMapping);
-    __privateMethod(this, _PagesMapper_instances, updateIdToPageNumber_fn).call(this);
-    __privateMethod(this, _PagesMapper_instances, updateListeners_fn).call(this, {
-      type: "paste"
-    });
-    __privateSet(this, _copiedPageIds, null);
-  }
-  hasBeenAltered() {
-    return __privateGet(this, _pageNumberToId) !== null;
-  }
-  getPageMappingForSaving() {
-    const idToPageNumber = __privateGet(this, _idToPageNumber);
-    let nCopy = 0;
-    for (const pageNumbers of idToPageNumber.values()) {
-      nCopy = Math.max(nCopy, pageNumbers.length);
-    }
-    const extractParams = new Array(nCopy);
-    for (let i = 0; i < nCopy; i++) {
-      extractParams[i] = {
-        document: null,
-        pageIndices: [],
-        includePages: []
-      };
-    }
-    for (const [id, pageNumbers] of idToPageNumber) {
-      for (let i = 0, ii = pageNumbers.length; i < ii; i++) {
-        extractParams[i].includePages.push([id - 1, pageNumbers[i] - 1]);
-      }
-    }
-    for (const {
-      includePages,
-      pageIndices
-    } of extractParams) {
-      includePages.sort((a, b) => a[0] - b[0]);
-      for (let i = 0, ii = includePages.length; i < ii; i++) {
-        pageIndices.push(includePages[i][1]);
-        includePages[i] = includePages[i][0];
-      }
-    }
-    return extractParams;
-  }
-  getPrevPageNumber(pageNumber) {
-    return __privateGet(this, _prevPageNumbers)[pageNumber - 1] ?? 0;
-  }
-  getPageNumber(id) {
-    var _a2;
-    return __privateGet(this, _idToPageNumber) ? ((_a2 = __privateGet(this, _idToPageNumber).get(id)) == null ? void 0 : _a2[0]) ?? 0 : id;
-  }
-  getPageId(pageNumber) {
-    var _a2;
-    return ((_a2 = __privateGet(this, _pageNumberToId)) == null ? void 0 : _a2[pageNumber - 1]) ?? pageNumber;
-  }
-  getMapping() {
-    return __privateGet(this, _pageNumberToId).subarray(0, this.pagesNumber);
-  }
-}
-_idToPageNumber = new WeakMap();
-_pageNumberToId = new WeakMap();
-_prevPageNumbers = new WeakMap();
-_pagesNumber = new WeakMap();
-_listeners = new WeakMap();
-_copiedPageIds = new WeakMap();
-_copiedPageNumbers = new WeakMap();
-_PagesMapper_instances = new WeakSet();
-reset_fn = function() {
-  __privateSet(this, _pageNumberToId, null);
-  __privateSet(this, _idToPageNumber, null);
-};
-updateListeners_fn = function(data) {
-  for (const listener of __privateGet(this, _listeners)) {
-    listener(data);
-  }
-};
-init_fn = function(mustInit) {
-  if (__privateGet(this, _pageNumberToId)) {
-    return;
-  }
-  const n = __privateGet(this, _pagesNumber);
-  const pageNumberToId = __privateSet(this, _pageNumberToId, new Uint32Array(n));
-  __privateSet(this, _prevPageNumbers, new Int32Array(pageNumberToId));
-  const idToPageNumber = __privateSet(this, _idToPageNumber, /* @__PURE__ */ new Map());
-  if (mustInit) {
-    for (let i = 1; i <= n; i++) {
-      pageNumberToId[i - 1] = i;
-      idToPageNumber.set(i, [i]);
-    }
-  }
-};
-updateIdToPageNumber_fn = function() {
-  const idToPageNumber = __privateGet(this, _idToPageNumber);
-  const pageNumberToId = __privateGet(this, _pageNumberToId);
-  idToPageNumber.clear();
-  for (let i = 0, ii = __privateGet(this, _pagesNumber); i < ii; i++) {
-    const id = pageNumberToId[i];
-    const pageNumbers = idToPageNumber.get(id);
-    if (pageNumbers) {
-      pageNumbers.push(i + 1);
-    } else {
-      idToPageNumber.set(id, [i + 1]);
-    }
-  }
-};
-setPrevPageNumbers_fn = function(prevIdToPageNumber, copiedPageMapping) {
-  var _a2;
-  const prevPageNumbers = __privateGet(this, _prevPageNumbers);
-  const newPageNumberToId = __privateGet(this, _pageNumberToId);
-  const idsIndices = /* @__PURE__ */ new Map();
-  for (let i = 0, ii = __privateGet(this, _pagesNumber); i < ii; i++) {
-    const oldPageNumber = copiedPageMapping == null ? void 0 : copiedPageMapping.get(i + 1);
-    if (oldPageNumber) {
-      prevPageNumbers[i] = -oldPageNumber;
-      continue;
-    }
-    const id = newPageNumberToId[i];
-    const j = idsIndices.get(id) || 0;
-    prevPageNumbers[i] = (_a2 = prevIdToPageNumber.get(id)) == null ? void 0 : _a2[j];
-    idsIndices.set(id, j + 1);
-  }
-};
 const _EditorToolbar = class _EditorToolbar {
   constructor(editor) {
     __privateAdd(this, _EditorToolbar_instances);
@@ -15713,6 +15540,7 @@ const _AnnotationEditorUIManager = class _AnnotationEditorUIManager {
     __privateAdd(this, _allEditableAnnotations, null);
     __privateAdd(this, _allEditors, /* @__PURE__ */ new Map());
     __privateAdd(this, _allLayers, /* @__PURE__ */ new Map());
+    __privateAdd(this, _savedAllLayers, null);
     __privateAdd(this, _altTextManager, null);
     __privateAdd(this, _annotationStorage, null);
     __privateAdd(this, _changedExistingAnnotations, null);
@@ -16419,6 +16247,59 @@ const _AnnotationEditorUIManager = class _AnnotationEditorUIManager {
         break;
     }
   }
+  updatePageIndex(oldPageIndex, newPageIndex) {
+    for (const editor of this.getEditors(oldPageIndex)) {
+      editor.pageIndex = newPageIndex;
+    }
+    const layer = __privateGet(this, _savedAllLayers).get(oldPageIndex);
+    if (layer) {
+      layer.pageIndex = newPageIndex;
+      __privateGet(this, _allLayers).set(newPageIndex, layer);
+      if (__privateGet(this, _isEnabled)) {
+        layer.enable();
+      } else {
+        layer.disable();
+      }
+    }
+  }
+  startUpdatePages() {
+    __privateSet(this, _savedAllLayers, new Map(__privateGet(this, _allLayers)));
+    __privateGet(this, _allLayers).clear();
+  }
+  endUpdatePages() {
+    __privateSet(this, _savedAllLayers, null);
+  }
+  clonePage(pageIndex, newPageIndex) {
+    for (const editor of this.getEditors(pageIndex)) {
+      const serialized = editor.serialize(editor.mode !== AnnotationEditorType.HIGHLIGHT);
+      if (!serialized) {
+        continue;
+      }
+      serialized.pageIndex = newPageIndex;
+      serialized.id = this.getId();
+      serialized.isClone = true;
+      delete serialized.popupRef;
+      __privateGet(this, _annotationStorage).setValue(serialized.id, serialized);
+    }
+  }
+  findClonesForPage(layer) {
+    const promises = [];
+    const {
+      pageIndex
+    } = layer;
+    for (const [id, editor] of __privateGet(this, _annotationStorage)) {
+      if (editor.pageIndex === pageIndex && editor.isClone) {
+        __privateGet(this, _annotationStorage).remove(id);
+        promises.push(layer.deserialize(editor).then((deserializedEditor) => {
+          if (deserializedEditor) {
+            deserializedEditor.isClone = true;
+            layer.addOrRebuild(deserializedEditor);
+          }
+        }));
+      }
+    }
+    return Promise.all(promises);
+  }
   setEditingState(isEditing) {
     if (isEditing) {
       __privateMethod(this, _AnnotationEditorUIManager_instances, addFocusManager_fn).call(this);
@@ -16720,7 +16601,7 @@ const _AnnotationEditorUIManager = class _AnnotationEditorUIManager {
     });
   }
   setSelected(editor) {
-    var _a2;
+    var _a2, _b;
     this.updateToolbar({
       mode: editor.mode,
       editId: editor.uid
@@ -16731,6 +16612,7 @@ const _AnnotationEditorUIManager = class _AnnotationEditorUIManager {
         ed.unselect();
       }
     }
+    (_b = __privateGet(this, _commentManager)) == null ? void 0 : _b.destroyPopup();
     __privateGet(this, _selectedEditors).clear();
     __privateGet(this, _selectedEditors).add(editor);
     editor.select();
@@ -16827,7 +16709,7 @@ const _AnnotationEditorUIManager = class _AnnotationEditorUIManager {
     __privateMethod(this, _AnnotationEditorUIManager_instances, selectEditors_fn).call(this, __privateGet(this, _allEditors).values());
   }
   unselectAll() {
-    var _a2;
+    var _a2, _b;
     if (__privateGet(this, _activeEditor)) {
       __privateGet(this, _activeEditor).commitOrRemove();
       if (__privateGet(this, _mode) !== AnnotationEditorType.NONE) {
@@ -16837,6 +16719,7 @@ const _AnnotationEditorUIManager = class _AnnotationEditorUIManager {
     if ((_a2 = __privateGet(this, _currentDrawingSession)) == null ? void 0 : _a2.commitOrRemove()) {
       return;
     }
+    (_b = __privateGet(this, _commentManager)) == null ? void 0 : _b.destroyPopup();
     if (!this.hasSelection) {
       return;
     }
@@ -17122,6 +17005,7 @@ _activeEditor = new WeakMap();
 _allEditableAnnotations = new WeakMap();
 _allEditors = new WeakMap();
 _allLayers = new WeakMap();
+_savedAllLayers = new WeakMap();
 _altTextManager = new WeakMap();
 _annotationStorage = new WeakMap();
 _changedExistingAnnotations = new WeakMap();
@@ -17357,7 +17241,7 @@ addDragAndDropListeners_fn = function() {
 dispatchUpdateStates_fn = function(details) {
   const hasChanged = Object.entries(details).some(([key, value2]) => __privateGet(this, _previousStates)[key] !== value2);
   if (hasChanged) {
-    this._eventBus.dispatch("annotationeditorstateschanged", {
+    this._eventBus.dispatch("editingstateschanged", {
       source: this,
       details: Object.assign(__privateGet(this, _previousStates), details)
     });
@@ -18314,7 +18198,7 @@ const _AnnotationEditor = class _AnnotationEditor {
   }
   static deleteAnnotationElement(editor) {
     const fakeEditor = new FakeEditor({
-      id: editor.parent.getNextId(),
+      id: editor._uiManager.getId(),
       parent: editor.parent,
       uiManager: editor._uiManager
     });
@@ -18465,6 +18349,10 @@ const _AnnotationEditor = class _AnnotationEditor {
     this.fixAndSetPosition();
   }
   _moveAfterPaste(baseX, baseY) {
+    if (this.isClone) {
+      delete this.isClone;
+      return;
+    }
     const [parentWidth, parentHeight] = this.parentDimensions;
     this.setAt(baseX * parentWidth, baseY * parentHeight, this.width * parentWidth, this.height * parentHeight);
     this._onTranslated();
@@ -19094,7 +18982,7 @@ const _AnnotationEditor = class _AnnotationEditor {
   static async deserialize(data, parent, uiManager) {
     const editor = new this.prototype.constructor({
       parent,
-      id: parent.getNextId(),
+      id: uiManager.getId(),
       uiManager,
       annotationElementId: data.annotationElementId,
       creationDate: data.creationDate,
@@ -20050,6 +19938,7 @@ class AnnotationStorage {
     return __privateGet(this, _storage).get(key);
   }
   remove(key) {
+    var _a2;
     const storedValue = __privateGet(this, _storage).get(key);
     if (storedValue === void 0) {
       return;
@@ -20061,16 +19950,13 @@ class AnnotationStorage {
     if (__privateGet(this, _storage).size === 0) {
       this.resetModified();
     }
-    if (typeof this.onAnnotationEditor === "function") {
-      for (const value2 of __privateGet(this, _storage).values()) {
-        if (value2 instanceof AnnotationEditor) {
-          return;
-        }
-      }
-      this.onAnnotationEditor(null);
+    if (__privateGet(this, _storage).values().some((v) => v instanceof AnnotationEditor)) {
+      return;
     }
+    (_a2 = this.onAnnotationEditor) == null ? void 0 : _a2.call(this, null);
   }
   setValue(key, value2) {
+    var _a2;
     const obj = __privateGet(this, _storage).get(key);
     let modified = false;
     if (obj !== void 0) {
@@ -20089,9 +19975,7 @@ class AnnotationStorage {
     }
     if (value2 instanceof AnnotationEditor) {
       (__privateGet(this, _editorsMap) || __privateSet(this, _editorsMap, /* @__PURE__ */ new Map())).set(value2.annotationElementId, value2);
-      if (typeof this.onAnnotationEditor === "function") {
-        this.onAnnotationEditor(value2.constructor._type);
-      }
+      (_a2 = this.onAnnotationEditor) == null ? void 0 : _a2.call(this, value2.constructor._type);
     }
   }
   has(key) {
@@ -20101,11 +19985,10 @@ class AnnotationStorage {
     return __privateGet(this, _storage).size;
   }
   resetModified() {
+    var _a2;
     if (__privateGet(this, _modified)) {
       __privateSet(this, _modified, false);
-      if (typeof this.onResetModified === "function") {
-        this.onResetModified();
-      }
+      (_a2 = this.onResetModified) == null ? void 0 : _a2.call(this);
     }
   }
   get print() {
@@ -20243,11 +20126,10 @@ _editorsMap = new WeakMap();
 _storage = new WeakMap();
 _AnnotationStorage_instances = new WeakSet();
 setModified_fn = function() {
+  var _a2;
   if (!__privateGet(this, _modified)) {
     __privateSet(this, _modified, true);
-    if (typeof this.onSetModified === "function") {
-      this.onSetModified();
-    }
+    (_a2 = this.onSetModified) == null ? void 0 : _a2.call(this);
   }
 };
 class PrintAnnotationStorage extends AnnotationStorage {
@@ -20288,6 +20170,771 @@ class PrintAnnotationStorage extends AnnotationStorage {
   }
 }
 _serializable = new WeakMap();
+const FORCED_DEPENDENCY_LABEL = "__forcedDependency";
+const {
+  floor,
+  ceil
+} = Math;
+function expandBBox(array, index, minX, minY, maxX, maxY) {
+  array[index * 4 + 0] = Math.min(array[index * 4 + 0], minX);
+  array[index * 4 + 1] = Math.min(array[index * 4 + 1], minY);
+  array[index * 4 + 2] = Math.max(array[index * 4 + 2], maxX);
+  array[index * 4 + 3] = Math.max(array[index * 4 + 3], maxY);
+}
+const EMPTY_BBOX = new Uint32Array(new Uint8Array([255, 255, 0, 0]).buffer)[0];
+class BBoxReader {
+  constructor(bboxes, coords) {
+    __privateAdd(this, _bboxes);
+    __privateAdd(this, _coords);
+    __privateSet(this, _bboxes, bboxes);
+    __privateSet(this, _coords, coords);
+  }
+  get length() {
+    return __privateGet(this, _bboxes).length;
+  }
+  isEmpty(i) {
+    return __privateGet(this, _bboxes)[i] === EMPTY_BBOX;
+  }
+  minX(i) {
+    return __privateGet(this, _coords)[i * 4 + 0] / 256;
+  }
+  minY(i) {
+    return __privateGet(this, _coords)[i * 4 + 1] / 256;
+  }
+  maxX(i) {
+    return (__privateGet(this, _coords)[i * 4 + 2] + 1) / 256;
+  }
+  maxY(i) {
+    return (__privateGet(this, _coords)[i * 4 + 3] + 1) / 256;
+  }
+}
+_bboxes = new WeakMap();
+_coords = new WeakMap();
+const ensureDebugMetadata = (map, key) => map == null ? void 0 : map.getOrInsertComputed(key, () => ({
+  dependencies: /* @__PURE__ */ new Set(),
+  isRenderingOperation: false
+}));
+class CanvasBBoxTracker {
+  constructor(canvas, operationsCount) {
+    __privateAdd(this, _CanvasBBoxTracker_instances);
+    __privateAdd(this, _baseTransformStack, [[1, 0, 0, 1, 0, 0]]);
+    __privateAdd(this, _clipBox, [-Infinity, -Infinity, Infinity, Infinity]);
+    __privateAdd(this, _pendingBBox, new Float64Array([Infinity, Infinity, -Infinity, -Infinity]));
+    __publicField(this, "_pendingBBoxIdx", -1);
+    __privateAdd(this, _canvasWidth);
+    __privateAdd(this, _canvasHeight);
+    __privateAdd(this, _bboxesCoords);
+    __privateAdd(this, _bboxes2);
+    __publicField(this, "_savesStack", []);
+    __publicField(this, "_markedContentStack", []);
+    __privateSet(this, _canvasWidth, canvas.width);
+    __privateSet(this, _canvasHeight, canvas.height);
+    __privateMethod(this, _CanvasBBoxTracker_instances, initializeBBoxes_fn).call(this, operationsCount);
+  }
+  growOperationsCount(operationsCount) {
+    if (operationsCount >= __privateGet(this, _bboxes2).length) {
+      __privateMethod(this, _CanvasBBoxTracker_instances, initializeBBoxes_fn).call(this, operationsCount, __privateGet(this, _bboxes2));
+    }
+  }
+  get clipBox() {
+    return __privateGet(this, _clipBox);
+  }
+  save(opIdx) {
+    __privateSet(this, _clipBox, {
+      __proto__: __privateGet(this, _clipBox)
+    });
+    this._savesStack.push(opIdx);
+    return this;
+  }
+  restore(opIdx, onSavePopped) {
+    const previous = Object.getPrototypeOf(__privateGet(this, _clipBox));
+    if (previous === null) {
+      return this;
+    }
+    __privateSet(this, _clipBox, previous);
+    const lastSave = this._savesStack.pop();
+    if (lastSave !== void 0) {
+      onSavePopped == null ? void 0 : onSavePopped(lastSave, opIdx);
+      __privateGet(this, _bboxes2)[opIdx] = __privateGet(this, _bboxes2)[lastSave];
+    }
+    return this;
+  }
+  recordOpenMarker(idx) {
+    this._savesStack.push(idx);
+    return this;
+  }
+  getOpenMarker() {
+    if (this._savesStack.length === 0) {
+      return null;
+    }
+    return this._savesStack.at(-1);
+  }
+  recordCloseMarker(opIdx, onSavePopped) {
+    const lastSave = this._savesStack.pop();
+    if (lastSave !== void 0) {
+      onSavePopped == null ? void 0 : onSavePopped(lastSave, opIdx);
+      __privateGet(this, _bboxes2)[opIdx] = __privateGet(this, _bboxes2)[lastSave];
+    }
+    return this;
+  }
+  beginMarkedContent(opIdx) {
+    this._markedContentStack.push(opIdx);
+    return this;
+  }
+  endMarkedContent(opIdx, onSavePopped) {
+    const lastSave = this._markedContentStack.pop();
+    if (lastSave !== void 0) {
+      onSavePopped == null ? void 0 : onSavePopped(lastSave, opIdx);
+      __privateGet(this, _bboxes2)[opIdx] = __privateGet(this, _bboxes2)[lastSave];
+    }
+    return this;
+  }
+  pushBaseTransform(ctx) {
+    __privateGet(this, _baseTransformStack).push(Util.multiplyByDOMMatrix(__privateGet(this, _baseTransformStack).at(-1), ctx.getTransform()));
+    return this;
+  }
+  popBaseTransform() {
+    if (__privateGet(this, _baseTransformStack).length > 1) {
+      __privateGet(this, _baseTransformStack).pop();
+    }
+    return this;
+  }
+  resetBBox(idx) {
+    if (this._pendingBBoxIdx !== idx) {
+      this._pendingBBoxIdx = idx;
+      __privateGet(this, _pendingBBox)[0] = Infinity;
+      __privateGet(this, _pendingBBox)[1] = Infinity;
+      __privateGet(this, _pendingBBox)[2] = -Infinity;
+      __privateGet(this, _pendingBBox)[3] = -Infinity;
+    }
+    return this;
+  }
+  recordClipBox(idx, ctx, minX, maxX, minY, maxY) {
+    const transform = Util.multiplyByDOMMatrix(__privateGet(this, _baseTransformStack).at(-1), ctx.getTransform());
+    const clipBox = [Infinity, Infinity, -Infinity, -Infinity];
+    Util.axialAlignedBoundingBox([minX, minY, maxX, maxY], transform, clipBox);
+    const intersection = Util.intersect(__privateGet(this, _clipBox), clipBox);
+    if (intersection) {
+      __privateGet(this, _clipBox)[0] = intersection[0];
+      __privateGet(this, _clipBox)[1] = intersection[1];
+      __privateGet(this, _clipBox)[2] = intersection[2];
+      __privateGet(this, _clipBox)[3] = intersection[3];
+    } else {
+      __privateGet(this, _clipBox)[0] = __privateGet(this, _clipBox)[1] = Infinity;
+      __privateGet(this, _clipBox)[2] = __privateGet(this, _clipBox)[3] = -Infinity;
+    }
+    return this;
+  }
+  recordBBox(idx, ctx, minX, maxX, minY, maxY) {
+    const clipBox = __privateGet(this, _clipBox);
+    if (clipBox[0] === Infinity) {
+      return this;
+    }
+    const transform = Util.multiplyByDOMMatrix(__privateGet(this, _baseTransformStack).at(-1), ctx.getTransform());
+    if (clipBox[0] === -Infinity) {
+      Util.axialAlignedBoundingBox([minX, minY, maxX, maxY], transform, __privateGet(this, _pendingBBox));
+      return this;
+    }
+    const bbox = [Infinity, Infinity, -Infinity, -Infinity];
+    Util.axialAlignedBoundingBox([minX, minY, maxX, maxY], transform, bbox);
+    __privateGet(this, _pendingBBox)[0] = Math.min(__privateGet(this, _pendingBBox)[0], Math.max(bbox[0], clipBox[0]));
+    __privateGet(this, _pendingBBox)[1] = Math.min(__privateGet(this, _pendingBBox)[1], Math.max(bbox[1], clipBox[1]));
+    __privateGet(this, _pendingBBox)[2] = Math.max(__privateGet(this, _pendingBBox)[2], Math.min(bbox[2], clipBox[2]));
+    __privateGet(this, _pendingBBox)[3] = Math.max(__privateGet(this, _pendingBBox)[3], Math.min(bbox[3], clipBox[3]));
+    return this;
+  }
+  recordFullPageBBox(idx) {
+    __privateGet(this, _pendingBBox)[0] = Math.max(0, __privateGet(this, _clipBox)[0]);
+    __privateGet(this, _pendingBBox)[1] = Math.max(0, __privateGet(this, _clipBox)[1]);
+    __privateGet(this, _pendingBBox)[2] = Math.min(__privateGet(this, _canvasWidth), __privateGet(this, _clipBox)[2]);
+    __privateGet(this, _pendingBBox)[3] = Math.min(__privateGet(this, _canvasHeight), __privateGet(this, _clipBox)[3]);
+    return this;
+  }
+  recordOperation(idx, preserve = false, dependencyLists) {
+    if (this._pendingBBoxIdx !== idx) {
+      return this;
+    }
+    const minX = floor(__privateGet(this, _pendingBBox)[0] * 256 / __privateGet(this, _canvasWidth));
+    const minY = floor(__privateGet(this, _pendingBBox)[1] * 256 / __privateGet(this, _canvasHeight));
+    const maxX = ceil(__privateGet(this, _pendingBBox)[2] * 256 / __privateGet(this, _canvasWidth));
+    const maxY = ceil(__privateGet(this, _pendingBBox)[3] * 256 / __privateGet(this, _canvasHeight));
+    expandBBox(__privateGet(this, _bboxesCoords), idx, minX, minY, maxX, maxY);
+    if (dependencyLists) {
+      for (const dependencies of dependencyLists) {
+        for (const depIdx of dependencies) {
+          if (depIdx !== idx) {
+            expandBBox(__privateGet(this, _bboxesCoords), depIdx, minX, minY, maxX, maxY);
+          }
+        }
+      }
+    }
+    if (!preserve) {
+      this._pendingBBoxIdx = -1;
+    }
+    return this;
+  }
+  bboxToClipBoxDropOperation(idx) {
+    if (this._pendingBBoxIdx === idx) {
+      this._pendingBBoxIdx = -1;
+      __privateGet(this, _clipBox)[0] = Math.max(__privateGet(this, _clipBox)[0], __privateGet(this, _pendingBBox)[0]);
+      __privateGet(this, _clipBox)[1] = Math.max(__privateGet(this, _clipBox)[1], __privateGet(this, _pendingBBox)[1]);
+      __privateGet(this, _clipBox)[2] = Math.min(__privateGet(this, _clipBox)[2], __privateGet(this, _pendingBBox)[2]);
+      __privateGet(this, _clipBox)[3] = Math.min(__privateGet(this, _clipBox)[3], __privateGet(this, _pendingBBox)[3]);
+    }
+    return this;
+  }
+  take() {
+    return new BBoxReader(__privateGet(this, _bboxes2), __privateGet(this, _bboxesCoords));
+  }
+  takeDebugMetadata() {
+    throw new Error("Unreachable");
+  }
+  recordSimpleData(name, idx) {
+    return this;
+  }
+  recordIncrementalData(name, idx) {
+    return this;
+  }
+  resetIncrementalData(name, idx) {
+    return this;
+  }
+  recordNamedData(name, idx) {
+    return this;
+  }
+  recordSimpleDataFromNamed(name, depName, fallbackIdx) {
+    return this;
+  }
+  recordFutureForcedDependency(name, idx) {
+    return this;
+  }
+  inheritSimpleDataAsFutureForcedDependencies(names) {
+    return this;
+  }
+  inheritPendingDependenciesAsFutureForcedDependencies() {
+    return this;
+  }
+  recordCharacterBBox(idx, ctx, font, scale = 1, x = 0, y = 0, getMeasure) {
+    return this;
+  }
+  getSimpleIndex(dependencyName) {
+    return void 0;
+  }
+  recordDependencies(idx, dependencyNames) {
+    return this;
+  }
+  recordNamedDependency(idx, name) {
+    return this;
+  }
+  recordShowTextOperation(idx, preserve = false) {
+    return this;
+  }
+}
+_baseTransformStack = new WeakMap();
+_clipBox = new WeakMap();
+_pendingBBox = new WeakMap();
+_canvasWidth = new WeakMap();
+_canvasHeight = new WeakMap();
+_bboxesCoords = new WeakMap();
+_bboxes2 = new WeakMap();
+_CanvasBBoxTracker_instances = new WeakSet();
+initializeBBoxes_fn = function(operationsCount, oldBBoxes) {
+  const buffer = new ArrayBuffer(operationsCount * 4);
+  __privateSet(this, _bboxesCoords, new Uint8ClampedArray(buffer));
+  __privateSet(this, _bboxes2, new Uint32Array(buffer));
+  if (oldBBoxes && oldBBoxes.length > 0) {
+    __privateGet(this, _bboxes2).set(oldBBoxes);
+    __privateGet(this, _bboxes2).fill(EMPTY_BBOX, oldBBoxes.length);
+  } else {
+    __privateGet(this, _bboxes2).fill(EMPTY_BBOX);
+  }
+};
+class CanvasDependencyTracker {
+  constructor(bboxTracker, recordDebugMetadata = false) {
+    __privateAdd(this, _simple, {
+      __proto__: null
+    });
+    __privateAdd(this, _incremental, {
+      __proto__: null,
+      transform: [],
+      moveText: [],
+      sameLineText: [],
+      [FORCED_DEPENDENCY_LABEL]: []
+    });
+    __privateAdd(this, _namedDependencies, /* @__PURE__ */ new Map());
+    __privateAdd(this, _pendingDependencies, /* @__PURE__ */ new Set());
+    __privateAdd(this, _fontBBoxTrustworthy, /* @__PURE__ */ new Map());
+    __privateAdd(this, _debugMetadata);
+    __privateAdd(this, _recordDebugMetadataDepenencyAfterRestore);
+    __privateAdd(this, _bboxTracker);
+    __privateSet(this, _bboxTracker, bboxTracker);
+    if (recordDebugMetadata) {
+      __privateSet(this, _debugMetadata, /* @__PURE__ */ new Map());
+      __privateSet(this, _recordDebugMetadataDepenencyAfterRestore, (lastSave, opIdx) => {
+        ensureDebugMetadata(__privateGet(this, _debugMetadata), opIdx).dependencies.add(lastSave);
+      });
+    }
+  }
+  get clipBox() {
+    return __privateGet(this, _bboxTracker).clipBox;
+  }
+  growOperationsCount(operationsCount) {
+    __privateGet(this, _bboxTracker).growOperationsCount(operationsCount);
+  }
+  save(opIdx) {
+    __privateSet(this, _simple, {
+      __proto__: __privateGet(this, _simple)
+    });
+    __privateSet(this, _incremental, {
+      __proto__: __privateGet(this, _incremental),
+      transform: {
+        __proto__: __privateGet(this, _incremental).transform
+      },
+      moveText: {
+        __proto__: __privateGet(this, _incremental).moveText
+      },
+      sameLineText: {
+        __proto__: __privateGet(this, _incremental).sameLineText
+      },
+      [FORCED_DEPENDENCY_LABEL]: {
+        __proto__: __privateGet(this, _incremental)[FORCED_DEPENDENCY_LABEL]
+      }
+    });
+    __privateGet(this, _bboxTracker).save(opIdx);
+    return this;
+  }
+  restore(opIdx) {
+    __privateGet(this, _bboxTracker).restore(opIdx, __privateGet(this, _recordDebugMetadataDepenencyAfterRestore));
+    const previous = Object.getPrototypeOf(__privateGet(this, _simple));
+    if (previous === null) {
+      return this;
+    }
+    __privateSet(this, _simple, previous);
+    __privateSet(this, _incremental, Object.getPrototypeOf(__privateGet(this, _incremental)));
+    return this;
+  }
+  recordOpenMarker(opIdx) {
+    __privateGet(this, _bboxTracker).recordOpenMarker(opIdx, __privateGet(this, _recordDebugMetadataDepenencyAfterRestore));
+    return this;
+  }
+  getOpenMarker() {
+    return __privateGet(this, _bboxTracker).getOpenMarker();
+  }
+  recordCloseMarker(opIdx) {
+    __privateGet(this, _bboxTracker).recordCloseMarker(opIdx, __privateGet(this, _recordDebugMetadataDepenencyAfterRestore));
+    return this;
+  }
+  beginMarkedContent(opIdx) {
+    __privateGet(this, _bboxTracker).beginMarkedContent(opIdx);
+    return this;
+  }
+  endMarkedContent(opIdx) {
+    __privateGet(this, _bboxTracker).endMarkedContent(opIdx, __privateGet(this, _recordDebugMetadataDepenencyAfterRestore));
+    return this;
+  }
+  pushBaseTransform(ctx) {
+    __privateGet(this, _bboxTracker).pushBaseTransform(ctx);
+    return this;
+  }
+  popBaseTransform() {
+    __privateGet(this, _bboxTracker).popBaseTransform();
+    return this;
+  }
+  recordSimpleData(name, idx) {
+    __privateGet(this, _simple)[name] = idx;
+    return this;
+  }
+  recordIncrementalData(name, idx) {
+    __privateGet(this, _incremental)[name].push(idx);
+    return this;
+  }
+  resetIncrementalData(name, idx) {
+    __privateGet(this, _incremental)[name].length = 0;
+    return this;
+  }
+  recordNamedData(name, idx) {
+    __privateGet(this, _namedDependencies).set(name, idx);
+    return this;
+  }
+  recordSimpleDataFromNamed(name, depName, fallbackIdx) {
+    __privateGet(this, _simple)[name] = __privateGet(this, _namedDependencies).get(depName) ?? fallbackIdx;
+  }
+  recordFutureForcedDependency(name, idx) {
+    this.recordIncrementalData(FORCED_DEPENDENCY_LABEL, idx);
+    return this;
+  }
+  inheritSimpleDataAsFutureForcedDependencies(names) {
+    for (const name of names) {
+      if (name in __privateGet(this, _simple)) {
+        this.recordFutureForcedDependency(name, __privateGet(this, _simple)[name]);
+      }
+    }
+    return this;
+  }
+  inheritPendingDependenciesAsFutureForcedDependencies() {
+    for (const dep of __privateGet(this, _pendingDependencies)) {
+      this.recordFutureForcedDependency(FORCED_DEPENDENCY_LABEL, dep);
+    }
+    return this;
+  }
+  resetBBox(idx) {
+    __privateGet(this, _bboxTracker).resetBBox(idx);
+    return this;
+  }
+  recordClipBox(idx, ctx, minX, maxX, minY, maxY) {
+    __privateGet(this, _bboxTracker).recordClipBox(idx, ctx, minX, maxX, minY, maxY);
+    return this;
+  }
+  recordBBox(idx, ctx, minX, maxX, minY, maxY) {
+    __privateGet(this, _bboxTracker).recordBBox(idx, ctx, minX, maxX, minY, maxY);
+    return this;
+  }
+  recordCharacterBBox(idx, ctx, font, scale = 1, x = 0, y = 0, getMeasure) {
+    const fontBBox = font.bbox;
+    let isBBoxTrustworthy;
+    let computedBBox;
+    if (fontBBox) {
+      isBBoxTrustworthy = fontBBox[2] !== fontBBox[0] && fontBBox[3] !== fontBBox[1] && __privateGet(this, _fontBBoxTrustworthy).get(font);
+      if (isBBoxTrustworthy !== false) {
+        computedBBox = [0, 0, 0, 0];
+        Util.axialAlignedBoundingBox(fontBBox, font.fontMatrix, computedBBox);
+        if (scale !== 1 || x !== 0 || y !== 0) {
+          Util.scaleMinMax([scale, 0, 0, -scale, x, y], computedBBox);
+        }
+        if (isBBoxTrustworthy) {
+          return this.recordBBox(idx, ctx, computedBBox[0], computedBBox[2], computedBBox[1], computedBBox[3]);
+        }
+      }
+    }
+    if (!getMeasure) {
+      return this.recordFullPageBBox(idx);
+    }
+    const measure = getMeasure();
+    if (fontBBox && computedBBox && isBBoxTrustworthy === void 0) {
+      isBBoxTrustworthy = computedBBox[0] <= x - measure.actualBoundingBoxLeft && computedBBox[2] >= x + measure.actualBoundingBoxRight && computedBBox[1] <= y - measure.actualBoundingBoxAscent && computedBBox[3] >= y + measure.actualBoundingBoxDescent;
+      __privateGet(this, _fontBBoxTrustworthy).set(font, isBBoxTrustworthy);
+      if (isBBoxTrustworthy) {
+        return this.recordBBox(idx, ctx, computedBBox[0], computedBBox[2], computedBBox[1], computedBBox[3]);
+      }
+    }
+    return this.recordBBox(idx, ctx, x - measure.actualBoundingBoxLeft, x + measure.actualBoundingBoxRight, y - measure.actualBoundingBoxAscent, y + measure.actualBoundingBoxDescent);
+  }
+  recordFullPageBBox(idx) {
+    __privateGet(this, _bboxTracker).recordFullPageBBox(idx);
+    return this;
+  }
+  getSimpleIndex(dependencyName) {
+    return __privateGet(this, _simple)[dependencyName];
+  }
+  recordDependencies(idx, dependencyNames) {
+    const pendingDependencies = __privateGet(this, _pendingDependencies);
+    const simple = __privateGet(this, _simple);
+    const incremental = __privateGet(this, _incremental);
+    for (const name of dependencyNames) {
+      if (name in __privateGet(this, _simple)) {
+        pendingDependencies.add(simple[name]);
+      } else if (name in incremental) {
+        incremental[name].forEach(pendingDependencies.add, pendingDependencies);
+      }
+    }
+    return this;
+  }
+  recordNamedDependency(idx, name) {
+    if (__privateGet(this, _namedDependencies).has(name)) {
+      __privateGet(this, _pendingDependencies).add(__privateGet(this, _namedDependencies).get(name));
+    }
+    return this;
+  }
+  recordOperation(idx, preserve = false) {
+    this.recordDependencies(idx, [FORCED_DEPENDENCY_LABEL]);
+    if (__privateGet(this, _debugMetadata)) {
+      const metadata = ensureDebugMetadata(__privateGet(this, _debugMetadata), idx);
+      const {
+        dependencies
+      } = metadata;
+      __privateGet(this, _pendingDependencies).forEach(dependencies.add, dependencies);
+      __privateGet(this, _bboxTracker)._savesStack.forEach(dependencies.add, dependencies);
+      __privateGet(this, _bboxTracker)._markedContentStack.forEach(dependencies.add, dependencies);
+      dependencies.delete(idx);
+      metadata.isRenderingOperation = true;
+    }
+    const needsCleanup = !preserve && idx === __privateGet(this, _bboxTracker)._pendingBBoxIdx;
+    __privateGet(this, _bboxTracker).recordOperation(idx, preserve, [__privateGet(this, _pendingDependencies), __privateGet(this, _bboxTracker)._savesStack, __privateGet(this, _bboxTracker)._markedContentStack]);
+    if (needsCleanup) {
+      __privateGet(this, _pendingDependencies).clear();
+    }
+    return this;
+  }
+  recordShowTextOperation(idx, preserve = false) {
+    const deps = Array.from(__privateGet(this, _pendingDependencies));
+    this.recordOperation(idx, preserve);
+    this.recordIncrementalData("sameLineText", idx);
+    for (const dep of deps) {
+      this.recordIncrementalData("sameLineText", dep);
+    }
+    return this;
+  }
+  bboxToClipBoxDropOperation(idx, preserve = false) {
+    const needsCleanup = !preserve && idx === __privateGet(this, _bboxTracker)._pendingBBoxIdx;
+    __privateGet(this, _bboxTracker).bboxToClipBoxDropOperation(idx);
+    if (needsCleanup) {
+      __privateGet(this, _pendingDependencies).clear();
+    }
+    return this;
+  }
+  take() {
+    __privateGet(this, _fontBBoxTrustworthy).clear();
+    return __privateGet(this, _bboxTracker).take();
+  }
+  takeDebugMetadata() {
+    return __privateGet(this, _debugMetadata);
+  }
+}
+_simple = new WeakMap();
+_incremental = new WeakMap();
+_namedDependencies = new WeakMap();
+_pendingDependencies = new WeakMap();
+_fontBBoxTrustworthy = new WeakMap();
+_debugMetadata = new WeakMap();
+_recordDebugMetadataDepenencyAfterRestore = new WeakMap();
+_bboxTracker = new WeakMap();
+const _CanvasNestedDependencyTracker = class _CanvasNestedDependencyTracker {
+  constructor(dependencyTracker, opIdx, ignoreBBoxes) {
+    __privateAdd(this, _dependencyTracker);
+    __privateAdd(this, _opIdx);
+    __privateAdd(this, _ignoreBBoxes);
+    __privateAdd(this, _nestingLevel, 0);
+    __privateAdd(this, _savesLevel, 0);
+    if (dependencyTracker instanceof _CanvasNestedDependencyTracker && __privateGet(dependencyTracker, _ignoreBBoxes) === !!ignoreBBoxes) {
+      return dependencyTracker;
+    }
+    __privateSet(this, _dependencyTracker, dependencyTracker);
+    __privateSet(this, _opIdx, opIdx);
+    __privateSet(this, _ignoreBBoxes, !!ignoreBBoxes);
+  }
+  get clipBox() {
+    return __privateGet(this, _dependencyTracker).clipBox;
+  }
+  growOperationsCount() {
+    throw new Error("Unreachable");
+  }
+  save(opIdx) {
+    __privateWrapper(this, _savesLevel)._++;
+    __privateGet(this, _dependencyTracker).save(__privateGet(this, _opIdx));
+    return this;
+  }
+  restore(opIdx) {
+    if (__privateGet(this, _savesLevel) > 0) {
+      __privateGet(this, _dependencyTracker).restore(__privateGet(this, _opIdx));
+      __privateWrapper(this, _savesLevel)._--;
+    }
+    return this;
+  }
+  recordOpenMarker(idx) {
+    __privateWrapper(this, _nestingLevel)._++;
+    return this;
+  }
+  getOpenMarker() {
+    return __privateGet(this, _nestingLevel) > 0 ? __privateGet(this, _opIdx) : __privateGet(this, _dependencyTracker).getOpenMarker();
+  }
+  recordCloseMarker(idx) {
+    __privateWrapper(this, _nestingLevel)._--;
+    return this;
+  }
+  beginMarkedContent(opIdx) {
+    return this;
+  }
+  endMarkedContent(opIdx) {
+    return this;
+  }
+  pushBaseTransform(ctx) {
+    __privateGet(this, _dependencyTracker).pushBaseTransform(ctx);
+    return this;
+  }
+  popBaseTransform() {
+    __privateGet(this, _dependencyTracker).popBaseTransform();
+    return this;
+  }
+  recordSimpleData(name, idx) {
+    __privateGet(this, _dependencyTracker).recordSimpleData(name, __privateGet(this, _opIdx));
+    return this;
+  }
+  recordIncrementalData(name, idx) {
+    __privateGet(this, _dependencyTracker).recordIncrementalData(name, __privateGet(this, _opIdx));
+    return this;
+  }
+  resetIncrementalData(name, idx) {
+    __privateGet(this, _dependencyTracker).resetIncrementalData(name, __privateGet(this, _opIdx));
+    return this;
+  }
+  recordNamedData(name, idx) {
+    return this;
+  }
+  recordSimpleDataFromNamed(name, depName, fallbackIdx) {
+    __privateGet(this, _dependencyTracker).recordSimpleDataFromNamed(name, depName, __privateGet(this, _opIdx));
+    return this;
+  }
+  recordFutureForcedDependency(name, idx) {
+    __privateGet(this, _dependencyTracker).recordFutureForcedDependency(name, __privateGet(this, _opIdx));
+    return this;
+  }
+  inheritSimpleDataAsFutureForcedDependencies(names) {
+    __privateGet(this, _dependencyTracker).inheritSimpleDataAsFutureForcedDependencies(names);
+    return this;
+  }
+  inheritPendingDependenciesAsFutureForcedDependencies() {
+    __privateGet(this, _dependencyTracker).inheritPendingDependenciesAsFutureForcedDependencies();
+    return this;
+  }
+  resetBBox(idx) {
+    if (!__privateGet(this, _ignoreBBoxes)) {
+      __privateGet(this, _dependencyTracker).resetBBox(__privateGet(this, _opIdx));
+    }
+    return this;
+  }
+  recordClipBox(idx, ctx, minX, maxX, minY, maxY) {
+    if (!__privateGet(this, _ignoreBBoxes)) {
+      __privateGet(this, _dependencyTracker).recordClipBox(__privateGet(this, _opIdx), ctx, minX, maxX, minY, maxY);
+    }
+    return this;
+  }
+  recordBBox(idx, ctx, minX, maxX, minY, maxY) {
+    if (!__privateGet(this, _ignoreBBoxes)) {
+      __privateGet(this, _dependencyTracker).recordBBox(__privateGet(this, _opIdx), ctx, minX, maxX, minY, maxY);
+    }
+    return this;
+  }
+  recordCharacterBBox(idx, ctx, font, scale, x, y, getMeasure) {
+    if (!__privateGet(this, _ignoreBBoxes)) {
+      __privateGet(this, _dependencyTracker).recordCharacterBBox(__privateGet(this, _opIdx), ctx, font, scale, x, y, getMeasure);
+    }
+    return this;
+  }
+  recordFullPageBBox(idx) {
+    if (!__privateGet(this, _ignoreBBoxes)) {
+      __privateGet(this, _dependencyTracker).recordFullPageBBox(__privateGet(this, _opIdx));
+    }
+    return this;
+  }
+  getSimpleIndex(dependencyName) {
+    return __privateGet(this, _dependencyTracker).getSimpleIndex(dependencyName);
+  }
+  recordDependencies(idx, dependencyNames) {
+    __privateGet(this, _dependencyTracker).recordDependencies(__privateGet(this, _opIdx), dependencyNames);
+    return this;
+  }
+  recordNamedDependency(idx, name) {
+    __privateGet(this, _dependencyTracker).recordNamedDependency(__privateGet(this, _opIdx), name);
+    return this;
+  }
+  recordOperation(idx) {
+    __privateGet(this, _dependencyTracker).recordOperation(__privateGet(this, _opIdx), true);
+    return this;
+  }
+  recordShowTextOperation(idx) {
+    __privateGet(this, _dependencyTracker).recordShowTextOperation(__privateGet(this, _opIdx), true);
+    return this;
+  }
+  bboxToClipBoxDropOperation(idx) {
+    if (!__privateGet(this, _ignoreBBoxes)) {
+      __privateGet(this, _dependencyTracker).bboxToClipBoxDropOperation(__privateGet(this, _opIdx), true);
+    }
+    return this;
+  }
+  take() {
+    throw new Error("Unreachable");
+  }
+  takeDebugMetadata() {
+    throw new Error("Unreachable");
+  }
+};
+_dependencyTracker = new WeakMap();
+_opIdx = new WeakMap();
+_ignoreBBoxes = new WeakMap();
+_nestingLevel = new WeakMap();
+_savesLevel = new WeakMap();
+let CanvasNestedDependencyTracker = _CanvasNestedDependencyTracker;
+const Dependencies = {
+  stroke: ["path", "transform", "filter", "strokeColor", "strokeAlpha", "lineWidth", "lineCap", "lineJoin", "miterLimit", "dash"],
+  fill: ["path", "transform", "filter", "fillColor", "fillAlpha", "globalCompositeOperation", "SMask"],
+  imageXObject: ["transform", "SMask", "filter", "fillAlpha", "strokeAlpha", "globalCompositeOperation"],
+  rawFillPath: ["filter", "fillColor", "fillAlpha"],
+  showText: ["transform", "leading", "charSpacing", "wordSpacing", "hScale", "textRise", "moveText", "textMatrix", "font", "fontObj", "filter", "fillColor", "textRenderingMode", "SMask", "fillAlpha", "strokeAlpha", "globalCompositeOperation", "sameLineText"],
+  transform: ["transform"],
+  transformAndFill: ["transform", "fillColor"]
+};
+const _CanvasImagesTracker = class _CanvasImagesTracker {
+  constructor(canvas) {
+    __privateAdd(this, _canvasWidth2);
+    __privateAdd(this, _canvasHeight2);
+    __privateAdd(this, _capacity, 4);
+    __privateAdd(this, _count, 0);
+    __privateAdd(this, _coords2, new (__privateGet(_CanvasImagesTracker, _CoordsArray))(__privateGet(this, _capacity) * 6));
+    __privateSet(this, _canvasWidth2, canvas.width);
+    __privateSet(this, _canvasHeight2, canvas.height);
+  }
+  record(ctx, width, height, clipBox) {
+    if (__privateGet(this, _count) === __privateGet(this, _capacity)) {
+      __privateSet(this, _capacity, __privateGet(this, _capacity) * 2);
+      const newCoords = new (__privateGet(_CanvasImagesTracker, _CoordsArray))(__privateGet(this, _capacity) * 6);
+      newCoords.set(__privateGet(this, _coords2));
+      __privateSet(this, _coords2, newCoords);
+    }
+    const transform = Util.domMatrixToTransform(ctx.getTransform());
+    let coords;
+    if (clipBox[0] !== Infinity) {
+      const bbox = [Infinity, Infinity, -Infinity, -Infinity];
+      Util.axialAlignedBoundingBox([0, -height, width, 0], transform, bbox);
+      const finalBBox = Util.intersect(clipBox, bbox);
+      if (!finalBBox) {
+        return;
+      }
+      const [minX, minY, maxX, maxY] = finalBBox;
+      if (minX !== bbox[0] || minY !== bbox[1] || maxX !== bbox[2] || maxY !== bbox[3]) {
+        const rotationAngle = Math.atan2(transform[1], transform[0]);
+        const sin = Math.abs(Math.sin(rotationAngle));
+        const cos = Math.abs(Math.cos(rotationAngle));
+        if (sin < 1e-6 || cos < 1e-6 || Math.abs(sin - cos) < 1e-6) {
+          coords = [minX, minY, minX, maxY, maxX, minY];
+        } else {
+          const finalBBoxWidth = maxX - minX;
+          const finalBBoxHeight = maxY - minY;
+          const sin2 = sin * sin;
+          const cos2 = cos * cos;
+          const cosSin = cos * sin;
+          const denom = cos2 - sin2;
+          const a = (finalBBoxHeight * cos2 - finalBBoxWidth * cosSin) / denom;
+          const b = (finalBBoxHeight * cosSin - finalBBoxWidth * sin2) / denom;
+          coords = [minX + b, minY, minX, minY + a, maxX, maxY - a];
+        }
+      }
+    }
+    if (!coords) {
+      coords = [0, -height, 0, 0, width, -height];
+      Util.applyTransform(coords, transform, 0);
+      Util.applyTransform(coords, transform, 2);
+      Util.applyTransform(coords, transform, 4);
+    }
+    coords[0] /= __privateGet(this, _canvasWidth2);
+    coords[1] /= __privateGet(this, _canvasHeight2);
+    coords[2] /= __privateGet(this, _canvasWidth2);
+    coords[3] /= __privateGet(this, _canvasHeight2);
+    coords[4] /= __privateGet(this, _canvasWidth2);
+    coords[5] /= __privateGet(this, _canvasHeight2);
+    __privateGet(this, _coords2).set(coords, __privateGet(this, _count) * 6);
+    __privateWrapper(this, _count)._++;
+  }
+  take() {
+    return __privateGet(this, _coords2).subarray(0, __privateGet(this, _count) * 6);
+  }
+};
+_canvasWidth2 = new WeakMap();
+_canvasHeight2 = new WeakMap();
+_capacity = new WeakMap();
+_count = new WeakMap();
+_coords2 = new WeakMap();
+_CoordsArray = new WeakMap();
+__privateAdd(_CanvasImagesTracker, _CoordsArray, FeatureTest.isFloat16ArraySupported ? Float16Array : Float32Array);
+let CanvasImagesTracker = _CanvasImagesTracker;
 class FontLoader {
   constructor({
     ownerDocument = globalThis.document,
@@ -20490,16 +21137,16 @@ class FontLoader {
 }
 _systemFonts = new WeakMap();
 class FontFaceObject {
-  constructor(translatedData, inspectFont = null, extra, charProcOperatorList) {
+  constructor(translatedData, inspectFont = null, charProcOperatorList, extra) {
+    __publicField(this, "compiledGlyphs", /* @__PURE__ */ Object.create(null));
     __privateAdd(this, _fontData);
-    this.compiledGlyphs = /* @__PURE__ */ Object.create(null);
     __privateSet(this, _fontData, translatedData);
     this._inspectFont = inspectFont;
-    if (extra) {
-      Object.assign(this, extra);
-    }
     if (charProcOperatorList) {
       this.charProcOperatorList = charProcOperatorList;
+    }
+    if (extra) {
+      Object.assign(this, extra);
     }
   }
   createNativeFontFace() {
@@ -20565,13 +21212,13 @@ class FontFaceObject {
     return __privateGet(this, _fontData).bold;
   }
   get disableFontFace() {
-    return __privateGet(this, _fontData).disableFontFace ?? false;
+    return __privateGet(this, _fontData).disableFontFace;
   }
   set disableFontFace(value2) {
     shadow(this, "disableFontFace", !!value2);
   }
   get fontExtraProperties() {
-    return __privateGet(this, _fontData).fontExtraProperties ?? false;
+    return __privateGet(this, _fontData).fontExtraProperties;
   }
   get isInvalidPDFjsFont() {
     return __privateGet(this, _fontData).isInvalidPDFjsFont;
@@ -20602,9 +21249,6 @@ class FontFaceObject {
   }
   get bbox() {
     return __privateGet(this, _fontData).bbox;
-  }
-  set bbox(bbox) {
-    shadow(this, "bbox", bbox);
   }
   get fontMatrix() {
     return __privateGet(this, _fontData).fontMatrix;
@@ -20638,38 +21282,41 @@ class FontFaceObject {
   }
 }
 _fontData = new WeakMap();
-const _CssFontInfo = class _CssFontInfo {
+class CSS_FONT_INFO {
+}
+__publicField(CSS_FONT_INFO, "strings", ["fontFamily", "fontWeight", "italicAngle"]);
+class SYSTEM_FONT_INFO {
+}
+__publicField(SYSTEM_FONT_INFO, "strings", ["css", "loadedName", "baseFontName", "src"]);
+const _FONT_INFO = class _FONT_INFO {
+};
+__publicField(_FONT_INFO, "bools", ["black", "bold", "disableFontFace", "fontExtraProperties", "isInvalidPDFjsFont", "isType3Font", "italic", "missingFile", "remeasure", "vertical"]);
+__publicField(_FONT_INFO, "numbers", ["ascent", "defaultWidth", "descent"]);
+__publicField(_FONT_INFO, "strings", ["fallbackName", "loadedName", "mimetype", "name"]);
+__publicField(_FONT_INFO, "OFFSET_NUMBERS", Math.ceil(_FONT_INFO.bools.length * 2 / 8));
+__publicField(_FONT_INFO, "OFFSET_BBOX", _FONT_INFO.OFFSET_NUMBERS + _FONT_INFO.numbers.length * 8);
+__publicField(_FONT_INFO, "OFFSET_FONT_MATRIX", _FONT_INFO.OFFSET_BBOX + 1 + 2 * 4);
+__publicField(_FONT_INFO, "OFFSET_DEFAULT_VMETRICS", _FONT_INFO.OFFSET_FONT_MATRIX + 1 + 8 * 6);
+__publicField(_FONT_INFO, "OFFSET_STRINGS", _FONT_INFO.OFFSET_DEFAULT_VMETRICS + 1 + 2 * 3);
+let FONT_INFO = _FONT_INFO;
+class PATTERN_INFO {
+}
+__publicField(PATTERN_INFO, "KIND", 0);
+__publicField(PATTERN_INFO, "HAS_BBOX", 1);
+__publicField(PATTERN_INFO, "HAS_BACKGROUND", 2);
+__publicField(PATTERN_INFO, "SHADING_TYPE", 3);
+__publicField(PATTERN_INFO, "N_COORD", 4);
+__publicField(PATTERN_INFO, "N_COLOR", 8);
+__publicField(PATTERN_INFO, "N_STOP", 12);
+__publicField(PATTERN_INFO, "N_FIGURES", 16);
+class CssFontInfo {
   constructor(buffer) {
     __privateAdd(this, _CssFontInfo_instances);
     __privateAdd(this, _buffer);
+    __privateAdd(this, _decoder, new TextDecoder());
     __privateAdd(this, _view);
-    __privateAdd(this, _decoder);
     __privateSet(this, _buffer, buffer);
-    __privateSet(this, _view, new DataView(__privateGet(this, _buffer)));
-    __privateSet(this, _decoder, new TextDecoder());
-  }
-  static write(info2) {
-    const encoder = new TextEncoder();
-    const encodedStrings = {};
-    let stringsLength = 0;
-    for (const prop of _CssFontInfo.strings) {
-      const encoded = encoder.encode(info2[prop]);
-      encodedStrings[prop] = encoded;
-      stringsLength += 4 + encoded.length;
-    }
-    const buffer = new ArrayBuffer(stringsLength);
-    const data = new Uint8Array(buffer);
-    const view = new DataView(buffer);
-    let offset = 0;
-    for (const prop of _CssFontInfo.strings) {
-      const encoded = encodedStrings[prop];
-      const length = encoded.length;
-      view.setUint32(offset, length);
-      data.set(encoded, offset + 4);
-      offset += 4 + length;
-    }
-    assert(offset === buffer.byteLength, "CssFontInfo.write: Buffer overflow");
-    return buffer;
+    __privateSet(this, _view, new DataView(buffer));
   }
   get fontFamily() {
     return __privateMethod(this, _CssFontInfo_instances, readString_fn).call(this, 0);
@@ -20680,13 +21327,13 @@ const _CssFontInfo = class _CssFontInfo {
   get italicAngle() {
     return __privateMethod(this, _CssFontInfo_instances, readString_fn).call(this, 2);
   }
-};
+}
 _buffer = new WeakMap();
-_view = new WeakMap();
 _decoder = new WeakMap();
+_view = new WeakMap();
 _CssFontInfo_instances = new WeakSet();
 readString_fn = function(index) {
-  assert(index < _CssFontInfo.strings.length, "Invalid string index");
+  assert(index < CSS_FONT_INFO.strings.length, "Invalid string index");
   let offset = 0;
   for (let i = 0; i < index; i++) {
     offset += __privateGet(this, _view).getUint32(offset) + 4;
@@ -20694,61 +21341,14 @@ readString_fn = function(index) {
   const length = __privateGet(this, _view).getUint32(offset);
   return __privateGet(this, _decoder).decode(new Uint8Array(__privateGet(this, _buffer), offset + 4, length));
 };
-__publicField(_CssFontInfo, "strings", ["fontFamily", "fontWeight", "italicAngle"]);
-let CssFontInfo = _CssFontInfo;
-const _SystemFontInfo = class _SystemFontInfo {
+class SystemFontInfo {
   constructor(buffer) {
     __privateAdd(this, _SystemFontInfo_instances);
     __privateAdd(this, _buffer2);
+    __privateAdd(this, _decoder2, new TextDecoder());
     __privateAdd(this, _view2);
-    __privateAdd(this, _decoder2);
     __privateSet(this, _buffer2, buffer);
-    __privateSet(this, _view2, new DataView(__privateGet(this, _buffer2)));
-    __privateSet(this, _decoder2, new TextDecoder());
-  }
-  static write(info2) {
-    const encoder = new TextEncoder();
-    const encodedStrings = {};
-    let stringsLength = 0;
-    for (const prop of _SystemFontInfo.strings) {
-      const encoded = encoder.encode(info2[prop]);
-      encodedStrings[prop] = encoded;
-      stringsLength += 4 + encoded.length;
-    }
-    stringsLength += 4;
-    let encodedStyleStyle, encodedStyleWeight, lengthEstimate = 1 + stringsLength;
-    if (info2.style) {
-      encodedStyleStyle = encoder.encode(info2.style.style);
-      encodedStyleWeight = encoder.encode(info2.style.weight);
-      lengthEstimate += 4 + encodedStyleStyle.length + 4 + encodedStyleWeight.length;
-    }
-    const buffer = new ArrayBuffer(lengthEstimate);
-    const data = new Uint8Array(buffer);
-    const view = new DataView(buffer);
-    let offset = 0;
-    view.setUint8(offset++, info2.guessFallback ? 1 : 0);
-    view.setUint32(offset, 0);
-    offset += 4;
-    stringsLength = 0;
-    for (const prop of _SystemFontInfo.strings) {
-      const encoded = encodedStrings[prop];
-      const length = encoded.length;
-      stringsLength += 4 + length;
-      view.setUint32(offset, length);
-      data.set(encoded, offset + 4);
-      offset += 4 + length;
-    }
-    view.setUint32(offset - stringsLength - 4, stringsLength);
-    if (info2.style) {
-      view.setUint32(offset, encodedStyleStyle.length);
-      data.set(encodedStyleStyle, offset + 4);
-      offset += 4 + encodedStyleStyle.length;
-      view.setUint32(offset, encodedStyleWeight.length);
-      data.set(encodedStyleWeight, offset + 4);
-      offset += 4 + encodedStyleWeight.length;
-    }
-    assert(offset <= buffer.byteLength, "SubstitionInfo.write: Buffer overflow");
-    return buffer.transferToFixedLength(offset);
+    __privateSet(this, _view2, new DataView(buffer));
   }
   get guessFallback() {
     return __privateGet(this, _view2).getUint8(0) !== 0;
@@ -20778,13 +21378,13 @@ const _SystemFontInfo = class _SystemFontInfo {
       weight
     };
   }
-};
+}
 _buffer2 = new WeakMap();
-_view2 = new WeakMap();
 _decoder2 = new WeakMap();
+_view2 = new WeakMap();
 _SystemFontInfo_instances = new WeakSet();
 readString_fn2 = function(index) {
-  assert(index < _SystemFontInfo.strings.length, "Invalid string index");
+  assert(index < SYSTEM_FONT_INFO.strings.length, "Invalid string index");
   let offset = 5;
   for (let i = 0; i < index; i++) {
     offset += __privateGet(this, _view2).getUint32(offset) + 4;
@@ -20792,20 +21392,17 @@ readString_fn2 = function(index) {
   const length = __privateGet(this, _view2).getUint32(offset);
   return __privateGet(this, _decoder2).decode(new Uint8Array(__privateGet(this, _buffer2), offset + 4, length));
 };
-__publicField(_SystemFontInfo, "strings", ["css", "loadedName", "baseFontName", "src"]);
-let SystemFontInfo = _SystemFontInfo;
-const _FontInfo = class _FontInfo {
+class FontInfo {
   constructor({
-    data,
+    buffer,
     extra
   }) {
     __privateAdd(this, _FontInfo_instances);
     __privateAdd(this, _buffer3);
-    __privateAdd(this, _decoder3);
+    __privateAdd(this, _decoder3, new TextDecoder());
     __privateAdd(this, _view3);
-    __privateSet(this, _buffer3, data);
-    __privateSet(this, _decoder3, new TextDecoder());
-    __privateSet(this, _view3, new DataView(__privateGet(this, _buffer3)));
+    __privateSet(this, _buffer3, buffer);
+    __privateSet(this, _view3, new DataView(buffer));
     if (extra) {
       Object.assign(this, extra);
     }
@@ -20850,46 +21447,13 @@ const _FontInfo = class _FontInfo {
     return __privateMethod(this, _FontInfo_instances, readNumber_fn).call(this, 2);
   }
   get bbox() {
-    let offset = __privateGet(_FontInfo, _OFFSET_BBOX);
-    const numCoords = __privateGet(this, _view3).getUint8(offset);
-    if (numCoords === 0) {
-      return void 0;
-    }
-    offset += 1;
-    const bbox = [];
-    for (let i = 0; i < 4; i++) {
-      bbox.push(__privateGet(this, _view3).getInt16(offset, true));
-      offset += 2;
-    }
-    return bbox;
+    return __privateMethod(this, _FontInfo_instances, readArray_fn).call(this, FONT_INFO.OFFSET_BBOX, 4, "getInt16", 2);
   }
   get fontMatrix() {
-    let offset = __privateGet(_FontInfo, _OFFSET_FONT_MATRIX);
-    const numPoints = __privateGet(this, _view3).getUint8(offset);
-    if (numPoints === 0) {
-      return void 0;
-    }
-    offset += 1;
-    const fontMatrix = [];
-    for (let i = 0; i < 6; i++) {
-      fontMatrix.push(__privateGet(this, _view3).getFloat64(offset, true));
-      offset += 8;
-    }
-    return fontMatrix;
+    return __privateMethod(this, _FontInfo_instances, readArray_fn).call(this, FONT_INFO.OFFSET_FONT_MATRIX, 6, "getFloat64", 8);
   }
   get defaultVMetrics() {
-    let offset = __privateGet(_FontInfo, _OFFSET_DEFAULT_VMETRICS);
-    const numMetrics = __privateGet(this, _view3).getUint8(offset);
-    if (numMetrics === 0) {
-      return void 0;
-    }
-    offset += 1;
-    const defaultVMetrics = [];
-    for (let i = 0; i < 3; i++) {
-      defaultVMetrics.push(__privateGet(this, _view3).getInt16(offset, true));
-      offset += 2;
-    }
-    return defaultVMetrics;
+    return __privateMethod(this, _FontInfo_instances, readArray_fn).call(this, FONT_INFO.OFFSET_DEFAULT_VMETRICS, 3, "getInt16", 2);
   }
   get fallbackName() {
     return __privateMethod(this, _FontInfo_instances, readString_fn3).call(this, 0);
@@ -20904,34 +21468,26 @@ const _FontInfo = class _FontInfo {
     return __privateMethod(this, _FontInfo_instances, readString_fn3).call(this, 3);
   }
   get data() {
-    let offset = __privateGet(_FontInfo, _OFFSET_STRINGS);
-    const stringsLength = __privateGet(this, _view3).getUint32(offset);
-    offset += 4 + stringsLength;
-    const systemFontInfoLength = __privateGet(this, _view3).getUint32(offset);
-    offset += 4 + systemFontInfoLength;
-    const cssFontInfoLength = __privateGet(this, _view3).getUint32(offset);
-    offset += 4 + cssFontInfoLength;
-    const length = __privateGet(this, _view3).getUint32(offset);
-    if (length === 0) {
-      return void 0;
-    }
-    return new Uint8Array(__privateGet(this, _buffer3), offset + 4, length);
+    const {
+      offset,
+      length
+    } = __privateMethod(this, _FontInfo_instances, getDataOffsets_fn).call(this);
+    return length === 0 ? void 0 : new Uint8Array(__privateGet(this, _buffer3), offset + 4, length);
   }
   clearData() {
-    let offset = __privateGet(_FontInfo, _OFFSET_STRINGS);
-    const stringsLength = __privateGet(this, _view3).getUint32(offset);
-    offset += 4 + stringsLength;
-    const systemFontInfoLength = __privateGet(this, _view3).getUint32(offset);
-    offset += 4 + systemFontInfoLength;
-    const cssFontInfoLength = __privateGet(this, _view3).getUint32(offset);
-    offset += 4 + cssFontInfoLength;
-    const length = __privateGet(this, _view3).getUint32(offset);
-    const data = new Uint8Array(__privateGet(this, _buffer3), offset + 4, length);
-    data.fill(0);
+    const {
+      offset,
+      length
+    } = __privateMethod(this, _FontInfo_instances, getDataOffsets_fn).call(this);
+    if (length === 0) {
+      return;
+    }
     __privateGet(this, _view3).setUint32(offset, 0);
+    __privateSet(this, _buffer3, new Uint8Array(__privateGet(this, _buffer3), 0, offset + 4).slice().buffer);
+    __privateSet(this, _view3, new DataView(__privateGet(this, _buffer3)));
   }
   get cssFontInfo() {
-    let offset = __privateGet(_FontInfo, _OFFSET_STRINGS);
+    let offset = FONT_INFO.OFFSET_STRINGS;
     const stringsLength = __privateGet(this, _view3).getUint32(offset);
     offset += 4 + stringsLength;
     const systemFontInfoLength = __privateGet(this, _view3).getUint32(offset);
@@ -20945,7 +21501,7 @@ const _FontInfo = class _FontInfo {
     return new CssFontInfo(cssFontInfoData.buffer);
   }
   get systemFontInfo() {
-    let offset = __privateGet(_FontInfo, _OFFSET_STRINGS);
+    let offset = FONT_INFO.OFFSET_STRINGS;
     const stringsLength = __privateGet(this, _view3).getUint32(offset);
     offset += 4 + stringsLength;
     const systemFontInfoLength = __privateGet(this, _view3).getUint32(offset);
@@ -20956,265 +21512,74 @@ const _FontInfo = class _FontInfo {
     systemFontInfoData.set(new Uint8Array(__privateGet(this, _buffer3), offset + 4, systemFontInfoLength));
     return new SystemFontInfo(systemFontInfoData.buffer);
   }
-  static write(font) {
-    const systemFontInfoBuffer = font.systemFontInfo ? SystemFontInfo.write(font.systemFontInfo) : null;
-    const cssFontInfoBuffer = font.cssFontInfo ? CssFontInfo.write(font.cssFontInfo) : null;
-    const encoder = new TextEncoder();
-    const encodedStrings = {};
-    let stringsLength = 0;
-    for (const prop of _FontInfo.strings) {
-      encodedStrings[prop] = encoder.encode(font[prop]);
-      stringsLength += 4 + encodedStrings[prop].length;
-    }
-    const lengthEstimate = __privateGet(_FontInfo, _OFFSET_STRINGS) + 4 + stringsLength + 4 + (systemFontInfoBuffer ? systemFontInfoBuffer.byteLength : 0) + 4 + (cssFontInfoBuffer ? cssFontInfoBuffer.byteLength : 0) + 4 + (font.data ? font.data.length : 0);
-    const buffer = new ArrayBuffer(lengthEstimate);
-    const data = new Uint8Array(buffer);
-    const view = new DataView(buffer);
-    let offset = 0;
-    const numBools = _FontInfo.bools.length;
-    let boolByte = 0, boolBit = 0;
-    for (let i = 0; i < numBools; i++) {
-      const value2 = font[_FontInfo.bools[i]];
-      const bits = value2 === void 0 ? 0 : value2 ? 2 : 1;
-      boolByte |= bits << boolBit;
-      boolBit += 2;
-      if (boolBit === 8 || i === numBools - 1) {
-        view.setUint8(offset++, boolByte);
-        boolByte = 0;
-        boolBit = 0;
-      }
-    }
-    assert(offset === __privateGet(_FontInfo, _OFFSET_NUMBERS), "FontInfo.write: Boolean properties offset mismatch");
-    for (const prop of _FontInfo.numbers) {
-      view.setFloat64(offset, font[prop]);
-      offset += 8;
-    }
-    assert(offset === __privateGet(_FontInfo, _OFFSET_BBOX), "FontInfo.write: Number properties offset mismatch");
-    if (font.bbox) {
-      view.setUint8(offset++, 4);
-      for (const coord of font.bbox) {
-        view.setInt16(offset, coord, true);
-        offset += 2;
-      }
-    } else {
-      view.setUint8(offset++, 0);
-      offset += 2 * 4;
-    }
-    assert(offset === __privateGet(_FontInfo, _OFFSET_FONT_MATRIX), "FontInfo.write: BBox properties offset mismatch");
-    if (font.fontMatrix) {
-      view.setUint8(offset++, 6);
-      for (const point of font.fontMatrix) {
-        view.setFloat64(offset, point, true);
-        offset += 8;
-      }
-    } else {
-      view.setUint8(offset++, 0);
-      offset += 8 * 6;
-    }
-    assert(offset === __privateGet(_FontInfo, _OFFSET_DEFAULT_VMETRICS), "FontInfo.write: FontMatrix properties offset mismatch");
-    if (font.defaultVMetrics) {
-      view.setUint8(offset++, 1);
-      for (const metric of font.defaultVMetrics) {
-        view.setInt16(offset, metric, true);
-        offset += 2;
-      }
-    } else {
-      view.setUint8(offset++, 0);
-      offset += 3 * 2;
-    }
-    assert(offset === __privateGet(_FontInfo, _OFFSET_STRINGS), "FontInfo.write: DefaultVMetrics properties offset mismatch");
-    view.setUint32(__privateGet(_FontInfo, _OFFSET_STRINGS), 0);
-    offset += 4;
-    for (const prop of _FontInfo.strings) {
-      const encoded = encodedStrings[prop];
-      const length = encoded.length;
-      view.setUint32(offset, length);
-      data.set(encoded, offset + 4);
-      offset += 4 + length;
-    }
-    view.setUint32(__privateGet(_FontInfo, _OFFSET_STRINGS), offset - __privateGet(_FontInfo, _OFFSET_STRINGS) - 4);
-    if (!systemFontInfoBuffer) {
-      view.setUint32(offset, 0);
-      offset += 4;
-    } else {
-      const length = systemFontInfoBuffer.byteLength;
-      view.setUint32(offset, length);
-      assert(offset + 4 + length <= buffer.byteLength, "FontInfo.write: Buffer overflow at systemFontInfo");
-      data.set(new Uint8Array(systemFontInfoBuffer), offset + 4);
-      offset += 4 + length;
-    }
-    if (!cssFontInfoBuffer) {
-      view.setUint32(offset, 0);
-      offset += 4;
-    } else {
-      const length = cssFontInfoBuffer.byteLength;
-      view.setUint32(offset, length);
-      assert(offset + 4 + length <= buffer.byteLength, "FontInfo.write: Buffer overflow at cssFontInfo");
-      data.set(new Uint8Array(cssFontInfoBuffer), offset + 4);
-      offset += 4 + length;
-    }
-    if (font.data === void 0) {
-      view.setUint32(offset, 0);
-      offset += 4;
-    } else {
-      view.setUint32(offset, font.data.length);
-      data.set(font.data, offset + 4);
-      offset += 4 + font.data.length;
-    }
-    assert(offset <= buffer.byteLength, "FontInfo.write: Buffer overflow");
-    return buffer.transferToFixedLength(offset);
-  }
-};
-_OFFSET_NUMBERS = new WeakMap();
-_OFFSET_BBOX = new WeakMap();
-_OFFSET_FONT_MATRIX = new WeakMap();
-_OFFSET_DEFAULT_VMETRICS = new WeakMap();
-_OFFSET_STRINGS = new WeakMap();
+}
 _buffer3 = new WeakMap();
 _decoder3 = new WeakMap();
 _view3 = new WeakMap();
 _FontInfo_instances = new WeakSet();
 readBoolean_fn = function(index) {
-  assert(index < _FontInfo.bools.length, "Invalid boolean index");
+  assert(index < FONT_INFO.bools.length, "Invalid boolean index");
   const byteOffset = Math.floor(index / 4);
   const bitOffset = index * 2 % 8;
   const value2 = __privateGet(this, _view3).getUint8(byteOffset) >> bitOffset & 3;
   return value2 === 0 ? void 0 : value2 === 2;
 };
 readNumber_fn = function(index) {
-  assert(index < _FontInfo.numbers.length, "Invalid number index");
-  return __privateGet(this, _view3).getFloat64(__privateGet(_FontInfo, _OFFSET_NUMBERS) + index * 8);
+  assert(index < FONT_INFO.numbers.length, "Invalid number index");
+  return __privateGet(this, _view3).getFloat64(FONT_INFO.OFFSET_NUMBERS + index * 8);
+};
+readArray_fn = function(offset, arrLen, lookupName, increment) {
+  const len = __privateGet(this, _view3).getUint8(offset);
+  if (len === 0) {
+    return void 0;
+  }
+  assert(len === arrLen, "Invalid array length.");
+  offset += 1;
+  const arr = new Array(len);
+  for (let i = 0; i < len; i++) {
+    arr[i] = __privateGet(this, _view3)[lookupName](offset, true);
+    offset += increment;
+  }
+  return arr;
 };
 readString_fn3 = function(index) {
-  assert(index < _FontInfo.strings.length, "Invalid string index");
-  let offset = __privateGet(_FontInfo, _OFFSET_STRINGS) + 4;
+  assert(index < FONT_INFO.strings.length, "Invalid string index");
+  let offset = FONT_INFO.OFFSET_STRINGS + 4;
   for (let i = 0; i < index; i++) {
     offset += __privateGet(this, _view3).getUint32(offset) + 4;
   }
   const length = __privateGet(this, _view3).getUint32(offset);
-  const stringData = new Uint8Array(length);
-  stringData.set(new Uint8Array(__privateGet(this, _buffer3), offset + 4, length));
-  return __privateGet(this, _decoder3).decode(stringData);
+  return __privateGet(this, _decoder3).decode(new Uint8Array(__privateGet(this, _buffer3), offset + 4, length));
 };
-__publicField(_FontInfo, "bools", ["black", "bold", "disableFontFace", "fontExtraProperties", "isInvalidPDFjsFont", "isType3Font", "italic", "missingFile", "remeasure", "vertical"]);
-__publicField(_FontInfo, "numbers", ["ascent", "defaultWidth", "descent"]);
-__publicField(_FontInfo, "strings", ["fallbackName", "loadedName", "mimetype", "name"]);
-__privateAdd(_FontInfo, _OFFSET_NUMBERS, Math.ceil(_FontInfo.bools.length * 2 / 8));
-__privateAdd(_FontInfo, _OFFSET_BBOX, __privateGet(_FontInfo, _OFFSET_NUMBERS) + _FontInfo.numbers.length * 8);
-__privateAdd(_FontInfo, _OFFSET_FONT_MATRIX, __privateGet(_FontInfo, _OFFSET_BBOX) + 1 + 2 * 4);
-__privateAdd(_FontInfo, _OFFSET_DEFAULT_VMETRICS, __privateGet(_FontInfo, _OFFSET_FONT_MATRIX) + 1 + 8 * 6);
-__privateAdd(_FontInfo, _OFFSET_STRINGS, __privateGet(_FontInfo, _OFFSET_DEFAULT_VMETRICS) + 1 + 2 * 3);
-let FontInfo = _FontInfo;
-const _PatternInfo = class _PatternInfo {
+getDataOffsets_fn = function() {
+  let offset = FONT_INFO.OFFSET_STRINGS;
+  const stringsLength = __privateGet(this, _view3).getUint32(offset);
+  offset += 4 + stringsLength;
+  const systemFontInfoLength = __privateGet(this, _view3).getUint32(offset);
+  offset += 4 + systemFontInfoLength;
+  const cssFontInfoLength = __privateGet(this, _view3).getUint32(offset);
+  offset += 4 + cssFontInfoLength;
+  const length = __privateGet(this, _view3).getUint32(offset);
+  return {
+    offset,
+    length
+  };
+};
+class PatternInfo {
   constructor(buffer) {
     this.buffer = buffer;
     this.view = new DataView(buffer);
     this.data = new Uint8Array(buffer);
   }
-  static write(ir) {
-    let kind, bbox = null, coords = [], colors = [], colorStops = [], figures = [], shadingType = null, background = null;
-    switch (ir[0]) {
-      case "RadialAxial":
-        kind = ir[1] === "axial" ? 1 : 2;
-        bbox = ir[2];
-        colorStops = ir[3];
-        if (kind === 1) {
-          coords.push(...ir[4], ...ir[5]);
-        } else {
-          coords.push(ir[4][0], ir[4][1], ir[6], ir[5][0], ir[5][1], ir[7]);
-        }
-        break;
-      case "Mesh":
-        kind = 3;
-        shadingType = ir[1];
-        coords = ir[2];
-        colors = ir[3];
-        figures = ir[4] || [];
-        bbox = ir[6];
-        background = ir[7];
-        break;
-      default:
-        throw new Error(`Unsupported pattern type: ${ir[0]}`);
-    }
-    const nCoord = Math.floor(coords.length / 2);
-    const nColor = Math.floor(colors.length / 3);
-    const nStop = colorStops.length;
-    const nFigures = figures.length;
-    let figuresSize = 0;
-    for (const figure of figures) {
-      figuresSize += 1;
-      figuresSize = Math.ceil(figuresSize / 4) * 4;
-      figuresSize += 4 + figure.coords.length * 4;
-      figuresSize += 4 + figure.colors.length * 4;
-      if (figure.verticesPerRow !== void 0) {
-        figuresSize += 4;
-      }
-    }
-    const byteLen = 20 + nCoord * 8 + nColor * 3 + nStop * 8 + (bbox ? 16 : 0) + (background ? 3 : 0) + figuresSize;
-    const buffer = new ArrayBuffer(byteLen);
-    const dataView = new DataView(buffer);
-    const u8data = new Uint8Array(buffer);
-    dataView.setUint8(__privateGet(_PatternInfo, _KIND), kind);
-    dataView.setUint8(__privateGet(_PatternInfo, _HAS_BBOX), bbox ? 1 : 0);
-    dataView.setUint8(__privateGet(_PatternInfo, _HAS_BACKGROUND), background ? 1 : 0);
-    dataView.setUint8(__privateGet(_PatternInfo, _SHADING_TYPE), shadingType);
-    dataView.setUint32(__privateGet(_PatternInfo, _N_COORD), nCoord, true);
-    dataView.setUint32(__privateGet(_PatternInfo, _N_COLOR), nColor, true);
-    dataView.setUint32(__privateGet(_PatternInfo, _N_STOP), nStop, true);
-    dataView.setUint32(__privateGet(_PatternInfo, _N_FIGURES), nFigures, true);
-    let offset = 20;
-    const coordsView = new Float32Array(buffer, offset, nCoord * 2);
-    coordsView.set(coords);
-    offset += nCoord * 8;
-    u8data.set(colors, offset);
-    offset += nColor * 3;
-    for (const [pos, hex] of colorStops) {
-      dataView.setFloat32(offset, pos, true);
-      offset += 4;
-      dataView.setUint32(offset, parseInt(hex.slice(1), 16), true);
-      offset += 4;
-    }
-    if (bbox) {
-      for (const v of bbox) {
-        dataView.setFloat32(offset, v, true);
-        offset += 4;
-      }
-    }
-    if (background) {
-      u8data.set(background, offset);
-      offset += 3;
-    }
-    for (let i = 0; i < figures.length; i++) {
-      const figure = figures[i];
-      dataView.setUint8(offset, figure.type);
-      offset += 1;
-      offset = Math.ceil(offset / 4) * 4;
-      dataView.setUint32(offset, figure.coords.length, true);
-      offset += 4;
-      const figureCoordsView = new Int32Array(buffer, offset, figure.coords.length);
-      figureCoordsView.set(figure.coords);
-      offset += figure.coords.length * 4;
-      dataView.setUint32(offset, figure.colors.length, true);
-      offset += 4;
-      const colorsView = new Int32Array(buffer, offset, figure.colors.length);
-      colorsView.set(figure.colors);
-      offset += figure.colors.length * 4;
-      if (figure.verticesPerRow !== void 0) {
-        dataView.setUint32(offset, figure.verticesPerRow, true);
-        offset += 4;
-      }
-    }
-    return buffer;
-  }
   getIR() {
     const dataView = this.view;
-    const kind = this.data[__privateGet(_PatternInfo, _KIND)];
-    const hasBBox = !!this.data[__privateGet(_PatternInfo, _HAS_BBOX)];
-    const hasBackground = !!this.data[__privateGet(_PatternInfo, _HAS_BACKGROUND)];
-    const nCoord = dataView.getUint32(__privateGet(_PatternInfo, _N_COORD), true);
-    const nColor = dataView.getUint32(__privateGet(_PatternInfo, _N_COLOR), true);
-    const nStop = dataView.getUint32(__privateGet(_PatternInfo, _N_STOP), true);
-    const nFigures = dataView.getUint32(__privateGet(_PatternInfo, _N_FIGURES), true);
+    const kind = this.data[PATTERN_INFO.KIND];
+    const hasBBox = !!this.data[PATTERN_INFO.HAS_BBOX];
+    const hasBackground = !!this.data[PATTERN_INFO.HAS_BACKGROUND];
+    const nCoord = dataView.getUint32(PATTERN_INFO.N_COORD, true);
+    const nColor = dataView.getUint32(PATTERN_INFO.N_COLOR, true);
+    const nStop = dataView.getUint32(PATTERN_INFO.N_STOP, true);
+    const nFigures = dataView.getUint32(PATTERN_INFO.N_FIGURES, true);
     let offset = 20;
     const coords = new Float32Array(this.buffer, offset, nCoord * 2);
     offset += nCoord * 8;
@@ -21272,59 +21637,23 @@ const _PatternInfo = class _PatternInfo {
       return ["RadialAxial", "radial", bbox, stops, [coords[0], coords[1]], [coords[3], coords[4]], coords[2], coords[5]];
     }
     if (kind === 3) {
-      const shadingType = this.data[__privateGet(_PatternInfo, _SHADING_TYPE)];
+      const shadingType = this.data[PATTERN_INFO.SHADING_TYPE];
       let bounds = null;
       if (coords.length > 0) {
-        let minX = coords[0], maxX = coords[0];
-        let minY = coords[1], maxY = coords[1];
-        for (let i = 0; i < coords.length; i += 2) {
-          const x = coords[i], y = coords[i + 1];
-          minX = minX > x ? x : minX;
-          minY = minY > y ? y : minY;
-          maxX = maxX < x ? x : maxX;
-          maxY = maxY < y ? y : maxY;
+        bounds = [Infinity, Infinity, -Infinity, -Infinity];
+        for (let i = 0, ii = coords.length; i < ii; i += 2) {
+          Util.pointBoundingBox(coords[i], coords[i + 1], bounds);
         }
-        bounds = [minX, minY, maxX, maxY];
       }
       return ["Mesh", shadingType, coords, colors, figures, bounds, bbox, background];
     }
     throw new Error(`Unsupported pattern kind: ${kind}`);
   }
-};
-_KIND = new WeakMap();
-_HAS_BBOX = new WeakMap();
-_HAS_BACKGROUND = new WeakMap();
-_SHADING_TYPE = new WeakMap();
-_N_COORD = new WeakMap();
-_N_COLOR = new WeakMap();
-_N_STOP = new WeakMap();
-_N_FIGURES = new WeakMap();
-__privateAdd(_PatternInfo, _KIND, 0);
-__privateAdd(_PatternInfo, _HAS_BBOX, 1);
-__privateAdd(_PatternInfo, _HAS_BACKGROUND, 2);
-__privateAdd(_PatternInfo, _SHADING_TYPE, 3);
-__privateAdd(_PatternInfo, _N_COORD, 4);
-__privateAdd(_PatternInfo, _N_COLOR, 8);
-__privateAdd(_PatternInfo, _N_STOP, 12);
-__privateAdd(_PatternInfo, _N_FIGURES, 16);
-let PatternInfo = _PatternInfo;
+}
 class FontPathInfo {
   constructor(buffer) {
     __privateAdd(this, _buffer4);
     __privateSet(this, _buffer4, buffer);
-  }
-  static write(path) {
-    let data;
-    let buffer;
-    if (FeatureTest.isFloat16ArraySupported) {
-      buffer = new ArrayBuffer(path.length * 2);
-      data = new Float16Array(buffer);
-    } else {
-      buffer = new ArrayBuffer(path.length * 4);
-      data = new Float32Array(buffer);
-    }
-    data.set(path);
-    return buffer;
   }
   get path() {
     if (FeatureTest.isFloat16ArraySupported) {
@@ -21382,7 +21711,7 @@ const isNameProxy = (v) => typeof v === "object" && typeof (v == null ? void 0 :
 const isValidExplicitDest = _isValidExplicitDest.bind(null, isRefProxy, isNameProxy);
 class LoopbackPort {
   constructor() {
-    __privateAdd(this, _listeners2, /* @__PURE__ */ new Map());
+    __privateAdd(this, _listeners, /* @__PURE__ */ new Map());
     __privateAdd(this, _deferred, Promise.resolve());
   }
   postMessage(obj, transfer) {
@@ -21392,7 +21721,7 @@ class LoopbackPort {
       } : null)
     };
     __privateGet(this, _deferred).then(() => {
-      for (const [listener] of __privateGet(this, _listeners2)) {
+      for (const [listener] of __privateGet(this, _listeners)) {
         listener.call(this, event);
       }
     });
@@ -21411,21 +21740,21 @@ class LoopbackPort {
       rmAbort = () => signal.removeEventListener("abort", onAbort);
       signal.addEventListener("abort", onAbort);
     }
-    __privateGet(this, _listeners2).set(listener, rmAbort);
+    __privateGet(this, _listeners).set(listener, rmAbort);
   }
   removeEventListener(name, listener) {
-    const rmAbort = __privateGet(this, _listeners2).get(listener);
+    const rmAbort = __privateGet(this, _listeners).get(listener);
     rmAbort == null ? void 0 : rmAbort();
-    __privateGet(this, _listeners2).delete(listener);
+    __privateGet(this, _listeners).delete(listener);
   }
   terminate() {
-    for (const [, rmAbort] of __privateGet(this, _listeners2)) {
+    for (const [, rmAbort] of __privateGet(this, _listeners)) {
       rmAbort == null ? void 0 : rmAbort();
     }
-    __privateGet(this, _listeners2).clear();
+    __privateGet(this, _listeners).clear();
   }
 }
-_listeners2 = new WeakMap();
+_listeners = new WeakMap();
 _deferred = new WeakMap();
 const CallbackKind = {
   DATA: 1,
@@ -21820,6 +22149,54 @@ deleteStreamController_fn = async function(streamController, streamId) {
   await Promise.allSettled([(_a2 = streamController.startCall) == null ? void 0 : _a2.promise, (_b = streamController.pullCall) == null ? void 0 : _b.promise, (_c = streamController.cancelCall) == null ? void 0 : _c.promise]);
   delete this.streamControllers[streamId];
 };
+class BaseBinaryDataFactory {
+  constructor({
+    cMapUrl = null,
+    standardFontDataUrl = null,
+    wasmUrl = null
+  }) {
+    __privateAdd(this, _errorStr, Object.freeze({
+      cMapUrl: "CMap",
+      standardFontDataUrl: "font",
+      wasmUrl: "wasm"
+    }));
+    this.cMapUrl = cMapUrl;
+    this.standardFontDataUrl = standardFontDataUrl;
+    this.wasmUrl = wasmUrl;
+  }
+  async fetch({
+    kind,
+    filename
+  }) {
+    switch (kind) {
+      case "cMapUrl":
+      case "standardFontDataUrl":
+      case "wasmUrl":
+        break;
+      default:
+        unreachable(`Not implemented: ${kind}`);
+    }
+    const baseUrl = this[kind];
+    if (!baseUrl) {
+      throw new Error(`Ensure that the \`${kind}\` API parameter is provided.`);
+    }
+    const url2 = `${baseUrl}${filename}`;
+    return this._fetch(url2, kind).catch((reason) => {
+      throw new Error(`Unable to load ${__privateGet(this, _errorStr)[kind]} data at: ${url2}`);
+    });
+  }
+  async _fetch(url2, kind) {
+    unreachable("Abstract method `_fetch` called.");
+  }
+}
+_errorStr = new WeakMap();
+class DOMBinaryDataFactory extends BaseBinaryDataFactory {
+  async _fetch(url2, kind) {
+    const type = kind === "cMapUrl" && !url2.endsWith(".bcmap") ? "text" : "bytes";
+    const data = await fetchData(url2, type);
+    return data instanceof Uint8Array ? data : stringToBytes(data);
+  }
+}
 class BaseCanvasFactory {
   constructor({
     enableHWA = false
@@ -21839,22 +22216,26 @@ class BaseCanvasFactory {
       })
     };
   }
-  reset(canvasAndContext, width, height) {
-    if (!canvasAndContext.canvas) {
+  reset({
+    canvas
+  }, width, height) {
+    if (!canvas) {
       throw new Error("Canvas is not specified");
     }
     if (width <= 0 || height <= 0) {
       throw new Error("Invalid canvas size");
     }
-    canvasAndContext.canvas.width = width;
-    canvasAndContext.canvas.height = height;
+    canvas.width = width;
+    canvas.height = height;
   }
   destroy(canvasAndContext) {
-    if (!canvasAndContext.canvas) {
+    const {
+      canvas
+    } = canvasAndContext;
+    if (!canvas) {
       throw new Error("Canvas is not specified");
     }
-    canvasAndContext.canvas.width = 0;
-    canvasAndContext.canvas.height = 0;
+    canvas.width = canvas.height = 0;
     canvasAndContext.canvas = null;
     canvasAndContext.context = null;
   }
@@ -21878,41 +22259,6 @@ class DOMCanvasFactory extends BaseCanvasFactory {
     canvas.width = width;
     canvas.height = height;
     return canvas;
-  }
-}
-class BaseCMapReaderFactory {
-  constructor({
-    baseUrl = null,
-    isCompressed = true
-  }) {
-    this.baseUrl = baseUrl;
-    this.isCompressed = isCompressed;
-  }
-  async fetch({
-    name
-  }) {
-    if (!this.baseUrl) {
-      throw new Error("Ensure that the `cMapUrl` and `cMapPacked` API parameters are provided.");
-    }
-    if (!name) {
-      throw new Error("CMap name must be specified.");
-    }
-    const url2 = this.baseUrl + name + (this.isCompressed ? ".bcmap" : "");
-    return this._fetch(url2).then((cMapData) => ({
-      cMapData,
-      isCompressed: this.isCompressed
-    })).catch((reason) => {
-      throw new Error(`Unable to load ${this.isCompressed ? "binary " : ""}CMap at: ${url2}`);
-    });
-  }
-  async _fetch(url2) {
-    unreachable("Abstract method `_fetch` called.");
-  }
-}
-class DOMCMapReaderFactory extends BaseCMapReaderFactory {
-  async _fetch(url2) {
-    const data = await fetchData(url2, this.isCompressed ? "bytes" : "text");
-    return data instanceof Uint8Array ? data : stringToBytes(data);
   }
 }
 class BaseFilterFactory {
@@ -22260,64 +22606,6 @@ getRGB_fn = function(color) {
   __privateGet(this, _DOMFilterFactory_instances, defs_get).style.color = color;
   return getRGB(getComputedStyle(__privateGet(this, _DOMFilterFactory_instances, defs_get)).getPropertyValue("color"));
 };
-class BaseStandardFontDataFactory {
-  constructor({
-    baseUrl = null
-  }) {
-    this.baseUrl = baseUrl;
-  }
-  async fetch({
-    filename
-  }) {
-    if (!this.baseUrl) {
-      throw new Error("Ensure that the `standardFontDataUrl` API parameter is provided.");
-    }
-    if (!filename) {
-      throw new Error("Font filename must be specified.");
-    }
-    const url2 = `${this.baseUrl}${filename}`;
-    return this._fetch(url2).catch((reason) => {
-      throw new Error(`Unable to load font data at: ${url2}`);
-    });
-  }
-  async _fetch(url2) {
-    unreachable("Abstract method `_fetch` called.");
-  }
-}
-class DOMStandardFontDataFactory extends BaseStandardFontDataFactory {
-  async _fetch(url2) {
-    return fetchData(url2, "bytes");
-  }
-}
-class BaseWasmFactory {
-  constructor({
-    baseUrl = null
-  }) {
-    this.baseUrl = baseUrl;
-  }
-  async fetch({
-    filename
-  }) {
-    if (!this.baseUrl) {
-      throw new Error("Ensure that the `wasmUrl` API parameter is provided.");
-    }
-    if (!filename) {
-      throw new Error("Wasm filename must be specified.");
-    }
-    const url2 = `${this.baseUrl}${filename}`;
-    return this._fetch(url2).catch((reason) => {
-      throw new Error(`Unable to load wasm data at: ${url2}`);
-    });
-  }
-  async _fetch(url2) {
-    unreachable("Abstract method `_fetch` called.");
-  }
-}
-class DOMWasmFactory extends BaseWasmFactory {
-  async _fetch(url2) {
-    return fetchData(url2, "bytes");
-  }
-}
 if (isNodeJS) {
   warn("Please use the `legacy` build in Node.js environments.");
 }
@@ -22335,605 +22623,279 @@ class NodeCanvasFactory extends BaseCanvasFactory {
     return canvas.createCanvas(width, height);
   }
 }
-class NodeCMapReaderFactory extends BaseCMapReaderFactory {
-  async _fetch(url2) {
+class NodeBinaryDataFactory extends BaseBinaryDataFactory {
+  async _fetch(url2, kind) {
     return node_utils_fetchData(url2);
   }
 }
-class NodeStandardFontDataFactory extends BaseStandardFontDataFactory {
-  async _fetch(url2) {
-    return node_utils_fetchData(url2);
-  }
+const WGSL = `
+struct Uniforms {
+  offsetX      : f32,
+  offsetY      : f32,
+  scaleX       : f32,
+  scaleY       : f32,
+  paddedWidth  : f32,
+  paddedHeight : f32,
+  borderSize   : f32,
+  _pad         : f32,
+};
+
+@group(0) @binding(0) var<uniform> u : Uniforms;
+
+struct VertexInput {
+  @location(0) position : vec2<f32>,
+  @location(1) color    : vec4<f32>,
+};
+
+struct VertexOutput {
+  @builtin(position) position : vec4<f32>,
+  @location(0)       color    : vec3<f32>,
+};
+
+@vertex
+fn vs_main(in : VertexInput) -> VertexOutput {
+  var out : VertexOutput;
+  let cx = (in.position.x + u.offsetX) * u.scaleX;
+  let cy = (in.position.y + u.offsetY) * u.scaleY;
+  out.position = vec4<f32>(
+    ((cx + u.borderSize) / u.paddedWidth) * 2.0 - 1.0,
+    1.0 - ((cy + u.borderSize) / u.paddedHeight) * 2.0,
+    0.0,
+    1.0
+  );
+  out.color = in.color.rgb;
+  return out;
 }
-class NodeWasmFactory extends BaseWasmFactory {
-  async _fetch(url2) {
-    return node_utils_fetchData(url2);
-  }
+
+@fragment
+fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
+  return vec4<f32>(in.color, 1.0);
 }
-const FORCED_DEPENDENCY_LABEL = "__forcedDependency";
-const {
-  floor,
-  ceil
-} = Math;
-function expandBBox(array, index, minX, minY, maxX, maxY) {
-  array[index * 4 + 0] = Math.min(array[index * 4 + 0], minX);
-  array[index * 4 + 1] = Math.min(array[index * 4 + 1], minY);
-  array[index * 4 + 2] = Math.max(array[index * 4 + 2], maxX);
-  array[index * 4 + 3] = Math.max(array[index * 4 + 3], maxY);
-}
-const EMPTY_BBOX = new Uint32Array(new Uint8Array([255, 255, 0, 0]).buffer)[0];
-class BBoxReader {
-  constructor(bboxes, coords) {
-    __privateAdd(this, _bboxes);
-    __privateAdd(this, _coords);
-    __privateSet(this, _bboxes, bboxes);
-    __privateSet(this, _coords, coords);
+`;
+class WebGPUMesh {
+  constructor() {
+    __privateAdd(this, _WebGPUMesh_instances);
+    __privateAdd(this, _initPromise, null);
+    __privateAdd(this, _device, null);
+    __privateAdd(this, _pipeline, null);
+    __privateAdd(this, _preferredFormat, null);
   }
-  get length() {
-    return __privateGet(this, _bboxes).length;
-  }
-  isEmpty(i) {
-    return __privateGet(this, _bboxes)[i] === EMPTY_BBOX;
-  }
-  minX(i) {
-    return __privateGet(this, _coords)[i * 4 + 0] / 256;
-  }
-  minY(i) {
-    return __privateGet(this, _coords)[i * 4 + 1] / 256;
-  }
-  maxX(i) {
-    return (__privateGet(this, _coords)[i * 4 + 2] + 1) / 256;
-  }
-  maxY(i) {
-    return (__privateGet(this, _coords)[i * 4 + 3] + 1) / 256;
-  }
-}
-_bboxes = new WeakMap();
-_coords = new WeakMap();
-const ensureDebugMetadata = (map, key) => map == null ? void 0 : map.getOrInsertComputed(key, () => ({
-  dependencies: /* @__PURE__ */ new Set(),
-  isRenderingOperation: false
-}));
-class CanvasDependencyTracker {
-  constructor(canvas, operationsCount, recordDebugMetadata = false) {
-    __privateAdd(this, _CanvasDependencyTracker_instances);
-    __privateAdd(this, _simple, {
-      __proto__: null
-    });
-    __privateAdd(this, _incremental, {
-      __proto__: null,
-      transform: [],
-      moveText: [],
-      sameLineText: [],
-      [FORCED_DEPENDENCY_LABEL]: []
-    });
-    __privateAdd(this, _namedDependencies, /* @__PURE__ */ new Map());
-    __privateAdd(this, _savesStack, []);
-    __privateAdd(this, _markedContentStack, []);
-    __privateAdd(this, _baseTransformStack, [[1, 0, 0, 1, 0, 0]]);
-    __privateAdd(this, _clipBox, [-Infinity, -Infinity, Infinity, Infinity]);
-    __privateAdd(this, _pendingBBox, new Float64Array([Infinity, Infinity, -Infinity, -Infinity]));
-    __privateAdd(this, _pendingBBoxIdx, -1);
-    __privateAdd(this, _pendingDependencies, /* @__PURE__ */ new Set());
-    __privateAdd(this, _operations, /* @__PURE__ */ new Map());
-    __privateAdd(this, _fontBBoxTrustworthy, /* @__PURE__ */ new Map());
-    __privateAdd(this, _canvasWidth);
-    __privateAdd(this, _canvasHeight);
-    __privateAdd(this, _bboxesCoords);
-    __privateAdd(this, _bboxes2);
-    __privateAdd(this, _debugMetadata);
-    __privateSet(this, _canvasWidth, canvas.width);
-    __privateSet(this, _canvasHeight, canvas.height);
-    __privateMethod(this, _CanvasDependencyTracker_instances, initializeBBoxes_fn).call(this, operationsCount);
-    if (recordDebugMetadata) {
-      __privateSet(this, _debugMetadata, /* @__PURE__ */ new Map());
+  init() {
+    if (__privateGet(this, _initPromise) === null) {
+      __privateSet(this, _initPromise, __privateMethod(this, _WebGPUMesh_instances, initGPU_fn).call(this));
     }
   }
-  growOperationsCount(operationsCount) {
-    if (operationsCount >= __privateGet(this, _bboxes2).length) {
-      __privateMethod(this, _CanvasDependencyTracker_instances, initializeBBoxes_fn).call(this, operationsCount, __privateGet(this, _bboxes2));
-    }
+  get isReady() {
+    return __privateGet(this, _device) !== null;
   }
-  save(opIdx) {
-    __privateSet(this, _simple, {
-      __proto__: __privateGet(this, _simple)
+  draw(figures, context, backgroundColor, paddedWidth, paddedHeight, borderSize) {
+    const device = __privateGet(this, _device);
+    const {
+      offsetX,
+      offsetY,
+      scaleX,
+      scaleY
+    } = context;
+    const {
+      posData,
+      colData,
+      vertexCount
+    } = __privateMethod(this, _WebGPUMesh_instances, buildVertexStreams_fn).call(this, figures, context);
+    const posBuffer = device.createBuffer({
+      size: Math.max(posData.byteLength, 4),
+      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
     });
-    __privateSet(this, _incremental, {
-      __proto__: __privateGet(this, _incremental),
-      transform: {
-        __proto__: __privateGet(this, _incremental).transform
+    if (posData.byteLength > 0) {
+      device.queue.writeBuffer(posBuffer, 0, posData);
+    }
+    const colBuffer = device.createBuffer({
+      size: Math.max(colData.byteLength, 4),
+      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+    });
+    if (colData.byteLength > 0) {
+      device.queue.writeBuffer(colBuffer, 0, colData);
+    }
+    const uniformBuffer = device.createBuffer({
+      size: 8 * 4,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+    });
+    device.queue.writeBuffer(uniformBuffer, 0, new Float32Array([offsetX, offsetY, scaleX, scaleY, paddedWidth, paddedHeight, borderSize, 0]));
+    const bindGroup = device.createBindGroup({
+      layout: __privateGet(this, _pipeline).getBindGroupLayout(0),
+      entries: [{
+        binding: 0,
+        resource: {
+          buffer: uniformBuffer
+        }
+      }]
+    });
+    const offscreen = new OffscreenCanvas(paddedWidth, paddedHeight);
+    const gpuCtx = offscreen.getContext("webgpu");
+    gpuCtx.configure({
+      device,
+      format: __privateGet(this, _preferredFormat),
+      alphaMode: backgroundColor ? "opaque" : "premultiplied"
+    });
+    const clearValue = backgroundColor ? {
+      r: backgroundColor[0] / 255,
+      g: backgroundColor[1] / 255,
+      b: backgroundColor[2] / 255,
+      a: 1
+    } : {
+      r: 0,
+      g: 0,
+      b: 0,
+      a: 0
+    };
+    const commandEncoder = device.createCommandEncoder();
+    const renderPass = commandEncoder.beginRenderPass({
+      colorAttachments: [{
+        view: gpuCtx.getCurrentTexture().createView(),
+        clearValue,
+        loadOp: "clear",
+        storeOp: "store"
+      }]
+    });
+    if (vertexCount > 0) {
+      renderPass.setPipeline(__privateGet(this, _pipeline));
+      renderPass.setBindGroup(0, bindGroup);
+      renderPass.setVertexBuffer(0, posBuffer);
+      renderPass.setVertexBuffer(1, colBuffer);
+      renderPass.draw(vertexCount);
+    }
+    renderPass.end();
+    device.queue.submit([commandEncoder.finish()]);
+    posBuffer.destroy();
+    colBuffer.destroy();
+    uniformBuffer.destroy();
+    return offscreen.transferToImageBitmap();
+  }
+}
+_initPromise = new WeakMap();
+_device = new WeakMap();
+_pipeline = new WeakMap();
+_preferredFormat = new WeakMap();
+_WebGPUMesh_instances = new WeakSet();
+initGPU_fn = async function() {
+  var _a2;
+  if (!((_a2 = globalThis.navigator) == null ? void 0 : _a2.gpu)) {
+    return false;
+  }
+  try {
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) {
+      return false;
+    }
+    __privateSet(this, _preferredFormat, navigator.gpu.getPreferredCanvasFormat());
+    const device = __privateSet(this, _device, await adapter.requestDevice());
+    const shaderModule = device.createShaderModule({
+      code: WGSL
+    });
+    __privateSet(this, _pipeline, device.createRenderPipeline({
+      layout: "auto",
+      vertex: {
+        module: shaderModule,
+        entryPoint: "vs_main",
+        buffers: [{
+          arrayStride: 2 * 4,
+          attributes: [{
+            shaderLocation: 0,
+            offset: 0,
+            format: "float32x2"
+          }]
+        }, {
+          arrayStride: 4,
+          attributes: [{
+            shaderLocation: 1,
+            offset: 0,
+            format: "unorm8x4"
+          }]
+        }]
       },
-      moveText: {
-        __proto__: __privateGet(this, _incremental).moveText
+      fragment: {
+        module: shaderModule,
+        entryPoint: "fs_main",
+        targets: [{
+          format: __privateGet(this, _preferredFormat)
+        }]
       },
-      sameLineText: {
-        __proto__: __privateGet(this, _incremental).sameLineText
-      },
-      [FORCED_DEPENDENCY_LABEL]: {
-        __proto__: __privateGet(this, _incremental)[FORCED_DEPENDENCY_LABEL]
+      primitive: {
+        topology: "triangle-list"
       }
-    });
-    __privateSet(this, _clipBox, {
-      __proto__: __privateGet(this, _clipBox)
-    });
-    __privateGet(this, _savesStack).push(opIdx);
-    return this;
-  }
-  restore(opIdx) {
-    var _a2;
-    const previous = Object.getPrototypeOf(__privateGet(this, _simple));
-    if (previous === null) {
-      return this;
-    }
-    __privateSet(this, _simple, previous);
-    __privateSet(this, _incremental, Object.getPrototypeOf(__privateGet(this, _incremental)));
-    __privateSet(this, _clipBox, Object.getPrototypeOf(__privateGet(this, _clipBox)));
-    const lastSave = __privateGet(this, _savesStack).pop();
-    if (lastSave !== void 0) {
-      (_a2 = ensureDebugMetadata(__privateGet(this, _debugMetadata), opIdx)) == null ? void 0 : _a2.dependencies.add(lastSave);
-      __privateGet(this, _bboxes2)[opIdx] = __privateGet(this, _bboxes2)[lastSave];
-    }
-    return this;
-  }
-  recordOpenMarker(idx) {
-    __privateGet(this, _savesStack).push(idx);
-    return this;
-  }
-  getOpenMarker() {
-    if (__privateGet(this, _savesStack).length === 0) {
-      return null;
-    }
-    return __privateGet(this, _savesStack).at(-1);
-  }
-  recordCloseMarker(opIdx) {
-    var _a2;
-    const lastSave = __privateGet(this, _savesStack).pop();
-    if (lastSave !== void 0) {
-      (_a2 = ensureDebugMetadata(__privateGet(this, _debugMetadata), opIdx)) == null ? void 0 : _a2.dependencies.add(lastSave);
-      __privateGet(this, _bboxes2)[opIdx] = __privateGet(this, _bboxes2)[lastSave];
-    }
-    return this;
-  }
-  beginMarkedContent(opIdx) {
-    __privateGet(this, _markedContentStack).push(opIdx);
-    return this;
-  }
-  endMarkedContent(opIdx) {
-    var _a2;
-    const lastSave = __privateGet(this, _markedContentStack).pop();
-    if (lastSave !== void 0) {
-      (_a2 = ensureDebugMetadata(__privateGet(this, _debugMetadata), opIdx)) == null ? void 0 : _a2.dependencies.add(lastSave);
-      __privateGet(this, _bboxes2)[opIdx] = __privateGet(this, _bboxes2)[lastSave];
-    }
-    return this;
-  }
-  pushBaseTransform(ctx) {
-    __privateGet(this, _baseTransformStack).push(Util.multiplyByDOMMatrix(__privateGet(this, _baseTransformStack).at(-1), ctx.getTransform()));
-    return this;
-  }
-  popBaseTransform() {
-    if (__privateGet(this, _baseTransformStack).length > 1) {
-      __privateGet(this, _baseTransformStack).pop();
-    }
-    return this;
-  }
-  recordSimpleData(name, idx) {
-    __privateGet(this, _simple)[name] = idx;
-    return this;
-  }
-  recordIncrementalData(name, idx) {
-    __privateGet(this, _incremental)[name].push(idx);
-    return this;
-  }
-  resetIncrementalData(name, idx) {
-    __privateGet(this, _incremental)[name].length = 0;
-    return this;
-  }
-  recordNamedData(name, idx) {
-    __privateGet(this, _namedDependencies).set(name, idx);
-    return this;
-  }
-  recordSimpleDataFromNamed(name, depName, fallbackIdx) {
-    __privateGet(this, _simple)[name] = __privateGet(this, _namedDependencies).get(depName) ?? fallbackIdx;
-  }
-  recordFutureForcedDependency(name, idx) {
-    this.recordIncrementalData(FORCED_DEPENDENCY_LABEL, idx);
-    return this;
-  }
-  inheritSimpleDataAsFutureForcedDependencies(names) {
-    for (const name of names) {
-      if (name in __privateGet(this, _simple)) {
-        this.recordFutureForcedDependency(name, __privateGet(this, _simple)[name]);
-      }
-    }
-    return this;
-  }
-  inheritPendingDependenciesAsFutureForcedDependencies() {
-    for (const dep of __privateGet(this, _pendingDependencies)) {
-      this.recordFutureForcedDependency(FORCED_DEPENDENCY_LABEL, dep);
-    }
-    return this;
-  }
-  resetBBox(idx) {
-    if (__privateGet(this, _pendingBBoxIdx) !== idx) {
-      __privateSet(this, _pendingBBoxIdx, idx);
-      __privateGet(this, _pendingBBox)[0] = Infinity;
-      __privateGet(this, _pendingBBox)[1] = Infinity;
-      __privateGet(this, _pendingBBox)[2] = -Infinity;
-      __privateGet(this, _pendingBBox)[3] = -Infinity;
-    }
-    return this;
-  }
-  recordClipBox(idx, ctx, minX, maxX, minY, maxY) {
-    const transform = Util.multiplyByDOMMatrix(__privateGet(this, _baseTransformStack).at(-1), ctx.getTransform());
-    const clipBox = [Infinity, Infinity, -Infinity, -Infinity];
-    Util.axialAlignedBoundingBox([minX, minY, maxX, maxY], transform, clipBox);
-    const intersection = Util.intersect(__privateGet(this, _clipBox), clipBox);
-    if (intersection) {
-      __privateGet(this, _clipBox)[0] = intersection[0];
-      __privateGet(this, _clipBox)[1] = intersection[1];
-      __privateGet(this, _clipBox)[2] = intersection[2];
-      __privateGet(this, _clipBox)[3] = intersection[3];
-    } else {
-      __privateGet(this, _clipBox)[0] = __privateGet(this, _clipBox)[1] = Infinity;
-      __privateGet(this, _clipBox)[2] = __privateGet(this, _clipBox)[3] = -Infinity;
-    }
-    return this;
-  }
-  recordBBox(idx, ctx, minX, maxX, minY, maxY) {
-    const clipBox = __privateGet(this, _clipBox);
-    if (clipBox[0] === Infinity) {
-      return this;
-    }
-    const transform = Util.multiplyByDOMMatrix(__privateGet(this, _baseTransformStack).at(-1), ctx.getTransform());
-    if (clipBox[0] === -Infinity) {
-      Util.axialAlignedBoundingBox([minX, minY, maxX, maxY], transform, __privateGet(this, _pendingBBox));
-      return this;
-    }
-    const bbox = [Infinity, Infinity, -Infinity, -Infinity];
-    Util.axialAlignedBoundingBox([minX, minY, maxX, maxY], transform, bbox);
-    __privateGet(this, _pendingBBox)[0] = Math.min(__privateGet(this, _pendingBBox)[0], Math.max(bbox[0], clipBox[0]));
-    __privateGet(this, _pendingBBox)[1] = Math.min(__privateGet(this, _pendingBBox)[1], Math.max(bbox[1], clipBox[1]));
-    __privateGet(this, _pendingBBox)[2] = Math.max(__privateGet(this, _pendingBBox)[2], Math.min(bbox[2], clipBox[2]));
-    __privateGet(this, _pendingBBox)[3] = Math.max(__privateGet(this, _pendingBBox)[3], Math.min(bbox[3], clipBox[3]));
-    return this;
-  }
-  recordCharacterBBox(idx, ctx, font, scale = 1, x = 0, y = 0, getMeasure) {
-    const fontBBox = font.bbox;
-    let isBBoxTrustworthy;
-    let computedBBox;
-    if (fontBBox) {
-      isBBoxTrustworthy = fontBBox[2] !== fontBBox[0] && fontBBox[3] !== fontBBox[1] && __privateGet(this, _fontBBoxTrustworthy).get(font);
-      if (isBBoxTrustworthy !== false) {
-        computedBBox = [0, 0, 0, 0];
-        Util.axialAlignedBoundingBox(fontBBox, font.fontMatrix, computedBBox);
-        if (scale !== 1 || x !== 0 || y !== 0) {
-          Util.scaleMinMax([scale, 0, 0, -scale, x, y], computedBBox);
-        }
-        if (isBBoxTrustworthy) {
-          return this.recordBBox(idx, ctx, computedBBox[0], computedBBox[2], computedBBox[1], computedBBox[3]);
-        }
-      }
-    }
-    if (!getMeasure) {
-      return this.recordFullPageBBox(idx);
-    }
-    const measure = getMeasure();
-    if (fontBBox && computedBBox && isBBoxTrustworthy === void 0) {
-      isBBoxTrustworthy = computedBBox[0] <= x - measure.actualBoundingBoxLeft && computedBBox[2] >= x + measure.actualBoundingBoxRight && computedBBox[1] <= y - measure.actualBoundingBoxAscent && computedBBox[3] >= y + measure.actualBoundingBoxDescent;
-      __privateGet(this, _fontBBoxTrustworthy).set(font, isBBoxTrustworthy);
-      if (isBBoxTrustworthy) {
-        return this.recordBBox(idx, ctx, computedBBox[0], computedBBox[2], computedBBox[1], computedBBox[3]);
-      }
-    }
-    return this.recordBBox(idx, ctx, x - measure.actualBoundingBoxLeft, x + measure.actualBoundingBoxRight, y - measure.actualBoundingBoxAscent, y + measure.actualBoundingBoxDescent);
-  }
-  recordFullPageBBox(idx) {
-    __privateGet(this, _pendingBBox)[0] = Math.max(0, __privateGet(this, _clipBox)[0]);
-    __privateGet(this, _pendingBBox)[1] = Math.max(0, __privateGet(this, _clipBox)[1]);
-    __privateGet(this, _pendingBBox)[2] = Math.min(__privateGet(this, _canvasWidth), __privateGet(this, _clipBox)[2]);
-    __privateGet(this, _pendingBBox)[3] = Math.min(__privateGet(this, _canvasHeight), __privateGet(this, _clipBox)[3]);
-    return this;
-  }
-  getSimpleIndex(dependencyName) {
-    return __privateGet(this, _simple)[dependencyName];
-  }
-  recordDependencies(idx, dependencyNames) {
-    const pendingDependencies = __privateGet(this, _pendingDependencies);
-    const simple = __privateGet(this, _simple);
-    const incremental = __privateGet(this, _incremental);
-    for (const name of dependencyNames) {
-      if (name in __privateGet(this, _simple)) {
-        pendingDependencies.add(simple[name]);
-      } else if (name in incremental) {
-        incremental[name].forEach(pendingDependencies.add, pendingDependencies);
-      }
-    }
-    return this;
-  }
-  recordNamedDependency(idx, name) {
-    if (__privateGet(this, _namedDependencies).has(name)) {
-      __privateGet(this, _pendingDependencies).add(__privateGet(this, _namedDependencies).get(name));
-    }
-    return this;
-  }
-  recordOperation(idx, preserve = false) {
-    this.recordDependencies(idx, [FORCED_DEPENDENCY_LABEL]);
-    if (__privateGet(this, _debugMetadata)) {
-      const metadata = ensureDebugMetadata(__privateGet(this, _debugMetadata), idx);
-      const {
-        dependencies
-      } = metadata;
-      __privateGet(this, _pendingDependencies).forEach(dependencies.add, dependencies);
-      __privateGet(this, _savesStack).forEach(dependencies.add, dependencies);
-      __privateGet(this, _markedContentStack).forEach(dependencies.add, dependencies);
-      dependencies.delete(idx);
-      metadata.isRenderingOperation = true;
-    }
-    if (__privateGet(this, _pendingBBoxIdx) === idx) {
-      const minX = floor(__privateGet(this, _pendingBBox)[0] * 256 / __privateGet(this, _canvasWidth));
-      const minY = floor(__privateGet(this, _pendingBBox)[1] * 256 / __privateGet(this, _canvasHeight));
-      const maxX = ceil(__privateGet(this, _pendingBBox)[2] * 256 / __privateGet(this, _canvasWidth));
-      const maxY = ceil(__privateGet(this, _pendingBBox)[3] * 256 / __privateGet(this, _canvasHeight));
-      expandBBox(__privateGet(this, _bboxesCoords), idx, minX, minY, maxX, maxY);
-      for (const depIdx of __privateGet(this, _pendingDependencies)) {
-        if (depIdx !== idx) {
-          expandBBox(__privateGet(this, _bboxesCoords), depIdx, minX, minY, maxX, maxY);
-        }
-      }
-      for (const saveIdx of __privateGet(this, _savesStack)) {
-        if (saveIdx !== idx) {
-          expandBBox(__privateGet(this, _bboxesCoords), saveIdx, minX, minY, maxX, maxY);
-        }
-      }
-      for (const saveIdx of __privateGet(this, _markedContentStack)) {
-        if (saveIdx !== idx) {
-          expandBBox(__privateGet(this, _bboxesCoords), saveIdx, minX, minY, maxX, maxY);
-        }
-      }
-      if (!preserve) {
-        __privateGet(this, _pendingDependencies).clear();
-        __privateSet(this, _pendingBBoxIdx, -1);
-      }
-    }
-    return this;
-  }
-  recordShowTextOperation(idx, preserve = false) {
-    const deps = Array.from(__privateGet(this, _pendingDependencies));
-    this.recordOperation(idx, preserve);
-    this.recordIncrementalData("sameLineText", idx);
-    for (const dep of deps) {
-      this.recordIncrementalData("sameLineText", dep);
-    }
-    return this;
-  }
-  bboxToClipBoxDropOperation(idx, preserve = false) {
-    if (__privateGet(this, _pendingBBoxIdx) === idx) {
-      __privateSet(this, _pendingBBoxIdx, -1);
-      __privateGet(this, _clipBox)[0] = Math.max(__privateGet(this, _clipBox)[0], __privateGet(this, _pendingBBox)[0]);
-      __privateGet(this, _clipBox)[1] = Math.max(__privateGet(this, _clipBox)[1], __privateGet(this, _pendingBBox)[1]);
-      __privateGet(this, _clipBox)[2] = Math.min(__privateGet(this, _clipBox)[2], __privateGet(this, _pendingBBox)[2]);
-      __privateGet(this, _clipBox)[3] = Math.min(__privateGet(this, _clipBox)[3], __privateGet(this, _pendingBBox)[3]);
-      if (!preserve) {
-        __privateGet(this, _pendingDependencies).clear();
-      }
-    }
-    return this;
-  }
-  _takePendingDependencies() {
-    const pendingDependencies = __privateGet(this, _pendingDependencies);
-    __privateSet(this, _pendingDependencies, /* @__PURE__ */ new Set());
-    return pendingDependencies;
-  }
-  _extractOperation(idx) {
-    const operation = __privateGet(this, _operations).get(idx);
-    __privateGet(this, _operations).delete(idx);
-    return operation;
-  }
-  _pushPendingDependencies(dependencies) {
-    for (const dep of dependencies) {
-      __privateGet(this, _pendingDependencies).add(dep);
-    }
-  }
-  take() {
-    __privateGet(this, _fontBBoxTrustworthy).clear();
-    return new BBoxReader(__privateGet(this, _bboxes2), __privateGet(this, _bboxesCoords));
-  }
-  takeDebugMetadata() {
-    return __privateGet(this, _debugMetadata);
-  }
-}
-_simple = new WeakMap();
-_incremental = new WeakMap();
-_namedDependencies = new WeakMap();
-_savesStack = new WeakMap();
-_markedContentStack = new WeakMap();
-_baseTransformStack = new WeakMap();
-_clipBox = new WeakMap();
-_pendingBBox = new WeakMap();
-_pendingBBoxIdx = new WeakMap();
-_pendingDependencies = new WeakMap();
-_operations = new WeakMap();
-_fontBBoxTrustworthy = new WeakMap();
-_canvasWidth = new WeakMap();
-_canvasHeight = new WeakMap();
-_bboxesCoords = new WeakMap();
-_bboxes2 = new WeakMap();
-_debugMetadata = new WeakMap();
-_CanvasDependencyTracker_instances = new WeakSet();
-initializeBBoxes_fn = function(operationsCount, oldBBoxes) {
-  const buffer = new ArrayBuffer(operationsCount * 4);
-  __privateSet(this, _bboxesCoords, new Uint8ClampedArray(buffer));
-  __privateSet(this, _bboxes2, new Uint32Array(buffer));
-  if (oldBBoxes && oldBBoxes.length > 0) {
-    __privateGet(this, _bboxes2).set(oldBBoxes);
-    __privateGet(this, _bboxes2).fill(EMPTY_BBOX, oldBBoxes.length);
-  } else {
-    __privateGet(this, _bboxes2).fill(EMPTY_BBOX);
+    }));
+    return true;
+  } catch {
+    return false;
   }
 };
-const _CanvasNestedDependencyTracker = class _CanvasNestedDependencyTracker {
-  constructor(dependencyTracker, opIdx, ignoreBBoxes) {
-    __privateAdd(this, _dependencyTracker);
-    __privateAdd(this, _opIdx);
-    __privateAdd(this, _ignoreBBoxes);
-    __privateAdd(this, _nestingLevel, 0);
-    __privateAdd(this, _savesLevel, 0);
-    if (dependencyTracker instanceof _CanvasNestedDependencyTracker && __privateGet(dependencyTracker, _ignoreBBoxes) === !!ignoreBBoxes) {
-      return dependencyTracker;
+buildVertexStreams_fn = function(figures, context) {
+  const {
+    coords,
+    colors
+  } = context;
+  let vertexCount = 0;
+  for (const figure of figures) {
+    const ps = figure.coords;
+    if (figure.type === MeshFigureType.TRIANGLES) {
+      vertexCount += ps.length;
+    } else if (figure.type === MeshFigureType.LATTICE) {
+      const vpr = figure.verticesPerRow;
+      vertexCount += (Math.floor(ps.length / vpr) - 1) * (vpr - 1) * 6;
     }
-    __privateSet(this, _dependencyTracker, dependencyTracker);
-    __privateSet(this, _opIdx, opIdx);
-    __privateSet(this, _ignoreBBoxes, !!ignoreBBoxes);
   }
-  growOperationsCount() {
-    throw new Error("Unreachable");
-  }
-  save(opIdx) {
-    __privateWrapper(this, _savesLevel)._++;
-    __privateGet(this, _dependencyTracker).save(__privateGet(this, _opIdx));
-    return this;
-  }
-  restore(opIdx) {
-    if (__privateGet(this, _savesLevel) > 0) {
-      __privateGet(this, _dependencyTracker).restore(__privateGet(this, _opIdx));
-      __privateWrapper(this, _savesLevel)._--;
+  const posData = new Float32Array(vertexCount * 2);
+  const colData = new Uint8Array(vertexCount * 4);
+  let pOff = 0, cOff = 0;
+  const addVertex = (pi, ci) => {
+    posData[pOff++] = coords[pi * 2];
+    posData[pOff++] = coords[pi * 2 + 1];
+    colData[cOff++] = colors[ci * 4];
+    colData[cOff++] = colors[ci * 4 + 1];
+    colData[cOff++] = colors[ci * 4 + 2];
+    cOff++;
+  };
+  for (const figure of figures) {
+    const ps = figure.coords;
+    const cs = figure.colors;
+    if (figure.type === MeshFigureType.TRIANGLES) {
+      for (let i = 0, ii = ps.length; i < ii; i += 3) {
+        addVertex(ps[i], cs[i]);
+        addVertex(ps[i + 1], cs[i + 1]);
+        addVertex(ps[i + 2], cs[i + 2]);
+      }
+    } else if (figure.type === MeshFigureType.LATTICE) {
+      const vpr = figure.verticesPerRow;
+      const rows = Math.floor(ps.length / vpr) - 1;
+      const cols = vpr - 1;
+      for (let i = 0; i < rows; i++) {
+        let q = i * vpr;
+        for (let j = 0; j < cols; j++, q++) {
+          addVertex(ps[q], cs[q]);
+          addVertex(ps[q + 1], cs[q + 1]);
+          addVertex(ps[q + vpr], cs[q + vpr]);
+          addVertex(ps[q + vpr + 1], cs[q + vpr + 1]);
+          addVertex(ps[q + 1], cs[q + 1]);
+          addVertex(ps[q + vpr], cs[q + vpr]);
+        }
+      }
     }
-    return this;
   }
-  recordOpenMarker(idx) {
-    __privateWrapper(this, _nestingLevel)._++;
-    return this;
-  }
-  getOpenMarker() {
-    return __privateGet(this, _nestingLevel) > 0 ? __privateGet(this, _opIdx) : __privateGet(this, _dependencyTracker).getOpenMarker();
-  }
-  recordCloseMarker(idx) {
-    __privateWrapper(this, _nestingLevel)._--;
-    return this;
-  }
-  beginMarkedContent(opIdx) {
-    return this;
-  }
-  endMarkedContent(opIdx) {
-    return this;
-  }
-  pushBaseTransform(ctx) {
-    __privateGet(this, _dependencyTracker).pushBaseTransform(ctx);
-    return this;
-  }
-  popBaseTransform() {
-    __privateGet(this, _dependencyTracker).popBaseTransform();
-    return this;
-  }
-  recordSimpleData(name, idx) {
-    __privateGet(this, _dependencyTracker).recordSimpleData(name, __privateGet(this, _opIdx));
-    return this;
-  }
-  recordIncrementalData(name, idx) {
-    __privateGet(this, _dependencyTracker).recordIncrementalData(name, __privateGet(this, _opIdx));
-    return this;
-  }
-  resetIncrementalData(name, idx) {
-    __privateGet(this, _dependencyTracker).resetIncrementalData(name, __privateGet(this, _opIdx));
-    return this;
-  }
-  recordNamedData(name, idx) {
-    return this;
-  }
-  recordSimpleDataFromNamed(name, depName, fallbackIdx) {
-    __privateGet(this, _dependencyTracker).recordSimpleDataFromNamed(name, depName, __privateGet(this, _opIdx));
-    return this;
-  }
-  recordFutureForcedDependency(name, idx) {
-    __privateGet(this, _dependencyTracker).recordFutureForcedDependency(name, __privateGet(this, _opIdx));
-    return this;
-  }
-  inheritSimpleDataAsFutureForcedDependencies(names) {
-    __privateGet(this, _dependencyTracker).inheritSimpleDataAsFutureForcedDependencies(names);
-    return this;
-  }
-  inheritPendingDependenciesAsFutureForcedDependencies() {
-    __privateGet(this, _dependencyTracker).inheritPendingDependenciesAsFutureForcedDependencies();
-    return this;
-  }
-  resetBBox(idx) {
-    if (!__privateGet(this, _ignoreBBoxes)) {
-      __privateGet(this, _dependencyTracker).resetBBox(__privateGet(this, _opIdx));
-    }
-    return this;
-  }
-  recordClipBox(idx, ctx, minX, maxX, minY, maxY) {
-    if (!__privateGet(this, _ignoreBBoxes)) {
-      __privateGet(this, _dependencyTracker).recordClipBox(__privateGet(this, _opIdx), ctx, minX, maxX, minY, maxY);
-    }
-    return this;
-  }
-  recordBBox(idx, ctx, minX, maxX, minY, maxY) {
-    if (!__privateGet(this, _ignoreBBoxes)) {
-      __privateGet(this, _dependencyTracker).recordBBox(__privateGet(this, _opIdx), ctx, minX, maxX, minY, maxY);
-    }
-    return this;
-  }
-  recordCharacterBBox(idx, ctx, font, scale, x, y, getMeasure) {
-    if (!__privateGet(this, _ignoreBBoxes)) {
-      __privateGet(this, _dependencyTracker).recordCharacterBBox(__privateGet(this, _opIdx), ctx, font, scale, x, y, getMeasure);
-    }
-    return this;
-  }
-  recordFullPageBBox(idx) {
-    if (!__privateGet(this, _ignoreBBoxes)) {
-      __privateGet(this, _dependencyTracker).recordFullPageBBox(__privateGet(this, _opIdx));
-    }
-    return this;
-  }
-  getSimpleIndex(dependencyName) {
-    return __privateGet(this, _dependencyTracker).getSimpleIndex(dependencyName);
-  }
-  recordDependencies(idx, dependencyNames) {
-    __privateGet(this, _dependencyTracker).recordDependencies(__privateGet(this, _opIdx), dependencyNames);
-    return this;
-  }
-  recordNamedDependency(idx, name) {
-    __privateGet(this, _dependencyTracker).recordNamedDependency(__privateGet(this, _opIdx), name);
-    return this;
-  }
-  recordOperation(idx) {
-    __privateGet(this, _dependencyTracker).recordOperation(__privateGet(this, _opIdx), true);
-    return this;
-  }
-  recordShowTextOperation(idx) {
-    __privateGet(this, _dependencyTracker).recordShowTextOperation(__privateGet(this, _opIdx), true);
-    return this;
-  }
-  bboxToClipBoxDropOperation(idx) {
-    if (!__privateGet(this, _ignoreBBoxes)) {
-      __privateGet(this, _dependencyTracker).bboxToClipBoxDropOperation(__privateGet(this, _opIdx), true);
-    }
-    return this;
-  }
-  take() {
-    throw new Error("Unreachable");
-  }
-  takeDebugMetadata() {
-    throw new Error("Unreachable");
-  }
+  return {
+    posData,
+    colData,
+    vertexCount
+  };
 };
-_dependencyTracker = new WeakMap();
-_opIdx = new WeakMap();
-_ignoreBBoxes = new WeakMap();
-_nestingLevel = new WeakMap();
-_savesLevel = new WeakMap();
-let CanvasNestedDependencyTracker = _CanvasNestedDependencyTracker;
-const Dependencies = {
-  stroke: ["path", "transform", "filter", "strokeColor", "strokeAlpha", "lineWidth", "lineCap", "lineJoin", "miterLimit", "dash"],
-  fill: ["path", "transform", "filter", "fillColor", "fillAlpha", "globalCompositeOperation", "SMask"],
-  imageXObject: ["transform", "SMask", "filter", "fillAlpha", "strokeAlpha", "globalCompositeOperation"],
-  rawFillPath: ["filter", "fillColor", "fillAlpha"],
-  showText: ["transform", "leading", "charSpacing", "wordSpacing", "hScale", "textRise", "moveText", "textMatrix", "font", "fontObj", "filter", "fillColor", "textRenderingMode", "SMask", "fillAlpha", "strokeAlpha", "globalCompositeOperation", "sameLineText"],
-  transform: ["transform"],
-  transformAndFill: ["transform", "fillColor"]
-};
+const _webGPUMesh = new WebGPUMesh();
+function initWebGPUMesh() {
+  _webGPUMesh.init();
+}
+function isWebGPUMeshReady() {
+  return _webGPUMesh.isReady;
+}
+function drawMeshWithGPU(figures, context, backgroundColor, paddedWidth, paddedHeight, borderSize) {
+  return _webGPUMesh.draw(figures, context, backgroundColor, paddedWidth, paddedHeight, borderSize);
+}
 const PathType = {
   FILL: "Fill",
   STROKE: "Stroke",
@@ -22975,6 +22937,13 @@ class RadialAxialShadingPattern extends BaseShadingPattern {
   isRadial() {
     return this._type === "radial";
   }
+  _isCircleCenterOutside() {
+    if (!this.isRadial() || this._r0 > this._r1) {
+      return false;
+    }
+    const dist = Math.hypot(this._p0[0] - this._p1[0], this._p0[1] - this._p1[1]);
+    return dist > this._r1;
+  }
   _createGradient(ctx, transform = null) {
     let grad;
     let firstPoint = this._p0;
@@ -23003,6 +22972,30 @@ class RadialAxialShadingPattern extends BaseShadingPattern {
     }
     return grad;
   }
+  _createReversedGradient(ctx, transform = null) {
+    let firstPoint = this._p1;
+    let secondPoint = this._p0;
+    if (transform) {
+      firstPoint = firstPoint.slice();
+      secondPoint = secondPoint.slice();
+      Util.applyTransform(firstPoint, transform);
+      Util.applyTransform(secondPoint, transform);
+    }
+    let r0 = this._r1;
+    let r1 = this._r0;
+    if (transform) {
+      const scale = new Float32Array(2);
+      Util.singularValueDecompose2dScale(transform, scale);
+      r0 *= scale[0];
+      r1 *= scale[0];
+    }
+    const grad = ctx.createRadialGradient(firstPoint[0], firstPoint[1], r0, secondPoint[0], secondPoint[1], r1);
+    const reversedStops = this._colorStops.map(([t, c]) => [1 - t, c]).reverse();
+    for (const [t, c] of reversedStops) {
+      grad.addColorStop(t, c);
+    }
+    return grad;
+  }
   getPattern(ctx, owner, inverse, pathType) {
     let pattern;
     if (pathType === PathType.STROKE || pathType === PathType.FILL) {
@@ -23028,7 +23021,7 @@ class RadialAxialShadingPattern extends BaseShadingPattern {
       const ownerBBox = owner.current.getClippedPathBoundingBox(pathType, getCurrentTransform(ctx)) || [0, 0, 0, 0];
       const width = Math.ceil(ownerBBox[2] - ownerBBox[0]) || 1;
       const height = Math.ceil(ownerBBox[3] - ownerBBox[1]) || 1;
-      const tmpCanvas = owner.cachedCanvases.getCanvas("pattern", width, height);
+      const tmpCanvas = owner.canvasFactory.create(width, height);
       const tmpCtx = tmpCanvas.context;
       tmpCtx.clearRect(0, 0, tmpCtx.canvas.width, tmpCtx.canvas.height);
       tmpCtx.beginPath();
@@ -23040,12 +23033,24 @@ class RadialAxialShadingPattern extends BaseShadingPattern {
         tmpCtx.transform(...this.matrix);
       }
       applyBoundingBox(tmpCtx, this._bbox);
+      if (this._isCircleCenterOutside()) {
+        tmpCtx.fillStyle = this._createReversedGradient(tmpCtx);
+        tmpCtx.fill();
+      }
       tmpCtx.fillStyle = this._createGradient(tmpCtx);
       tmpCtx.fill();
       pattern = ctx.createPattern(tmpCanvas.canvas, "no-repeat");
+      owner.canvasFactory.destroy(tmpCanvas);
       const domMatrix = new DOMMatrix(inverse);
       pattern.setTransform(domMatrix);
     } else {
+      if (this._isCircleCenterOutside()) {
+        ctx.save();
+        applyBoundingBox(ctx, this._bbox);
+        ctx.fillStyle = this._createReversedGradient(ctx);
+        ctx.fillRect(-1e10, -1e10, 2e10, 2e10);
+        ctx.restore();
+      }
       applyBoundingBox(ctx, this._bbox);
       pattern = this._createGradient(ctx);
     }
@@ -23056,7 +23061,7 @@ function drawTriangle(data, context, p1, p2, p3, c1, c2, c3) {
   const coords = context.coords, colors = context.colors;
   const bytes = data.data, rowSize = data.width * 4;
   let tmp;
-  if (coords[p1 + 1] > coords[p2 + 1]) {
+  if (coords[p1 * 2 + 1] > coords[p2 * 2 + 1]) {
     tmp = p1;
     p1 = p2;
     p2 = tmp;
@@ -23064,7 +23069,7 @@ function drawTriangle(data, context, p1, p2, p3, c1, c2, c3) {
     c1 = c2;
     c2 = tmp;
   }
-  if (coords[p2 + 1] > coords[p3 + 1]) {
+  if (coords[p2 * 2 + 1] > coords[p3 * 2 + 1]) {
     tmp = p2;
     p2 = p3;
     p3 = tmp;
@@ -23072,7 +23077,7 @@ function drawTriangle(data, context, p1, p2, p3, c1, c2, c3) {
     c2 = c3;
     c3 = tmp;
   }
-  if (coords[p1 + 1] > coords[p2 + 1]) {
+  if (coords[p1 * 2 + 1] > coords[p2 * 2 + 1]) {
     tmp = p1;
     p1 = p2;
     p2 = tmp;
@@ -23080,18 +23085,18 @@ function drawTriangle(data, context, p1, p2, p3, c1, c2, c3) {
     c1 = c2;
     c2 = tmp;
   }
-  const x1 = (coords[p1] + context.offsetX) * context.scaleX;
-  const y1 = (coords[p1 + 1] + context.offsetY) * context.scaleY;
-  const x2 = (coords[p2] + context.offsetX) * context.scaleX;
-  const y2 = (coords[p2 + 1] + context.offsetY) * context.scaleY;
-  const x3 = (coords[p3] + context.offsetX) * context.scaleX;
-  const y3 = (coords[p3 + 1] + context.offsetY) * context.scaleY;
+  const x1 = (coords[p1 * 2] + context.offsetX) * context.scaleX;
+  const y1 = (coords[p1 * 2 + 1] + context.offsetY) * context.scaleY;
+  const x2 = (coords[p2 * 2] + context.offsetX) * context.scaleX;
+  const y2 = (coords[p2 * 2 + 1] + context.offsetY) * context.scaleY;
+  const x3 = (coords[p3 * 2] + context.offsetX) * context.scaleX;
+  const y3 = (coords[p3 * 2 + 1] + context.offsetY) * context.scaleY;
   if (y1 >= y3) {
     return;
   }
-  const c1r = colors[c1], c1g = colors[c1 + 1], c1b = colors[c1 + 2];
-  const c2r = colors[c2], c2g = colors[c2 + 1], c2b = colors[c2 + 2];
-  const c3r = colors[c3], c3g = colors[c3 + 1], c3b = colors[c3 + 2];
+  const c1r = colors[c1 * 4], c1g = colors[c1 * 4 + 1], c1b = colors[c1 * 4 + 2];
+  const c2r = colors[c2 * 4], c2g = colors[c2 * 4 + 1], c2b = colors[c2 * 4 + 2];
+  const c3r = colors[c3 * 4], c3g = colors[c3 * 4 + 1], c3b = colors[c3 * 4 + 2];
   const minY = Math.round(y1), maxY = Math.round(y3);
   let xa, car, cag, cab;
   let xb, cbr, cbg, cbb;
@@ -23182,7 +23187,7 @@ class MeshShadingPattern extends BaseShadingPattern {
     this._background = IR[7];
     this.matrix = null;
   }
-  _createMeshCanvas(combinedScale, backgroundColor, cachedCanvases) {
+  _createMeshCanvas(combinedScale, backgroundColor, canvasFactory) {
     const EXPECTED_SCALE = 1.1;
     const MAX_PATTERN_SIZE = 3e3;
     const BORDER_SIZE = 2;
@@ -23190,10 +23195,10 @@ class MeshShadingPattern extends BaseShadingPattern {
     const offsetY = Math.floor(this._bounds[1]);
     const boundsWidth = Math.ceil(this._bounds[2]) - offsetX;
     const boundsHeight = Math.ceil(this._bounds[3]) - offsetY;
-    const width = Math.min(Math.ceil(Math.abs(boundsWidth * combinedScale[0] * EXPECTED_SCALE)), MAX_PATTERN_SIZE);
-    const height = Math.min(Math.ceil(Math.abs(boundsHeight * combinedScale[1] * EXPECTED_SCALE)), MAX_PATTERN_SIZE);
-    const scaleX = boundsWidth / width;
-    const scaleY = boundsHeight / height;
+    const width = Math.min(Math.ceil(Math.abs(boundsWidth * combinedScale[0] * EXPECTED_SCALE)), MAX_PATTERN_SIZE) || 1;
+    const height = Math.min(Math.ceil(Math.abs(boundsHeight * combinedScale[1] * EXPECTED_SCALE)), MAX_PATTERN_SIZE) || 1;
+    const scaleX = boundsWidth ? boundsWidth / width : 1;
+    const scaleY = boundsHeight ? boundsHeight / height : 1;
     const context = {
       coords: this._coords,
       colors: this._colors,
@@ -23204,25 +23209,27 @@ class MeshShadingPattern extends BaseShadingPattern {
     };
     const paddedWidth = width + BORDER_SIZE * 2;
     const paddedHeight = height + BORDER_SIZE * 2;
-    const tmpCanvas = cachedCanvases.getCanvas("mesh", paddedWidth, paddedHeight);
-    const tmpCtx = tmpCanvas.context;
-    const data = tmpCtx.createImageData(width, height);
-    if (backgroundColor) {
-      const bytes = data.data;
-      for (let i = 0, ii = bytes.length; i < ii; i += 4) {
-        bytes[i] = backgroundColor[0];
-        bytes[i + 1] = backgroundColor[1];
-        bytes[i + 2] = backgroundColor[2];
-        bytes[i + 3] = 255;
+    const tmpCanvas = canvasFactory.create(paddedWidth, paddedHeight);
+    if (isWebGPUMeshReady()) {
+      tmpCanvas.context.drawImage(drawMeshWithGPU(this._figures, context, backgroundColor, paddedWidth, paddedHeight, BORDER_SIZE), 0, 0);
+    } else {
+      const data = tmpCanvas.context.createImageData(width, height);
+      if (backgroundColor) {
+        const bytes = data.data;
+        for (let i = 0, ii = bytes.length; i < ii; i += 4) {
+          bytes[i] = backgroundColor[0];
+          bytes[i + 1] = backgroundColor[1];
+          bytes[i + 2] = backgroundColor[2];
+          bytes[i + 3] = 255;
+        }
       }
+      for (const figure of this._figures) {
+        drawFigure(data, figure, context);
+      }
+      tmpCanvas.context.putImageData(data, BORDER_SIZE, BORDER_SIZE);
     }
-    for (const figure of this._figures) {
-      drawFigure(data, figure, context);
-    }
-    tmpCtx.putImageData(data, BORDER_SIZE, BORDER_SIZE);
-    const canvas = tmpCanvas.canvas;
     return {
-      canvas,
+      canvas: tmpCanvas.canvas,
       offsetX: offsetX - BORDER_SIZE * scaleX,
       offsetY: offsetY - BORDER_SIZE * scaleY,
       scaleX,
@@ -23246,7 +23253,7 @@ class MeshShadingPattern extends BaseShadingPattern {
     } else {
       Util.singularValueDecompose2dScale(owner.baseTransform, scale);
     }
-    const temporaryPatternCanvas = this._createMeshCanvas(scale, pathType === PathType.SHADING ? null : this._background, owner.cachedCanvases);
+    const temporaryPatternCanvas = this._createMeshCanvas(scale, pathType === PathType.SHADING ? null : this._background, owner.canvasFactory);
     if (pathType !== PathType.SHADING) {
       ctx.setTransform(...owner.baseTransform);
       if (this.matrix) {
@@ -23255,7 +23262,9 @@ class MeshShadingPattern extends BaseShadingPattern {
     }
     ctx.translate(temporaryPatternCanvas.offsetX, temporaryPatternCanvas.offsetY);
     ctx.scale(temporaryPatternCanvas.scaleX, temporaryPatternCanvas.scaleY);
-    return ctx.createPattern(temporaryPatternCanvas.canvas, "no-repeat");
+    const pattern = ctx.createPattern(temporaryPatternCanvas.canvas, "no-repeat");
+    owner.canvasFactory.destroy(temporaryPatternCanvas);
+    return pattern;
   }
 }
 class DummyShadingPattern extends BaseShadingPattern {
@@ -23335,7 +23344,7 @@ const _TilingPattern = class _TilingPattern {
     }
     const dimx = this.getSizeAndScale(canvasWidth, this.ctx.canvas.width, combinedScaleX);
     const dimy = this.getSizeAndScale(canvasHeight, this.ctx.canvas.height, combinedScaleY);
-    const tmpCanvas = owner.cachedCanvases.getCanvas("pattern", dimx.size, dimy.size);
+    const tmpCanvas = owner.canvasFactory.create(dimx.size, dimy.size);
     const tmpCtx = tmpCanvas.context;
     const graphics = canvasGraphicsFactory.createCanvasGraphics(tmpCtx, opIdx);
     graphics.groupLevel = owner.groupLevel;
@@ -23362,7 +23371,7 @@ const _TilingPattern = class _TilingPattern {
       const dimy2 = this.getSizeAndScale(canvasHeight, this.ctx.canvas.height, combinedScaleY);
       const xSize = dimx2.size;
       const ySize = dimy2.size;
-      const tmpCanvas2 = owner.cachedCanvases.getCanvas("pattern-workaround", xSize, ySize);
+      const tmpCanvas2 = owner.canvasFactory.create(xSize, ySize);
       const tmpCtx2 = tmpCanvas2.context;
       const ii = redrawHorizontally ? Math.floor(width / xstep) : 0;
       const jj = redrawVertically ? Math.floor(height / ystep) : 0;
@@ -23371,8 +23380,10 @@ const _TilingPattern = class _TilingPattern {
           tmpCtx2.drawImage(image, xSize * i, ySize * j, xSize, ySize, 0, 0, xSize, ySize);
         }
       }
+      owner.canvasFactory.destroy(tmpCanvas);
       return {
         canvas: tmpCanvas2.canvas,
+        canvasEntry: tmpCanvas2,
         scaleX: dimx2.scale,
         scaleY: dimy2.scale,
         offsetX: x0,
@@ -23381,6 +23392,7 @@ const _TilingPattern = class _TilingPattern {
     }
     return {
       canvas: tmpCanvas.canvas,
+      canvasEntry: tmpCanvas,
       scaleX: dimx.scale,
       scaleY: dimy.scale,
       offsetX: x0,
@@ -23443,6 +23455,7 @@ const _TilingPattern = class _TilingPattern {
     domMatrix = domMatrix.translate(temporaryPatternCanvas.offsetX, temporaryPatternCanvas.offsetY);
     domMatrix = domMatrix.scale(1 / temporaryPatternCanvas.scaleX, 1 / temporaryPatternCanvas.scaleY);
     const pattern = ctx.createPattern(temporaryPatternCanvas.canvas, "repeat");
+    owner.canvasFactory.destroy(temporaryPatternCanvas.canvasEntry);
     pattern.setTransform(domMatrix);
     return pattern;
   }
@@ -23597,33 +23610,6 @@ function mirrorContextOperations(ctx, destCtx) {
     this.__originalBeginPath();
   };
 }
-class CachedCanvases {
-  constructor(canvasFactory) {
-    this.canvasFactory = canvasFactory;
-    this.cache = /* @__PURE__ */ Object.create(null);
-  }
-  getCanvas(id, width, height) {
-    let canvasEntry;
-    if (this.cache[id] !== void 0) {
-      canvasEntry = this.cache[id];
-      this.canvasFactory.reset(canvasEntry, width, height);
-    } else {
-      canvasEntry = this.canvasFactory.create(width, height);
-      this.cache[id] = canvasEntry;
-    }
-    return canvasEntry;
-  }
-  delete(id) {
-    delete this.cache[id];
-  }
-  clear() {
-    for (const id in this.cache) {
-      const canvasEntry = this.cache[id];
-      this.canvasFactory.destroy(canvasEntry);
-      delete this.cache[id];
-    }
-  }
-}
 function drawImageAtIntegerCoords(ctx, srcImg, srcX, srcY, srcW, srcH, destX, destY, destW, destH) {
   const [a, b, c, d, tx, ty] = getCurrentTransform(ctx);
   if (b === 0 && c === 0) {
@@ -23660,7 +23646,7 @@ function drawImageAtIntegerCoords(ctx, srcImg, srcX, srcY, srcW, srcH, destX, de
   return [scaleX * destW, scaleY * destH];
 }
 class CanvasExtraState {
-  constructor(width, height, preInit) {
+  constructor(width, height) {
     __publicField(this, "alphaIsShape", false);
     __publicField(this, "fontSize", 0);
     __publicField(this, "fontSizeScale", 1);
@@ -23686,9 +23672,8 @@ class CanvasExtraState {
     __publicField(this, "lineWidth", 1);
     __publicField(this, "activeSMask", null);
     __publicField(this, "transferMaps", "none");
-    preInit == null ? void 0 : preInit(this);
+    __publicField(this, "minMax", MIN_MAX_INIT.slice());
     this.clipBox = new Float32Array([0, 0, width, height]);
-    this.minMax = MIN_MAX_INIT.slice();
   }
   clone() {
     const clone = Object.create(this);
@@ -23895,7 +23880,7 @@ const _CanvasGraphics = class _CanvasGraphics {
   constructor(canvasCtx, commonObjs, objs, canvasFactory, filterFactory, {
     optionalContentConfig,
     markedContentStack = null
-  }, annotationCanvasMap, pageColors, dependencyTracker) {
+  }, annotationCanvasMap, pageColors, dependencyTracker, imagesTracker) {
     __privateAdd(this, _CanvasGraphics_instances);
     this.ctx = canvasCtx;
     this.current = new CanvasExtraState(this.ctx.canvas.width, this.ctx.canvas.height);
@@ -23913,11 +23898,11 @@ const _CanvasGraphics = class _CanvasGraphics {
     this.smaskStack = [];
     this.smaskCounter = 0;
     this.tempSMask = null;
+    this.smaskGroupCanvases = [];
     this.suspendedCtx = null;
     this.contentVisible = true;
     this.markedContentStack = markedContentStack || [];
     this.optionalContentConfig = optionalContentConfig;
-    this.cachedCanvases = new CachedCanvases(this.canvasFactory);
     this.cachedPatterns = /* @__PURE__ */ new Map();
     this.annotationCanvasMap = annotationCanvasMap;
     this.viewportScale = 1;
@@ -23928,6 +23913,7 @@ const _CanvasGraphics = class _CanvasGraphics {
     this._cachedGetSinglePixelWidth = null;
     this._cachedBitmapsMap = /* @__PURE__ */ new Map();
     this.dependencyTracker = dependencyTracker ?? null;
+    this.imagesTracker = imagesTracker ?? null;
   }
   getObject(opIdx, data, fallback = null) {
     var _a2;
@@ -23950,10 +23936,12 @@ const _CanvasGraphics = class _CanvasGraphics {
     this.ctx.fillRect(0, 0, width, height);
     this.ctx.fillStyle = savedFillStyle;
     if (transparency) {
-      const transparentCanvas = this.cachedCanvases.getCanvas("transparent", width, height);
+      const transparentCanvas = this.transparentCanvasEntry = this.canvasFactory.create(width, height);
       this.compositeCtx = this.ctx;
-      this.transparentCanvas = transparentCanvas.canvas;
-      this.ctx = transparentCanvas.context;
+      ({
+        canvas: this.transparentCanvas,
+        context: this.ctx
+      } = transparentCanvas);
       this.ctx.save();
       this.ctx.transform(...getCurrentTransform(this.compositeCtx));
     }
@@ -23984,9 +23972,17 @@ const _CanvasGraphics = class _CanvasGraphics {
     const objs = this.objs;
     let fnId, fnArgs;
     while (true) {
-      if (stepper !== void 0 && i === stepper.nextBreakPoint) {
-        stepper.breakIt(i, continueCallback);
-        return i;
+      if (stepper !== void 0) {
+        if (i === stepper.nextBreakPoint) {
+          stepper.breakIt(i, continueCallback);
+          return i;
+        }
+        if (stepper.shouldSkip(i)) {
+          if (++i === argsArrayLen) {
+            return i;
+          }
+          continue;
+        }
       }
       if (!operationsFilter || operationsFilter(i)) {
         fnId = fnArray[i];
@@ -24023,7 +24019,12 @@ const _CanvasGraphics = class _CanvasGraphics {
   }
   endDrawing() {
     __privateMethod(this, _CanvasGraphics_instances, restoreInitialState_fn).call(this);
-    this.cachedCanvases.clear();
+    for (const canvas of this.smaskGroupCanvases) {
+      this.canvasFactory.destroy(canvas);
+    }
+    this.smaskGroupCanvases.length = 0;
+    this.tempSMask = null;
+    this.smaskStack.length = 0;
     this.cachedPatterns.clear();
     for (const cache2 of this._cachedBitmapsMap.values()) {
       for (const canvas of cache2.values()) {
@@ -24039,34 +24040,70 @@ const _CanvasGraphics = class _CanvasGraphics {
   _scaleImage(img, inverseTransform) {
     const width = img.width ?? img.displayWidth;
     const height = img.height ?? img.displayHeight;
-    let widthScale = Math.max(Math.hypot(inverseTransform[0], inverseTransform[1]), 1);
-    let heightScale = Math.max(Math.hypot(inverseTransform[2], inverseTransform[3]), 1);
+    const widthScale = Math.max(Math.hypot(inverseTransform[0], inverseTransform[1]), 1);
+    const heightScale = Math.max(Math.hypot(inverseTransform[2], inverseTransform[3]), 1);
+    const scaleSteps = [];
+    let ws = widthScale, hs = heightScale, pw = width, ph = height;
+    while (ws > 2 && pw > 1 || hs > 2 && ph > 1) {
+      let nw = pw, nh = ph;
+      if (ws > 2 && pw > 1) {
+        nw = pw >= 16384 ? Math.floor(pw / 2) - 1 || 1 : Math.ceil(pw / 2);
+        ws /= pw / nw;
+      }
+      if (hs > 2 && ph > 1) {
+        nh = ph >= 16384 ? Math.floor(ph / 2) - 1 || 1 : Math.ceil(ph) / 2;
+        hs /= ph / nh;
+      }
+      scaleSteps.push({
+        newWidth: nw,
+        newHeight: nh
+      });
+      pw = nw;
+      ph = nh;
+    }
+    if (scaleSteps.length === 0) {
+      return {
+        img,
+        paintWidth: width,
+        paintHeight: height,
+        tmpCanvas: null
+      };
+    }
+    if (scaleSteps.length === 1) {
+      const {
+        newWidth,
+        newHeight
+      } = scaleSteps[0];
+      const tmpCanvas = this.canvasFactory.create(newWidth, newHeight);
+      tmpCanvas.context.drawImage(img, 0, 0, width, height, 0, 0, newWidth, newHeight);
+      return {
+        img: tmpCanvas.canvas,
+        paintWidth: newWidth,
+        paintHeight: newHeight,
+        tmpCanvas
+      };
+    }
+    let readEntry = this.canvasFactory.create(1, 1);
+    let writeEntry = this.canvasFactory.create(1, 1);
     let paintWidth = width, paintHeight = height;
-    let tmpCanvasId = "prescale1";
-    let tmpCanvas, tmpCtx;
-    while (widthScale > 2 && paintWidth > 1 || heightScale > 2 && paintHeight > 1) {
-      let newWidth = paintWidth, newHeight = paintHeight;
-      if (widthScale > 2 && paintWidth > 1) {
-        newWidth = paintWidth >= 16384 ? Math.floor(paintWidth / 2) - 1 || 1 : Math.ceil(paintWidth / 2);
-        widthScale /= paintWidth / newWidth;
-      }
-      if (heightScale > 2 && paintHeight > 1) {
-        newHeight = paintHeight >= 16384 ? Math.floor(paintHeight / 2) - 1 || 1 : Math.ceil(paintHeight) / 2;
-        heightScale /= paintHeight / newHeight;
-      }
-      tmpCanvas = this.cachedCanvases.getCanvas(tmpCanvasId, newWidth, newHeight);
-      tmpCtx = tmpCanvas.context;
-      tmpCtx.clearRect(0, 0, newWidth, newHeight);
-      tmpCtx.drawImage(img, 0, 0, paintWidth, paintHeight, 0, 0, newWidth, newHeight);
-      img = tmpCanvas.canvas;
+    let source = img;
+    for (const {
+      newWidth,
+      newHeight
+    } of scaleSteps) {
+      this.canvasFactory.reset(writeEntry, newWidth, newHeight);
+      writeEntry.context.drawImage(source, 0, 0, paintWidth, paintHeight, 0, 0, newWidth, newHeight);
+      [readEntry, writeEntry] = [writeEntry, readEntry];
+      source = readEntry.canvas;
       paintWidth = newWidth;
       paintHeight = newHeight;
-      tmpCanvasId = tmpCanvasId === "prescale1" ? "prescale2" : "prescale1";
     }
+    this.canvasFactory.destroy(writeEntry);
     return {
-      img,
+      img: readEntry.canvas,
       paintWidth,
-      paintHeight
+      paintHeight,
+      tmpCanvas: readEntry
     };
   }
   _createMaskCanvas(opIdx, img) {
@@ -24098,7 +24135,7 @@ const _CanvasGraphics = class _CanvasGraphics {
       scaled = cachedImage;
     }
     if (!scaled) {
-      maskCanvas = this.cachedCanvases.getCanvas("maskCanvas", width, height);
+      maskCanvas = this.canvasFactory.create(width, height);
       putBinaryImageMask(maskCanvas.context, img);
     }
     let maskToCanvas = Util.transform(currentTransform, [1 / width, 0, 0, -1 / height, 0, 0]);
@@ -24108,32 +24145,46 @@ const _CanvasGraphics = class _CanvasGraphics {
     const [minX, minY, maxX, maxY] = minMax;
     const drawnWidth = Math.round(maxX - minX) || 1;
     const drawnHeight = Math.round(maxY - minY) || 1;
-    const fillCanvas = this.cachedCanvases.getCanvas("fillCanvas", drawnWidth, drawnHeight);
+    const fillCanvas = this.canvasFactory.create(drawnWidth, drawnHeight);
     const fillCtx = fillCanvas.context;
     const offsetX = minX;
     const offsetY = minY;
     fillCtx.translate(-offsetX, -offsetY);
     fillCtx.transform(...maskToCanvas);
+    let scaledEntry = null;
     if (!scaled) {
-      scaled = this._scaleImage(maskCanvas.canvas, getCurrentTransformInverse(fillCtx));
-      scaled = scaled.img;
+      const scaleResult = this._scaleImage(maskCanvas.canvas, getCurrentTransformInverse(fillCtx));
+      scaled = scaleResult.img;
+      scaledEntry = scaleResult.tmpCanvas;
+      if (scaled !== maskCanvas.canvas) {
+        this.canvasFactory.destroy(maskCanvas);
+        maskCanvas = null;
+      }
       if (cache2 && isPatternFill) {
         cache2.set(cacheKey, scaled);
+        scaledEntry = null;
+        maskCanvas = null;
       }
     }
     fillCtx.imageSmoothingEnabled = getImageSmoothingEnabled(getCurrentTransform(fillCtx), img.interpolate);
     drawImageAtIntegerCoords(fillCtx, scaled, 0, 0, scaled.width, scaled.height, 0, 0, width, height);
+    if (scaledEntry) {
+      this.canvasFactory.destroy(scaledEntry);
+    }
+    if (maskCanvas) {
+      this.canvasFactory.destroy(maskCanvas);
+    }
     fillCtx.globalCompositeOperation = "source-in";
     const inverse = Util.transform(getCurrentTransformInverse(fillCtx), [1, 0, 0, 1, -offsetX, -offsetY]);
     fillCtx.fillStyle = isPatternFill ? fillColor.getPattern(ctx, this, inverse, PathType.FILL, opIdx) : fillColor;
     fillCtx.fillRect(0, 0, width, height);
     if (cache2 && !isPatternFill) {
-      this.cachedCanvases.delete("fillCanvas");
       cache2.set(cacheKey, fillCanvas.canvas);
     }
     (_b = this.dependencyTracker) == null ? void 0 : _b.recordDependencies(opIdx, Dependencies.transformAndFill);
     return {
       canvas: fillCanvas.canvas,
+      canvasEntry: cache2 && !isPatternFill ? null : fillCanvas,
       offsetX: Math.round(offsetX),
       offsetY: Math.round(offsetY)
     };
@@ -24245,8 +24296,8 @@ const _CanvasGraphics = class _CanvasGraphics {
     }
     const drawnWidth = this.ctx.canvas.width;
     const drawnHeight = this.ctx.canvas.height;
-    const cacheId = "smaskGroupAt" + this.groupLevel;
-    const scratchCanvas = this.cachedCanvases.getCanvas(cacheId, drawnWidth, drawnHeight);
+    const scratchCanvas = this.canvasFactory.create(drawnWidth, drawnHeight);
+    this.smaskScratchCanvas = scratchCanvas;
     this.suspendedCtx = this.ctx;
     const ctx = this.ctx = scratchCanvas.context;
     ctx.setTransform(this.suspendedCtx.getTransform());
@@ -24262,6 +24313,8 @@ const _CanvasGraphics = class _CanvasGraphics {
     copyCtxState(this.ctx, this.suspendedCtx);
     this.ctx = this.suspendedCtx;
     this.suspendedCtx = null;
+    this.canvasFactory.destroy(this.smaskScratchCanvas);
+    this.smaskScratchCanvas = null;
   }
   compose(dirtyBox) {
     if (!this.current.activeSMask) {
@@ -24303,16 +24356,17 @@ const _CanvasGraphics = class _CanvasGraphics {
     let maskCanvas = maskCtx.canvas;
     let maskX = layerOffsetX - maskOffsetX;
     let maskY = layerOffsetY - maskOffsetY;
+    let maskExtensionEntry = null;
     if (backdrop) {
       if (maskX < 0 || maskY < 0 || maskX + width > maskCanvas.width || maskY + height > maskCanvas.height) {
-        const canvas = this.cachedCanvases.getCanvas("maskExtension", width, height);
-        const ctx = canvas.context;
+        maskExtensionEntry = this.canvasFactory.create(width, height);
+        const ctx = maskExtensionEntry.context;
         ctx.drawImage(maskCanvas, -maskX, -maskY);
         ctx.globalCompositeOperation = "destination-atop";
         ctx.fillStyle = backdrop;
         ctx.fillRect(0, 0, width, height);
         ctx.globalCompositeOperation = "source-over";
-        maskCanvas = canvas.canvas;
+        maskCanvas = maskExtensionEntry.canvas;
         maskX = maskY = 0;
       } else {
         maskCtx.save();
@@ -24341,6 +24395,9 @@ const _CanvasGraphics = class _CanvasGraphics {
     layerCtx.globalCompositeOperation = "destination-in";
     layerCtx.drawImage(maskCanvas, maskX, maskY, width, height, layerOffsetX, layerOffsetY, width, height);
     layerCtx.restore();
+    if (maskExtensionEntry) {
+      this.canvasFactory.destroy(maskExtensionEntry);
+    }
   }
   save(opIdx) {
     var _a2;
@@ -24717,12 +24774,12 @@ const _CanvasGraphics = class _CanvasGraphics {
     }
   }
   get isFontSubpixelAAEnabled() {
-    const {
-      context: ctx
-    } = this.cachedCanvases.getCanvas("isFontSubpixelAAEnabled", 10, 10);
+    const tmpCanvas = this.canvasFactory.create(10, 10);
+    const ctx = tmpCanvas.context;
     ctx.scale(1.5, 1);
     ctx.fillText("I", 0, 10);
     const data = ctx.getImageData(0, 0, 10, 10).data;
+    this.canvasFactory.destroy(tmpCanvas);
     let enabled = false;
     for (let i = 3; i < data.length; i += 4) {
       if (data[i] > 0 && data[i] < 255) {
@@ -25106,35 +25163,41 @@ const _CanvasGraphics = class _CanvasGraphics {
     if (group.matrix) {
       currentCtx.transform(...group.matrix);
     }
-    if (!group.bbox) {
-      throw new Error("Bounding box is required.");
-    }
-    let bounds = MIN_MAX_INIT.slice();
-    Util.axialAlignedBoundingBox(group.bbox, getCurrentTransform(currentCtx), bounds);
     const canvasBounds = [0, 0, currentCtx.canvas.width, currentCtx.canvas.height];
-    bounds = Util.intersect(bounds, canvasBounds) || [0, 0, 0, 0];
+    let bounds;
+    if (group.bbox) {
+      bounds = MIN_MAX_INIT.slice();
+      Util.axialAlignedBoundingBox(group.bbox, getCurrentTransform(currentCtx), bounds);
+      bounds = Util.intersect(bounds, canvasBounds) || [0, 0, 0, 0];
+    } else {
+      bounds = canvasBounds;
+    }
     const offsetX = Math.floor(bounds[0]);
     const offsetY = Math.floor(bounds[1]);
     const drawnWidth = Math.max(Math.ceil(bounds[2]) - offsetX, 1);
     const drawnHeight = Math.max(Math.ceil(bounds[3]) - offsetY, 1);
     this.current.startNewPathAndClipBox([0, 0, drawnWidth, drawnHeight]);
-    let cacheId = "groupAt" + this.groupLevel;
     if (group.smask) {
-      cacheId += "_smask_" + this.smaskCounter++ % 2;
+      this.smaskCounter++;
     }
-    const scratchCanvas = this.cachedCanvases.getCanvas(cacheId, drawnWidth, drawnHeight);
+    const scratchCanvas = this.canvasFactory.create(drawnWidth, drawnHeight);
+    if (group.smask) {
+      this.smaskGroupCanvases.push(scratchCanvas);
+    }
     const groupCtx = scratchCanvas.context;
     groupCtx.translate(-offsetX, -offsetY);
     groupCtx.transform(...currentTransform);
-    let clip = new Path2D();
-    const [x0, y0, x1, y1] = group.bbox;
-    clip.rect(x0, y0, x1 - x0, y1 - y0);
-    if (group.matrix) {
-      const path = new Path2D();
-      path.addPath(clip, new DOMMatrix(group.matrix));
-      clip = path;
+    if (group.bbox) {
+      let clip = new Path2D();
+      const [x0, y0, x1, y1] = group.bbox;
+      clip.rect(x0, y0, x1 - x0, y1 - y0);
+      if (group.matrix) {
+        const path = new Path2D();
+        path.addPath(clip, new DOMMatrix(group.matrix));
+        clip = path;
+      }
+      groupCtx.clip(clip);
     }
-    groupCtx.clip(clip);
     if (group.smask) {
       this.smaskStack.push({
         canvas: scratchCanvas.canvas,
@@ -25186,6 +25249,10 @@ const _CanvasGraphics = class _CanvasGraphics {
       Util.axialAlignedBoundingBox([0, 0, groupCtx.canvas.width, groupCtx.canvas.height], currentMtx, dirtyBox);
       this.ctx.drawImage(groupCtx.canvas, 0, 0);
       this.ctx.restore();
+      this.canvasFactory.destroy({
+        canvas: groupCtx.canvas,
+        context: groupCtx
+      });
       this.compose(dirtyBox);
     }
   }
@@ -25262,6 +25329,9 @@ const _CanvasGraphics = class _CanvasGraphics {
     ctx.drawImage(maskCanvas, mask.offsetX, mask.offsetY);
     (_a2 = this.dependencyTracker) == null ? void 0 : _a2.resetBBox(opIdx).recordBBox(opIdx, this.ctx, mask.offsetX, mask.offsetX + maskCanvas.width, mask.offsetY, mask.offsetY + maskCanvas.height).recordOperation(opIdx);
     ctx.restore();
+    if (mask.canvasEntry) {
+      this.canvasFactory.destroy(mask.canvasEntry);
+    }
     this.compose();
   }
   paintImageMaskXObjectRepeat(opIdx, img, scaleX, skewX = 0, skewY = 0, scaleY, positions) {
@@ -25283,6 +25353,9 @@ const _CanvasGraphics = class _CanvasGraphics {
       (_b = this.dependencyTracker) == null ? void 0 : _b.recordBBox(opIdx, this.ctx, trans[4], trans[4] + mask.canvas.width, trans[5], trans[5] + mask.canvas.height);
     }
     ctx.restore();
+    if (mask.canvasEntry) {
+      this.canvasFactory.destroy(mask.canvasEntry);
+    }
     this.compose();
     (_c = this.dependencyTracker) == null ? void 0 : _c.recordOperation(opIdx);
   }
@@ -25302,7 +25375,7 @@ const _CanvasGraphics = class _CanvasGraphics {
         height,
         transform
       } = image;
-      const maskCanvas = this.cachedCanvases.getCanvas("maskCanvas", width, height);
+      const maskCanvas = this.canvasFactory.create(width, height);
       const maskCtx = maskCanvas.context;
       maskCtx.save();
       const img = this.getObject(opIdx, data, image);
@@ -25315,6 +25388,7 @@ const _CanvasGraphics = class _CanvasGraphics {
       ctx.transform(...transform);
       ctx.scale(1, -1);
       drawImageAtIntegerCoords(ctx, maskCanvas.canvas, 0, 0, width, height, 0, -1, 1, 1);
+      this.canvasFactory.destroy(maskCanvas);
       (_b = this.dependencyTracker) == null ? void 0 : _b.recordBBox(opIdx, ctx, 0, width, 0, height);
       ctx.restore();
     }
@@ -25365,19 +25439,25 @@ const _CanvasGraphics = class _CanvasGraphics {
   }
   applyTransferMapsToBitmap(imgData) {
     if (this.current.transferMaps === "none") {
-      return imgData.bitmap;
+      return {
+        img: imgData.bitmap,
+        canvasEntry: null
+      };
     }
     const {
       bitmap,
       width,
       height
     } = imgData;
-    const tmpCanvas = this.cachedCanvases.getCanvas("inlineImage", width, height);
+    const tmpCanvas = this.canvasFactory.create(width, height);
     const tmpCtx = tmpCanvas.context;
     tmpCtx.filter = this.current.transferMaps;
     tmpCtx.drawImage(bitmap, 0, 0);
     tmpCtx.filter = "none";
-    return tmpCanvas.canvas;
+    return {
+      img: tmpCanvas.canvas,
+      canvasEntry: tmpCanvas
+    };
   }
   paintInlineImageXObject(opIdx, imgData) {
     var _a2;
@@ -25396,20 +25476,32 @@ const _CanvasGraphics = class _CanvasGraphics {
     }
     ctx.scale(1 / width, -1 / height);
     let imgToPaint;
+    let inlineImgCanvas = null;
     if (imgData.bitmap) {
-      imgToPaint = this.applyTransferMapsToBitmap(imgData);
+      const result = this.applyTransferMapsToBitmap(imgData);
+      imgToPaint = result.img;
+      inlineImgCanvas = result.canvasEntry;
     } else if (typeof HTMLElement === "function" && imgData instanceof HTMLElement || !imgData.data) {
       imgToPaint = imgData;
     } else {
-      const tmpCanvas = this.cachedCanvases.getCanvas("inlineImage", width, height);
-      const tmpCtx = tmpCanvas.context;
-      putBinaryImageData(tmpCtx, imgData);
-      imgToPaint = this.applyTransferMapsToCanvas(tmpCtx);
+      const tmpCanvas = this.canvasFactory.create(width, height);
+      putBinaryImageData(tmpCanvas.context, imgData);
+      imgToPaint = this.applyTransferMapsToCanvas(tmpCanvas.context);
+      inlineImgCanvas = tmpCanvas;
     }
     const scaled = this._scaleImage(imgToPaint, getCurrentTransformInverse(ctx));
     ctx.imageSmoothingEnabled = getImageSmoothingEnabled(getCurrentTransform(ctx), imgData.interpolate);
-    (_a2 = this.dependencyTracker) == null ? void 0 : _a2.resetBBox(opIdx).recordBBox(opIdx, ctx, 0, width, -height, 0).recordDependencies(opIdx, Dependencies.imageXObject).recordOperation(opIdx);
+    if (this.dependencyTracker) {
+      this.dependencyTracker.resetBBox(opIdx).recordBBox(opIdx, ctx, 0, width, -height, 0).recordDependencies(opIdx, Dependencies.imageXObject).recordOperation(opIdx);
+      (_a2 = this.imagesTracker) == null ? void 0 : _a2.record(ctx, width, height, this.dependencyTracker.clipBox);
+    }
     drawImageAtIntegerCoords(ctx, scaled.img, 0, 0, scaled.paintWidth, scaled.paintHeight, 0, -height, width, height);
+    if (scaled.tmpCanvas) {
+      this.canvasFactory.destroy(scaled.tmpCanvas);
+    }
+    if (inlineImgCanvas) {
+      this.canvasFactory.destroy(inlineImgCanvas);
+    }
     this.compose();
     this.restore(opIdx);
   }
@@ -25420,15 +25512,16 @@ const _CanvasGraphics = class _CanvasGraphics {
     }
     const ctx = this.ctx;
     let imgToPaint;
+    let inlineImgCanvas = null;
     if (imgData.bitmap) {
       imgToPaint = imgData.bitmap;
     } else {
       const w = imgData.width;
       const h = imgData.height;
-      const tmpCanvas = this.cachedCanvases.getCanvas("inlineImage", w, h);
-      const tmpCtx = tmpCanvas.context;
-      putBinaryImageData(tmpCtx, imgData);
-      imgToPaint = this.applyTransferMapsToCanvas(tmpCtx);
+      const tmpCanvas = this.canvasFactory.create(w, h);
+      putBinaryImageData(tmpCanvas.context, imgData);
+      imgToPaint = this.applyTransferMapsToCanvas(tmpCanvas.context);
+      inlineImgCanvas = tmpCanvas;
     }
     (_a2 = this.dependencyTracker) == null ? void 0 : _a2.resetBBox(opIdx);
     for (const entry of map) {
@@ -25438,6 +25531,9 @@ const _CanvasGraphics = class _CanvasGraphics {
       drawImageAtIntegerCoords(ctx, imgToPaint, entry.x, entry.y, entry.w, entry.h, 0, -1, 1, 1);
       (_b = this.dependencyTracker) == null ? void 0 : _b.recordBBox(opIdx, ctx, 0, 1, -1, 0);
       ctx.restore();
+    }
+    if (inlineImgCanvas) {
+      this.canvasFactory.destroy(inlineImgCanvas);
     }
     (_c = this.dependencyTracker) == null ? void 0 : _c.recordOperation(opIdx);
     this.compose();
@@ -25629,7 +25725,9 @@ restoreInitialState_fn = function() {
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.ctx.drawImage(this.transparentCanvas, 0, 0);
     this.ctx.restore();
+    this.canvasFactory.destroy(this.transparentCanvasEntry);
     this.transparentCanvas = null;
+    this.transparentCanvasEntry = null;
   }
 };
 drawFilter_fn = function() {
@@ -25653,6 +25751,1075 @@ for (const op in OPS) {
   if (CanvasGraphics.prototype[op] !== void 0) {
     CanvasGraphics.prototype[OPS[op]] = CanvasGraphics.prototype[op];
   }
+}
+class BasePDFStream {
+  constructor(source, PDFStreamReader, PDFStreamRangeReader) {
+    __privateAdd(this, _PDFStreamReader, null);
+    __privateAdd(this, _PDFStreamRangeReader, null);
+    __publicField(this, "_fullReader", null);
+    __publicField(this, "_rangeReaders", /* @__PURE__ */ new Set());
+    __publicField(this, "_source", null);
+    this._source = source;
+    __privateSet(this, _PDFStreamReader, PDFStreamReader);
+    __privateSet(this, _PDFStreamRangeReader, PDFStreamRangeReader);
+  }
+  get _progressiveDataLength() {
+    var _a2;
+    return ((_a2 = this._fullReader) == null ? void 0 : _a2._loaded) ?? 0;
+  }
+  getFullReader() {
+    assert(!this._fullReader, "BasePDFStream.getFullReader can only be called once.");
+    return this._fullReader = new (__privateGet(this, _PDFStreamReader))(this);
+  }
+  getRangeReader(begin, end) {
+    if (end <= this._progressiveDataLength) {
+      return null;
+    }
+    const reader = new (__privateGet(this, _PDFStreamRangeReader))(this, begin, end);
+    this._rangeReaders.add(reader);
+    return reader;
+  }
+  cancelAllRequests(reason) {
+    var _a2;
+    (_a2 = this._fullReader) == null ? void 0 : _a2.cancel(reason);
+    for (const reader of new Set(this._rangeReaders)) {
+      reader.cancel(reason);
+    }
+  }
+}
+_PDFStreamReader = new WeakMap();
+_PDFStreamRangeReader = new WeakMap();
+class BasePDFStreamReader {
+  constructor(stream) {
+    __publicField(this, "onProgress", null);
+    __publicField(this, "_contentLength", 0);
+    __publicField(this, "_filename", null);
+    __publicField(this, "_headersCapability", Promise.withResolvers());
+    __publicField(this, "_isRangeSupported", false);
+    __publicField(this, "_isStreamingSupported", false);
+    __publicField(this, "_loaded", 0);
+    __publicField(this, "_stream", null);
+    this._stream = stream;
+  }
+  _callOnProgress() {
+    var _a2;
+    (_a2 = this.onProgress) == null ? void 0 : _a2.call(this, {
+      loaded: this._loaded,
+      total: this._contentLength
+    });
+  }
+  get headersReady() {
+    return this._headersCapability.promise;
+  }
+  get filename() {
+    return this._filename;
+  }
+  get contentLength() {
+    return this._contentLength;
+  }
+  get isRangeSupported() {
+    return this._isRangeSupported;
+  }
+  get isStreamingSupported() {
+    return this._isStreamingSupported;
+  }
+  async read() {
+    unreachable("Abstract method `read` called");
+  }
+  cancel(reason) {
+    unreachable("Abstract method `cancel` called");
+  }
+}
+class BasePDFStreamRangeReader {
+  constructor(stream, begin, end) {
+    __publicField(this, "_stream", null);
+    this._stream = stream;
+  }
+  async read() {
+    unreachable("Abstract method `read` called");
+  }
+  cancel(reason) {
+    unreachable("Abstract method `cancel` called");
+  }
+}
+function getFilenameFromContentDispositionHeader(contentDisposition) {
+  let needsEncodingFixup = true;
+  let tmp = toParamRegExp("filename\\*", "i").exec(contentDisposition);
+  if (tmp) {
+    tmp = tmp[1];
+    let filename = rfc2616unquote(tmp);
+    filename = unescape(filename);
+    filename = rfc5987decode(filename);
+    filename = rfc2047decode(filename);
+    return fixupEncoding(filename);
+  }
+  tmp = rfc2231getparam(contentDisposition);
+  if (tmp) {
+    const filename = rfc2047decode(tmp);
+    return fixupEncoding(filename);
+  }
+  tmp = toParamRegExp("filename", "i").exec(contentDisposition);
+  if (tmp) {
+    tmp = tmp[1];
+    let filename = rfc2616unquote(tmp);
+    filename = rfc2047decode(filename);
+    return fixupEncoding(filename);
+  }
+  function toParamRegExp(attributePattern, flags) {
+    return new RegExp("(?:^|;)\\s*" + attributePattern + '\\s*=\\s*([^";\\s][^;\\s]*|"(?:[^"\\\\]|\\\\"?)+"?)', flags);
+  }
+  function textdecode(encoding, value2) {
+    if (encoding) {
+      if (!/^[\x00-\xFF]+$/.test(value2)) {
+        return value2;
+      }
+      try {
+        const decoder = new TextDecoder(encoding, {
+          fatal: true
+        });
+        const buffer = stringToBytes(value2);
+        value2 = decoder.decode(buffer);
+        needsEncodingFixup = false;
+      } catch {
+      }
+    }
+    return value2;
+  }
+  function fixupEncoding(value2) {
+    if (needsEncodingFixup && /[\x80-\xff]/.test(value2)) {
+      value2 = textdecode("utf-8", value2);
+      if (needsEncodingFixup) {
+        value2 = textdecode("iso-8859-1", value2);
+      }
+    }
+    return value2;
+  }
+  function rfc2231getparam(contentDispositionStr) {
+    const matches = [];
+    let match;
+    const iter = toParamRegExp("filename\\*((?!0\\d)\\d+)(\\*?)", "ig");
+    while ((match = iter.exec(contentDispositionStr)) !== null) {
+      let [, n, quot, part] = match;
+      n = parseInt(n, 10);
+      if (n in matches) {
+        if (n === 0) {
+          break;
+        }
+        continue;
+      }
+      matches[n] = [quot, part];
+    }
+    const parts2 = [];
+    for (let n = 0; n < matches.length; ++n) {
+      if (!(n in matches)) {
+        break;
+      }
+      let [quot, part] = matches[n];
+      part = rfc2616unquote(part);
+      if (quot) {
+        part = unescape(part);
+        if (n === 0) {
+          part = rfc5987decode(part);
+        }
+      }
+      parts2.push(part);
+    }
+    return parts2.join("");
+  }
+  function rfc2616unquote(value2) {
+    if (value2.startsWith('"')) {
+      const parts2 = value2.slice(1).split('\\"');
+      for (let i = 0; i < parts2.length; ++i) {
+        const quotindex = parts2[i].indexOf('"');
+        if (quotindex !== -1) {
+          parts2[i] = parts2[i].slice(0, quotindex);
+          parts2.length = i + 1;
+        }
+        parts2[i] = parts2[i].replaceAll(/\\(.)/g, "$1");
+      }
+      value2 = parts2.join('"');
+    }
+    return value2;
+  }
+  function rfc5987decode(extvalue) {
+    const encodingend = extvalue.indexOf("'");
+    if (encodingend === -1) {
+      return extvalue;
+    }
+    const encoding = extvalue.slice(0, encodingend);
+    const langvalue = extvalue.slice(encodingend + 1);
+    const value2 = langvalue.replace(/^[^']*'/, "");
+    return textdecode(encoding, value2);
+  }
+  function rfc2047decode(value2) {
+    if (!value2.startsWith("=?") || /[\x00-\x19\x80-\xff]/.test(value2)) {
+      return value2;
+    }
+    return value2.replaceAll(/=\?([\w-]*)\?([QqBb])\?((?:[^?]|\?(?!=))*)\?=/g, function(matches, charset, encoding, text) {
+      if (encoding === "q" || encoding === "Q") {
+        text = text.replaceAll("_", " ");
+        text = text.replaceAll(/=([0-9a-fA-F]{2})/g, function(match, hex) {
+          return String.fromCharCode(parseInt(hex, 16));
+        });
+        return textdecode(charset, text);
+      }
+      try {
+        text = atob(text);
+      } catch {
+      }
+      return textdecode(charset, text);
+    });
+  }
+  return "";
+}
+function createHeaders(isHttp, httpHeaders) {
+  const headers = new Headers();
+  if (!isHttp || !httpHeaders || typeof httpHeaders !== "object") {
+    return headers;
+  }
+  for (const key in httpHeaders) {
+    const val = httpHeaders[key];
+    if (val !== void 0) {
+      headers.append(key, val);
+    }
+  }
+  return headers;
+}
+function getResponseOrigin(url2) {
+  var _a2;
+  return ((_a2 = URL.parse(url2)) == null ? void 0 : _a2.origin) ?? null;
+}
+function validateRangeRequestCapabilities({
+  responseHeaders,
+  isHttp,
+  rangeChunkSize,
+  disableRange
+}) {
+  const rv = {
+    contentLength: 0,
+    isRangeSupported: false
+  };
+  const length = parseInt(responseHeaders.get("Content-Length"), 10);
+  if (!Number.isInteger(length)) {
+    return rv;
+  }
+  rv.contentLength = length;
+  if (length <= 2 * rangeChunkSize) {
+    return rv;
+  }
+  if (disableRange || !isHttp) {
+    return rv;
+  }
+  if (responseHeaders.get("Accept-Ranges") !== "bytes") {
+    return rv;
+  }
+  const contentEncoding = responseHeaders.get("Content-Encoding") || "identity";
+  if (contentEncoding === "identity") {
+    rv.isRangeSupported = true;
+  }
+  return rv;
+}
+function extractFilenameFromHeader(responseHeaders) {
+  const contentDisposition = responseHeaders.get("Content-Disposition");
+  if (contentDisposition) {
+    let filename = getFilenameFromContentDispositionHeader(contentDisposition);
+    if (filename.includes("%")) {
+      try {
+        filename = decodeURIComponent(filename);
+      } catch {
+      }
+    }
+    if (isPdfFile$1(filename)) {
+      return filename;
+    }
+  }
+  return null;
+}
+function createResponseError(status, url2) {
+  return new ResponseException(`Unexpected server response (${status}) while retrieving PDF "${url2.href}".`, status, status === 404 || status === 0 && url2.protocol === "file:");
+}
+function ensureResponseOrigin(rangeOrigin, origin) {
+  if (rangeOrigin !== origin) {
+    throw new Error(`Expected range response-origin "${rangeOrigin}" to match "${origin}".`);
+  }
+}
+function fetchUrl(url2, headers, withCredentials, abortController) {
+  return fetch(url2, {
+    method: "GET",
+    headers,
+    signal: abortController.signal,
+    mode: "cors",
+    credentials: withCredentials ? "include" : "same-origin",
+    redirect: "follow"
+  });
+}
+function ensureResponseStatus(status, url2) {
+  if (status !== 200 && status !== 206) {
+    throw createResponseError(status, url2);
+  }
+}
+function getArrayBuffer(val) {
+  if (val instanceof Uint8Array) {
+    return val.buffer;
+  }
+  if (val instanceof ArrayBuffer) {
+    return val;
+  }
+  throw new Error(`getArrayBuffer - unexpected data: ${val}`);
+}
+class PDFFetchStream extends BasePDFStream {
+  constructor(source) {
+    super(source, PDFFetchStreamReader, PDFFetchStreamRangeReader);
+    __publicField(this, "_responseOrigin", null);
+    const {
+      httpHeaders,
+      url: url2
+    } = source;
+    assert(/https?:/.test(url2.protocol), "PDFFetchStream only supports http(s):// URLs.");
+    this.headers = createHeaders(true, httpHeaders);
+  }
+}
+class PDFFetchStreamReader extends BasePDFStreamReader {
+  constructor(stream) {
+    super(stream);
+    __publicField(this, "_abortController", new AbortController());
+    __publicField(this, "_reader", null);
+    const {
+      disableRange,
+      disableStream,
+      rangeChunkSize,
+      url: url2,
+      withCredentials
+    } = stream._source;
+    this._isStreamingSupported = !disableStream;
+    const headers = new Headers(stream.headers);
+    fetchUrl(url2, headers, withCredentials, this._abortController).then((response) => {
+      stream._responseOrigin = getResponseOrigin(response.url);
+      ensureResponseStatus(response.status, url2);
+      this._reader = response.body.getReader();
+      const responseHeaders = response.headers;
+      const {
+        contentLength,
+        isRangeSupported
+      } = validateRangeRequestCapabilities({
+        responseHeaders,
+        isHttp: true,
+        rangeChunkSize,
+        disableRange
+      });
+      this._contentLength = contentLength;
+      this._isRangeSupported = isRangeSupported;
+      this._filename = extractFilenameFromHeader(responseHeaders);
+      if (!this._isStreamingSupported && this._isRangeSupported) {
+        this.cancel(new AbortException("Streaming is disabled."));
+      }
+      this._headersCapability.resolve();
+    }).catch(this._headersCapability.reject);
+  }
+  async read() {
+    await this._headersCapability.promise;
+    const {
+      value: value2,
+      done
+    } = await this._reader.read();
+    if (done) {
+      return {
+        value: value2,
+        done
+      };
+    }
+    this._loaded += value2.byteLength;
+    this._callOnProgress();
+    return {
+      value: getArrayBuffer(value2),
+      done: false
+    };
+  }
+  cancel(reason) {
+    var _a2;
+    (_a2 = this._reader) == null ? void 0 : _a2.cancel(reason);
+    this._abortController.abort();
+  }
+}
+class PDFFetchStreamRangeReader extends BasePDFStreamRangeReader {
+  constructor(stream, begin, end) {
+    super(stream, begin, end);
+    __publicField(this, "_abortController", new AbortController());
+    __publicField(this, "_readCapability", Promise.withResolvers());
+    __publicField(this, "_reader", null);
+    const {
+      url: url2,
+      withCredentials
+    } = stream._source;
+    const headers = new Headers(stream.headers);
+    headers.append("Range", `bytes=${begin}-${end - 1}`);
+    fetchUrl(url2, headers, withCredentials, this._abortController).then((response) => {
+      const responseOrigin = getResponseOrigin(response.url);
+      ensureResponseOrigin(responseOrigin, stream._responseOrigin);
+      ensureResponseStatus(response.status, url2);
+      this._reader = response.body.getReader();
+      this._readCapability.resolve();
+    }).catch(this._readCapability.reject);
+  }
+  async read() {
+    await this._readCapability.promise;
+    const {
+      value: value2,
+      done
+    } = await this._reader.read();
+    if (done) {
+      return {
+        value: value2,
+        done
+      };
+    }
+    return {
+      value: getArrayBuffer(value2),
+      done: false
+    };
+  }
+  cancel(reason) {
+    var _a2;
+    (_a2 = this._reader) == null ? void 0 : _a2.cancel(reason);
+    this._abortController.abort();
+  }
+}
+function transport_stream_getArrayBuffer(val) {
+  return val instanceof Uint8Array && val.byteLength === val.buffer.byteLength ? val.buffer : new Uint8Array(val).buffer;
+}
+function endRequests() {
+  for (const capability of this._requests) {
+    capability.resolve({
+      value: void 0,
+      done: true
+    });
+  }
+  this._requests.length = 0;
+}
+class PDFDataTransportStream extends BasePDFStream {
+  constructor(source) {
+    super(source, PDFDataTransportStreamReader, PDFDataTransportStreamRangeReader);
+    __privateAdd(this, _PDFDataTransportStream_instances);
+    __publicField(this, "_progressiveDone", false);
+    __publicField(this, "_queuedChunks", []);
+    const {
+      pdfDataRangeTransport
+    } = source;
+    const {
+      initialData,
+      progressiveDone
+    } = pdfDataRangeTransport;
+    if ((initialData == null ? void 0 : initialData.length) > 0) {
+      const buffer = transport_stream_getArrayBuffer(initialData);
+      this._queuedChunks.push(buffer);
+    }
+    this._progressiveDone = progressiveDone;
+    pdfDataRangeTransport.addRangeListener((begin, chunk) => {
+      __privateMethod(this, _PDFDataTransportStream_instances, onReceiveData_fn).call(this, begin, chunk);
+    });
+    pdfDataRangeTransport.addProgressiveReadListener((chunk) => {
+      __privateMethod(this, _PDFDataTransportStream_instances, onReceiveData_fn).call(this, void 0, chunk);
+    });
+    pdfDataRangeTransport.addProgressiveDoneListener(() => {
+      var _a2;
+      (_a2 = this._fullReader) == null ? void 0 : _a2.progressiveDone();
+      this._progressiveDone = true;
+    });
+    pdfDataRangeTransport.transportReady();
+  }
+  getFullReader() {
+    const reader = super.getFullReader();
+    this._queuedChunks = null;
+    return reader;
+  }
+  getRangeReader(begin, end) {
+    const reader = super.getRangeReader(begin, end);
+    if (reader) {
+      reader.onDone = () => this._rangeReaders.delete(reader);
+      this._source.pdfDataRangeTransport.requestDataRange(begin, end);
+    }
+    return reader;
+  }
+  cancelAllRequests(reason) {
+    super.cancelAllRequests(reason);
+    this._source.pdfDataRangeTransport.abort();
+  }
+}
+_PDFDataTransportStream_instances = new WeakSet();
+onReceiveData_fn = function(begin, chunk) {
+  const buffer = transport_stream_getArrayBuffer(chunk);
+  if (begin === void 0) {
+    if (this._fullReader) {
+      this._fullReader._enqueue(buffer);
+    } else {
+      this._queuedChunks.push(buffer);
+    }
+  } else {
+    const rangeReader = this._rangeReaders.keys().find((r) => r._begin === begin);
+    assert(rangeReader, "#onReceiveData - no `PDFDataTransportStreamRangeReader` instance found.");
+    rangeReader._enqueue(buffer);
+  }
+};
+class PDFDataTransportStreamReader extends BasePDFStreamReader {
+  constructor(stream) {
+    super(stream);
+    __privateAdd(this, _endRequests, endRequests.bind(this));
+    __publicField(this, "_done", false);
+    __publicField(this, "_queuedChunks", null);
+    __publicField(this, "_requests", []);
+    const {
+      pdfDataRangeTransport,
+      disableRange,
+      disableStream
+    } = stream._source;
+    const {
+      length,
+      contentDispositionFilename
+    } = pdfDataRangeTransport;
+    this._queuedChunks = stream._queuedChunks || [];
+    for (const chunk of this._queuedChunks) {
+      this._loaded += chunk.byteLength;
+    }
+    this._done = stream._progressiveDone;
+    this._contentLength = length;
+    this._isStreamingSupported = !disableStream;
+    this._isRangeSupported = !disableRange;
+    if (isPdfFile$1(contentDispositionFilename)) {
+      this._filename = contentDispositionFilename;
+    }
+    this._headersCapability.resolve();
+    const loaded = this._loaded;
+    Promise.resolve().then(() => {
+      if (loaded > 0 && this._loaded === loaded) {
+        this._callOnProgress();
+      }
+    });
+  }
+  _enqueue(chunk) {
+    if (this._done) {
+      return;
+    }
+    if (this._requests.length > 0) {
+      const capability = this._requests.shift();
+      capability.resolve({
+        value: chunk,
+        done: false
+      });
+    } else {
+      this._queuedChunks.push(chunk);
+    }
+    this._loaded += chunk.byteLength;
+    this._callOnProgress();
+  }
+  async read() {
+    if (this._queuedChunks.length > 0) {
+      const chunk = this._queuedChunks.shift();
+      return {
+        value: chunk,
+        done: false
+      };
+    }
+    if (this._done) {
+      return {
+        value: void 0,
+        done: true
+      };
+    }
+    const capability = Promise.withResolvers();
+    this._requests.push(capability);
+    return capability.promise;
+  }
+  cancel(reason) {
+    this._done = true;
+    __privateGet(this, _endRequests).call(this);
+  }
+  progressiveDone() {
+    this._done || (this._done = true);
+    if (this._queuedChunks.length === 0) {
+      __privateGet(this, _endRequests).call(this);
+    }
+  }
+}
+_endRequests = new WeakMap();
+class PDFDataTransportStreamRangeReader extends BasePDFStreamRangeReader {
+  constructor(stream, begin, end) {
+    super(stream, begin, end);
+    __privateAdd(this, _endRequests2, endRequests.bind(this));
+    __publicField(this, "onDone", null);
+    __publicField(this, "_begin", -1);
+    __publicField(this, "_done", false);
+    __publicField(this, "_queuedChunk", null);
+    __publicField(this, "_requests", []);
+    this._begin = begin;
+  }
+  _enqueue(chunk) {
+    var _a2;
+    if (this._done) {
+      return;
+    }
+    if (this._requests.length === 0) {
+      this._queuedChunk = chunk;
+    } else {
+      const capability = this._requests.shift();
+      capability.resolve({
+        value: chunk,
+        done: false
+      });
+      __privateGet(this, _endRequests2).call(this);
+    }
+    this._done = true;
+    (_a2 = this.onDone) == null ? void 0 : _a2.call(this);
+  }
+  async read() {
+    if (this._queuedChunk) {
+      const chunk = this._queuedChunk;
+      this._queuedChunk = null;
+      return {
+        value: chunk,
+        done: false
+      };
+    }
+    if (this._done) {
+      return {
+        value: void 0,
+        done: true
+      };
+    }
+    const capability = Promise.withResolvers();
+    this._requests.push(capability);
+    return capability.promise;
+  }
+  cancel(reason) {
+    var _a2;
+    this._done = true;
+    __privateGet(this, _endRequests2).call(this);
+    (_a2 = this.onDone) == null ? void 0 : _a2.call(this);
+  }
+}
+_endRequests2 = new WeakMap();
+const OK_RESPONSE = 200;
+const PARTIAL_CONTENT_RESPONSE = 206;
+function network_getArrayBuffer(val) {
+  return typeof val !== "string" ? val : stringToBytes(val).buffer;
+}
+class PDFNetworkStream extends BasePDFStream {
+  constructor(source) {
+    super(source, PDFNetworkStreamReader, PDFNetworkStreamRangeReader);
+    __privateAdd(this, _PDFNetworkStream_instances);
+    __privateAdd(this, _pendingRequests, /* @__PURE__ */ new WeakMap());
+    __publicField(this, "_responseOrigin", null);
+    const {
+      httpHeaders,
+      url: url2
+    } = source;
+    this.url = url2;
+    this.isHttp = /https?:/.test(url2.protocol);
+    this.headers = createHeaders(this.isHttp, httpHeaders);
+  }
+  _request(args) {
+    const xhr = new XMLHttpRequest();
+    const pendingRequest = {
+      validateStatus: null,
+      onHeadersReceived: args.onHeadersReceived,
+      onDone: args.onDone,
+      onError: args.onError,
+      onProgress: args.onProgress
+    };
+    __privateGet(this, _pendingRequests).set(xhr, pendingRequest);
+    xhr.open("GET", this.url);
+    xhr.withCredentials = this._source.withCredentials;
+    for (const [key, val] of this.headers) {
+      xhr.setRequestHeader(key, val);
+    }
+    if (this.isHttp && "begin" in args && "end" in args) {
+      xhr.setRequestHeader("Range", `bytes=${args.begin}-${args.end - 1}`);
+      pendingRequest.validateStatus = (status) => status === PARTIAL_CONTENT_RESPONSE || status === OK_RESPONSE;
+    } else {
+      pendingRequest.validateStatus = (status) => status === OK_RESPONSE;
+    }
+    xhr.responseType = "arraybuffer";
+    assert(args.onError, "Expected `onError` callback to be provided.");
+    xhr.onerror = () => args.onError(xhr.status);
+    xhr.onreadystatechange = __privateMethod(this, _PDFNetworkStream_instances, onStateChange_fn).bind(this, xhr);
+    xhr.onprogress = __privateMethod(this, _PDFNetworkStream_instances, onProgress_fn).bind(this, xhr);
+    xhr.send(null);
+    return xhr;
+  }
+  _abortRequest(xhr) {
+    if (__privateGet(this, _pendingRequests).has(xhr)) {
+      __privateGet(this, _pendingRequests).delete(xhr);
+      xhr.abort();
+    }
+  }
+  getRangeReader(begin, end) {
+    const reader = super.getRangeReader(begin, end);
+    if (reader) {
+      reader.onClosed = () => this._rangeReaders.delete(reader);
+    }
+    return reader;
+  }
+}
+_pendingRequests = new WeakMap();
+_PDFNetworkStream_instances = new WeakSet();
+onProgress_fn = function(xhr, evt) {
+  var _a2;
+  const pendingRequest = __privateGet(this, _pendingRequests).get(xhr);
+  (_a2 = pendingRequest == null ? void 0 : pendingRequest.onProgress) == null ? void 0 : _a2.call(pendingRequest, evt);
+};
+onStateChange_fn = function(xhr, evt) {
+  const pendingRequest = __privateGet(this, _pendingRequests).get(xhr);
+  if (!pendingRequest) {
+    return;
+  }
+  if (xhr.readyState >= 2 && pendingRequest.onHeadersReceived) {
+    pendingRequest.onHeadersReceived();
+    delete pendingRequest.onHeadersReceived;
+  }
+  if (xhr.readyState !== 4) {
+    return;
+  }
+  if (!__privateGet(this, _pendingRequests).has(xhr)) {
+    return;
+  }
+  __privateGet(this, _pendingRequests).delete(xhr);
+  if (xhr.status === 0 && this.isHttp) {
+    pendingRequest.onError(xhr.status);
+    return;
+  }
+  const xhrStatus = xhr.status || OK_RESPONSE;
+  if (!pendingRequest.validateStatus(xhrStatus)) {
+    pendingRequest.onError(xhr.status);
+    return;
+  }
+  const chunk = network_getArrayBuffer(xhr.response);
+  if (xhrStatus === PARTIAL_CONTENT_RESPONSE) {
+    const rangeHeader = xhr.getResponseHeader("Content-Range");
+    if (/bytes (\d+)-(\d+)\/(\d+)/.test(rangeHeader)) {
+      pendingRequest.onDone(chunk);
+    } else {
+      warn(`Missing or invalid "Content-Range" header.`);
+      pendingRequest.onError(0);
+    }
+  } else if (chunk) {
+    pendingRequest.onDone(chunk);
+  } else {
+    pendingRequest.onError(xhr.status);
+  }
+};
+class PDFNetworkStreamReader extends BasePDFStreamReader {
+  constructor(stream) {
+    super(stream);
+    __privateAdd(this, _PDFNetworkStreamReader_instances);
+    __privateAdd(this, _endRequests3, endRequests.bind(this));
+    __publicField(this, "_cachedChunks", []);
+    __publicField(this, "_done", false);
+    __publicField(this, "_requests", []);
+    __publicField(this, "_storedError", null);
+    this._fullRequestXhr = stream._request({
+      onHeadersReceived: __privateMethod(this, _PDFNetworkStreamReader_instances, onHeadersReceived_fn).bind(this),
+      onDone: __privateMethod(this, _PDFNetworkStreamReader_instances, onDone_fn).bind(this),
+      onError: __privateMethod(this, _PDFNetworkStreamReader_instances, onError_fn).bind(this),
+      onProgress: __privateMethod(this, _PDFNetworkStreamReader_instances, onProgress_fn2).bind(this)
+    });
+  }
+  async read() {
+    await this._headersCapability.promise;
+    if (this._storedError) {
+      throw this._storedError;
+    }
+    if (this._cachedChunks.length > 0) {
+      const chunk = this._cachedChunks.shift();
+      return {
+        value: chunk,
+        done: false
+      };
+    }
+    if (this._done) {
+      return {
+        value: void 0,
+        done: true
+      };
+    }
+    const capability = Promise.withResolvers();
+    this._requests.push(capability);
+    return capability.promise;
+  }
+  cancel(reason) {
+    this._done = true;
+    this._headersCapability.reject(reason);
+    __privateGet(this, _endRequests3).call(this);
+    this._stream._abortRequest(this._fullRequestXhr);
+    this._fullRequestXhr = null;
+  }
+}
+_endRequests3 = new WeakMap();
+_PDFNetworkStreamReader_instances = new WeakSet();
+onHeadersReceived_fn = function() {
+  const stream = this._stream;
+  const {
+    disableRange,
+    rangeChunkSize
+  } = stream._source;
+  const fullRequestXhr = this._fullRequestXhr;
+  stream._responseOrigin = getResponseOrigin(fullRequestXhr.responseURL);
+  const rawResponseHeaders = fullRequestXhr.getAllResponseHeaders();
+  const responseHeaders = new Headers(rawResponseHeaders ? rawResponseHeaders.trimStart().replace(/[^\S ]+$/, "").split(/[\r\n]+/).map((x) => {
+    const [key, ...val] = x.split(": ");
+    return [key, val.join(": ")];
+  }) : []);
+  const {
+    contentLength,
+    isRangeSupported
+  } = validateRangeRequestCapabilities({
+    responseHeaders,
+    isHttp: stream.isHttp,
+    rangeChunkSize,
+    disableRange
+  });
+  this._contentLength = contentLength;
+  this._isRangeSupported = isRangeSupported;
+  this._filename = extractFilenameFromHeader(responseHeaders);
+  if (this._isRangeSupported) {
+    stream._abortRequest(fullRequestXhr);
+  }
+  this._headersCapability.resolve();
+};
+onDone_fn = function(chunk) {
+  if (this._requests.length > 0) {
+    const capability = this._requests.shift();
+    capability.resolve({
+      value: chunk,
+      done: false
+    });
+  } else {
+    this._cachedChunks.push(chunk);
+  }
+  this._done = true;
+  if (this._cachedChunks.length === 0) {
+    __privateGet(this, _endRequests3).call(this);
+  }
+};
+onError_fn = function(status) {
+  this._storedError = createResponseError(status, this._stream.url);
+  this._headersCapability.reject(this._storedError);
+  for (const capability of this._requests) {
+    capability.reject(this._storedError);
+  }
+  this._requests.length = 0;
+  this._cachedChunks.length = 0;
+};
+onProgress_fn2 = function(evt) {
+  var _a2;
+  (_a2 = this.onProgress) == null ? void 0 : _a2.call(this, {
+    loaded: evt.loaded,
+    total: evt.lengthComputable ? evt.total : this._contentLength
+  });
+};
+class PDFNetworkStreamRangeReader extends BasePDFStreamRangeReader {
+  constructor(stream, begin, end) {
+    super(stream, begin, end);
+    __privateAdd(this, _PDFNetworkStreamRangeReader_instances);
+    __privateAdd(this, _endRequests4, endRequests.bind(this));
+    __publicField(this, "onClosed", null);
+    __publicField(this, "_done", false);
+    __publicField(this, "_queuedChunk", null);
+    __publicField(this, "_requests", []);
+    __publicField(this, "_storedError", null);
+    this._requestXhr = stream._request({
+      begin,
+      end,
+      onHeadersReceived: __privateMethod(this, _PDFNetworkStreamRangeReader_instances, onHeadersReceived_fn2).bind(this),
+      onDone: __privateMethod(this, _PDFNetworkStreamRangeReader_instances, onDone_fn2).bind(this),
+      onError: __privateMethod(this, _PDFNetworkStreamRangeReader_instances, onError_fn2).bind(this),
+      onProgress: null
+    });
+  }
+  async read() {
+    if (this._storedError) {
+      throw this._storedError;
+    }
+    if (this._queuedChunk !== null) {
+      const chunk = this._queuedChunk;
+      this._queuedChunk = null;
+      return {
+        value: chunk,
+        done: false
+      };
+    }
+    if (this._done) {
+      return {
+        value: void 0,
+        done: true
+      };
+    }
+    const capability = Promise.withResolvers();
+    this._requests.push(capability);
+    return capability.promise;
+  }
+  cancel(reason) {
+    var _a2;
+    this._done = true;
+    __privateGet(this, _endRequests4).call(this);
+    this._stream._abortRequest(this._requestXhr);
+    (_a2 = this.onClosed) == null ? void 0 : _a2.call(this);
+  }
+}
+_endRequests4 = new WeakMap();
+_PDFNetworkStreamRangeReader_instances = new WeakSet();
+onHeadersReceived_fn2 = function() {
+  var _a2;
+  const responseOrigin = getResponseOrigin((_a2 = this._requestXhr) == null ? void 0 : _a2.responseURL);
+  try {
+    ensureResponseOrigin(responseOrigin, this._stream._responseOrigin);
+  } catch (ex) {
+    this._storedError = ex;
+    __privateMethod(this, _PDFNetworkStreamRangeReader_instances, onError_fn2).call(this, 0);
+  }
+};
+onDone_fn2 = function(chunk) {
+  var _a2;
+  if (this._requests.length > 0) {
+    const capability = this._requests.shift();
+    capability.resolve({
+      value: chunk,
+      done: false
+    });
+  } else {
+    this._queuedChunk = chunk;
+  }
+  this._done = true;
+  __privateGet(this, _endRequests4).call(this);
+  (_a2 = this.onClosed) == null ? void 0 : _a2.call(this);
+};
+onError_fn2 = function(status) {
+  this._storedError ?? (this._storedError = createResponseError(status, this._stream.url));
+  for (const capability of this._requests) {
+    capability.reject(this._storedError);
+  }
+  this._requests.length = 0;
+  this._queuedChunk = null;
+};
+function getReadableStream(readStream) {
+  const {
+    Readable
+  } = process.getBuiltinModule("stream");
+  if (typeof Readable.toWeb === "function") {
+    return Readable.toWeb(readStream);
+  }
+  const require2 = process.getBuiltinModule("module").createRequire(import.meta.url);
+  const polyfill2 = require2("node-readable-to-web-readable-stream");
+  return polyfill2.makeDefaultReadableStreamFromNodeReadable(readStream);
+}
+class PDFNodeStream extends BasePDFStream {
+  constructor(source) {
+    super(source, PDFNodeStreamReader, PDFNodeStreamRangeReader);
+    const {
+      url: url2
+    } = source;
+    assert(url2.protocol === "file:", "PDFNodeStream only supports file:// URLs.");
+  }
+}
+class PDFNodeStreamReader extends BasePDFStreamReader {
+  constructor(stream) {
+    super(stream);
+    __publicField(this, "_reader", null);
+    const {
+      disableRange,
+      disableStream,
+      rangeChunkSize,
+      url: url2
+    } = stream._source;
+    this._isStreamingSupported = !disableStream;
+    const fs = process.getBuiltinModule("fs");
+    fs.promises.lstat(url2).then((stat) => {
+      const readStream = fs.createReadStream(url2);
+      const readableStream = getReadableStream(readStream);
+      this._reader = readableStream.getReader();
+      const {
+        size
+      } = stat;
+      this._contentLength = size;
+      this._isRangeSupported = !disableRange && size > 2 * rangeChunkSize;
+      if (!this._isStreamingSupported && this._isRangeSupported) {
+        this.cancel(new AbortException("Streaming is disabled."));
+      }
+      this._headersCapability.resolve();
+    }).catch((error) => {
+      if (error.code === "ENOENT") {
+        error = createResponseError(0, url2);
+      }
+      this._headersCapability.reject(error);
+    });
+  }
+  async read() {
+    await this._headersCapability.promise;
+    const {
+      value: value2,
+      done
+    } = await this._reader.read();
+    if (done) {
+      return {
+        value: value2,
+        done
+      };
+    }
+    this._loaded += value2.byteLength;
+    this._callOnProgress();
+    return {
+      value: getArrayBuffer(value2),
+      done: false
+    };
+  }
+  cancel(reason) {
+    var _a2;
+    (_a2 = this._reader) == null ? void 0 : _a2.cancel(reason);
+  }
+}
+class PDFNodeStreamRangeReader extends BasePDFStreamRangeReader {
+  constructor(stream, begin, end) {
+    super(stream, begin, end);
+    __publicField(this, "_readCapability", Promise.withResolvers());
+    __publicField(this, "_reader", null);
+    const {
+      url: url2
+    } = stream._source;
+    const fs = process.getBuiltinModule("fs");
+    try {
+      const readStream = fs.createReadStream(url2, {
+        start: begin,
+        end: end - 1
+      });
+      const readableStream = getReadableStream(readStream);
+      this._reader = readableStream.getReader();
+      this._readCapability.resolve();
+    } catch (error) {
+      this._readCapability.reject(error);
+    }
+  }
+  async read() {
+    await this._readCapability.promise;
+    const {
+      value: value2,
+      done
+    } = await this._reader.read();
+    if (done) {
+      return {
+        value: value2,
+        done
+      };
+    }
+    return {
+      value: getArrayBuffer(value2),
+      done: false
+    };
+  }
+  cancel(reason) {
+    var _a2;
+    (_a2 = this._reader) == null ? void 0 : _a2.cancel(reason);
+  }
+}
+function getNetworkStream(url2) {
+  return isValidFetchUrl(url2) ? PDFFetchStream : isNodeJS ? PDFNodeStream : PDFNetworkStream;
 }
 class GlobalWorkerOptions {
   static get workerPort() {
@@ -25970,1087 +27137,244 @@ evaluateVisibilityExpression_fn = function(array) {
   }
   return operator === "And";
 };
-class BasePDFStream {
-  constructor(source, PDFStreamReader, PDFStreamRangeReader) {
-    __privateAdd(this, _PDFStreamReader, null);
-    __privateAdd(this, _PDFStreamRangeReader, null);
-    __publicField(this, "_fullReader", null);
-    __publicField(this, "_rangeReaders", /* @__PURE__ */ new Set());
-    __publicField(this, "_source", null);
-    this._source = source;
-    __privateSet(this, _PDFStreamReader, PDFStreamReader);
-    __privateSet(this, _PDFStreamRangeReader, PDFStreamRangeReader);
+class PagesMapper {
+  constructor() {
+    __privateAdd(this, _PagesMapper_instances);
+    __privateAdd(this, _pageNumberToId, null);
+    __privateAdd(this, _prevPageNumbers, null);
+    __privateAdd(this, _pagesNumber, 0);
+    __privateAdd(this, _clipboard, null);
+    __privateAdd(this, _savedData, null);
   }
-  get _progressiveDataLength() {
-    var _a2;
-    return ((_a2 = this._fullReader) == null ? void 0 : _a2._loaded) ?? 0;
+  get pagesNumber() {
+    return __privateGet(this, _pagesNumber);
   }
-  getFullReader() {
-    assert(!this._fullReader, "BasePDFStream.getFullReader can only be called once.");
-    return this._fullReader = new (__privateGet(this, _PDFStreamReader))(this);
-  }
-  getRangeReader(begin, end) {
-    if (end <= this._progressiveDataLength) {
-      return null;
-    }
-    const reader = new (__privateGet(this, _PDFStreamRangeReader))(this, begin, end);
-    this._rangeReaders.add(reader);
-    return reader;
-  }
-  cancelAllRequests(reason) {
-    var _a2;
-    (_a2 = this._fullReader) == null ? void 0 : _a2.cancel(reason);
-    for (const reader of new Set(this._rangeReaders)) {
-      reader.cancel(reason);
-    }
-  }
-}
-_PDFStreamReader = new WeakMap();
-_PDFStreamRangeReader = new WeakMap();
-class BasePDFStreamReader {
-  constructor(stream) {
-    __publicField(this, "onProgress", null);
-    __publicField(this, "_contentLength", 0);
-    __publicField(this, "_filename", null);
-    __publicField(this, "_headersCapability", Promise.withResolvers());
-    __publicField(this, "_isRangeSupported", false);
-    __publicField(this, "_isStreamingSupported", false);
-    __publicField(this, "_loaded", 0);
-    __publicField(this, "_stream", null);
-    this._stream = stream;
-  }
-  _callOnProgress() {
-    var _a2;
-    (_a2 = this.onProgress) == null ? void 0 : _a2.call(this, {
-      loaded: this._loaded,
-      total: this._contentLength
-    });
-  }
-  get headersReady() {
-    return this._headersCapability.promise;
-  }
-  get filename() {
-    return this._filename;
-  }
-  get contentLength() {
-    return this._contentLength;
-  }
-  get isRangeSupported() {
-    return this._isRangeSupported;
-  }
-  get isStreamingSupported() {
-    return this._isStreamingSupported;
-  }
-  async read() {
-    unreachable("Abstract method `read` called");
-  }
-  cancel(reason) {
-    unreachable("Abstract method `cancel` called");
-  }
-}
-class BasePDFStreamRangeReader {
-  constructor(stream, begin, end) {
-    __publicField(this, "_stream", null);
-    this._stream = stream;
-  }
-  async read() {
-    unreachable("Abstract method `read` called");
-  }
-  cancel(reason) {
-    unreachable("Abstract method `cancel` called");
-  }
-}
-function getArrayBuffer(val) {
-  return val instanceof Uint8Array && val.byteLength === val.buffer.byteLength ? val.buffer : new Uint8Array(val).buffer;
-}
-function endRequests() {
-  for (const capability of this._requests) {
-    capability.resolve({
-      value: void 0,
-      done: true
-    });
-  }
-  this._requests.length = 0;
-}
-class PDFDataTransportStream extends BasePDFStream {
-  constructor(source) {
-    super(source, PDFDataTransportStreamReader, PDFDataTransportStreamRangeReader);
-    __privateAdd(this, _PDFDataTransportStream_instances);
-    __publicField(this, "_progressiveDone", false);
-    __publicField(this, "_queuedChunks", []);
-    const {
-      pdfDataRangeTransport
-    } = source;
-    const {
-      initialData,
-      progressiveDone
-    } = pdfDataRangeTransport;
-    if ((initialData == null ? void 0 : initialData.length) > 0) {
-      const buffer = getArrayBuffer(initialData);
-      this._queuedChunks.push(buffer);
-    }
-    this._progressiveDone = progressiveDone;
-    pdfDataRangeTransport.addRangeListener((begin, chunk) => {
-      __privateMethod(this, _PDFDataTransportStream_instances, onReceiveData_fn).call(this, begin, chunk);
-    });
-    pdfDataRangeTransport.addProgressiveReadListener((chunk) => {
-      __privateMethod(this, _PDFDataTransportStream_instances, onReceiveData_fn).call(this, void 0, chunk);
-    });
-    pdfDataRangeTransport.addProgressiveDoneListener(() => {
-      var _a2;
-      (_a2 = this._fullReader) == null ? void 0 : _a2.progressiveDone();
-      this._progressiveDone = true;
-    });
-    pdfDataRangeTransport.transportReady();
-  }
-  getFullReader() {
-    const reader = super.getFullReader();
-    this._queuedChunks = null;
-    return reader;
-  }
-  getRangeReader(begin, end) {
-    const reader = super.getRangeReader(begin, end);
-    if (reader) {
-      reader.onDone = () => this._rangeReaders.delete(reader);
-      this._source.pdfDataRangeTransport.requestDataRange(begin, end);
-    }
-    return reader;
-  }
-  cancelAllRequests(reason) {
-    super.cancelAllRequests(reason);
-    this._source.pdfDataRangeTransport.abort();
-  }
-}
-_PDFDataTransportStream_instances = new WeakSet();
-onReceiveData_fn = function(begin, chunk) {
-  const buffer = getArrayBuffer(chunk);
-  if (begin === void 0) {
-    if (this._fullReader) {
-      this._fullReader._enqueue(buffer);
-    } else {
-      this._queuedChunks.push(buffer);
-    }
-  } else {
-    const rangeReader = this._rangeReaders.keys().find((r) => r._begin === begin);
-    assert(rangeReader, "#onReceiveData - no `PDFDataTransportStreamRangeReader` instance found.");
-    rangeReader._enqueue(buffer);
-  }
-};
-class PDFDataTransportStreamReader extends BasePDFStreamReader {
-  constructor(stream) {
-    super(stream);
-    __privateAdd(this, _endRequests, endRequests.bind(this));
-    __publicField(this, "_done", false);
-    __publicField(this, "_queuedChunks", null);
-    __publicField(this, "_requests", []);
-    const {
-      pdfDataRangeTransport,
-      disableRange,
-      disableStream
-    } = stream._source;
-    const {
-      length,
-      contentDispositionFilename
-    } = pdfDataRangeTransport;
-    this._queuedChunks = stream._queuedChunks || [];
-    for (const chunk of this._queuedChunks) {
-      this._loaded += chunk.byteLength;
-    }
-    this._done = stream._progressiveDone;
-    this._contentLength = length;
-    this._isStreamingSupported = !disableStream;
-    this._isRangeSupported = !disableRange;
-    if (isPdfFile$1(contentDispositionFilename)) {
-      this._filename = contentDispositionFilename;
-    }
-    this._headersCapability.resolve();
-    const loaded = this._loaded;
-    Promise.resolve().then(() => {
-      if (loaded > 0 && this._loaded === loaded) {
-        this._callOnProgress();
-      }
-    });
-  }
-  _enqueue(chunk) {
-    if (this._done) {
+  set pagesNumber(n) {
+    if (__privateGet(this, _pagesNumber) === n) {
       return;
     }
-    if (this._requests.length > 0) {
-      const capability = this._requests.shift();
-      capability.resolve({
-        value: chunk,
-        done: false
-      });
+    __privateSet(this, _pagesNumber, n);
+    __privateSet(this, _pageNumberToId, null);
+    __privateSet(this, _prevPageNumbers, null);
+  }
+  movePages(selectedPages, pagesToMove, index) {
+    __privateMethod(this, _PagesMapper_instances, ensureInit_fn).call(this);
+    const pageNumberToId = __privateGet(this, _pageNumberToId);
+    const prevIdToPageNumber = __privateMethod(this, _PagesMapper_instances, buildIdToPageNumber_fn).call(this);
+    const movedCount = pagesToMove.length;
+    const mappedPagesToMove = new Uint32Array(movedCount);
+    let removedBeforeTarget = 0;
+    for (let i = 0; i < movedCount; i++) {
+      const pageIndex = pagesToMove[i] - 1;
+      mappedPagesToMove[i] = pageNumberToId[pageIndex];
+      if (pageIndex < index) {
+        removedBeforeTarget++;
+      }
+    }
+    const pagesNumber = __privateGet(this, _pagesNumber);
+    const remainingLen = pagesNumber - movedCount;
+    const adjustedTarget = MathClamp(index - removedBeforeTarget, 0, remainingLen);
+    for (let i = 0, r = 0; i < pagesNumber; i++) {
+      if (!selectedPages.has(i + 1)) {
+        pageNumberToId[r++] = pageNumberToId[i];
+      }
+    }
+    pageNumberToId.copyWithin(adjustedTarget + movedCount, adjustedTarget, remainingLen);
+    pageNumberToId.set(mappedPagesToMove, adjustedTarget);
+    __privateMethod(this, _PagesMapper_instances, updatePrevPageNumbers_fn).call(this, prevIdToPageNumber);
+    if (pageNumberToId.every((id, i) => id === i + 1)) {
+      __privateSet(this, _pageNumberToId, null);
+    }
+  }
+  deletePages(pagesToDelete) {
+    __privateMethod(this, _PagesMapper_instances, ensureInit_fn).call(this);
+    const pageNumberToId = __privateGet(this, _pageNumberToId);
+    const prevIdToPageNumber = __privateMethod(this, _PagesMapper_instances, buildIdToPageNumber_fn).call(this);
+    __privateSet(this, _savedData, {
+      pageNumberToId: pageNumberToId.slice(),
+      pagesNumber: __privateGet(this, _pagesNumber),
+      prevPageNumbers: __privateGet(this, _prevPageNumbers).slice()
+    });
+    const newN = __privateGet(this, _pagesNumber) - pagesToDelete.length;
+    __privateSet(this, _pagesNumber, newN);
+    const newPageNumberToId = __privateSet(this, _pageNumberToId, new Uint32Array(newN));
+    __privateSet(this, _prevPageNumbers, new Int32Array(newN));
+    let sourceIndex = 0;
+    let destIndex = 0;
+    for (const pageNumber of pagesToDelete) {
+      const pageIndex = pageNumber - 1;
+      if (pageIndex !== sourceIndex) {
+        newPageNumberToId.set(pageNumberToId.subarray(sourceIndex, pageIndex), destIndex);
+        destIndex += pageIndex - sourceIndex;
+      }
+      sourceIndex = pageIndex + 1;
+    }
+    if (sourceIndex < pageNumberToId.length) {
+      newPageNumberToId.set(pageNumberToId.subarray(sourceIndex), destIndex);
+    }
+    __privateMethod(this, _PagesMapper_instances, updatePrevPageNumbers_fn).call(this, prevIdToPageNumber, new Set(pagesToDelete));
+  }
+  cancelDelete() {
+    if (__privateGet(this, _savedData)) {
+      __privateSet(this, _pageNumberToId, __privateGet(this, _savedData).pageNumberToId);
+      __privateSet(this, _pagesNumber, __privateGet(this, _savedData).pagesNumber);
+      __privateSet(this, _prevPageNumbers, __privateGet(this, _savedData).prevPageNumbers);
+      __privateSet(this, _savedData, null);
+    }
+  }
+  cleanSavedData() {
+    __privateSet(this, _savedData, null);
+  }
+  copyPages(pagesToCopy) {
+    __privateMethod(this, _PagesMapper_instances, ensureInit_fn).call(this);
+    __privateSet(this, _clipboard, {
+      pageNumbers: pagesToCopy,
+      pageIds: pagesToCopy.map((n) => __privateGet(this, _pageNumberToId)[n - 1])
+    });
+  }
+  cancelCopy() {
+    __privateSet(this, _clipboard, null);
+  }
+  pastePages(index) {
+    __privateMethod(this, _PagesMapper_instances, ensureInit_fn).call(this);
+    const pageNumberToId = __privateGet(this, _pageNumberToId);
+    const prevIdToPageNumber = __privateMethod(this, _PagesMapper_instances, buildIdToPageNumber_fn).call(this);
+    const {
+      pageNumbers: copiedPageNumbers,
+      pageIds: copiedPageIds
+    } = __privateGet(this, _clipboard);
+    const newN = __privateGet(this, _pagesNumber) + copiedPageNumbers.length;
+    __privateSet(this, _pagesNumber, newN);
+    const newPageNumberToId = __privateSet(this, _pageNumberToId, new Uint32Array(newN));
+    __privateSet(this, _prevPageNumbers, new Int32Array(newN));
+    newPageNumberToId.set(pageNumberToId.subarray(0, index), 0);
+    newPageNumberToId.set(copiedPageIds, index);
+    newPageNumberToId.set(pageNumberToId.subarray(index), index + copiedPageNumbers.length);
+    __privateMethod(this, _PagesMapper_instances, updatePrevPageNumbers_fn).call(this, prevIdToPageNumber, null, index, copiedPageNumbers);
+    __privateSet(this, _clipboard, null);
+  }
+  hasBeenAltered() {
+    return __privateGet(this, _pageNumberToId) !== null;
+  }
+  getPageMappingForSaving(idToPageNumber = null) {
+    idToPageNumber ?? (idToPageNumber = __privateMethod(this, _PagesMapper_instances, buildIdToPageNumber_fn).call(this));
+    let nCopy = 0;
+    for (const pageNumbers of idToPageNumber.values()) {
+      nCopy = Math.max(nCopy, pageNumbers.length);
+    }
+    const extractParams = new Array(nCopy);
+    for (let i = 0; i < nCopy; i++) {
+      extractParams[i] = {
+        document: null,
+        pageIndices: [],
+        includePages: []
+      };
+    }
+    for (const [id, pageNumbers] of idToPageNumber) {
+      for (let i = 0, ii = pageNumbers.length; i < ii; i++) {
+        extractParams[i].includePages.push([id - 1, pageNumbers[i] - 1]);
+      }
+    }
+    for (const {
+      includePages,
+      pageIndices
+    } of extractParams) {
+      includePages.sort((a, b) => a[0] - b[0]);
+      for (let i = 0, ii = includePages.length; i < ii; i++) {
+        pageIndices.push(includePages[i][1]);
+        includePages[i] = includePages[i][0];
+      }
+    }
+    return extractParams;
+  }
+  extractPages(extractedPageNumbers) {
+    extractedPageNumbers = Array.from(extractedPageNumbers).sort((a, b) => a - b);
+    const usedIds = /* @__PURE__ */ new Map();
+    for (let i = 0, ii = extractedPageNumbers.length; i < ii; i++) {
+      const id = this.getPageId(extractedPageNumbers[i]);
+      const usedPageNumbers = usedIds.getOrInsertComputed(id, makeArr);
+      usedPageNumbers.push(i + 1);
+    }
+    return this.getPageMappingForSaving(usedIds);
+  }
+  getPrevPageNumber(pageNumber) {
+    var _a2;
+    return ((_a2 = __privateGet(this, _prevPageNumbers)) == null ? void 0 : _a2[pageNumber - 1]) ?? 0;
+  }
+  getPageNumber(id) {
+    if (!__privateGet(this, _pageNumberToId)) {
+      return id;
+    }
+    const pageNumberToId = __privateGet(this, _pageNumberToId);
+    for (let i = 0, ii = __privateGet(this, _pagesNumber); i < ii; i++) {
+      if (pageNumberToId[i] === id) {
+        return i + 1;
+      }
+    }
+    return 0;
+  }
+  getPageId(pageNumber) {
+    var _a2;
+    return ((_a2 = __privateGet(this, _pageNumberToId)) == null ? void 0 : _a2[pageNumber - 1]) ?? pageNumber;
+  }
+  getMapping() {
+    var _a2;
+    return (_a2 = __privateGet(this, _pageNumberToId)) == null ? void 0 : _a2.subarray(0, this.pagesNumber);
+  }
+}
+_pageNumberToId = new WeakMap();
+_prevPageNumbers = new WeakMap();
+_pagesNumber = new WeakMap();
+_clipboard = new WeakMap();
+_savedData = new WeakMap();
+_PagesMapper_instances = new WeakSet();
+ensureInit_fn = function() {
+  if (__privateGet(this, _pageNumberToId)) {
+    return;
+  }
+  const n = __privateGet(this, _pagesNumber);
+  const pageNumberToId = __privateSet(this, _pageNumberToId, new Uint32Array(n));
+  for (let i = 0; i < n; i++) {
+    pageNumberToId[i] = i + 1;
+  }
+  __privateSet(this, _prevPageNumbers, new Int32Array(pageNumberToId));
+};
+buildIdToPageNumber_fn = function() {
+  const idToPageNumber = /* @__PURE__ */ new Map();
+  const pageNumberToId = __privateGet(this, _pageNumberToId);
+  for (let i = 0, ii = __privateGet(this, _pagesNumber); i < ii; i++) {
+    const id = pageNumberToId[i];
+    const pageNumbers = idToPageNumber.get(id);
+    if (pageNumbers) {
+      pageNumbers.push(i + 1);
     } else {
-      this._queuedChunks.push(chunk);
-    }
-    this._loaded += chunk.byteLength;
-    this._callOnProgress();
-  }
-  async read() {
-    if (this._queuedChunks.length > 0) {
-      const chunk = this._queuedChunks.shift();
-      return {
-        value: chunk,
-        done: false
-      };
-    }
-    if (this._done) {
-      return {
-        value: void 0,
-        done: true
-      };
-    }
-    const capability = Promise.withResolvers();
-    this._requests.push(capability);
-    return capability.promise;
-  }
-  cancel(reason) {
-    this._done = true;
-    __privateGet(this, _endRequests).call(this);
-  }
-  progressiveDone() {
-    this._done || (this._done = true);
-    if (this._queuedChunks.length === 0) {
-      __privateGet(this, _endRequests).call(this);
+      idToPageNumber.set(id, [i + 1]);
     }
   }
-}
-_endRequests = new WeakMap();
-class PDFDataTransportStreamRangeReader extends BasePDFStreamRangeReader {
-  constructor(stream, begin, end) {
-    super(stream, begin, end);
-    __privateAdd(this, _endRequests2, endRequests.bind(this));
-    __publicField(this, "onDone", null);
-    __publicField(this, "_begin", -1);
-    __publicField(this, "_done", false);
-    __publicField(this, "_queuedChunk", null);
-    __publicField(this, "_requests", []);
-    this._begin = begin;
-  }
-  _enqueue(chunk) {
-    var _a2;
-    if (this._done) {
-      return;
-    }
-    if (this._requests.length === 0) {
-      this._queuedChunk = chunk;
-    } else {
-      const capability = this._requests.shift();
-      capability.resolve({
-        value: chunk,
-        done: false
-      });
-      __privateGet(this, _endRequests2).call(this);
-    }
-    this._done = true;
-    (_a2 = this.onDone) == null ? void 0 : _a2.call(this);
-  }
-  async read() {
-    if (this._queuedChunk) {
-      const chunk = this._queuedChunk;
-      this._queuedChunk = null;
-      return {
-        value: chunk,
-        done: false
-      };
-    }
-    if (this._done) {
-      return {
-        value: void 0,
-        done: true
-      };
-    }
-    const capability = Promise.withResolvers();
-    this._requests.push(capability);
-    return capability.promise;
-  }
-  cancel(reason) {
-    var _a2;
-    this._done = true;
-    __privateGet(this, _endRequests2).call(this);
-    (_a2 = this.onDone) == null ? void 0 : _a2.call(this);
-  }
-}
-_endRequests2 = new WeakMap();
-function getFilenameFromContentDispositionHeader(contentDisposition) {
-  let needsEncodingFixup = true;
-  let tmp = toParamRegExp("filename\\*", "i").exec(contentDisposition);
-  if (tmp) {
-    tmp = tmp[1];
-    let filename = rfc2616unquote(tmp);
-    filename = unescape(filename);
-    filename = rfc5987decode(filename);
-    filename = rfc2047decode(filename);
-    return fixupEncoding(filename);
-  }
-  tmp = rfc2231getparam(contentDisposition);
-  if (tmp) {
-    const filename = rfc2047decode(tmp);
-    return fixupEncoding(filename);
-  }
-  tmp = toParamRegExp("filename", "i").exec(contentDisposition);
-  if (tmp) {
-    tmp = tmp[1];
-    let filename = rfc2616unquote(tmp);
-    filename = rfc2047decode(filename);
-    return fixupEncoding(filename);
-  }
-  function toParamRegExp(attributePattern, flags) {
-    return new RegExp("(?:^|;)\\s*" + attributePattern + '\\s*=\\s*([^";\\s][^;\\s]*|"(?:[^"\\\\]|\\\\"?)+"?)', flags);
-  }
-  function textdecode(encoding, value2) {
-    if (encoding) {
-      if (!/^[\x00-\xFF]+$/.test(value2)) {
-        return value2;
-      }
-      try {
-        const decoder = new TextDecoder(encoding, {
-          fatal: true
-        });
-        const buffer = stringToBytes(value2);
-        value2 = decoder.decode(buffer);
-        needsEncodingFixup = false;
-      } catch {
-      }
-    }
-    return value2;
-  }
-  function fixupEncoding(value2) {
-    if (needsEncodingFixup && /[\x80-\xff]/.test(value2)) {
-      value2 = textdecode("utf-8", value2);
-      if (needsEncodingFixup) {
-        value2 = textdecode("iso-8859-1", value2);
-      }
-    }
-    return value2;
-  }
-  function rfc2231getparam(contentDispositionStr) {
-    const matches = [];
-    let match;
-    const iter = toParamRegExp("filename\\*((?!0\\d)\\d+)(\\*?)", "ig");
-    while ((match = iter.exec(contentDispositionStr)) !== null) {
-      let [, n, quot, part] = match;
-      n = parseInt(n, 10);
-      if (n in matches) {
-        if (n === 0) {
-          break;
-        }
-        continue;
-      }
-      matches[n] = [quot, part];
-    }
-    const parts2 = [];
-    for (let n = 0; n < matches.length; ++n) {
-      if (!(n in matches)) {
-        break;
-      }
-      let [quot, part] = matches[n];
-      part = rfc2616unquote(part);
-      if (quot) {
-        part = unescape(part);
-        if (n === 0) {
-          part = rfc5987decode(part);
-        }
-      }
-      parts2.push(part);
-    }
-    return parts2.join("");
-  }
-  function rfc2616unquote(value2) {
-    if (value2.startsWith('"')) {
-      const parts2 = value2.slice(1).split('\\"');
-      for (let i = 0; i < parts2.length; ++i) {
-        const quotindex = parts2[i].indexOf('"');
-        if (quotindex !== -1) {
-          parts2[i] = parts2[i].slice(0, quotindex);
-          parts2.length = i + 1;
-        }
-        parts2[i] = parts2[i].replaceAll(/\\(.)/g, "$1");
-      }
-      value2 = parts2.join('"');
-    }
-    return value2;
-  }
-  function rfc5987decode(extvalue) {
-    const encodingend = extvalue.indexOf("'");
-    if (encodingend === -1) {
-      return extvalue;
-    }
-    const encoding = extvalue.slice(0, encodingend);
-    const langvalue = extvalue.slice(encodingend + 1);
-    const value2 = langvalue.replace(/^[^']*'/, "");
-    return textdecode(encoding, value2);
-  }
-  function rfc2047decode(value2) {
-    if (!value2.startsWith("=?") || /[\x00-\x19\x80-\xff]/.test(value2)) {
-      return value2;
-    }
-    return value2.replaceAll(/=\?([\w-]*)\?([QqBb])\?((?:[^?]|\?(?!=))*)\?=/g, function(matches, charset, encoding, text) {
-      if (encoding === "q" || encoding === "Q") {
-        text = text.replaceAll("_", " ");
-        text = text.replaceAll(/=([0-9a-fA-F]{2})/g, function(match, hex) {
-          return String.fromCharCode(parseInt(hex, 16));
-        });
-        return textdecode(charset, text);
-      }
-      try {
-        text = atob(text);
-      } catch {
-      }
-      return textdecode(charset, text);
-    });
-  }
-  return "";
-}
-function createHeaders(isHttp, httpHeaders) {
-  const headers = new Headers();
-  if (!isHttp || !httpHeaders || typeof httpHeaders !== "object") {
-    return headers;
-  }
-  for (const key in httpHeaders) {
-    const val = httpHeaders[key];
-    if (val !== void 0) {
-      headers.append(key, val);
-    }
-  }
-  return headers;
-}
-function getResponseOrigin(url2) {
-  var _a2;
-  return ((_a2 = URL.parse(url2)) == null ? void 0 : _a2.origin) ?? null;
-}
-function validateRangeRequestCapabilities({
-  responseHeaders,
-  isHttp,
-  rangeChunkSize,
-  disableRange
-}) {
-  const returnValues = {
-    allowRangeRequests: false,
-    suggestedLength: void 0
-  };
-  const length = parseInt(responseHeaders.get("Content-Length"), 10);
-  if (!Number.isInteger(length)) {
-    return returnValues;
-  }
-  returnValues.suggestedLength = length;
-  if (length <= 2 * rangeChunkSize) {
-    return returnValues;
-  }
-  if (disableRange || !isHttp) {
-    return returnValues;
-  }
-  if (responseHeaders.get("Accept-Ranges") !== "bytes") {
-    return returnValues;
-  }
-  const contentEncoding = responseHeaders.get("Content-Encoding") || "identity";
-  if (contentEncoding !== "identity") {
-    return returnValues;
-  }
-  returnValues.allowRangeRequests = true;
-  return returnValues;
-}
-function extractFilenameFromHeader(responseHeaders) {
-  const contentDisposition = responseHeaders.get("Content-Disposition");
-  if (contentDisposition) {
-    let filename = getFilenameFromContentDispositionHeader(contentDisposition);
-    if (filename.includes("%")) {
-      try {
-        filename = decodeURIComponent(filename);
-      } catch {
-      }
-    }
-    if (isPdfFile$1(filename)) {
-      return filename;
-    }
-  }
-  return null;
-}
-function createResponseError(status, url2) {
-  return new ResponseException(`Unexpected server response (${status}) while retrieving PDF "${url2.href}".`, status, status === 404 || status === 0 && url2.protocol === "file:");
-}
-function ensureResponseOrigin(rangeOrigin, origin) {
-  if (rangeOrigin !== origin) {
-    throw new Error(`Expected range response-origin "${rangeOrigin}" to match "${origin}".`);
-  }
-}
-function fetchUrl(url2, headers, withCredentials, abortController) {
-  return fetch(url2, {
-    method: "GET",
-    headers,
-    signal: abortController.signal,
-    mode: "cors",
-    credentials: withCredentials ? "include" : "same-origin",
-    redirect: "follow"
-  });
-}
-function ensureResponseStatus(status, url2) {
-  if (status !== 200 && status !== 206) {
-    throw createResponseError(status, url2);
-  }
-}
-function fetch_stream_getArrayBuffer(val) {
-  if (val instanceof Uint8Array) {
-    return val.buffer;
-  }
-  if (val instanceof ArrayBuffer) {
-    return val;
-  }
-  throw new Error(`getArrayBuffer - unexpected data: ${val}`);
-}
-class PDFFetchStream extends BasePDFStream {
-  constructor(source) {
-    super(source, PDFFetchStreamReader, PDFFetchStreamRangeReader);
-    __publicField(this, "_responseOrigin", null);
-    const {
-      httpHeaders,
-      url: url2
-    } = source;
-    assert(/https?:/.test(url2.protocol), "PDFFetchStream only supports http(s):// URLs.");
-    this.headers = createHeaders(true, httpHeaders);
-  }
-}
-class PDFFetchStreamReader extends BasePDFStreamReader {
-  constructor(stream) {
-    super(stream);
-    __publicField(this, "_abortController", new AbortController());
-    __publicField(this, "_reader", null);
-    const {
-      disableRange,
-      disableStream,
-      length,
-      rangeChunkSize,
-      url: url2,
-      withCredentials
-    } = stream._source;
-    this._contentLength = length;
-    this._isStreamingSupported = !disableStream;
-    this._isRangeSupported = !disableRange;
-    const headers = new Headers(stream.headers);
-    fetchUrl(url2, headers, withCredentials, this._abortController).then((response) => {
-      stream._responseOrigin = getResponseOrigin(response.url);
-      ensureResponseStatus(response.status, url2);
-      this._reader = response.body.getReader();
-      const responseHeaders = response.headers;
-      const {
-        allowRangeRequests,
-        suggestedLength
-      } = validateRangeRequestCapabilities({
-        responseHeaders,
-        isHttp: true,
-        rangeChunkSize,
-        disableRange
-      });
-      this._isRangeSupported = allowRangeRequests;
-      this._contentLength = suggestedLength || this._contentLength;
-      this._filename = extractFilenameFromHeader(responseHeaders);
-      if (!this._isStreamingSupported && this._isRangeSupported) {
-        this.cancel(new AbortException("Streaming is disabled."));
-      }
-      this._headersCapability.resolve();
-    }).catch(this._headersCapability.reject);
-  }
-  async read() {
-    await this._headersCapability.promise;
-    const {
-      value: value2,
-      done
-    } = await this._reader.read();
-    if (done) {
-      return {
-        value: value2,
-        done
-      };
-    }
-    this._loaded += value2.byteLength;
-    this._callOnProgress();
-    return {
-      value: fetch_stream_getArrayBuffer(value2),
-      done: false
-    };
-  }
-  cancel(reason) {
-    var _a2;
-    (_a2 = this._reader) == null ? void 0 : _a2.cancel(reason);
-    this._abortController.abort();
-  }
-}
-class PDFFetchStreamRangeReader extends BasePDFStreamRangeReader {
-  constructor(stream, begin, end) {
-    super(stream, begin, end);
-    __publicField(this, "_abortController", new AbortController());
-    __publicField(this, "_readCapability", Promise.withResolvers());
-    __publicField(this, "_reader", null);
-    const {
-      url: url2,
-      withCredentials
-    } = stream._source;
-    const headers = new Headers(stream.headers);
-    headers.append("Range", `bytes=${begin}-${end - 1}`);
-    fetchUrl(url2, headers, withCredentials, this._abortController).then((response) => {
-      const responseOrigin = getResponseOrigin(response.url);
-      ensureResponseOrigin(responseOrigin, stream._responseOrigin);
-      ensureResponseStatus(response.status, url2);
-      this._reader = response.body.getReader();
-      this._readCapability.resolve();
-    }).catch(this._readCapability.reject);
-  }
-  async read() {
-    await this._readCapability.promise;
-    const {
-      value: value2,
-      done
-    } = await this._reader.read();
-    if (done) {
-      return {
-        value: value2,
-        done
-      };
-    }
-    return {
-      value: fetch_stream_getArrayBuffer(value2),
-      done: false
-    };
-  }
-  cancel(reason) {
-    var _a2;
-    (_a2 = this._reader) == null ? void 0 : _a2.cancel(reason);
-    this._abortController.abort();
-  }
-}
-const OK_RESPONSE = 200;
-const PARTIAL_CONTENT_RESPONSE = 206;
-function network_getArrayBuffer(val) {
-  return typeof val !== "string" ? val : stringToBytes(val).buffer;
-}
-class PDFNetworkStream extends BasePDFStream {
-  constructor(source) {
-    super(source, PDFNetworkStreamReader, PDFNetworkStreamRangeReader);
-    __privateAdd(this, _PDFNetworkStream_instances);
-    __privateAdd(this, _pendingRequests, /* @__PURE__ */ new WeakMap());
-    __publicField(this, "_responseOrigin", null);
-    const {
-      httpHeaders,
-      url: url2
-    } = source;
-    this.url = url2;
-    this.isHttp = /https?:/.test(url2.protocol);
-    this.headers = createHeaders(this.isHttp, httpHeaders);
-  }
-  _request(args) {
-    const xhr = new XMLHttpRequest();
-    const pendingRequest = {
-      validateStatus: null,
-      onHeadersReceived: args.onHeadersReceived,
-      onDone: args.onDone,
-      onError: args.onError,
-      onProgress: args.onProgress
-    };
-    __privateGet(this, _pendingRequests).set(xhr, pendingRequest);
-    xhr.open("GET", this.url);
-    xhr.withCredentials = this._source.withCredentials;
-    for (const [key, val] of this.headers) {
-      xhr.setRequestHeader(key, val);
-    }
-    if (this.isHttp && "begin" in args && "end" in args) {
-      xhr.setRequestHeader("Range", `bytes=${args.begin}-${args.end - 1}`);
-      pendingRequest.validateStatus = (status) => status === PARTIAL_CONTENT_RESPONSE || status === OK_RESPONSE;
-    } else {
-      pendingRequest.validateStatus = (status) => status === OK_RESPONSE;
-    }
-    xhr.responseType = "arraybuffer";
-    assert(args.onError, "Expected `onError` callback to be provided.");
-    xhr.onerror = () => args.onError(xhr.status);
-    xhr.onreadystatechange = __privateMethod(this, _PDFNetworkStream_instances, onStateChange_fn).bind(this, xhr);
-    xhr.onprogress = __privateMethod(this, _PDFNetworkStream_instances, onProgress_fn).bind(this, xhr);
-    xhr.send(null);
-    return xhr;
-  }
-  _abortRequest(xhr) {
-    if (__privateGet(this, _pendingRequests).has(xhr)) {
-      __privateGet(this, _pendingRequests).delete(xhr);
-      xhr.abort();
-    }
-  }
-  getRangeReader(begin, end) {
-    const reader = super.getRangeReader(begin, end);
-    if (reader) {
-      reader.onClosed = () => this._rangeReaders.delete(reader);
-    }
-    return reader;
-  }
-}
-_pendingRequests = new WeakMap();
-_PDFNetworkStream_instances = new WeakSet();
-onProgress_fn = function(xhr, evt) {
-  var _a2;
-  const pendingRequest = __privateGet(this, _pendingRequests).get(xhr);
-  (_a2 = pendingRequest == null ? void 0 : pendingRequest.onProgress) == null ? void 0 : _a2.call(pendingRequest, evt);
+  return idToPageNumber;
 };
-onStateChange_fn = function(xhr, evt) {
-  const pendingRequest = __privateGet(this, _pendingRequests).get(xhr);
-  if (!pendingRequest) {
-    return;
-  }
-  if (xhr.readyState >= 2 && pendingRequest.onHeadersReceived) {
-    pendingRequest.onHeadersReceived();
-    delete pendingRequest.onHeadersReceived;
-  }
-  if (xhr.readyState !== 4) {
-    return;
-  }
-  if (!__privateGet(this, _pendingRequests).has(xhr)) {
-    return;
-  }
-  __privateGet(this, _pendingRequests).delete(xhr);
-  if (xhr.status === 0 && this.isHttp) {
-    pendingRequest.onError(xhr.status);
-    return;
-  }
-  const xhrStatus = xhr.status || OK_RESPONSE;
-  if (!pendingRequest.validateStatus(xhrStatus)) {
-    pendingRequest.onError(xhr.status);
-    return;
-  }
-  const chunk = network_getArrayBuffer(xhr.response);
-  if (xhrStatus === PARTIAL_CONTENT_RESPONSE) {
-    const rangeHeader = xhr.getResponseHeader("Content-Range");
-    if (/bytes (\d+)-(\d+)\/(\d+)/.test(rangeHeader)) {
-      pendingRequest.onDone(chunk);
-    } else {
-      warn(`Missing or invalid "Content-Range" header.`);
-      pendingRequest.onError(0);
+updatePrevPageNumbers_fn = function(prevIdToPageNumber, deletedPageNumbers = null, pasteIndex = -1, copiedPageNumbers = null) {
+  const prevPageNumbers = __privateGet(this, _prevPageNumbers);
+  const newPageNumberToId = __privateGet(this, _pageNumberToId);
+  const pasteEnd = pasteIndex + ((copiedPageNumbers == null ? void 0 : copiedPageNumbers.length) ?? 0);
+  const idsIndices = /* @__PURE__ */ new Map();
+  for (let i = 0, ii = __privateGet(this, _pagesNumber); i < ii; i++) {
+    if (i >= pasteIndex && i < pasteEnd) {
+      prevPageNumbers[i] = -copiedPageNumbers[i - pasteIndex];
+      continue;
     }
-  } else if (chunk) {
-    pendingRequest.onDone(chunk);
-  } else {
-    pendingRequest.onError(xhr.status);
+    const id = newPageNumberToId[i];
+    const oldPositions = prevIdToPageNumber.get(id);
+    let j = idsIndices.get(id) || 0;
+    if (deletedPageNumbers && oldPositions) {
+      while (j < oldPositions.length && deletedPageNumbers.has(oldPositions[j])) {
+        j++;
+      }
+    }
+    prevPageNumbers[i] = oldPositions == null ? void 0 : oldPositions[j];
+    idsIndices.set(id, j + 1);
   }
 };
-class PDFNetworkStreamReader extends BasePDFStreamReader {
-  constructor(stream) {
-    super(stream);
-    __privateAdd(this, _PDFNetworkStreamReader_instances);
-    __privateAdd(this, _endRequests3, endRequests.bind(this));
-    __publicField(this, "_cachedChunks", []);
-    __publicField(this, "_done", false);
-    __publicField(this, "_requests", []);
-    __publicField(this, "_storedError", null);
-    const {
-      length
-    } = stream._source;
-    this._contentLength = length;
-    this._fullRequestXhr = stream._request({
-      onHeadersReceived: __privateMethod(this, _PDFNetworkStreamReader_instances, onHeadersReceived_fn).bind(this),
-      onDone: __privateMethod(this, _PDFNetworkStreamReader_instances, onDone_fn).bind(this),
-      onError: __privateMethod(this, _PDFNetworkStreamReader_instances, onError_fn).bind(this),
-      onProgress: __privateMethod(this, _PDFNetworkStreamReader_instances, onProgress_fn2).bind(this)
-    });
-  }
-  async read() {
-    await this._headersCapability.promise;
-    if (this._storedError) {
-      throw this._storedError;
-    }
-    if (this._cachedChunks.length > 0) {
-      const chunk = this._cachedChunks.shift();
-      return {
-        value: chunk,
-        done: false
-      };
-    }
-    if (this._done) {
-      return {
-        value: void 0,
-        done: true
-      };
-    }
-    const capability = Promise.withResolvers();
-    this._requests.push(capability);
-    return capability.promise;
-  }
-  cancel(reason) {
-    this._done = true;
-    this._headersCapability.reject(reason);
-    __privateGet(this, _endRequests3).call(this);
-    this._stream._abortRequest(this._fullRequestXhr);
-    this._fullRequestXhr = null;
-  }
-}
-_endRequests3 = new WeakMap();
-_PDFNetworkStreamReader_instances = new WeakSet();
-onHeadersReceived_fn = function() {
-  const stream = this._stream;
-  const {
-    disableRange,
-    rangeChunkSize
-  } = stream._source;
-  const fullRequestXhr = this._fullRequestXhr;
-  stream._responseOrigin = getResponseOrigin(fullRequestXhr.responseURL);
-  const rawResponseHeaders = fullRequestXhr.getAllResponseHeaders();
-  const responseHeaders = new Headers(rawResponseHeaders ? rawResponseHeaders.trimStart().replace(/[^\S ]+$/, "").split(/[\r\n]+/).map((x) => {
-    const [key, ...val] = x.split(": ");
-    return [key, val.join(": ")];
-  }) : []);
-  const {
-    allowRangeRequests,
-    suggestedLength
-  } = validateRangeRequestCapabilities({
-    responseHeaders,
-    isHttp: stream.isHttp,
-    rangeChunkSize,
-    disableRange
-  });
-  if (allowRangeRequests) {
-    this._isRangeSupported = true;
-  }
-  this._contentLength = suggestedLength || this._contentLength;
-  this._filename = extractFilenameFromHeader(responseHeaders);
-  if (this._isRangeSupported) {
-    stream._abortRequest(fullRequestXhr);
-  }
-  this._headersCapability.resolve();
-};
-onDone_fn = function(chunk) {
-  if (this._requests.length > 0) {
-    const capability = this._requests.shift();
-    capability.resolve({
-      value: chunk,
-      done: false
-    });
-  } else {
-    this._cachedChunks.push(chunk);
-  }
-  this._done = true;
-  if (this._cachedChunks.length === 0) {
-    __privateGet(this, _endRequests3).call(this);
-  }
-};
-onError_fn = function(status) {
-  this._storedError = createResponseError(status, this._stream.url);
-  this._headersCapability.reject(this._storedError);
-  for (const capability of this._requests) {
-    capability.reject(this._storedError);
-  }
-  this._requests.length = 0;
-  this._cachedChunks.length = 0;
-};
-onProgress_fn2 = function(evt) {
-  var _a2;
-  (_a2 = this.onProgress) == null ? void 0 : _a2.call(this, {
-    loaded: evt.loaded,
-    total: evt.lengthComputable ? evt.total : this._contentLength
-  });
-};
-class PDFNetworkStreamRangeReader extends BasePDFStreamRangeReader {
-  constructor(stream, begin, end) {
-    super(stream, begin, end);
-    __privateAdd(this, _PDFNetworkStreamRangeReader_instances);
-    __privateAdd(this, _endRequests4, endRequests.bind(this));
-    __publicField(this, "onClosed", null);
-    __publicField(this, "_done", false);
-    __publicField(this, "_queuedChunk", null);
-    __publicField(this, "_requests", []);
-    __publicField(this, "_storedError", null);
-    this._requestXhr = stream._request({
-      begin,
-      end,
-      onHeadersReceived: __privateMethod(this, _PDFNetworkStreamRangeReader_instances, onHeadersReceived_fn2).bind(this),
-      onDone: __privateMethod(this, _PDFNetworkStreamRangeReader_instances, onDone_fn2).bind(this),
-      onError: __privateMethod(this, _PDFNetworkStreamRangeReader_instances, onError_fn2).bind(this),
-      onProgress: null
-    });
-  }
-  async read() {
-    if (this._storedError) {
-      throw this._storedError;
-    }
-    if (this._queuedChunk !== null) {
-      const chunk = this._queuedChunk;
-      this._queuedChunk = null;
-      return {
-        value: chunk,
-        done: false
-      };
-    }
-    if (this._done) {
-      return {
-        value: void 0,
-        done: true
-      };
-    }
-    const capability = Promise.withResolvers();
-    this._requests.push(capability);
-    return capability.promise;
-  }
-  cancel(reason) {
-    var _a2;
-    this._done = true;
-    __privateGet(this, _endRequests4).call(this);
-    this._stream._abortRequest(this._requestXhr);
-    (_a2 = this.onClosed) == null ? void 0 : _a2.call(this);
-  }
-}
-_endRequests4 = new WeakMap();
-_PDFNetworkStreamRangeReader_instances = new WeakSet();
-onHeadersReceived_fn2 = function() {
-  var _a2;
-  const responseOrigin = getResponseOrigin((_a2 = this._requestXhr) == null ? void 0 : _a2.responseURL);
-  try {
-    ensureResponseOrigin(responseOrigin, this._stream._responseOrigin);
-  } catch (ex) {
-    this._storedError = ex;
-    __privateMethod(this, _PDFNetworkStreamRangeReader_instances, onError_fn2).call(this, 0);
-  }
-};
-onDone_fn2 = function(chunk) {
-  var _a2;
-  if (this._requests.length > 0) {
-    const capability = this._requests.shift();
-    capability.resolve({
-      value: chunk,
-      done: false
-    });
-  } else {
-    this._queuedChunk = chunk;
-  }
-  this._done = true;
-  __privateGet(this, _endRequests4).call(this);
-  (_a2 = this.onClosed) == null ? void 0 : _a2.call(this);
-};
-onError_fn2 = function(status) {
-  this._storedError ?? (this._storedError = createResponseError(status, this._stream.url));
-  for (const capability of this._requests) {
-    capability.reject(this._storedError);
-  }
-  this._requests.length = 0;
-  this._queuedChunk = null;
-};
-function getReadableStream(readStream) {
-  const {
-    Readable
-  } = process.getBuiltinModule("stream");
-  if (typeof Readable.toWeb === "function") {
-    return Readable.toWeb(readStream);
-  }
-  const require2 = process.getBuiltinModule("module").createRequire(import.meta.url);
-  const polyfill2 = require2("node-readable-to-web-readable-stream");
-  return polyfill2.makeDefaultReadableStreamFromNodeReadable(readStream);
-}
-class PDFNodeStream extends BasePDFStream {
-  constructor(source) {
-    super(source, PDFNodeStreamReader, PDFNodeStreamRangeReader);
-    const {
-      url: url2
-    } = source;
-    assert(url2.protocol === "file:", "PDFNodeStream only supports file:// URLs.");
-  }
-}
-class PDFNodeStreamReader extends BasePDFStreamReader {
-  constructor(stream) {
-    super(stream);
-    __publicField(this, "_reader", null);
-    const {
-      disableRange,
-      disableStream,
-      length,
-      rangeChunkSize,
-      url: url2
-    } = stream._source;
-    this._contentLength = length;
-    this._isStreamingSupported = !disableStream;
-    this._isRangeSupported = !disableRange;
-    const fs = process.getBuiltinModule("fs");
-    fs.promises.lstat(url2).then((stat) => {
-      const readStream = fs.createReadStream(url2);
-      const readableStream = getReadableStream(readStream);
-      this._reader = readableStream.getReader();
-      const {
-        size
-      } = stat;
-      if (size <= 2 * rangeChunkSize) {
-        this._isRangeSupported = false;
-      }
-      this._contentLength = size;
-      if (!this._isStreamingSupported && this._isRangeSupported) {
-        this.cancel(new AbortException("Streaming is disabled."));
-      }
-      this._headersCapability.resolve();
-    }).catch((error) => {
-      if (error.code === "ENOENT") {
-        error = createResponseError(0, url2);
-      }
-      this._headersCapability.reject(error);
-    });
-  }
-  async read() {
-    await this._headersCapability.promise;
-    const {
-      value: value2,
-      done
-    } = await this._reader.read();
-    if (done) {
-      return {
-        value: value2,
-        done
-      };
-    }
-    this._loaded += value2.byteLength;
-    this._callOnProgress();
-    return {
-      value: fetch_stream_getArrayBuffer(value2),
-      done: false
-    };
-  }
-  cancel(reason) {
-    var _a2;
-    (_a2 = this._reader) == null ? void 0 : _a2.cancel(reason);
-  }
-}
-class PDFNodeStreamRangeReader extends BasePDFStreamRangeReader {
-  constructor(stream, begin, end) {
-    super(stream, begin, end);
-    __publicField(this, "_readCapability", Promise.withResolvers());
-    __publicField(this, "_reader", null);
-    const {
-      url: url2
-    } = stream._source;
-    const fs = process.getBuiltinModule("fs");
-    try {
-      const readStream = fs.createReadStream(url2, {
-        start: begin,
-        end: end - 1
-      });
-      const readableStream = getReadableStream(readStream);
-      this._reader = readableStream.getReader();
-      this._readCapability.resolve();
-    } catch (error) {
-      this._readCapability.reject(error);
-    }
-  }
-  async read() {
-    await this._readCapability.promise;
-    const {
-      value: value2,
-      done
-    } = await this._reader.read();
-    if (done) {
-      return {
-        value: value2,
-        done
-      };
-    }
-    return {
-      value: fetch_stream_getArrayBuffer(value2),
-      done: false
-    };
-  }
-  cancel(reason) {
-    var _a2;
-    (_a2 = this._reader) == null ? void 0 : _a2.cancel(reason);
-  }
-}
 const INITIAL_DATA = Symbol("INITIAL_DATA");
 const dataObj = () => ({
   ...Promise.withResolvers(),
@@ -27058,12 +27382,11 @@ const dataObj = () => ({
 });
 class PDFObjects {
   constructor() {
-    __privateAdd(this, _PDFObjects_instances);
     __privateAdd(this, _objs, /* @__PURE__ */ new Map());
   }
   get(objId, callback = null) {
     if (callback) {
-      const obj2 = __privateMethod(this, _PDFObjects_instances, ensureObj_fn).call(this, objId);
+      const obj2 = __privateGet(this, _objs).getOrInsertComputed(objId, dataObj);
       obj2.promise.then(() => callback(obj2.data));
       return null;
     }
@@ -27086,7 +27409,10 @@ class PDFObjects {
     return true;
   }
   resolve(objId, data = null) {
-    const obj = __privateMethod(this, _PDFObjects_instances, ensureObj_fn).call(this, objId);
+    const obj = __privateGet(this, _objs).getOrInsertComputed(objId, dataObj);
+    if (obj.data !== INITIAL_DATA) {
+      throw new Error(`Object already resolved ${objId}.`);
+    }
     obj.data = data;
     obj.resolve();
   }
@@ -27110,15 +27436,12 @@ class PDFObjects {
   }
 }
 _objs = new WeakMap();
-_PDFObjects_instances = new WeakSet();
-ensureObj_fn = function(objId) {
-  return __privateGet(this, _objs).getOrInsertComputed(objId, dataObj);
-};
 const MAX_TEXT_DIVS_TO_RENDER = 1e5;
 const DEFAULT_FONT_SIZE = 30;
 const _TextLayer = class _TextLayer {
   constructor({
     textContentSource,
+    images,
     container,
     viewport
   }) {
@@ -27127,6 +27450,7 @@ const _TextLayer = class _TextLayer {
     __privateAdd(this, _container3, null);
     __privateAdd(this, _disableProcessItems, false);
     __privateAdd(this, _fontInspectorEnabled, !!((_a = globalThis.FontInspector) == null ? void 0 : _a.enabled));
+    __privateAdd(this, _imagesHandler, null);
     __privateAdd(this, _lang, null);
     __privateAdd(this, _layoutTextParams, null);
     __privateAdd(this, _pageHeight, 0);
@@ -27155,6 +27479,7 @@ const _TextLayer = class _TextLayer {
       throw new Error('No "textContentSource" parameter specified.');
     }
     __privateSet(this, _container3, __privateSet(this, _rootContainer, container));
+    __privateSet(this, _imagesHandler, images);
     __privateSet(this, _scale, viewport.scale * OutputScale.pixelRatio);
     __privateSet(this, _rotation, viewport.rotation);
     __privateSet(this, _layoutTextParams, {
@@ -27189,6 +27514,9 @@ const _TextLayer = class _TextLayer {
     return shadow(this, "fontFamilyMap", /* @__PURE__ */ new Map([["sans-serif", `${isWindows && isFirefox ? "Calibri, " : ""}sans-serif`], ["monospace", `${isWindows && isFirefox ? "Lucida Console, " : ""}monospace`]]));
   }
   render() {
+    if (__privateGet(this, _imagesHandler)) {
+      __privateGet(this, _container3).append(__privateGet(this, _imagesHandler).render());
+    }
     const pump = () => {
       __privateGet(this, _reader).read().then(({
         value: value2,
@@ -27269,6 +27597,7 @@ _capability = new WeakMap();
 _container3 = new WeakMap();
 _disableProcessItems = new WeakMap();
 _fontInspectorEnabled = new WeakMap();
+_imagesHandler = new WeakMap();
 _lang = new WeakMap();
 _layoutTextParams = new WeakMap();
 _pageHeight = new WeakMap();
@@ -27527,12 +27856,9 @@ function getDocument(src = {}) {
   const docBaseUrl = typeof src.docBaseUrl === "string" && !isDataScheme(src.docBaseUrl) ? src.docBaseUrl : null;
   const cMapUrl = getFactoryUrlProp(src.cMapUrl);
   const cMapPacked = src.cMapPacked !== false;
-  const CMapReaderFactory = src.CMapReaderFactory || (isNodeJS ? NodeCMapReaderFactory : DOMCMapReaderFactory);
   const iccUrl = getFactoryUrlProp(src.iccUrl);
   const standardFontDataUrl = getFactoryUrlProp(src.standardFontDataUrl);
-  const StandardFontDataFactory = src.StandardFontDataFactory || (isNodeJS ? NodeStandardFontDataFactory : DOMStandardFontDataFactory);
   const wasmUrl = getFactoryUrlProp(src.wasmUrl);
-  const WasmFactory = src.WasmFactory || (isNodeJS ? NodeWasmFactory : DOMWasmFactory);
   const ignoreErrors = src.stopAtErrors !== true;
   const maxImageSize = Number.isInteger(src.maxImageSize) && src.maxImageSize > -1 ? src.maxImageSize : -1;
   const isEvalSupported2 = src.isEvalSupported !== false;
@@ -27549,12 +27875,13 @@ function getDocument(src = {}) {
   const pdfBug = src.pdfBug === true;
   const CanvasFactory = src.CanvasFactory || (isNodeJS ? NodeCanvasFactory : DOMCanvasFactory);
   const FilterFactory = src.FilterFactory || (isNodeJS ? NodeFilterFactory : DOMFilterFactory);
+  const BinaryDataFactory = src.BinaryDataFactory || (isNodeJS ? NodeBinaryDataFactory : DOMBinaryDataFactory);
   const enableHWA = src.enableHWA === true;
+  const enableWebGPU = src.enableWebGPU === true;
   const useWasm = src.useWasm !== false;
   const pagesMapper = src.pagesMapper || new PagesMapper();
-  const length = rangeTransport ? rangeTransport.length : src.length ?? NaN;
   const useSystemFonts = typeof src.useSystemFonts === "boolean" ? src.useSystemFonts : !isNodeJS && !disableFontFace;
-  const useWorkerFetch = typeof src.useWorkerFetch === "boolean" ? src.useWorkerFetch : !!(CMapReaderFactory === DOMCMapReaderFactory && StandardFontDataFactory === DOMStandardFontDataFactory && WasmFactory === DOMWasmFactory && cMapUrl && standardFontDataUrl && wasmUrl && isValidFetchUrl(cMapUrl, document.baseURI) && isValidFetchUrl(standardFontDataUrl, document.baseURI) && isValidFetchUrl(wasmUrl, document.baseURI));
+  const useWorkerFetch = typeof src.useWorkerFetch === "boolean" ? src.useWorkerFetch : !!(BinaryDataFactory === DOMBinaryDataFactory && cMapUrl && cMapPacked && standardFontDataUrl && wasmUrl && isValidFetchUrl(cMapUrl, document.baseURI) && isValidFetchUrl(standardFontDataUrl, document.baseURI) && isValidFetchUrl(wasmUrl, document.baseURI));
   const styleElement = null;
   setVerbosityLevel(verbosity2);
   const transportFactory = {
@@ -27566,15 +27893,10 @@ function getDocument(src = {}) {
       docId,
       ownerDocument
     }),
-    cMapReaderFactory: useWorkerFetch ? null : new CMapReaderFactory({
-      baseUrl: cMapUrl,
-      isCompressed: cMapPacked
-    }),
-    standardFontDataFactory: useWorkerFetch ? null : new StandardFontDataFactory({
-      baseUrl: standardFontDataUrl
-    }),
-    wasmFactory: useWorkerFetch ? null : new WasmFactory({
-      baseUrl: wasmUrl
+    binaryDataFactory: useWorkerFetch ? null : new BinaryDataFactory({
+      cMapUrl,
+      standardFontDataUrl,
+      wasmUrl
     })
   };
   if (!worker) {
@@ -27586,12 +27908,11 @@ function getDocument(src = {}) {
   }
   const docParams = {
     docId,
-    apiVersion: "5.5.207",
+    apiVersion: "5.6.205",
     data,
     password,
     disableAutoFetch,
     rangeChunkSize,
-    length,
     docBaseUrl,
     enableXfa,
     evaluatorOptions: {
@@ -27607,9 +27928,11 @@ function getDocument(src = {}) {
       useWasm,
       useWorkerFetch,
       cMapUrl,
+      cMapPacked,
       iccUrl,
       standardFontDataUrl,
-      wasmUrl
+      wasmUrl,
+      enableWebGPU
     }
   };
   const transportParams = {
@@ -27631,26 +27954,25 @@ function getDocument(src = {}) {
     }
     const workerIdPromise = worker.messageHandler.sendWithPromise("GetDocRequest", docParams, data ? [data.buffer] : null);
     let networkStream;
-    if (rangeTransport) {
+    if (data) ;
+    else if (rangeTransport) {
       networkStream = new PDFDataTransportStream({
         pdfDataRangeTransport: rangeTransport,
         disableRange,
         disableStream
       });
-    } else if (!data) {
-      if (!url2) {
-        throw new Error("getDocument - no `url` parameter provided.");
-      }
-      const NetworkStream = isValidFetchUrl(url2) ? PDFFetchStream : isNodeJS ? PDFNodeStream : PDFNetworkStream;
+    } else if (url2) {
+      const NetworkStream = getNetworkStream(url2);
       networkStream = new NetworkStream({
         url: url2,
-        length,
         httpHeaders,
         withCredentials,
         rangeChunkSize,
         disableRange,
         disableStream
       });
+    } else {
+      throw new Error("getDocument - expected either `data`, `range`, or `url` parameter.");
     }
     return workerIdPromise.then((workerId) => {
       if (task.destroyed) {
@@ -27859,6 +28181,9 @@ class PDFDocumentProxy {
   getDownloadInfo() {
     return this._transport.downloadInfoCapability.promise;
   }
+  getRawData(data) {
+    return this._transport.getRawData(data);
+  }
   cleanup(keepLoadedFonts = false) {
     return this._transport.startCleanup(keepLoadedFonts || this.isPureXfa);
   }
@@ -27884,7 +28209,7 @@ class PDFDocumentProxy {
     return this._transport.getCalculationOrderIds();
   }
 }
-class PDFPageProxy {
+const _PDFPageProxy = class _PDFPageProxy {
   constructor(pageIndex, pageInfo, transport, pagesMapper, pdfBug = false) {
     __privateAdd(this, _PDFPageProxy_instances);
     __privateAdd(this, _pendingCleanup, false);
@@ -27900,12 +28225,20 @@ class PDFPageProxy {
     this.destroyed = false;
     this.recordedBBoxes = null;
     __privateSet(this, _pagesMapper, pagesMapper);
+    this.imageCoordinates = null;
+  }
+  clone(id) {
+    const clone = new _PDFPageProxy(id, this._pageInfo, this._transport, __privateGet(this, _pagesMapper), this._pdfBug);
+    clone.clonedFromIndex = this.clonedFromIndex ?? this._pageIndex;
+    this._transport.updatePage(clone);
+    return clone;
   }
   get pageNumber() {
     return this._pageIndex + 1;
   }
   set pageNumber(value2) {
     this._pageIndex = value2 - 1;
+    this._transport.updatePage(this);
   }
   get rotate() {
     return this._pageInfo.rotate;
@@ -27970,6 +28303,7 @@ class PDFPageProxy {
     pageColors = null,
     printAnnotationStorage = null,
     isEditing = false,
+    recordImages = false,
     recordOperations = false,
     operationsFilter = null
   }) {
@@ -27999,21 +28333,23 @@ class PDFPageProxy {
       (_b = this._stats) == null ? void 0 : _b.time("Page Request");
       this._pumpOperatorList(intentArgs);
     }
-    const recordForDebugger = Boolean(this._pdfBug && ((_c = globalThis.StepperManager) == null ? void 0 : _c.enabled));
-    const shouldRecordOperations = !this.recordedBBoxes && (recordOperations || recordForDebugger);
+    const recordForDebugger = !!(this._pdfBug && ((_c = globalThis.StepperManager) == null ? void 0 : _c.enabled));
+    const shouldRecordOperations = !!canvas && !this.recordedBBoxes && (recordOperations || recordForDebugger);
+    const shouldRecordImages = !!canvas && !this.imageCoordinates && recordImages;
     const complete = (error) => {
-      var _a3, _b2;
+      var _a3, _b2, _c2, _d;
       intentState.renderTasks.delete(internalRenderTask);
       if (shouldRecordOperations) {
         const recordedBBoxes = (_a3 = internalRenderTask.gfx) == null ? void 0 : _a3.dependencyTracker.take();
         if (recordedBBoxes) {
-          if (internalRenderTask.stepper) {
-            internalRenderTask.stepper.setOperatorBBoxes(recordedBBoxes, internalRenderTask.gfx.dependencyTracker.takeDebugMetadata());
-          }
+          (_b2 = internalRenderTask.stepper) == null ? void 0 : _b2.setOperatorBBoxes(recordedBBoxes, internalRenderTask.gfx.dependencyTracker.takeDebugMetadata());
           if (recordOperations) {
             this.recordedBBoxes = recordedBBoxes;
           }
         }
+      }
+      if (shouldRecordImages && !error) {
+        this.imageCoordinates = (_c2 = internalRenderTask.gfx) == null ? void 0 : _c2.imagesTracker.take();
       }
       if (intentPrint) {
         __privateSet(this, _pendingCleanup, true);
@@ -28031,17 +28367,26 @@ class PDFPageProxy {
       if (this._stats) {
         this._stats.timeEnd("Rendering");
         this._stats.timeEnd("Overall");
-        if ((_b2 = globalThis.Stats) == null ? void 0 : _b2.enabled) {
+        if ((_d = globalThis.Stats) == null ? void 0 : _d.enabled) {
           globalThis.Stats.add(this.pageNumber, this._stats);
         }
       }
     };
+    let dependencyTracker = null;
+    let bboxTracker = null;
+    if (shouldRecordOperations || shouldRecordImages) {
+      bboxTracker = new CanvasBBoxTracker(canvas, intentState.operatorList.length);
+    }
+    if (shouldRecordOperations) {
+      dependencyTracker = new CanvasDependencyTracker(bboxTracker, recordForDebugger);
+    }
     const internalRenderTask = new InternalRenderTask({
       callback: complete,
       params: {
         canvas,
         canvasContext,
-        dependencyTracker: shouldRecordOperations ? new CanvasDependencyTracker(canvas, intentState.operatorList.length, recordForDebugger) : null,
+        dependencyTracker: dependencyTracker ?? bboxTracker,
+        imagesTracker: shouldRecordImages ? new CanvasImagesTracker(canvas) : null,
         viewport,
         transform,
         background
@@ -28307,7 +28652,7 @@ class PDFPageProxy {
   get stats() {
     return this._stats;
   }
-}
+};
 _pendingCleanup = new WeakMap();
 _pagesMapper = new WeakMap();
 _PDFPageProxy_instances = new WeakSet();
@@ -28328,6 +28673,7 @@ tryCleanup_fn = function() {
   __privateSet(this, _pendingCleanup, false);
   return true;
 };
+let PDFPageProxy = _PDFPageProxy;
 const _PDFWorker = class _PDFWorker {
   constructor({
     name = null,
@@ -28544,13 +28890,6 @@ __privateAdd(_PDFWorker, _workerPorts, /* @__PURE__ */ new WeakMap());
       type: "text/javascript"
     }));
   };
-  _PDFWorker.fromPort = (params) => {
-    deprecated("`PDFWorker.fromPort` - please use `PDFWorker.create` instead.");
-    if (!(params == null ? void 0 : params.port)) {
-      throw new Error("PDFWorker.fromPort - invalid method signature.");
-    }
-    return _PDFWorker.create(params);
-  };
 })();
 let PDFWorker = _PDFWorker;
 class WorkerTransport {
@@ -28564,7 +28903,6 @@ class WorkerTransport {
     __privateAdd(this, _pagePromises, /* @__PURE__ */ new Map());
     __privateAdd(this, _pageRefCache, /* @__PURE__ */ new Map());
     __privateAdd(this, _passwordCapability, null);
-    __privateAdd(this, _copiedPageInfo, null);
     this.messageHandler = messageHandler;
     this.loadingTask = loadingTask;
     __privateSet(this, _networkStream, networkStream);
@@ -28578,14 +28916,18 @@ class WorkerTransport {
     this._params = params;
     this.canvasFactory = factory.canvasFactory;
     this.filterFactory = factory.filterFactory;
-    this.cMapReaderFactory = factory.cMapReaderFactory;
-    this.standardFontDataFactory = factory.standardFontDataFactory;
-    this.wasmFactory = factory.wasmFactory;
+    this.binaryDataFactory = factory.binaryDataFactory;
+    this.pagesMapper = pagesMapper;
     this.destroyed = false;
     this.destroyCapability = null;
     this.setupMessageHandler();
-    this.pagesMapper = pagesMapper;
-    this.pagesMapper.addListener(__privateMethod(this, _WorkerTransport_instances, updateCaches_fn).bind(this));
+  }
+  updatePage(page) {
+    const {
+      _pageIndex
+    } = page;
+    __privateGet(this, _pageCache).set(_pageIndex, page);
+    __privateGet(this, _pagePromises).set(_pageIndex, Promise.resolve(page));
   }
   get annotationStorage() {
     return shadow(this, "annotationStorage", new AnnotationStorage());
@@ -28821,11 +29163,11 @@ class WorkerTransport {
           }
           const fontData = new FontInfo(exportedData);
           const inspectFont = this._params.pdfBug && ((_a2 = globalThis.FontInspector) == null ? void 0 : _a2.enabled) ? (font2, url2) => globalThis.FontInspector.fontAdded(font2, url2) : null;
-          const font = new FontFaceObject(fontData, inspectFont, exportedData.extra, exportedData.charProcOperatorList);
+          const font = new FontFaceObject(fontData, inspectFont, exportedData.charProcOperatorList, exportedData.extra);
           this.fontLoader.bind(font).catch(() => messageHandler.sendWithPromise("FontFallback", {
             id
           })).finally(() => {
-            if (!font.fontExtraProperties && font.data) {
+            if (!font.fontExtraProperties) {
               font.clearData();
             }
             this.commonObjs.resolve(id, font);
@@ -28892,15 +29234,20 @@ class WorkerTransport {
       }
       __privateMethod(this, _WorkerTransport_instances, onProgress_fn3).call(this, data);
     });
+    messageHandler.on("PrepareWebGPU", () => {
+      if (this.destroyed) {
+        return;
+      }
+      initWebGPUMesh();
+    });
     messageHandler.on("FetchBinaryData", async (data) => {
       if (this.destroyed) {
         throw new Error("Worker was destroyed.");
       }
-      const factory = this[data.type];
-      if (!factory) {
-        throw new Error(`${data.type} not initialized, see the \`useWorkerFetch\` parameter.`);
+      if (!this.binaryDataFactory) {
+        throw new Error("`BinaryDataFactory` not initialized, see the `useWorkerFetch` parameter.");
       }
-      return factory.fetch(data);
+      return this.binaryDataFactory.fetch(data);
     });
   }
   getData() {
@@ -28925,8 +29272,20 @@ class WorkerTransport {
     });
   }
   extractPages(pageInfos) {
-    return this.messageHandler.sendWithPromise("ExtractPages", {
+    const params = {
       pageInfos
+    };
+    let transfer;
+    if (this.annotationStorage.size > 0) {
+      const {
+        map,
+        transfer: t
+      } = this.annotationStorage.serializable;
+      params.annotationStorage = map;
+      transfer = t;
+    }
+    return this.messageHandler.sendWithPromise("ExtractPages", params, transfer).finally(() => {
+      this.annotationStorage.resetModified();
     });
   }
   getPage(pageNumber) {
@@ -29057,6 +29416,9 @@ class WorkerTransport {
   getMarkInfo() {
     return this.messageHandler.sendWithPromise("GetMarkInfo", null);
   }
+  getRawData(data) {
+    return this.messageHandler.sendWithPromise("GetRawData", data);
+  }
   async startCleanup(keepLoadedFonts = false) {
     if (this.destroyed) {
       return;
@@ -29098,62 +29460,7 @@ _pageCache = new WeakMap();
 _pagePromises = new WeakMap();
 _pageRefCache = new WeakMap();
 _passwordCapability = new WeakMap();
-_copiedPageInfo = new WeakMap();
 _WorkerTransport_instances = new WeakSet();
-updateCaches_fn = function({
-  type,
-  pageNumbers
-}) {
-  var _a2;
-  if (type === "copy") {
-    __privateSet(this, _copiedPageInfo, /* @__PURE__ */ new Map());
-    for (const pageNum of pageNumbers) {
-      __privateGet(this, _copiedPageInfo).set(pageNum, {
-        proxy: __privateGet(this, _pageCache).get(pageNum - 1) || null,
-        promise: __privateGet(this, _pagePromises).get(pageNum - 1) || null
-      });
-    }
-    return;
-  }
-  if (type === "delete") {
-    for (const pageNum of pageNumbers) {
-      __privateGet(this, _pageCache).delete(pageNum - 1);
-      __privateGet(this, _pagePromises).delete(pageNum - 1);
-    }
-  }
-  const newPageCache = /* @__PURE__ */ new Map();
-  const newPromiseCache = /* @__PURE__ */ new Map();
-  const {
-    pagesMapper
-  } = this;
-  for (let i = 0, ii = pagesMapper.pagesNumber; i < ii; i++) {
-    const prevPageNumber = pagesMapper.getPrevPageNumber(i + 1);
-    if (prevPageNumber < 0) {
-      const {
-        proxy,
-        promise: promise2
-      } = ((_a2 = __privateGet(this, _copiedPageInfo)) == null ? void 0 : _a2.get(-prevPageNumber)) || {};
-      if (proxy) {
-        newPageCache.set(i, proxy);
-      }
-      if (promise2) {
-        newPromiseCache.set(i, promise2);
-      }
-      continue;
-    }
-    const prevPageIndex = prevPageNumber - 1;
-    const page = __privateGet(this, _pageCache).get(prevPageIndex);
-    if (page) {
-      newPageCache.set(i, page);
-    }
-    const promise = __privateGet(this, _pagePromises).get(prevPageIndex);
-    if (promise) {
-      newPromiseCache.set(i, promise);
-    }
-  }
-  __privateSet(this, _pageCache, newPageCache);
-  __privateSet(this, _pagePromises, newPromiseCache);
-};
 cacheSimpleMethod_fn = function(name, data = null) {
   return __privateGet(this, _methodPromises).getOrInsertComputed(name, () => this.messageHandler.sendWithPromise(name, data));
 };
@@ -29165,7 +29472,7 @@ onProgress_fn3 = function({
   (_b = (_a2 = this.loadingTask).onProgress) == null ? void 0 : _b.call(_a2, {
     loaded,
     total,
-    percent: MathClamp(Math.round(loaded / total * 100), 0, 100)
+    percent: total ? MathClamp(Math.round(loaded / total * 100), 0, 100) : NaN
   });
 };
 class RenderTask {
@@ -29192,6 +29499,9 @@ class RenderTask {
       annotationCanvasMap
     } = this._internalRenderTask;
     return separateAnnots.form || separateAnnots.canvas && (annotationCanvasMap == null ? void 0 : annotationCanvasMap.size) > 0;
+  }
+  get imageCoordinates() {
+    return this._internalRenderTask.imageCoordinates || null;
   }
 }
 const _InternalRenderTask = class _InternalRenderTask {
@@ -29239,6 +29549,7 @@ const _InternalRenderTask = class _InternalRenderTask {
     this._canvasContext = params.canvas ? null : params.canvasContext;
     this._enableHWA = enableHWA;
     this._dependencyTracker = params.dependencyTracker;
+    this._imagesTracker = params.imagesTracker;
     this._operationsFilter = operationsFilter;
   }
   get completed() {
@@ -29268,7 +29579,8 @@ const _InternalRenderTask = class _InternalRenderTask {
       viewport,
       transform,
       background,
-      dependencyTracker
+      dependencyTracker,
+      imagesTracker
     } = this.params;
     const canvasContext = this._canvasContext || this._canvas.getContext("2d", {
       alpha: false,
@@ -29276,7 +29588,7 @@ const _InternalRenderTask = class _InternalRenderTask {
     });
     this.gfx = new CanvasGraphics(canvasContext, this.commonObjs, this.objs, this.canvasFactory, this.filterFactory, {
       optionalContentConfig
-    }, this.annotationCanvasMap, this.pageColors, dependencyTracker);
+    }, this.annotationCanvasMap, this.pageColors, dependencyTracker, imagesTracker);
     this.gfx.beginDrawing({
       transform,
       viewport,
@@ -29354,8 +29666,8 @@ _rAF = new WeakMap();
 _canvasInUse = new WeakMap();
 __privateAdd(_InternalRenderTask, _canvasInUse, /* @__PURE__ */ new WeakSet());
 let InternalRenderTask = _InternalRenderTask;
-const version = "5.5.207";
-const build = "527964698";
+const version = "5.6.205";
+const build = "ada343803";
 const _ColorPicker = class _ColorPicker {
   constructor({
     editor = null,
@@ -31489,9 +31801,16 @@ class ChoiceWidgetAnnotationElement extends WidgetAnnotationElement {
         option.selected = option.value === defaultValue;
       }
     });
+    const fixDisplayValue = (option, value2) => {
+      const newValue = value2.replaceAll(" ", " ");
+      option.textContent = newValue;
+      if (newValue !== value2) {
+        option.setAttribute("display-value", value2);
+      }
+    };
     for (const option of this.data.options) {
       const optionElement = document.createElement("option");
-      optionElement.textContent = option.displayValue;
+      fixDisplayValue(optionElement, option.displayValue);
       optionElement.value = option.exportValue;
       if (storedData.value.includes(option.exportValue)) {
         optionElement.setAttribute("selected", true);
@@ -31528,7 +31847,7 @@ class ChoiceWidgetAnnotationElement extends WidgetAnnotationElement {
     const getItems = (event) => {
       const options = event.target.options;
       return Array.prototype.map.call(options, (option) => ({
-        displayValue: option.textContent,
+        displayValue: option.getAttribute("display-value") || option.textContent,
         exportValue: option.value
       }));
     };
@@ -31585,7 +31904,7 @@ class ChoiceWidgetAnnotationElement extends WidgetAnnotationElement {
             } = event.detail.insert;
             const selectChild = selectElement.children[index];
             const optionElement = document.createElement("option");
-            optionElement.textContent = displayValue;
+            fixDisplayValue(optionElement, displayValue);
             optionElement.value = exportValue;
             if (selectChild) {
               selectChild.before(optionElement);
@@ -31611,7 +31930,7 @@ class ChoiceWidgetAnnotationElement extends WidgetAnnotationElement {
                 exportValue
               } = item;
               const optionElement = document.createElement("option");
-              optionElement.textContent = displayValue;
+              fixDisplayValue(optionElement, displayValue);
               optionElement.value = exportValue;
               selectElement.append(optionElement);
             }
@@ -33039,7 +33358,7 @@ const _AnnotationLayer = class _AnnotationLayer {
     layer.hidden = false;
   }
   getEditableAnnotations() {
-    return Array.from(__privateGet(this, _editableAnnotations).values());
+    return __privateGet(this, _editableAnnotations).values();
   }
   getEditableAnnotation(id) {
     return __privateGet(this, _editableAnnotations).get(id);
@@ -35071,6 +35390,7 @@ const _HighlightEditor = class _HighlightEditor extends AnnotationEditor {
       color,
       quadPoints,
       inkLists,
+      outlines,
       opacity
     } = data;
     const editor = await super.deserialize(data, parent, uiManager);
@@ -35098,9 +35418,9 @@ const _HighlightEditor = class _HighlightEditor extends AnnotationEditor {
       __privateMethod(_a2 = editor, _HighlightEditor_instances, createOutlines_fn).call(_a2);
       __privateMethod(_b = editor, _HighlightEditor_instances, addToDrawLayer_fn).call(_b);
       editor.rotate(editor.rotation);
-    } else if (inkLists) {
+    } else if (inkLists || outlines) {
       __privateSet(editor, _isFreeHighlight, true);
-      const points = inkLists[0];
+      const points = (inkLists || outlines.points)[0];
       const point = {
         x: points[0] - pageX,
         y: pageHeight - (points[1] - pageY)
@@ -35956,7 +36276,7 @@ const _DrawingEditor = class _DrawingEditor extends AnnotationEditor {
   }
   createDrawingOptions(_data2) {
   }
-  static deserializeDraw(_pageX, _pageY, _pageWidth2, _pageHeight2, _innerWidth, _data2) {
+  static deserializeDraw(_pageX, _pageY, _pageWidth3, _pageHeight3, _innerWidth, _data2) {
     unreachable("Not implemented");
   }
   static async deserialize(data, parent, uiManager) {
@@ -37258,8 +37578,7 @@ class SignatureExtractor {
       writer.write(diffs);
     }
     writer.close();
-    const buf = await new Response(cs.readable).arrayBuffer();
-    const bytes = new Uint8Array(buf);
+    const bytes = await new Response(cs.readable).bytes();
     return bytes.toBase64();
   }
   static async decompressSignature(signatureData) {
@@ -38791,32 +39110,6 @@ const _AnnotationEditorLayer = class _AnnotationEditorLayer {
     this._structTree = structTreeLayer;
     __privateGet(this, _uiManager4).addLayer(this);
   }
-  updatePageIndex(newPageIndex) {
-    for (const editor of __privateGet(this, _AnnotationEditorLayer_instances, allEditorsIterator_get)) {
-      editor.updatePageIndex(newPageIndex);
-    }
-    this.pageIndex = newPageIndex;
-    __privateGet(this, _uiManager4).addLayer(this);
-  }
-  async setClonedFrom(clonedFrom) {
-    if (!clonedFrom) {
-      return;
-    }
-    const promises = [];
-    for (const editor of __privateGet(clonedFrom, _AnnotationEditorLayer_instances, allEditorsIterator_get)) {
-      const serialized = editor.serialize(true);
-      if (!serialized) {
-        continue;
-      }
-      serialized.isCopy = false;
-      promises.push(this.deserialize(serialized).then((deserialized) => {
-        if (deserialized) {
-          this.addOrRebuild(deserialized);
-        }
-      }));
-    }
-    await Promise.all(promises);
-  }
   get isEmpty() {
     return __privateGet(this, _editors).size === 0;
   }
@@ -39003,8 +39296,7 @@ const _AnnotationEditorLayer = class _AnnotationEditorLayer {
         (_a2 = this.getEditableAnnotation(editor.annotationElementId)) == null ? void 0 : _a2.show();
         editor.remove();
       }
-      const editables = annotationLayer.getEditableAnnotations();
-      for (const editable of editables) {
+      for (const editable of annotationLayer.getEditableAnnotations()) {
         const {
           id
         } = editable.data;
@@ -39213,9 +39505,6 @@ const _AnnotationEditorLayer = class _AnnotationEditorLayer {
     }
     return null;
   }
-  getNextId() {
-    return __privateGet(this, _uiManager4).getId();
-  }
   combinedSignal(ac) {
     return __privateGet(this, _uiManager4).combinedSignal(ac);
   }
@@ -39230,7 +39519,7 @@ const _AnnotationEditorLayer = class _AnnotationEditorLayer {
       offsetX,
       offsetY
     } = __privateMethod(this, _AnnotationEditorLayer_instances, getCenterPoint_fn).call(this);
-    const id = this.getNextId();
+    const id = __privateGet(this, _uiManager4).getId();
     const editor = __privateMethod(this, _AnnotationEditorLayer_instances, createNewEditor_fn).call(this, {
       parent: this,
       id,
@@ -39249,7 +39538,7 @@ const _AnnotationEditorLayer = class _AnnotationEditorLayer {
     return await ((_a2 = __privateGet(_AnnotationEditorLayer, _editorTypes2).get(data.annotationType ?? data.annotationEditorType)) == null ? void 0 : _a2.deserialize(data, this, __privateGet(this, _uiManager4))) || null;
   }
   createAndAddNewEditor(event, isCentered, data = {}) {
-    const id = this.getNextId();
+    const id = __privateGet(this, _uiManager4).getId();
     const editor = __privateMethod(this, _AnnotationEditorLayer_instances, createNewEditor_fn).call(this, {
       parent: this,
       id,
@@ -39302,7 +39591,7 @@ const _AnnotationEditorLayer = class _AnnotationEditorLayer {
       return;
     }
     const currentMode = __privateGet(this, _uiManager4).getMode();
-    if (currentMode === AnnotationEditorType.STAMP || currentMode === AnnotationEditorType.SIGNATURE) {
+    if (currentMode === AnnotationEditorType.STAMP || currentMode === AnnotationEditorType.POPUP || currentMode === AnnotationEditorType.SIGNATURE) {
       __privateGet(this, _uiManager4).unselectAll();
       return;
     }
@@ -39427,7 +39716,7 @@ const _AnnotationEditorLayer = class _AnnotationEditorLayer {
     __privateGet(this, _editors).clear();
     __privateGet(this, _uiManager4).removeLayer(this);
   }
-  render({
+  async render({
     viewport
   }) {
     this.viewport = viewport;
@@ -39436,6 +39725,8 @@ const _AnnotationEditorLayer = class _AnnotationEditorLayer {
       this.add(editor);
       editor.rebuild();
     }
+    await __privateGet(this, _uiManager4).findClonesForPage(this);
+    this.div.hidden = this.isEmpty;
     this.updateMode();
   }
   update({
@@ -39759,6 +40050,115 @@ updateProperties_fn = function(element, properties) {
 __privateAdd(_DrawLayer, _DrawLayer_static);
 __privateAdd(_DrawLayer, _id5, 0);
 let DrawLayer = _DrawLayer;
+function percentage(value2) {
+  return `${(value2 * 100).toFixed(2)}%`;
+}
+const _TextLayerImages = class _TextLayerImages {
+  constructor(minSize, coordinates, viewport, getPageCanvas) {
+    __privateAdd(this, _TextLayerImages_instances);
+    __privateAdd(this, _coordinates, []);
+    __privateAdd(this, _coordinatesByElement, /* @__PURE__ */ new Map());
+    __privateAdd(this, _getPageCanvas, null);
+    __privateAdd(this, _minSize, 0);
+    __privateAdd(this, _pageWidth2, 0);
+    __privateAdd(this, _pageHeight2, 0);
+    __privateSet(this, _minSize, minSize);
+    __privateSet(this, _coordinates, coordinates);
+    __privateSet(this, _pageWidth2, viewport.rawDims.pageWidth);
+    __privateSet(this, _pageHeight2, viewport.rawDims.pageHeight);
+    __privateSet(this, _getPageCanvas, getPageCanvas);
+  }
+  render() {
+    const container = document.createElement("div");
+    container.className = "textLayerImages";
+    for (let i = 0; i < __privateGet(this, _coordinates).length; i += 6) {
+      const el = __privateMethod(this, _TextLayerImages_instances, createImagePlaceholder_fn).call(this, __privateGet(this, _coordinates).subarray(i, i + 6));
+      if (el) {
+        container.append(el);
+      }
+    }
+    container.addEventListener("contextmenu", (event) => {
+      var _a2;
+      if (!(event.target instanceof HTMLCanvasElement)) {
+        return;
+      }
+      const imgElement = event.target;
+      const coords = __privateGet(this, _coordinatesByElement).get(imgElement);
+      if (!coords) {
+        return;
+      }
+      const activeImage = (_a2 = __privateGet(_TextLayerImages, _activeImage)) == null ? void 0 : _a2.deref();
+      if (activeImage === imgElement) {
+        return;
+      }
+      if (activeImage) {
+        activeImage.width = 0;
+        activeImage.height = 0;
+      }
+      __privateSet(_TextLayerImages, _activeImage, new WeakRef(imgElement));
+      const {
+        inverseTransform,
+        x1,
+        y1,
+        width,
+        height
+      } = coords;
+      const pageCanvas = __privateGet(this, _getPageCanvas).call(this);
+      const imageX1 = Math.ceil(x1 * pageCanvas.width);
+      const imageY1 = Math.ceil(y1 * pageCanvas.height);
+      const imageX2 = Math.floor((x1 + width / __privateGet(this, _pageWidth2)) * pageCanvas.width);
+      const imageY2 = Math.floor((y1 + height / __privateGet(this, _pageHeight2)) * pageCanvas.height);
+      imgElement.width = imageX2 - imageX1;
+      imgElement.height = imageY2 - imageY1;
+      const ctx = imgElement.getContext("2d");
+      ctx.setTransform(...inverseTransform);
+      ctx.translate(-imageX1, -imageY1);
+      ctx.drawImage(pageCanvas, 0, 0);
+    });
+    return container;
+  }
+};
+_coordinates = new WeakMap();
+_coordinatesByElement = new WeakMap();
+_getPageCanvas = new WeakMap();
+_minSize = new WeakMap();
+_pageWidth2 = new WeakMap();
+_pageHeight2 = new WeakMap();
+_activeImage = new WeakMap();
+_TextLayerImages_instances = new WeakSet();
+createImagePlaceholder_fn = function([x1, y1, x2, y2, x3, y3]) {
+  const width = Math.hypot((x3 - x1) * __privateGet(this, _pageWidth2), (y3 - y1) * __privateGet(this, _pageHeight2));
+  const height = Math.hypot((x2 - x1) * __privateGet(this, _pageWidth2), (y2 - y1) * __privateGet(this, _pageHeight2));
+  if (width < __privateGet(this, _minSize) || height < __privateGet(this, _minSize)) {
+    return null;
+  }
+  const transform = [(x3 - x1) * __privateGet(this, _pageWidth2) / width, (y3 - y1) * __privateGet(this, _pageHeight2) / width, (x2 - x1) * __privateGet(this, _pageWidth2) / height, (y2 - y1) * __privateGet(this, _pageHeight2) / height, 0, 0];
+  const inverseTransform = Util.inverseTransform(transform);
+  const imgElement = document.createElement("canvas");
+  imgElement.className = "textLayerImagePlaceholder";
+  imgElement.width = 0;
+  imgElement.height = 0;
+  Object.assign(imgElement.style, {
+    opacity: 0,
+    position: "absolute",
+    left: percentage(x1),
+    top: percentage(y1),
+    width: percentage(width / __privateGet(this, _pageWidth2)),
+    height: percentage(height / __privateGet(this, _pageHeight2)),
+    transformOrigin: "0% 0%",
+    transform: `matrix(${transform.join(",")})`
+  });
+  __privateGet(this, _coordinatesByElement).set(imgElement, {
+    inverseTransform,
+    width,
+    height,
+    x1,
+    y1
+  });
+  return imgElement;
+};
+__privateAdd(_TextLayerImages, _activeImage, null);
+let TextLayerImages = _TextLayerImages;
 {
   globalThis._pdfjsTestingUtils = {
     HighlightOutliner
@@ -39818,6 +40218,7 @@ globalThis.pdfjsLib = {
   stopEvent,
   SupportedImageMimeTypes,
   TextLayer,
+  TextLayerImages,
   TouchManager,
   updateUrlHash,
   Util,
@@ -39839,7 +40240,7 @@ const isValidFileType = (file) => {
   file.name.toLowerCase().slice(file.name.lastIndexOf("."));
   return isPdfFile(file) || isImageFile(file);
 };
-GlobalWorkerOptions.workerSrc = new URL("/assets/pdf.worker.min-B_fnEKel.mjs", import.meta.url).toString();
+GlobalWorkerOptions.workerSrc = new URL("/assets/pdf.worker.min-FHbmGBN0.mjs", import.meta.url).toString();
 const extractTextFromPDF = async (file, onProgress) => {
   const ab = await file.arrayBuffer();
   const pdf = await getDocument({ data: ab }).promise;
@@ -40060,6 +40461,7 @@ const ChevronIcon = ({ open }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
   }
 );
 const ChevronRightIcon = () => I(/* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "9 18 15 12 9 6" }));
+const ChevronLeftIcon = () => I(/* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "15 18 9 12 15 6" }));
 const MapPinIcon = ({ size = 15 }) => I(
   /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" }),
@@ -40214,15 +40616,6 @@ const RefreshIcon = ({ size = 16, spin = false }) => I(
   1.8,
   spin
 );
-const MenuIcon = ({ size = 20 }) => I(
-  /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "3", y1: "6", x2: "21", y2: "6" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "3", y1: "12", x2: "21", y2: "12" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "3", y1: "18", x2: "21", y2: "18" })
-  ] }),
-  size,
-  2
-);
 const LockIcon = ({ size = 16 }) => I(
   /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "3", y: "11", width: "18", height: "11", rx: "2", ry: "2" }),
@@ -40240,6 +40633,66 @@ const CalendarIcon = ({ size = 16 }) => I(
   ] }),
   size,
   1.8
+);
+const MailIcon = ({ size = 16 }) => I(
+  /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "22,6 12,13 2,6" })
+  ] }),
+  size
+);
+const PhoneIcon = ({ size = 16 }) => I(
+  /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" }) }),
+  size
+);
+const ClockIcon = ({ size = 16 }) => I(
+  /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "12", cy: "12", r: "10" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "12 6 12 12 16 14" })
+  ] }),
+  size
+);
+const CreditCardIcon = ({ size = 16 }) => I(
+  /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1", y: "4", width: "22", height: "16", rx: "2", ry: "2" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "1", y1: "10", x2: "23", y2: "10" })
+  ] }),
+  size
+);
+const BuildingIcon = ({ size = 16 }) => I(
+  /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "4", y: "2", width: "16", height: "20", rx: "2", ry: "2" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "9", y1: "22", x2: "9", y2: "18" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "15", y1: "22", x2: "15", y2: "18" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "8", y1: "6", x2: "8", y2: "6.01" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "12", y1: "6", x2: "12", y2: "6.01" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "16", y1: "6", x2: "16", y2: "6.01" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "8", y1: "10", x2: "8", y2: "10.01" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "12", y1: "10", x2: "12", y2: "10.01" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "16", y1: "10", x2: "16", y2: "10.01" })
+  ] }),
+  size
+);
+const FolderIcon = ({ size = 16 }) => I(
+  /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" }) }),
+  size
+);
+const FileIcon = ({ size = 16 }) => I(
+  /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "14 2 14 8 20 8" })
+  ] }),
+  size
+);
+const CarIcon = ({ size = 16 }) => I(
+  /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M14 16H9m10 0h2v-4a1 1 0 0 0-.667-.944L14 8H8L2.667 11.056A1 1 0 0 0 2 12v4h2" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M4 16v-2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M16 16v-2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "7", cy: "8.5", r: ".5" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "17", cy: "8.5", r: ".5" })
+  ] }),
+  size
 );
 const DEFAULT_LOCATIONS = [];
 const DEFAULT_DEPARTMENTS = [];
@@ -40282,6 +40735,20 @@ const ADMIN_MENU = [
     icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LayersIcon, { size: 17 }),
     desc: "Manage departments per location",
     category: "dda"
+  },
+  {
+    id: "cht",
+    label: "CHT - Credit Hold Tracker",
+    icon: null,
+    desc: "Credit Hold Tracker settings",
+    isCategory: true
+  },
+  {
+    id: "cht-statuses",
+    label: "Decisions",
+    icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LayersIcon, { size: 17 }),
+    desc: "Manage inquiry decisions",
+    category: "cht"
   },
   {
     id: "audit",
@@ -40337,13 +40804,28 @@ const APP_PERMISSIONS = {
       { key: "deleteFolders", label: "Delete Folders", desc: "Remove folders and their contents" }
     ]
   },
+  dcv: {
+    id: "dcv",
+    name: "Dealer Customer Vision",
+    icon: "DCV",
+    color: "#8b5cf6",
+    permissions: [
+      { key: "view_dcv", label: "View App", desc: "Access Dealer Customer Vision" }
+    ]
+  },
   cht: {
     id: "cht",
     name: "Credit Hold Tracker",
     icon: "CHT",
     color: "#f59e0b",
     permissions: [
-      { key: "view_cht", label: "View App", desc: "Access Credit Hold Tracker" }
+      { key: "view_cht", label: "View App", desc: "Access Credit Hold Tracker" },
+      { key: "cht_inquiry_submit", label: "Submit Inquiries", desc: "Submit credit hold inquiries" },
+      { key: "cht_inquiry_view", label: "View Inquiries", desc: "View own credit hold inquiries" },
+      { key: "cht_inquiry_view_all", label: "View All Inquiries", desc: "View all credit hold inquiries" },
+      { key: "cht_inquiry_accept", label: "Accept Inquiries", desc: "Accept and assign credit hold inquiries to yourself" },
+      { key: "cht_manage_statuses", label: "Manage Decisions", desc: "Add, edit, and remove inquiry decisions" },
+      { key: "cht_view_metrics", label: "View Metrics", desc: "View time to close metrics on inquiries" }
     ]
   },
   help: {
@@ -40371,6 +40853,7 @@ const APP_PERMISSIONS = {
     ]
   }
 };
+const APP_PERMISSION_TABS = ["dda", "dcv", "cht", "help", "admin"];
 const PACKET_TYPES = /* @__PURE__ */ Object.create(null);
 PACKET_TYPES["open"] = "0";
 PACKET_TYPES["close"] = "1";
@@ -43684,6 +44167,7 @@ Object.assign(lookup, {
   connect: lookup
 });
 let socket = null;
+let connectionCount = 0;
 function useSocket({
   onLocationsChanged,
   onDepartmentsChanged,
@@ -43693,9 +44177,9 @@ function useSocket({
   onGroupsChanged,
   onSettingsChanged,
   onDmsScheduleChanged,
-  onNotificationCreated
+  onNotificationCreated,
+  onChtInquiriesChanged
 }) {
-  const reconnectTimeoutRef = reactExports.useRef(null);
   const handlersRef = reactExports.useRef({
     onLocationsChanged,
     onDepartmentsChanged,
@@ -43705,7 +44189,8 @@ function useSocket({
     onGroupsChanged,
     onSettingsChanged,
     onDmsScheduleChanged,
-    onNotificationCreated
+    onNotificationCreated,
+    onChtInquiriesChanged
   });
   reactExports.useEffect(() => {
     handlersRef.current = {
@@ -43717,7 +44202,8 @@ function useSocket({
       onGroupsChanged,
       onSettingsChanged,
       onDmsScheduleChanged,
-      onNotificationCreated
+      onNotificationCreated,
+      onChtInquiriesChanged
     };
   });
   const connect = reactExports.useCallback(() => {
@@ -43738,48 +44224,77 @@ function useSocket({
     socket.on("connect_error", (err) => {
       console.log("[Socket] Connection error:", err.message);
     });
-    socket.on("locations:changed", () => {
-      var _a2, _b;
-      (_b = (_a2 = handlersRef.current).onLocationsChanged) == null ? void 0 : _b.call(_a2);
-    });
-    socket.on("departments:changed", (data) => {
-      var _a2, _b;
-      (_b = (_a2 = handlersRef.current).onDepartmentsChanged) == null ? void 0 : _b.call(_a2, data == null ? void 0 : data.locationId);
-    });
-    socket.on("folders:changed", (data) => {
-      var _a2, _b;
-      (_b = (_a2 = handlersRef.current).onFoldersChanged) == null ? void 0 : _b.call(_a2, data == null ? void 0 : data.departmentId);
-    });
-    socket.on("files:changed", (data) => {
-      var _a2, _b;
-      (_b = (_a2 = handlersRef.current).onFilesChanged) == null ? void 0 : _b.call(_a2, data == null ? void 0 : data.folderId);
-    });
-    socket.on("users:changed", () => {
-      var _a2, _b;
-      (_b = (_a2 = handlersRef.current).onUsersChanged) == null ? void 0 : _b.call(_a2);
-    });
-    socket.on("groups:changed", () => {
-      var _a2, _b;
-      (_b = (_a2 = handlersRef.current).onGroupsChanged) == null ? void 0 : _b.call(_a2);
-    });
-    socket.on("settings:changed", () => {
-      var _a2, _b;
-      (_b = (_a2 = handlersRef.current).onSettingsChanged) == null ? void 0 : _b.call(_a2);
-    });
-    socket.on("dms:schedule", () => {
-      var _a2, _b;
-      (_b = (_a2 = handlersRef.current).onDmsScheduleChanged) == null ? void 0 : _b.call(_a2);
-    });
-    socket.on("notification:created", (data) => {
-      var _a2, _b;
-      (_b = (_a2 = handlersRef.current).onNotificationCreated) == null ? void 0 : _b.call(_a2, data);
-    });
   }, []);
   reactExports.useEffect(() => {
     connect();
+    connectionCount++;
+    const handleLocationsChanged = () => {
+      var _a2, _b;
+      return (_b = (_a2 = handlersRef.current).onLocationsChanged) == null ? void 0 : _b.call(_a2);
+    };
+    const handleDepartmentsChanged = (data) => {
+      var _a2, _b;
+      return (_b = (_a2 = handlersRef.current).onDepartmentsChanged) == null ? void 0 : _b.call(_a2, data == null ? void 0 : data.locationId);
+    };
+    const handleFoldersChanged = (data) => {
+      var _a2, _b;
+      return (_b = (_a2 = handlersRef.current).onFoldersChanged) == null ? void 0 : _b.call(_a2, data == null ? void 0 : data.departmentId);
+    };
+    const handleFilesChanged = (data) => {
+      var _a2, _b;
+      return (_b = (_a2 = handlersRef.current).onFilesChanged) == null ? void 0 : _b.call(_a2, data == null ? void 0 : data.folderId);
+    };
+    const handleUsersChanged = () => {
+      var _a2, _b;
+      return (_b = (_a2 = handlersRef.current).onUsersChanged) == null ? void 0 : _b.call(_a2);
+    };
+    const handleGroupsChanged = () => {
+      var _a2, _b;
+      return (_b = (_a2 = handlersRef.current).onGroupsChanged) == null ? void 0 : _b.call(_a2);
+    };
+    const handleSettingsChanged = () => {
+      var _a2, _b;
+      return (_b = (_a2 = handlersRef.current).onSettingsChanged) == null ? void 0 : _b.call(_a2);
+    };
+    const handleDmsScheduleChanged = () => {
+      var _a2, _b;
+      return (_b = (_a2 = handlersRef.current).onDmsScheduleChanged) == null ? void 0 : _b.call(_a2);
+    };
+    const handleNotificationCreated = (data) => {
+      var _a2, _b;
+      return (_b = (_a2 = handlersRef.current).onNotificationCreated) == null ? void 0 : _b.call(_a2, data);
+    };
+    const handleChtInquiriesChanged = () => {
+      var _a2, _b;
+      return (_b = (_a2 = handlersRef.current).onChtInquiriesChanged) == null ? void 0 : _b.call(_a2);
+    };
+    socket.on("locations:changed", handleLocationsChanged);
+    socket.on("departments:changed", handleDepartmentsChanged);
+    socket.on("folders:changed", handleFoldersChanged);
+    socket.on("files:changed", handleFilesChanged);
+    socket.on("users:changed", handleUsersChanged);
+    socket.on("groups:changed", handleGroupsChanged);
+    socket.on("settings:changed", handleSettingsChanged);
+    socket.on("dms:schedule", handleDmsScheduleChanged);
+    socket.on("notification:created", handleNotificationCreated);
+    socket.on("cht:inquiries:changed", handleChtInquiriesChanged);
     return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
+      connectionCount--;
+      if (socket) {
+        socket.off("locations:changed", handleLocationsChanged);
+        socket.off("departments:changed", handleDepartmentsChanged);
+        socket.off("folders:changed", handleFoldersChanged);
+        socket.off("files:changed", handleFilesChanged);
+        socket.off("users:changed", handleUsersChanged);
+        socket.off("groups:changed", handleGroupsChanged);
+        socket.off("settings:changed", handleSettingsChanged);
+        socket.off("dms:schedule", handleDmsScheduleChanged);
+        socket.off("notification:created", handleNotificationCreated);
+        socket.off("cht:inquiries:changed", handleChtInquiriesChanged);
+        if (connectionCount === 0) {
+          socket.disconnect();
+          socket = null;
+        }
       }
     };
   }, [connect]);
@@ -43862,6 +44377,7 @@ function LoginScreen({
   const [ssoEnabled, setSsoEnabled] = reactExports.useState(false);
   const [allowLocalLogin, setAllowLocalLogin] = reactExports.useState(true);
   const [ssoLoading, setSsoLoading] = reactExports.useState(false);
+  const [logoUrl, setLogoUrl] = reactExports.useState(null);
   reactExports.useEffect(() => {
     const checkSsoStatus = async () => {
       try {
@@ -43874,6 +44390,11 @@ function LoginScreen({
     };
     checkSsoStatus();
   }, []);
+  reactExports.useEffect(() => {
+    const logoType = darkMode ? "dark" : "light";
+    const url2 = `/api/settings/logo/${logoType}?t=${Date.now()}`;
+    setLogoUrl(url2);
+  }, [darkMode]);
   const handleSsoLogin = () => {
     setSsoLoading(true);
     window.location.href = getSamlLoginUrl();
@@ -43950,7 +44471,20 @@ function LoginScreen({
             },
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", marginBottom: 36 }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                logoUrl ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "img",
+                  {
+                    src: logoUrl,
+                    alt: "Logo",
+                    onError: () => setLogoUrl(null),
+                    style: {
+                      height: 52,
+                      maxWidth: 200,
+                      objectFit: "contain",
+                      marginBottom: 16
+                    }
+                  }
+                ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "div",
                   {
                     style: {
@@ -43977,12 +44511,11 @@ function LoginScreen({
                       fontSize: 24,
                       fontWeight: 700,
                       color: t.text,
-                      margin: "0 0 4px"
+                      margin: 0
                     },
-                    children: "Dealer Document Archive"
+                    children: "Dealer Toolbox"
                   }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 13.5, color: t.textMuted, margin: 0 }, children: "Sign in to access your documents" })
+                )
               ] }),
               ssoEnabled && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: allowLocalLogin ? 20 : 0 }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -44208,7 +44741,7 @@ function HighlightedName({ name, query, accentColor }) {
     (ch, i) => s.has(i) ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: accentColor, fontWeight: 700 }, children: ch }, i) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: ch }, i)
   ) });
 }
-function AlertsDropdown({ darkMode, onNavigate }) {
+function AlertsDropdown({ darkMode, onNavigate, currentUserId, onShowToast }) {
   const t = getTheme(darkMode);
   const [showDropdown, setShowDropdown] = reactExports.useState(false);
   const [alerts, setAlerts] = reactExports.useState([]);
@@ -44216,8 +44749,31 @@ function AlertsDropdown({ darkMode, onNavigate }) {
   const [unreadCount, setUnreadCount] = reactExports.useState(0);
   const handleNotificationCreated = (data) => {
     const notification = data.notification || data;
-    setAlerts((prev) => [{ ...notification, read_at: null }, ...prev.slice(0, 99)]);
+    const isCHT = notification.type === "cht_inquiry_assigned" || notification.type === "cht_inquiry_updated";
+    if (isCHT && data.userId && currentUserId && data.userId !== currentUserId) {
+      return;
+    }
+    const newAlert = {
+      ...notification,
+      id: notification.id || `cht-${Date.now()}`,
+      created_at: notification.created_at || notification.createdAt || (/* @__PURE__ */ new Date()).toISOString(),
+      read_at: null
+    };
+    setAlerts((prev) => {
+      const exists = prev.some((a) => a.id === newAlert.id);
+      if (exists) return prev;
+      return [newAlert, ...prev.slice(0, 99)];
+    });
     setUnreadCount((prev) => prev + 1);
+    if (isCHT && onShowToast) {
+      onShowToast({
+        title: notification.title || "Credit Hold Tracker",
+        message: notification.message,
+        type: "cht",
+        duration: 6e3,
+        onClick: onNavigate ? () => onNavigate(newAlert) : void 0
+      });
+    }
   };
   useSocket({
     onNotificationCreated: handleNotificationCreated
@@ -44234,7 +44790,13 @@ function AlertsDropdown({ darkMode, onNavigate }) {
     setLoading(true);
     try {
       const data = await getNotifications(false);
-      setAlerts(data);
+      setAlerts((prev) => {
+        const dbAlerts = data || [];
+        const rtAlerts = prev.filter((a) => !a.notification_type && !a.file_name);
+        const existingIds = new Set(dbAlerts.map((a) => a.id));
+        const uniqueRtAlerts = rtAlerts.filter((a) => !existingIds.has(a.id));
+        return [...uniqueRtAlerts, ...dbAlerts].slice(0, 100);
+      });
     } catch (err) {
       console.error("Failed to load alerts:", err);
     } finally {
@@ -44277,12 +44839,15 @@ function AlertsDropdown({ darkMode, onNavigate }) {
     }
   };
   const handleAlertClick = async (alert2) => {
-    try {
-      await markNotificationRead(alert2.id);
-      setAlerts((prev) => prev.map((a) => a.id === alert2.id ? { ...a, read_at: (/* @__PURE__ */ new Date()).toISOString() } : a));
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (err) {
-      console.error("Failed to mark alert as read:", err);
+    const isCHT = alert2.type === "cht_inquiry_assigned" || alert2.type === "cht_inquiry_updated";
+    setAlerts((prev) => prev.map((a) => a.id === alert2.id ? { ...a, read_at: a.read_at || (/* @__PURE__ */ new Date()).toISOString() } : a));
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+    if (!isCHT && alert2.id) {
+      try {
+        await markNotificationRead(alert2.id);
+      } catch (err) {
+        console.error("Failed to mark alert as read:", err);
+      }
     }
     if (onNavigate) {
       onNavigate(alert2);
@@ -44302,10 +44867,33 @@ function AlertsDropdown({ darkMode, onNavigate }) {
     if (days < 7) return `${days}d ago`;
     return date.toLocaleDateString();
   };
-  const getTypeIcon = (type) => {
-    if (type === "location") return /* @__PURE__ */ jsxRuntimeExports.jsx(MapPinIcon, { size: 14 });
-    if (type === "department") return /* @__PURE__ */ jsxRuntimeExports.jsx(LayersIcon, { size: 14 });
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 14 });
+  const getAlertType = (alert2) => {
+    if (alert2.type === "cht_inquiry_assigned" || alert2.type === "cht_inquiry_updated") {
+      return "cht";
+    }
+    return "dda";
+  };
+  const renderCHTIcon = () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    background: "linear-gradient(135deg, #f59e0b, #d97706)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white",
+    fontSize: 10,
+    fontWeight: 800
+  }, children: "CHT" });
+  const renderDDAIcon = (alert2) => {
+    const iconColor = t.accent;
+    if (alert2.notification_type === "location_upload" || alert2.item_type === "location") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(MapPinIcon, { size: 16, style: { color: iconColor } });
+    }
+    if (alert2.notification_type === "department_upload" || alert2.item_type === "department") {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(LayersIcon, { size: 16, style: { color: iconColor } });
+    }
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 16, style: { color: iconColor } });
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -44323,7 +44911,7 @@ function AlertsDropdown({ darkMode, onNavigate }) {
           alignItems: "center",
           position: "relative"
         },
-        title: "Alerts",
+        title: "Notifications",
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(BellIcon, { size: 18 }),
           unreadCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -44333,7 +44921,7 @@ function AlertsDropdown({ darkMode, onNavigate }) {
                 position: "absolute",
                 top: 2,
                 right: 2,
-                background: t.error,
+                background: "#dc2626",
                 color: "white",
                 fontSize: 10,
                 fontWeight: 700,
@@ -44358,8 +44946,8 @@ function AlertsDropdown({ darkMode, onNavigate }) {
           position: "absolute",
           top: "calc(100% + 8px)",
           right: 0,
-          width: 380,
-          maxHeight: 480,
+          width: 400,
+          maxHeight: 500,
           overflow: "hidden",
           background: t.surface,
           border: `1px solid ${t.border}`,
@@ -44381,27 +44969,7 @@ function AlertsDropdown({ darkMode, onNavigate }) {
                 borderBottom: `1px solid ${t.border}`
               },
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(BellIcon, { size: 16 }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 14, fontWeight: 600 }, children: "Alerts" }),
-                  unreadCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "span",
-                    {
-                      style: {
-                        fontSize: 11,
-                        fontWeight: 600,
-                        padding: "2px 6px",
-                        borderRadius: 8,
-                        background: t.accentSoft,
-                        color: t.accent
-                      },
-                      children: [
-                        unreadCount,
-                        " new"
-                      ]
-                    }
-                  )
-                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 14, fontWeight: 600, color: t.text }, children: "Notifications" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 6 }, children: [
                   unreadCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "button",
@@ -44440,58 +45008,88 @@ function AlertsDropdown({ darkMode, onNavigate }) {
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { maxHeight: 360, overflowY: "auto" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 24, textAlign: "center", color: t.textMuted }, children: "Loading..." }) : alerts.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 24, textAlign: "center", color: t.textMuted }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { maxHeight: 400, overflowY: "auto" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 24, textAlign: "center", color: t.textMuted }, children: "Loading..." }) : alerts.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 24, textAlign: "center", color: t.textMuted }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(BellIcon, { size: 32 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: 8, fontSize: 13 }, children: "No alerts yet" })
-          ] }) : alerts.map((alert2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "div",
-            {
-              onClick: () => handleAlertClick(alert2),
-              style: {
-                padding: "12px 14px",
-                borderBottom: `1px solid ${t.border}`,
-                background: alert2.read_at ? "transparent" : darkMode ? "rgba(88,166,255,0.05)" : "rgba(88,166,255,0.03)",
-                opacity: alert2.read_at ? 0.7 : 1,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 10
-              },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: t.accent, marginTop: 2, flexShrink: 0 }, children: getTypeIcon(alert2.item_type) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 600, color: t.text }, children: alert2.file_name }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, color: t.textMuted, marginTop: 2 }, children: [
-                    "Uploaded by ",
-                    alert2.created_by_name
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 10, color: t.textDim, marginTop: 4 }, children: [
-                    alert2.item_name,
-                    " • ",
-                    formatDate(alert2.created_at)
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: 8, fontSize: 13 }, children: "No notifications" })
+          ] }) : alerts.map((alert2, idx) => {
+            const alertType = getAlertType(alert2);
+            const isCHT = alertType === "cht";
+            return /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                onClick: () => handleAlertClick(alert2),
+                style: {
+                  padding: "12px 14px",
+                  borderBottom: `1px solid ${t.border}`,
+                  background: alert2.read_at ? "transparent" : darkMode ? "rgba(88,166,255,0.05)" : "rgba(88,166,255,0.03)",
+                  opacity: alert2.read_at ? 0.7 : 1,
+                  cursor: "pointer"
+                },
+                children: isCHT ? (
+                  // CHT Notification
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 12 }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flexShrink: 0 }, children: renderCHTIcon() }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: "#f59e0b", marginBottom: 2 }, children: "Credit Hold Tracker" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 600, color: t.text }, children: alert2.title || "Inquiry Updated" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, color: t.textMuted, marginTop: 4 }, children: alert2.message }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 10, color: t.textDim, marginTop: 4 }, children: formatDate(alert2.created_at || alert2.createdAt) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        onClick: (e) => deleteAlert(e, alert2.id),
+                        style: {
+                          background: "transparent",
+                          border: "none",
+                          cursor: "pointer",
+                          color: t.textMuted,
+                          padding: 4,
+                          flexShrink: 0
+                        },
+                        title: "Dismiss",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { size: 14 })
+                      }
+                    )
                   ] })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    onClick: (e) => deleteAlert(e, alert2.id),
-                    style: {
-                      background: "transparent",
-                      border: "none",
-                      cursor: "pointer",
-                      color: t.textMuted,
-                      padding: 4,
-                      display: "flex",
-                      flexShrink: 0
-                    },
-                    title: "Delete alert",
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(TrashIcon, { size: 14 })
-                  }
+                ) : (
+                  // DDA File Upload Notification
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 10 }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: t.accent, marginTop: 2, flexShrink: 0 }, children: renderDDAIcon(alert2) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 600, color: t.text }, children: alert2.file_name }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, color: t.textMuted, marginTop: 2 }, children: [
+                        "Uploaded by ",
+                        alert2.created_by_name
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 10, color: t.textDim, marginTop: 4 }, children: [
+                        alert2.item_name,
+                        " • ",
+                        formatDate(alert2.created_at)
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        onClick: (e) => deleteAlert(e, alert2.id),
+                        style: {
+                          background: "transparent",
+                          border: "none",
+                          cursor: "pointer",
+                          color: t.textMuted,
+                          padding: 4,
+                          flexShrink: 0
+                        },
+                        title: "Dismiss",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { size: 14 })
+                      }
+                    )
+                  ] })
                 )
-              ]
-            },
-            alert2.id
-          )) }),
+              },
+              alert2.id || idx
+            );
+          }) }),
           alerts.some((a) => a.read_at) && /* @__PURE__ */ jsxRuntimeExports.jsx(
             "div",
             {
@@ -44513,7 +45111,7 @@ function AlertsDropdown({ darkMode, onNavigate }) {
                     fontWeight: 500,
                     fontFamily: "inherit"
                   },
-                  children: "Clear read alerts"
+                  children: "Clear read notifications"
                 }
               )
             }
@@ -44588,7 +45186,7 @@ function Navbar({
     });
   }, []);
   const q = globalSearch$1.trim();
-  const isAdmin2 = (_a2 = loggedInUser == null ? void 0 : loggedInUser.groups) == null ? void 0 : _a2.includes("Administrator");
+  const isAdmin = (_a2 = loggedInUser == null ? void 0 : loggedInUser.groups) == null ? void 0 : _a2.includes("Administrator");
   const canViewLocations = ((_b = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _b.includes("viewLocations")) || ((_c = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _c.includes("viewFiles"));
   const apps = [
     { id: "home", name: "Home", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(HomeIcon, { size: 20 }), onClick: () => {
@@ -44601,8 +45199,12 @@ function Navbar({
       setSelectedFile(null);
       setShowAppsDropdown(false);
     } },
+    { id: "dcv", name: "Dealer Customer Vision", permission: "view_dcv", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "DCV" }), onClick: () => {
+      setPage("dcv");
+      setShowAppsDropdown(false);
+    } },
     { id: "cht", name: "Credit Hold Tracker", permission: "view_cht", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "CHT" }), onClick: () => {
-      setPage("cht-dashboard");
+      setPage("cht");
       setShowAppsDropdown(false);
     } },
     { id: "help", name: "Submit Help Ticket", permission: "view_help", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TicketIcon, { size: 14 }) }), onClick: () => {
@@ -44621,7 +45223,7 @@ function Navbar({
         setShowAppsDropdown(false);
       }
     })),
-    ...isAdmin2 ? [{ id: "admin", name: "Admin Center", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, { size: 20 }), onClick: () => {
+    ...isAdmin ? [{ id: "admin", name: "Admin Center", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, { size: 20 }), onClick: () => {
       setPage("admin");
       setAdminSection("users");
       setShowAppsDropdown(false);
@@ -44686,29 +45288,324 @@ function Navbar({
               zIndex: 2
             },
             children: [
-              isMobile && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
+              isMobile && showMobileMenu && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
                 {
-                  onClick: () => setShowMobileMenu(!showMobileMenu),
                   style: {
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 8,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: t.textMuted,
-                    borderRadius: 8
+                    position: "absolute",
+                    top: 54,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: darkMode ? "#0d1117" : "#fff",
+                    overflowY: "auto",
+                    zIndex: 150
                   },
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(MenuIcon, { size: 20 })
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "8px 0" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "button",
+                        {
+                          onClick: () => {
+                            setPage("dashboard");
+                            setSelectedFile(null);
+                            setShowMobileMenu(false);
+                          },
+                          style: {
+                            width: "100%",
+                            background: "transparent",
+                            color: t.text,
+                            border: "none",
+                            padding: "12px 20px",
+                            cursor: "pointer",
+                            fontSize: 14,
+                            fontWeight: 500,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            fontFamily: "inherit",
+                            textAlign: "left"
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(DashboardIcon, { size: 16 }),
+                            " Dashboard"
+                          ]
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "button",
+                        {
+                          onClick: () => {
+                            setPage("folders-browse");
+                            setSelectedFile(null);
+                            setShowMobileMenu(false);
+                          },
+                          style: {
+                            width: "100%",
+                            background: "transparent",
+                            color: t.text,
+                            border: "none",
+                            padding: "12px 20px",
+                            cursor: "pointer",
+                            fontSize: 14,
+                            fontWeight: 500,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            fontFamily: "inherit",
+                            textAlign: "left"
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 16 }),
+                            " Folders"
+                          ]
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "button",
+                        {
+                          onClick: () => {
+                            setPage("unsorted");
+                            setShowMobileMenu(false);
+                          },
+                          style: {
+                            width: "100%",
+                            background: "transparent",
+                            color: t.text,
+                            border: "none",
+                            padding: "12px 20px",
+                            cursor: "pointer",
+                            fontSize: 14,
+                            fontWeight: 500,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            fontFamily: "inherit",
+                            textAlign: "left"
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(InboxIcon, { size: 16 }),
+                            " Unsorted ",
+                            unsortedFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10, background: darkMode ? "rgba(210,153,34,0.15)" : "rgba(180,83,9,0.1)", color: darkMode ? "#d29922" : "#b45309", borderRadius: 10, padding: "1px 6px" }, children: unsortedFiles.length })
+                          ]
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "button",
+                        {
+                          onClick: () => {
+                            setPage("upload");
+                            setShowMobileMenu(false);
+                          },
+                          style: {
+                            width: "100%",
+                            background: "transparent",
+                            color: t.text,
+                            border: "none",
+                            padding: "12px 20px",
+                            cursor: "pointer",
+                            fontSize: 14,
+                            fontWeight: 500,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            fontFamily: "inherit",
+                            textAlign: "left"
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(UploadCloudIcon, { size: 16 }),
+                            " Upload ",
+                            stagedFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10, background: t.accent, color: "#fff", borderRadius: 10, padding: "1px 6px" }, children: stagedFiles.length })
+                          ]
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { borderTop: `1px solid ${t.border}`, margin: "4px 0" } }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "8px 0" }, children: apps.map((app) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        onClick: app.onClick,
+                        style: {
+                          width: "100%",
+                          background: "transparent",
+                          color: t.text,
+                          border: "none",
+                          padding: "12px 20px",
+                          cursor: "pointer",
+                          fontSize: 14,
+                          fontWeight: 500,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                          fontFamily: "inherit",
+                          textAlign: "left"
+                        },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: t.accent, display: "flex", alignItems: "center" }, children: app.icon }),
+                          app.name
+                        ]
+                      },
+                      app.id
+                    )) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { borderTop: `1px solid ${t.border}`, margin: "4px 0" } }),
+                    loggedInUser && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "8px 0" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "8px 20px", color: t.textDim, fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }, children: loggedInUser.name }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "button",
+                        {
+                          onClick: () => {
+                            setShowMobileMenu(false);
+                            setShowProfileMenu(true);
+                          },
+                          style: {
+                            width: "100%",
+                            background: "transparent",
+                            color: t.text,
+                            border: "none",
+                            padding: "12px 20px",
+                            cursor: "pointer",
+                            fontSize: 14,
+                            fontWeight: 500,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            fontFamily: "inherit",
+                            textAlign: "left"
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(UserIcon, { size: 16 }),
+                            " My Account"
+                          ]
+                        }
+                      ),
+                      (loggedInUser == null ? void 0 : loggedInUser.authProvider) !== "saml" && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "button",
+                        {
+                          onClick: () => {
+                            setShowMobileMenu(false);
+                            setShowChangePassword(true);
+                            setChangePasswordForm({ current: "", new: "", confirm: "" });
+                            setChangePasswordError("");
+                            setChangePasswordSuccess("");
+                          },
+                          style: {
+                            width: "100%",
+                            background: "transparent",
+                            color: t.text,
+                            border: "none",
+                            padding: "12px 20px",
+                            cursor: "pointer",
+                            fontSize: 14,
+                            fontWeight: 500,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            fontFamily: "inherit",
+                            textAlign: "left"
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, { size: 16 }),
+                            " Change Password"
+                          ]
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "button",
+                        {
+                          onClick: () => {
+                            setShowMobileMenu(false);
+                            setShowSubscriptionsModal(true);
+                          },
+                          style: {
+                            width: "100%",
+                            background: "transparent",
+                            color: t.text,
+                            border: "none",
+                            padding: "12px 20px",
+                            cursor: "pointer",
+                            fontSize: 14,
+                            fontWeight: 500,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            fontFamily: "inherit",
+                            textAlign: "left"
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(BellIcon, { size: 16 }),
+                            " My Subscriptions"
+                          ]
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { borderTop: `1px solid ${t.border}`, margin: "4px 0" } }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "8px 0" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "button",
+                        {
+                          onClick: () => {
+                            setDarkMode(!darkMode);
+                            setShowMobileMenu(false);
+                          },
+                          style: {
+                            width: "100%",
+                            background: "transparent",
+                            color: t.text,
+                            border: "none",
+                            padding: "12px 20px",
+                            cursor: "pointer",
+                            fontSize: 14,
+                            fontWeight: 500,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            fontFamily: "inherit",
+                            textAlign: "left"
+                          },
+                          children: [
+                            darkMode ? /* @__PURE__ */ jsxRuntimeExports.jsx(SunIcon, { size: 16 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(MoonIcon, { size: 16 }),
+                            " ",
+                            darkMode ? "Light Mode" : "Dark Mode"
+                          ]
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "button",
+                        {
+                          onClick: () => {
+                            handleLogout();
+                            setShowMobileMenu(false);
+                          },
+                          style: {
+                            width: "100%",
+                            background: "transparent",
+                            color: t.error,
+                            border: "none",
+                            padding: "12px 20px",
+                            cursor: "pointer",
+                            fontSize: 14,
+                            fontWeight: 500,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            fontFamily: "inherit",
+                            textAlign: "left"
+                          },
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(LogOutIcon, { size: 16 }),
+                            " Sign Out"
+                          ]
+                        }
+                      )
+                    ] })
+                  ]
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "div",
                 {
                   onClick: () => {
-                    setPage("dashboard");
+                    setPage("landing");
                     setSelectedFile(null);
                   },
                   style: {
@@ -45302,7 +46199,7 @@ function Navbar({
                             textAlign: "left"
                           },
                           children: [
-                            darkMode ? /* @__PURE__ */ jsxRuntimeExports.jsx(SunIcon, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(MoonIcon, {}),
+                            darkMode ? /* @__PURE__ */ jsxRuntimeExports.jsx(SunIcon, { size: 16 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(MoonIcon, { size: 16 }),
                             " ",
                             darkMode ? "Light Mode" : "Dark Mode"
                           ]
@@ -45344,6 +46241,7 @@ function Navbar({
                 "div",
                 {
                   style: {
+                    position: "relative",
                     flex: 1,
                     maxWidth: 480,
                     minWidth: 180
@@ -45417,7 +46315,7 @@ function Navbar({
                           position: "absolute",
                           top: "calc(100% + 6px)",
                           left: 0,
-                          right: 0,
+                          width: "100%",
                           zIndex: 300,
                           background: t.surface,
                           border: `1px solid ${t.border}`,
@@ -45853,7 +46751,7 @@ function Navbar({
                       ),
                       [
                         { l: "My Account", i: /* @__PURE__ */ jsxRuntimeExports.jsx(UserIcon, {}) },
-                        { l: "Change Password", i: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, {}) },
+                        ...(loggedInUser == null ? void 0 : loggedInUser.authProvider) !== "saml" ? [{ l: "Change Password", i: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, {}) }] : [],
                         { l: "My Subscriptions", i: /* @__PURE__ */ jsxRuntimeExports.jsx(BellIcon, {}) },
                         { l: "Settings", i: /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, {}) }
                       ].map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -45873,6 +46771,9 @@ function Navbar({
                             }
                             if (item.l === "My Subscriptions") {
                               setShowSubscriptionsModal(true);
+                            }
+                            if (item.l === "Settings") {
+                              setPage("settings");
                             }
                           },
                           className: "folder-select-item",
@@ -45934,6 +46835,22 @@ function Navbar({
                   }
                 )
               ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(AlertsDropdown, { darkMode, currentUserId: loggedInUser == null ? void 0 : loggedInUser.id, onNavigate: (alert2) => {
+                const isCHT = alert2.type === "cht_inquiry_assigned" || alert2.type === "cht_inquiry_updated" || alert2.notification_type === "cht_inquiry_assigned" || alert2.notification_type === "cht_inquiry_updated";
+                if (isCHT) {
+                  setPage("cht");
+                } else if (alert2.file_id) {
+                  setActiveFolderId(alert2.folder_id || null);
+                  if (alert2.folder_id) {
+                    setPage("folders");
+                  } else {
+                    setPage("unsorted");
+                  }
+                  setTimeout(() => {
+                    setViewingFileIdFromAlert(alert2.file_id);
+                  }, 100);
+                }
+              } }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "button",
@@ -46006,37 +46923,7 @@ function Navbar({
                     )
                   }
                 )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(AlertsDropdown, { darkMode, onNavigate: (alert2) => {
-                if (alert2.file_id) {
-                  setActiveFolderId(alert2.folder_id || null);
-                  if (alert2.folder_id) {
-                    setPage("folders");
-                  } else {
-                    setPage("unsorted");
-                  }
-                  setTimeout(() => {
-                    setViewingFileIdFromAlert(alert2.file_id);
-                  }, 100);
-                }
-              } }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  onClick: () => setDarkMode(!darkMode),
-                  style: {
-                    background: t.surface,
-                    border: `1px solid ${t.border}`,
-                    borderRadius: 7,
-                    padding: 6,
-                    cursor: "pointer",
-                    color: t.textMuted,
-                    display: "flex",
-                    alignItems: "center"
-                  },
-                  children: darkMode ? /* @__PURE__ */ jsxRuntimeExports.jsx(SunIcon, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(MoonIcon, {})
-                }
-              )
+              ] })
             ]
           }
         )
@@ -46181,7 +47068,7 @@ function WarningModal({ warningModal, setWarningModal, t, darkMode }) {
                             color: t.warn,
                             fontFamily: "inherit"
                           },
-                          children: "Delete Folder Only"
+                          children: "Delete Folder and Unlink Files"
                         }
                       ),
                       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -48063,7 +48950,8 @@ function FoldersPage({
   handleDeptDrop,
   deptDragOver,
   setDeptDragOver,
-  handleDeptFiles
+  handleDeptFiles,
+  handleBulkFolderUpload
 }) {
   var _a2, _b;
   const canDeleteFolders = (_a2 = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a2.includes("deleteFolders");
@@ -48072,14 +48960,27 @@ function FoldersPage({
   const deptFileInputRef = reactExports.useRef(null);
   const [sortCol] = reactExports.useState("createdAt");
   const [sortDir] = reactExports.useState("desc");
-  const [pageSize] = reactExports.useState(25);
-  const [currentPage] = reactExports.useState(1);
-  const [showPageSizeDropdown] = reactExports.useState(false);
+  const [pageSize, setPageSize] = reactExports.useState(25);
+  const [currentPage, setCurrentPage] = reactExports.useState(1);
+  const [showPageSizeDropdown, setShowPageSizeDropdown] = reactExports.useState(false);
+  const pageSizeDropdownRef = reactExports.useRef(null);
   const [dateFilterType] = reactExports.useState("all");
   const [filterYear] = reactExports.useState("");
   const [filterMonth] = reactExports.useState("");
   const [filterDay] = reactExports.useState("");
   const [showDateFilterDropdown] = reactExports.useState(false);
+  reactExports.useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (pageSizeDropdownRef.current && !pageSizeDropdownRef.current.contains(e.target)) {
+        setShowPageSizeDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+  reactExports.useEffect(() => {
+    setCurrentPage(1);
+  }, [folderSearch]);
   const handleSubscribe = (newSub) => {
     setSubscriptions((prev) => [...prev, newSub]);
   };
@@ -48103,6 +49004,19 @@ function FoldersPage({
     const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
     return db - da;
   });
+  const totalItems = sorted.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalItems);
+  const paginatedFolders = sorted.slice(startIndex, endIndex);
+  const goToPage = (page) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+  const handlePageSizeChange = (newSize) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
+    setShowPageSizeDropdown(false);
+  };
   const totalFiles = df.reduce(
     (s, f) => s + (f.fileCount || 0),
     0
@@ -48177,6 +49091,20 @@ function FoldersPage({
               e.target.value = "";
             },
             style: { display: "none" }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "file",
+            webkitdirectory: "",
+            multiple: true,
+            onChange: (e) => {
+              handleBulkFolderUpload == null ? void 0 : handleBulkFolderUpload(e.target.files);
+              e.target.value = "";
+            },
+            style: { display: "none" },
+            id: "bulk-folder-upload"
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -48323,26 +49251,24 @@ function FoldersPage({
           }
         ),
         canUploadFiles && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "div",
+          "label",
           {
-            onClick: () => {
-              var _a3;
-              return (_a3 = deptFileInputRef.current) == null ? void 0 : _a3.click();
-            },
+            htmlFor: "bulk-folder-upload",
             style: {
+              display: "block",
               border: `2px dashed ${t.border}`,
               borderRadius: 14,
               padding: "24px 20px",
               textAlign: "center",
               cursor: "pointer",
               background: t.dropzone,
-              marginBottom: 16,
-              transition: "all 0.2s"
+              transition: "all 0.2s",
+              marginBottom: 16
             },
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: t.textDim, marginBottom: 8 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(UploadCloudIcon, { size: 28 }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 500, color: t.text, marginBottom: 4 }, children: "Drag & drop files here or click to browse" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, color: t.textMuted }, children: "Files will be added to Unsorted in this department" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 500, color: t.text, marginBottom: 4 }, children: "Upload folders with files" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, color: t.textMuted }, children: "Preserves folder hierarchy" })
             ]
           }
         ),
@@ -48395,7 +49321,7 @@ function FoldersPage({
             ]
           }
         ),
-        sorted.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+        sorted.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
             style: {
@@ -48404,208 +49330,344 @@ function FoldersPage({
               borderRadius: 12,
               overflow: "hidden"
             },
-            children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "table",
-              {
-                style: {
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  fontSize: 13
-                },
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "th",
-                      {
-                        style: {
-                          ...colHeaderStyle,
-                          color: t.textDim
-                        },
-                        children: "Name"
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "th",
-                      {
-                        style: {
-                          ...colHeaderStyle,
-                          color: t.textDim,
-                          width: 90,
-                          textAlign: "center"
-                        },
-                        children: "Files"
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "th",
-                      {
-                        style: {
-                          ...colHeaderStyle,
-                          color: t.textDim,
-                          width: 180
-                        },
-                        children: "Created"
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "th",
-                      {
-                        style: {
-                          ...colHeaderStyle,
-                          width: 60,
-                          cursor: "default",
-                          textAlign: "center"
-                        },
-                        children: "Actions"
-                      }
-                    )
-                  ] }) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: sorted.map((folder, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "tr",
-                    {
-                      className: "folder-row",
-                      onClick: () => {
-                        setActiveFolderId(folder.id);
-                        setPage("folder-detail");
-                        setCreatingSubfolder(false);
-                      },
-                      style: {
-                        cursor: "pointer",
-                        transition: "background 0.15s",
-                        animation: `fadeIn 0.25s ease ${idx * 0.03}s both`
-                      },
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "td",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  style: {
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "10px 14px",
+                    borderBottom: `1px solid ${t.border}`,
+                    background: t.surfaceHover || t.surface
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12 }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 12, color: t.textMuted }, children: [
+                        totalItems,
+                        " folder",
+                        totalItems !== 1 ? "s" : ""
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, ref: pageSizeDropdownRef, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "button",
+                          {
+                            onClick: () => setShowPageSizeDropdown(!showPageSizeDropdown),
+                            style: {
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 6,
+                              padding: "6px 10px",
+                              fontSize: 12,
+                              background: t.surface,
+                              border: `1px solid ${t.border}`,
+                              borderRadius: 6,
+                              cursor: "pointer",
+                              color: t.text,
+                              fontFamily: "inherit"
+                            },
+                            children: [
+                              pageSize,
+                              " per page",
+                              showPageSizeDropdown ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "inline-flex", transform: "rotate(180deg)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, {}) }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, {})
+                            ]
+                          }
+                        ),
+                        showPageSizeDropdown && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "div",
                           {
                             style: {
-                              padding: "12px 14px",
-                              borderBottom: idx < sorted.length - 1 ? `1px solid ${t.border}` : "none"
+                              position: "absolute",
+                              top: "100%",
+                              left: 0,
+                              marginTop: 4,
+                              background: t.surface,
+                              border: `1px solid ${t.border}`,
+                              borderRadius: 6,
+                              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                              zIndex: 10,
+                              minWidth: 100
                             },
-                            children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                              "div",
+                            children: [25, 50, 100, 150].map((size) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                              "button",
                               {
+                                onClick: () => handlePageSizeChange(size),
                                 style: {
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 10
+                                  display: "block",
+                                  width: "100%",
+                                  padding: "8px 14px",
+                                  fontSize: 12,
+                                  background: pageSize === size ? t.accentSoft : "transparent",
+                                  border: "none",
+                                  textAlign: "left",
+                                  cursor: "pointer",
+                                  color: pageSize === size ? t.accent : t.text,
+                                  fontFamily: "inherit"
                                 },
                                 children: [
-                                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                    "div",
-                                    {
-                                      style: {
-                                        width: 32,
-                                        height: 32,
-                                        borderRadius: 8,
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        flexShrink: 0,
-                                        background: t.accentSoft,
-                                        color: t.accent,
-                                        opacity: 0.75
-                                      },
-                                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 16 })
-                                    }
-                                  ),
-                                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                                      HighlightedName,
-                                      {
-                                        name: folder.name,
-                                        query: folderSearch.trim(),
-                                        accentColor: t.accent
-                                      }
-                                    ) }),
-                                    folder._subCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                                  size,
+                                  " per page"
+                                ]
+                              },
+                              size
+                            ))
+                          }
+                        )
+                      ] })
+                    ] }),
+                    totalPages > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          onClick: () => goToPage(currentPage - 1),
+                          disabled: currentPage === 1,
+                          style: {
+                            padding: "6px 10px",
+                            fontSize: 12,
+                            background: currentPage === 1 ? t.surfaceDisabled || "#f5f5f5" : t.surface,
+                            border: `1px solid ${t.border}`,
+                            borderRadius: 6,
+                            cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                            color: currentPage === 1 ? t.textDim : t.text,
+                            fontFamily: "inherit",
+                            opacity: currentPage === 1 ? 0.5 : 1
+                          },
+                          children: "Previous"
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 12, color: t.textMuted }, children: [
+                        "Page ",
+                        currentPage,
+                        " of ",
+                        totalPages
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          onClick: () => goToPage(currentPage + 1),
+                          disabled: currentPage === totalPages,
+                          style: {
+                            padding: "6px 10px",
+                            fontSize: 12,
+                            background: currentPage === totalPages ? t.surfaceDisabled || "#f5f5f5" : t.surface,
+                            border: `1px solid ${t.border}`,
+                            borderRadius: 6,
+                            cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                            color: currentPage === totalPages ? t.textDim : t.text,
+                            fontFamily: "inherit",
+                            opacity: currentPage === totalPages ? 0.5 : 1
+                          },
+                          children: "Next"
+                        }
+                      )
+                    ] })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "table",
+                {
+                  style: {
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    fontSize: 13
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "th",
+                        {
+                          style: {
+                            ...colHeaderStyle,
+                            color: t.textDim
+                          },
+                          children: "Name"
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "th",
+                        {
+                          style: {
+                            ...colHeaderStyle,
+                            color: t.textDim,
+                            width: 90,
+                            textAlign: "center"
+                          },
+                          children: "Files"
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "th",
+                        {
+                          style: {
+                            ...colHeaderStyle,
+                            color: t.textDim,
+                            width: 180
+                          },
+                          children: "Created"
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "th",
+                        {
+                          style: {
+                            ...colHeaderStyle,
+                            width: 60,
+                            cursor: "default",
+                            textAlign: "center"
+                          },
+                          children: "Actions"
+                        }
+                      )
+                    ] }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: paginatedFolders.map((folder, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "tr",
+                      {
+                        className: "folder-row",
+                        onClick: () => {
+                          setActiveFolderId(folder.id);
+                          setPage("folder-detail");
+                          setCreatingSubfolder(false);
+                        },
+                        style: {
+                          cursor: "pointer",
+                          transition: "background 0.15s",
+                          animation: `fadeIn 0.25s ease ${idx * 0.03}s both`
+                        },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "td",
+                            {
+                              style: {
+                                padding: "12px 14px",
+                                borderBottom: idx < paginatedFolders.length - 1 ? `1px solid ${t.border}` : "none"
+                              },
+                              children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                                "div",
+                                {
+                                  style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 10
+                                  },
+                                  children: [
+                                    /* @__PURE__ */ jsxRuntimeExports.jsx(
                                       "div",
                                       {
                                         style: {
-                                          fontSize: 10.5,
-                                          color: t.textDim,
-                                          marginTop: 1
+                                          width: 32,
+                                          height: 32,
+                                          borderRadius: 8,
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          flexShrink: 0,
+                                          background: t.accentSoft,
+                                          color: t.accent,
+                                          opacity: 0.75
                                         },
-                                        children: [
-                                          folder._subCount,
-                                          " subfolder",
-                                          folder._subCount !== 1 ? "s" : ""
-                                        ]
+                                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 16 })
                                       }
-                                    )
-                                  ] })
-                                ]
-                              }
-                            )
-                          }
-                        ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "td",
-                          {
-                            style: {
-                              padding: "12px 14px",
-                              borderBottom: idx < sorted.length - 1 ? `1px solid ${t.border}` : "none",
-                              textAlign: "center"
-                            },
-                            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "span",
-                              {
-                                style: {
-                                  fontSize: 11.5,
-                                  fontWeight: 600,
-                                  color: folder._fileCount > 0 ? t.accent : t.textDim,
-                                  background: folder._fileCount > 0 ? t.accentSoft : "transparent",
-                                  padding: "2px 9px",
-                                  borderRadius: 12
-                                },
-                                children: folder._fileCount
-                              }
-                            )
-                          }
-                        ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "td",
-                          {
-                            style: {
-                              padding: "12px 14px",
-                              borderBottom: idx < sorted.length - 1 ? `1px solid ${t.border}` : "none",
-                              fontSize: 11.5,
-                              color: t.textMuted,
-                              whiteSpace: "nowrap"
-                            },
-                            children: fmtDate$1(folder.createdAt)
-                          }
-                        ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "td",
-                          {
-                            style: {
-                              padding: "12px 8px",
-                              borderBottom: idx < sorted.length - 1 ? `1px solid ${t.border}` : "none",
-                              textAlign: "center"
-                            },
-                            onClick: (e) => e.stopPropagation(),
-                            children: canDeleteFolders && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              SmallBtn,
-                              {
-                                t,
-                                title: "Delete folder",
-                                onClick: (e) => {
-                                  e.stopPropagation();
-                                  handleDeleteFolder(folder);
-                                },
-                                children: /* @__PURE__ */ jsxRuntimeExports.jsx(TrashIcon, { size: 12 })
-                              }
-                            )
-                          }
-                        )
-                      ]
-                    },
-                    folder.id
-                  )) })
-                ]
-              }
-            )
+                                    ),
+                                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                        HighlightedName,
+                                        {
+                                          name: folder.name,
+                                          query: folderSearch.trim(),
+                                          accentColor: t.accent
+                                        }
+                                      ) }),
+                                      folder._subCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                                        "div",
+                                        {
+                                          style: {
+                                            fontSize: 10.5,
+                                            color: t.textDim,
+                                            marginTop: 1
+                                          },
+                                          children: [
+                                            folder._subCount,
+                                            " subfolder",
+                                            folder._subCount !== 1 ? "s" : ""
+                                          ]
+                                        }
+                                      )
+                                    ] })
+                                  ]
+                                }
+                              )
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "td",
+                            {
+                              style: {
+                                padding: "12px 14px",
+                                borderBottom: idx < paginatedFolders.length - 1 ? `1px solid ${t.border}` : "none",
+                                textAlign: "center"
+                              },
+                              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                "span",
+                                {
+                                  style: {
+                                    fontSize: 11.5,
+                                    fontWeight: 600,
+                                    color: folder._fileCount > 0 ? t.accent : t.textDim,
+                                    background: folder._fileCount > 0 ? t.accentSoft : "transparent",
+                                    padding: "2px 9px",
+                                    borderRadius: 12
+                                  },
+                                  children: folder._fileCount
+                                }
+                              )
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "td",
+                            {
+                              style: {
+                                padding: "12px 14px",
+                                borderBottom: idx < paginatedFolders.length - 1 ? `1px solid ${t.border}` : "none",
+                                fontSize: 11.5,
+                                color: t.textMuted,
+                                whiteSpace: "nowrap"
+                              },
+                              children: fmtDate$1(folder.createdAt)
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "td",
+                            {
+                              style: {
+                                padding: "12px 8px",
+                                borderBottom: idx < paginatedFolders.length - 1 ? `1px solid ${t.border}` : "none",
+                                textAlign: "center"
+                              },
+                              onClick: (e) => e.stopPropagation(),
+                              children: canDeleteFolders && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                                SmallBtn,
+                                {
+                                  t,
+                                  title: "Delete folder",
+                                  onClick: (e) => {
+                                    e.stopPropagation();
+                                    handleDeleteFolder(folder);
+                                  },
+                                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(TrashIcon, { size: 12 })
+                                }
+                              )
+                            }
+                          )
+                        ]
+                      },
+                      folder.id
+                    )) })
+                  ]
+                }
+              )
+            ]
           }
         ) : !creatingDeptFolder && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
@@ -48915,6 +49977,8 @@ function FolderDetailPage({
   departments,
   folders,
   setActiveFolderId,
+  setActiveLocation,
+  setActiveDepartment,
   setPage,
   setSelectedFile,
   setViewingFileId,
@@ -48936,7 +50000,10 @@ function FolderDetailPage({
   setSubscriptions,
   loggedInUser,
   t,
-  darkMode
+  darkMode,
+  setSelectedCustomer,
+  setInitialRepairOrderSlsId,
+  setDcvInitialTab
 }) {
   var _a2, _b;
   const canDeleteFiles = (_a2 = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a2.includes("deleteFiles");
@@ -48969,6 +50036,47 @@ function FolderDetailPage({
       return { type: "document", label: "Document", icon: FileDocIcon };
     }
     return { type: "other", label: "Other", icon: FileDocIcon };
+  };
+  const handleOpenDCV = async () => {
+    const folderName = activeFolder == null ? void 0 : activeFolder.name;
+    if (!folderName) return;
+    try {
+      let customer = null;
+      let roNumber = folderName;
+      if (roNumber.length > 10) {
+        const prefix = roNumber.substring(0, 10);
+        const suffix = roNumber.substring(10);
+        const match = suffix.match(/:(\d+)/);
+        if (match) {
+          roNumber = `${prefix}:${match[1]}`;
+        }
+      }
+      if (activeFolder.cus_id) {
+        try {
+          customer = await getDcvCustomerByCusId(activeFolder.cus_id);
+        } catch (err) {
+          console.log("Customer not found via cus_id, trying RO lookup...");
+        }
+      }
+      if (!customer) {
+        try {
+          customer = await getDcvCustomerByRO(folderName);
+        } catch (err) {
+          console.error("Failed to find customer via RO:", err);
+          alert("No customer found for this repair order.");
+          return;
+        }
+      }
+      if (customer) {
+        setSelectedCustomer(customer);
+        setInitialRepairOrderSlsId(roNumber);
+        setDcvInitialTab("service");
+        setPage("dcv");
+      }
+    } catch (err) {
+      console.error("Failed to open DCV:", err);
+      alert("Failed to open customer view.");
+    }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
@@ -49076,6 +50184,8 @@ function FolderDetailPage({
                 "button",
                 {
                   onClick: () => {
+                    setActiveLocation(fl == null ? void 0 : fl.id);
+                    setActiveDepartment(fd == null ? void 0 : fd.id);
                     setPage("folders");
                     setSelectedFile(null);
                     setCreatingSubfolder(false);
@@ -49172,6 +50282,32 @@ function FolderDetailPage({
                     onSubscribe: handleSubscribe,
                     onUnsubscribe: handleUnsubscribe,
                     t
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    onClick: handleOpenDCV,
+                    style: {
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "6px 12px",
+                      background: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
+                      border: "none",
+                      borderRadius: 6,
+                      color: "white",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      transition: "all 0.15s"
+                    },
+                    title: "Open in Dealer Customer Vision",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(UsersIcon, { size: 14 }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "DCV" })
+                    ]
                   }
                 )
               ] }),
@@ -49891,7 +51027,8 @@ function FileDetailPage({
   removeFile,
   loggedInUser,
   t,
-  darkMode
+  darkMode,
+  activeFolderId
 }) {
   var _a2, _b;
   const canDeleteFiles = (_a2 = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a2.includes("deleteFiles");
@@ -49901,6 +51038,16 @@ function FileDetailPage({
   const [previewUrl, setPreviewUrl] = reactExports.useState(null);
   const [previewLoading, setPreviewLoading] = reactExports.useState(false);
   const [textExpanded, setTextExpanded] = reactExports.useState(false);
+  const folderFiles = files.filter((f) => f.folderId === ((vf == null ? void 0 : vf.folderId) || activeFolderId)).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  const currentFileIndex = folderFiles.findIndex((f) => f.id === viewingFileId);
+  const hasPrev = currentFileIndex > 0;
+  const hasNext = currentFileIndex < folderFiles.length - 1;
+  const goToPrev = () => {
+    if (hasPrev) setViewingFileId(folderFiles[currentFileIndex - 1].id);
+  };
+  const goToNext = () => {
+    if (hasNext) setViewingFileId(folderFiles[currentFileIndex + 1].id);
+  };
   reactExports.useEffect(() => {
     const newFile = files.find((f) => f.id === viewingFileId);
     if (newFile && newFile.id !== (vf == null ? void 0 : vf.id)) {
@@ -50024,37 +51171,97 @@ function FileDetailPage({
             },
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 20px 0", flexShrink: 0 }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    onClick: () => {
-                      setViewingFileId(null);
-                      if (folder) {
-                        setActiveFolderId(folder.id);
-                        setPage("folder-detail");
-                      } else setPage("folders");
-                    },
-                    style: {
-                      background: "transparent",
-                      border: "none",
-                      cursor: "pointer",
-                      color: t.accent,
-                      fontSize: 12.5,
-                      fontWeight: 500,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      padding: 0,
-                      fontFamily: "inherit",
-                      marginBottom: 16
-                    },
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeftIcon, {}),
-                      " Back to ",
-                      (folder == null ? void 0 : folder.name) || "Folder"
-                    ]
-                  }
-                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      onClick: () => {
+                        setViewingFileId(null);
+                        if (folder) {
+                          setActiveFolderId(folder.id);
+                          setPage("folder-detail");
+                        } else setPage("folders");
+                      },
+                      style: {
+                        background: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                        color: t.accent,
+                        fontSize: 12.5,
+                        fontWeight: 500,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: 0,
+                        fontFamily: "inherit"
+                      },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeftIcon, {}),
+                        " Back to ",
+                        (folder == null ? void 0 : folder.name) || "Folder"
+                      ]
+                    }
+                  ),
+                  folderFiles.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 11, color: t.textMuted }, children: [
+                      currentFileIndex + 1,
+                      " of ",
+                      folderFiles.length
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        onClick: goToPrev,
+                        disabled: !hasPrev,
+                        style: {
+                          background: hasPrev ? t.surface : "transparent",
+                          border: `1px solid ${hasPrev ? t.border : "transparent"}`,
+                          borderRadius: 6,
+                          padding: "6px 10px",
+                          cursor: hasPrev ? "pointer" : "not-allowed",
+                          color: hasPrev ? t.text : t.textDim,
+                          fontSize: 11,
+                          fontWeight: 500,
+                          fontFamily: "inherit",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                          opacity: hasPrev ? 1 : 0.5
+                        },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { transform: "rotate(180deg)", display: "flex" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRightIcon, {}) }),
+                          "Prev"
+                        ]
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        onClick: goToNext,
+                        disabled: !hasNext,
+                        style: {
+                          background: hasNext ? t.surface : "transparent",
+                          border: `1px solid ${hasNext ? t.border : "transparent"}`,
+                          borderRadius: 6,
+                          padding: "6px 10px",
+                          cursor: hasNext ? "pointer" : "not-allowed",
+                          color: hasNext ? t.text : t.textDim,
+                          fontSize: 11,
+                          fontWeight: 500,
+                          fontFamily: "inherit",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                          opacity: hasNext ? 1 : 0.5
+                        },
+                        children: [
+                          "Next",
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRightIcon, {})
+                        ]
+                      }
+                    )
+                  ] })
+                ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "div",
                   {
@@ -51641,7 +52848,15 @@ function UploadPage({
   uploadAllStaged,
   removeStagedFile,
   t,
-  darkMode
+  darkMode,
+  watchedFiles,
+  setWatchedFiles,
+  watchedFolderPath,
+  watchFolderEnabled,
+  autoUploadEnabled,
+  scanWatchedFolder,
+  isScanning,
+  lastScanTime
 }) {
   const fileInputRef = reactExports.useRef(null);
   const [openStagedDropdown, setOpenStagedDropdown] = reactExports.useState(null);
@@ -51737,6 +52952,156 @@ function UploadPage({
             ]
           }
         ),
+        watchFolderEnabled && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 24 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 12
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 16, style: { color: t.accent } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 13, fontWeight: 600, color: t.text }, children: [
+                "Watched Folder: ",
+                watchedFolderPath || "Unknown"
+              ] }),
+              autoUploadEnabled && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                fontSize: 10,
+                fontWeight: 600,
+                background: darkMode ? "rgba(34,197,94,0.2)" : "rgba(34,197,94,0.1)",
+                color: darkMode ? "#22c55e" : "#16a34a",
+                padding: "2px 8px",
+                borderRadius: 4,
+                marginLeft: 8
+              }, children: "Auto Upload" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: scanWatchedFolder,
+                disabled: isScanning,
+                style: {
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "6px 12px",
+                  background: isScanning ? t.border : t.accent,
+                  border: "none",
+                  borderRadius: 6,
+                  color: "white",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  cursor: isScanning ? "not-allowed" : "pointer",
+                  fontFamily: "inherit",
+                  opacity: isScanning ? 0.6 : 1
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshIcon, { size: 14, spin: isScanning }),
+                  isScanning ? "Scanning..." : "Scan Now"
+                ]
+              }
+            )
+          ] }),
+          watchedFiles.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            border: `1px solid ${t.border}`,
+            borderRadius: 10,
+            overflow: "visible",
+            background: darkMode ? "rgba(255,255,255,0.01)" : "rgba(0,0,0,0.01)"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+              display: "flex",
+              alignItems: "center",
+              padding: "8px 14px",
+              background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+              borderBottom: `1px solid ${t.border}`,
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              color: t.textDim
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, minWidth: 0 }, children: "File" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 80, textAlign: "right", flexShrink: 0 }, children: "Size" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 80, textAlign: "center", flexShrink: 0, paddingLeft: 12 }, children: "Action" })
+            ] }),
+            watchedFiles.slice(0, 10).map((wf, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                style: {
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "10px 14px",
+                  borderBottom: idx < Math.min(watchedFiles.length, 10) - 1 ? `1px solid ${t.border}` : "none"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, display: "flex", alignItems: "center", gap: 8, minWidth: 0 }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                      width: 28,
+                      height: 28,
+                      borderRadius: 7,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      background: t.accentSoft,
+                      color: t.accent
+                    }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileDocIcon, { size: 14 }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { minWidth: 0 }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                        fontSize: 12,
+                        fontWeight: 600,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis"
+                      }, children: wf.name }),
+                      wf.path !== wf.name && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 10, color: t.textDim }, children: wf.path })
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 80, textAlign: "right", fontSize: 11, color: t.textMuted, flexShrink: 0 }, children: fmtSize(wf.size) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 80, display: "flex", justifyContent: "center", flexShrink: 0, paddingLeft: 12 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    SmallBtn,
+                    {
+                      t,
+                      title: "Add to upload queue",
+                      onClick: () => {
+                        handleUploadFiles([wf.file]);
+                      },
+                      children: "Add"
+                    }
+                  ) })
+                ]
+              },
+              `${wf.name}-${idx}`
+            )),
+            watchedFiles.length > 10 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+              padding: "8px 14px",
+              fontSize: 11,
+              color: t.textMuted,
+              textAlign: "center",
+              borderTop: `1px solid ${t.border}`,
+              background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)"
+            }, children: [
+              "And ",
+              watchedFiles.length - 10,
+              " more file",
+              watchedFiles.length - 10 !== 1 ? "s" : "",
+              "..."
+            ] })
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            padding: "32px 24px",
+            textAlign: "center",
+            border: `1px dashed ${t.border}`,
+            borderRadius: 10,
+            background: darkMode ? "rgba(255,255,255,0.01)" : "rgba(0,0,0,0.01)"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(FileDocIcon, { size: 32, style: { color: t.textDim, marginBottom: 8 } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, color: t.textMuted }, children: isScanning ? "Scanning folder..." : "No files found in watched folder" }),
+            lastScanTime && !isScanning && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, color: t.textDim, marginTop: 4 }, children: [
+              "Last scanned: ",
+              lastScanTime.toLocaleTimeString()
+            ] })
+          ] })
+        ] }),
         stagedFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 24 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "div",
@@ -55440,6 +56805,22 @@ function DmsSection({ t, darkMode, addToast }) {
       addToast("Error", err.message || "Failed to update interval", 5e3, "error");
     }
   };
+  const handleUpdateScheduleDay = async (scheduleId, scheduleDay) => {
+    try {
+      await updateDmsSchedule(scheduleId, { scheduleDay });
+      setSchedules((prev) => prev.map((s) => s.id === scheduleId ? { ...s, scheduleDay } : s));
+    } catch (err) {
+      addToast("Error", err.message || "Failed to update schedule day", 5e3, "error");
+    }
+  };
+  const handleUpdateScheduleTime = async (scheduleId, scheduleTime) => {
+    try {
+      await updateDmsSchedule(scheduleId, { scheduleTime });
+      setSchedules((prev) => prev.map((s) => s.id === scheduleId ? { ...s, scheduleTime } : s));
+    } catch (err) {
+      addToast("Error", err.message || "Failed to update schedule time", 5e3, "error");
+    }
+  };
   const handleRunSchedule = async (scheduleId) => {
     try {
       const result = await runDmsSchedule(scheduleId);
@@ -55662,33 +57043,130 @@ function DmsSection({ t, darkMode, addToast }) {
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 13, fontWeight: 500, color: schedule.enabled ? t.success : t.textMuted }, children: schedule.enabled ? "Enabled" : "Disabled" })
               ] }) })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "center", gap: 24, marginBottom: 12, flexWrap: "wrap" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 12, fontWeight: 600, color: t.textMuted }, children: "Interval (minutes):" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "number",
-                  value: schedule.intervalMinutes || 0,
-                  onChange: (e) => handleUpdateInterval(schedule.id, parseInt(e.target.value) || 0),
-                  min: 0,
-                  max: 1440,
-                  disabled: !schedule.enabled,
-                  style: {
-                    width: 80,
-                    padding: "6px 10px",
-                    fontSize: 13,
-                    border: `1px solid ${t.border}`,
-                    borderRadius: 6,
-                    background: schedule.enabled ? darkMode ? "#1a1a1a" : "#fff" : darkMode ? "#2a2a2a" : "#f5f5f5",
-                    color: t.text,
-                    fontFamily: "inherit",
-                    opacity: schedule.enabled ? 1 : 0.5
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 24, marginBottom: 12, flexWrap: "wrap" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 12, fontWeight: 600, color: t.textMuted }, children: "Scheduling:" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    value: schedule.scheduleDay && schedule.scheduleTime ? "weekly" : "interval",
+                    onChange: (e) => {
+                      if (e.target.value === "weekly") {
+                        handleUpdateScheduleDay(schedule.id, "mon");
+                        handleUpdateScheduleTime(schedule.id, "09:00");
+                        handleUpdateInterval(schedule.id, 0);
+                      } else {
+                        handleUpdateScheduleDay(schedule.id, null);
+                        handleUpdateScheduleTime(schedule.id, null);
+                        handleUpdateInterval(schedule.id, 30);
+                      }
+                    },
+                    disabled: !schedule.enabled,
+                    style: {
+                      padding: "6px 10px",
+                      fontSize: 13,
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 6,
+                      background: schedule.enabled ? darkMode ? "#1a1a1a" : "#fff" : darkMode ? "#2a2a2a" : "#f5f5f5",
+                      color: t.text,
+                      fontFamily: "inherit",
+                      opacity: schedule.enabled ? 1 : 0.5,
+                      cursor: schedule.enabled ? "pointer" : "not-allowed"
+                    },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "interval", children: "Interval (minutes)" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly (day/time)" })
+                    ]
                   }
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, color: t.textMuted }, children: schedule.intervalMinutes === 0 ? "(manual only)" : "" })
-            ] }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 16, marginBottom: 12 }, children: [
+                )
+              ] }),
+              schedule.scheduleDay && schedule.scheduleTime ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 12, fontWeight: 600, color: t.textMuted }, children: "Day:" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "select",
+                    {
+                      value: schedule.scheduleDay || "mon",
+                      onChange: (e) => handleUpdateScheduleDay(schedule.id, e.target.value),
+                      disabled: !schedule.enabled,
+                      style: {
+                        padding: "6px 10px",
+                        fontSize: 13,
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 6,
+                        background: schedule.enabled ? darkMode ? "#1a1a1a" : "#fff" : darkMode ? "#2a2a2a" : "#f5f5f5",
+                        color: t.text,
+                        fontFamily: "inherit",
+                        opacity: schedule.enabled ? 1 : 0.5,
+                        cursor: schedule.enabled ? "pointer" : "not-allowed"
+                      },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sun", children: "Sunday" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "mon", children: "Monday" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tue", children: "Tuesday" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "wed", children: "Wednesday" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "thu", children: "Thursday" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "fri", children: "Friday" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sat", children: "Saturday" })
+                      ]
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 12, fontWeight: 600, color: t.textMuted }, children: "Time:" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "time",
+                      value: schedule.scheduleTime || "09:00",
+                      onChange: (e) => handleUpdateScheduleTime(schedule.id, e.target.value),
+                      disabled: !schedule.enabled,
+                      style: {
+                        width: 100,
+                        padding: "6px 10px",
+                        fontSize: 13,
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 6,
+                        background: schedule.enabled ? darkMode ? "#1a1a1a" : "#fff" : darkMode ? "#2a2a2a" : "#f5f5f5",
+                        color: t.text,
+                        fontFamily: "inherit",
+                        opacity: schedule.enabled ? 1 : 0.5
+                      }
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10, color: t.textMuted }, children: "(server time)" })
+                ] })
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 12, fontWeight: 600, color: t.textMuted }, children: "Interval:" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "number",
+                    value: schedule.intervalMinutes || 0,
+                    onChange: (e) => handleUpdateInterval(schedule.id, parseInt(e.target.value) || 0),
+                    min: 0,
+                    max: 1440,
+                    disabled: !schedule.enabled,
+                    style: {
+                      width: 80,
+                      padding: "6px 10px",
+                      fontSize: 13,
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 6,
+                      background: schedule.enabled ? darkMode ? "#1a1a1a" : "#fff" : darkMode ? "#2a2a2a" : "#f5f5f5",
+                      color: t.text,
+                      fontFamily: "inherit",
+                      opacity: schedule.enabled ? 1 : 0.5
+                    }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 11, color: t.textMuted }, children: [
+                  "minutes",
+                  schedule.intervalMinutes === 0 ? " (manual only)" : ""
+                ] })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 16, marginBottom: 12, flexWrap: "wrap" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 12, color: t.textMuted }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600 }, children: "Last run:" }),
                 " ",
@@ -55701,6 +57179,13 @@ function DmsSection({ t, darkMode, addToast }) {
                 " ",
                 schedule.lastRunCount,
                 " folders"
+              ] }),
+              schedule.scheduleDay && schedule.scheduleTime && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 12, color: "#8b5cf6" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600 }, children: "Schedule:" }),
+                " Every ",
+                schedule.scheduleDay.charAt(0).toUpperCase() + schedule.scheduleDay.slice(1),
+                " at ",
+                schedule.scheduleTime
               ] })
             ] }),
             schedule.lastRunMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
@@ -56136,6 +57621,15 @@ function AdminPage({
   const [securityLoading, setSecurityLoading] = reactExports.useState(false);
   const [securitySaving, setSecuritySaving] = reactExports.useState(false);
   const [securityMessage, setSecurityMessage] = reactExports.useState({ type: "", text: "" });
+  const [chtStatuses, setChtStatuses] = reactExports.useState([]);
+  const [chtStatusesLoading, setChtStatusesLoading] = reactExports.useState(false);
+  const [addingChtStatus, setAddingChtStatus] = reactExports.useState(false);
+  const [newChtStatusName, setNewChtStatusName] = reactExports.useState("");
+  const [newChtStatusColor, setNewChtStatusColor] = reactExports.useState("#6b7280");
+  const [editingChtStatusId, setEditingChtStatusId] = reactExports.useState(null);
+  const [editingChtStatusName, setEditingChtStatusName] = reactExports.useState("");
+  const [editingChtStatusColor, setEditingChtStatusColor] = reactExports.useState("");
+  const [savingChtStatus, setSavingChtStatus] = reactExports.useState(false);
   const editLocRef = reactExports.useRef(null);
   const addLocRef = reactExports.useRef(null);
   const editDeptRef = reactExports.useRef(null);
@@ -56292,7 +57786,68 @@ function AdminPage({
     if (adminSection === "security") {
       loadSecuritySettings();
     }
+    if (adminSection === "cht-statuses") {
+      loadChtStatuses();
+    }
   }, [adminSection]);
+  const loadChtStatuses = async () => {
+    setChtStatusesLoading(true);
+    try {
+      const data = await getCreditHoldStatuses();
+      setChtStatuses(data.statuses || []);
+    } catch (err) {
+      console.error("Failed to load CHT statuses:", err);
+    } finally {
+      setChtStatusesLoading(false);
+    }
+  };
+  const handleAddChtStatus = async () => {
+    if (!newChtStatusName.trim()) return;
+    setSavingChtStatus(true);
+    try {
+      const data = await createCreditHoldStatus(newChtStatusName.trim(), newChtStatusColor, chtStatuses.length);
+      setChtStatuses([...chtStatuses, data.status]);
+      setNewChtStatusName("");
+      setNewChtStatusColor("#6b7280");
+      setAddingChtStatus(false);
+      addToast("Status created", `Status "${newChtStatusName.trim()}" has been created`, 4e3, "create");
+    } catch (err) {
+      addToast("Error", err.message || "Failed to create status", 4e3, "error");
+    } finally {
+      setSavingChtStatus(false);
+    }
+  };
+  const handleUpdateChtStatus = async (id) => {
+    if (!editingChtStatusName.trim()) return;
+    setSavingChtStatus(true);
+    try {
+      const status = chtStatuses.find((s) => s.id === id);
+      const data = await updateCreditHoldStatus(id, editingChtStatusName.trim(), editingChtStatusColor, status.sort_order, status.is_default);
+      setChtStatuses(chtStatuses.map((s) => s.id === id ? data.status : s));
+      setEditingChtStatusId(null);
+      addToast("Status updated", `Status has been updated`, 4e3, "update");
+    } catch (err) {
+      addToast("Error", err.message || "Failed to update status", 4e3, "error");
+    } finally {
+      setSavingChtStatus(false);
+    }
+  };
+  const handleDeleteChtStatus = (status) => {
+    setWarningModal({
+      title: "Delete Status",
+      message: `Are you sure you want to delete "${status.name}"? This action cannot be undone.`,
+      onConfirm: async () => {
+        try {
+          await deleteCreditHoldStatus(status.id);
+          setChtStatuses(chtStatuses.filter((s) => s.id !== status.id));
+          addToast("Status deleted", `"${status.name}" has been deleted`, 4e3, "delete");
+        } catch (err) {
+          addToast("Error", err.message || "Failed to delete status", 4e3, "error");
+        }
+        setWarningModal(null);
+      }
+    });
+  };
   const adminActiveMenu = ADMIN_MENU.find((m) => m.id === adminSection);
   const demoUsers = adminUsers;
   const demoGroups = securityGroups.map((g) => ({
@@ -56463,30 +58018,40 @@ function AdminPage({
         ] }),
         adminSection === "app-center" && /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { primary: true, darkMode, t, onClick: () => setPage("landing"), style: { fontSize: 12 }, children: "View Landing Page" })
       ] }),
-      adminSection === "users" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: demoUsers.map((u, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "folder-row", style: { display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "12px 16px", animation: `fadeIn 0.25s ease ${i * 0.04}s both` }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, display: "flex", alignItems: "center", gap: 10 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 32, height: 32, borderRadius: "50%", background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }, children: u.name.charAt(0) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 600 }, children: u.name }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, color: t.textDim }, children: u.email })
-          ] })
+      adminSection === "users" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", padding: "8px 16px", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: t.textDim }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1 }, children: "User" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 180, textAlign: "center" }, children: "Groups" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 80, textAlign: "center" }, children: "Login Type" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 80, textAlign: "center" }, children: "Status" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 90, textAlign: "right" }, children: "Actions" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 180, display: "flex", gap: 4, flexWrap: "wrap" }, children: u.groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: g === "Administrator" ? t.accentSoft : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)", color: g === "Administrator" ? t.accent : t.textMuted }, children: g }, g)) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 80, textAlign: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: u.status === "Active" ? t.successSoft : t.errorSoft, color: u.status === "Active" ? t.success : t.error }, children: u.status }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { width: 90, display: "flex", justifyContent: "flex-end", gap: 2 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { t, title: "Set Password", onClick: () => {
-            setAdminSetPasswordUserId(u.id);
-            setAdminSetPasswordForm({ new: "", confirm: "" });
-            setAdminSetPasswordError("");
-            setAdminSetPasswordSuccess("");
-          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, { size: 12 }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { t, title: "Edit", onClick: () => {
-            setEditingUser(u);
-            setShowEditUser(true);
-          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(EditIcon, {}) }),
-          u.id !== (loggedInUser == null ? void 0 : loggedInUser.id) && /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { t, title: "Remove", onClick: () => handleDeleteUser(u), children: /* @__PURE__ */ jsxRuntimeExports.jsx(TrashIcon, { size: 12 }) })
-        ] })
-      ] }, i)) }),
+        demoUsers.map((u, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "folder-row", style: { display: "flex", alignItems: "center", background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: "12px 16px", animation: `fadeIn 0.25s ease ${i * 0.04}s both` }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, display: "flex", alignItems: "center", gap: 10 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 32, height: 32, borderRadius: "50%", background: t.accentSoft, color: t.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }, children: u.name.charAt(0) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 600 }, children: u.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, color: t.textDim }, children: u.email })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 180, display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "center" }, children: u.groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: g === "Administrator" ? t.accentSoft : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)", color: g === "Administrator" ? t.accent : t.textMuted }, children: g }, g)) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 80, textAlign: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: u.authProvider === "saml" ? darkMode ? "rgba(59,130,246,0.15)" : "rgba(59,130,246,0.1)" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)", color: u.authProvider === "saml" ? "#3b82f6" : t.textMuted }, children: u.authProvider === "saml" ? "SSO" : "Local" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 80, textAlign: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10.5, fontWeight: 600, padding: "2px 8px", borderRadius: 10, background: u.status === "Active" ? t.successSoft : t.errorSoft, color: u.status === "Active" ? t.success : t.error }, children: u.status }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { width: 90, display: "flex", justifyContent: "flex-end", gap: 2 }, children: [
+            u.authProvider !== "saml" && /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { t, title: "Set Password", onClick: () => {
+              setAdminSetPasswordUserId(u.id);
+              setAdminSetPasswordForm({ new: "", confirm: "" });
+              setAdminSetPasswordError("");
+              setAdminSetPasswordSuccess("");
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, { size: 12 }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { t, title: "Edit", onClick: () => {
+              setEditingUser(u);
+              setShowEditUser(true);
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(EditIcon, {}) }),
+            u.id !== (loggedInUser == null ? void 0 : loggedInUser.id) && /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { t, title: "Remove", onClick: () => handleDeleteUser(u), children: /* @__PURE__ */ jsxRuntimeExports.jsx(TrashIcon, { size: 12 }) })
+          ] })
+        ] }, i))
+      ] }),
       adminSection === "groups" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { animation: "fadeIn 0.25s ease" }, children: [
         addingGroup && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: t.surface, border: `1px solid ${t.accent}`, borderRadius: 12, padding: "18px 20px", marginBottom: 16, boxShadow: `0 0 0 3px ${t.accentSoft}`, animation: "fadeIn 0.2s ease" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 14, fontWeight: 700, marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }, children: [
@@ -56603,7 +58168,7 @@ function AdminPage({
                 }, style: { background: "transparent", border: "none", cursor: "pointer", color: t.error, fontSize: 11, fontWeight: 600, fontFamily: "inherit", padding: "4px 6px" }, children: "Disable All" })
               ] })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "12px 20px", borderBottom: `1px solid ${t.border}`, display: "flex", gap: 6, overflowX: "auto" }, children: ["dda", "cht", "help", "admin", "custom"].map((appId) => {
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "12px 20px", borderBottom: `1px solid ${t.border}`, display: "flex", gap: 6, overflowX: "auto" }, children: [...APP_PERMISSION_TABS, "custom"].map((appId) => {
               const app = APP_PERMISSIONS[appId];
               const isActive = permTab === appId;
               const appColor = appId === "custom" ? "#8b5cf6" : (app == null ? void 0 : app.color) || "#6b7280";
@@ -57203,7 +58768,124 @@ function AdminPage({
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: 12, flexWrap: "wrap" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { primary: true, darkMode, t, onClick: handleSaveSecurity, loading: securitySaving, style: { fontSize: 13 }, children: "Save Settings" }) })
         ] })
       ] }),
-      adminSection === "app-center" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AppCenterSection, { t, darkMode, addToast }) })
+      adminSection === "app-center" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { animation: "fadeIn 0.25s ease" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AppCenterSection, { t, darkMode, addToast }) }),
+      adminSection === "cht-statuses" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { animation: "fadeIn 0.25s ease" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { margin: 0, fontSize: 16, fontWeight: 600, color: t.text }, children: "Inquiry Decisions" }),
+          !addingChtStatus && /* @__PURE__ */ jsxRuntimeExports.jsxs(Btn, { primary: true, darkMode, t, onClick: () => setAddingChtStatus(true), style: { fontSize: 12 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(PlusIcon, { size: 13 }),
+            " Add Decision"
+          ] })
+        ] }),
+        chtStatusesLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 40, textAlign: "center", color: t.textMuted }, children: "Loading..." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden" }, children: [
+          addingChtStatus && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 16, borderBottom: `1px solid ${t.border}`, background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: newChtStatusName,
+                onChange: (e) => setNewChtStatusName(e.target.value),
+                placeholder: "Status name",
+                autoFocus: true,
+                style: {
+                  flex: 1,
+                  minWidth: 150,
+                  padding: "8px 12px",
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 6,
+                  fontSize: 13,
+                  background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                  color: t.text,
+                  outline: "none",
+                  fontFamily: "inherit"
+                }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "color",
+                value: newChtStatusColor,
+                onChange: (e) => setNewChtStatusColor(e.target.value),
+                style: { width: 36, height: 36, border: `1px solid ${t.border}`, borderRadius: 6, cursor: "pointer", padding: 2 }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { primary: true, darkMode, t, onClick: handleAddChtStatus, disabled: savingChtStatus || !newChtStatusName.trim(), style: { fontSize: 12 }, children: savingChtStatus ? "Saving..." : "Save" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { ghost: true, darkMode, t, onClick: () => {
+              setAddingChtStatus(false);
+              setNewChtStatusName("");
+              setNewChtStatusColor("#6b7280");
+            }, style: { fontSize: 12 }, children: "Cancel" })
+          ] }) }),
+          chtStatuses.length === 0 && !addingChtStatus ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 40, textAlign: "center", color: t.textMuted }, children: "No decisions configured" }) : chtStatuses.map((status, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              style: {
+                padding: "14px 16px",
+                borderBottom: idx < chtStatuses.length - 1 ? `1px solid ${t.border}` : "none",
+                display: "flex",
+                alignItems: "center",
+                gap: 12
+              },
+              children: editingChtStatusId === status.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    value: editingChtStatusName,
+                    onChange: (e) => setEditingChtStatusName(e.target.value),
+                    autoFocus: true,
+                    style: {
+                      flex: 1,
+                      padding: "8px 12px",
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 6,
+                      fontSize: 13,
+                      background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                      color: t.text,
+                      outline: "none",
+                      fontFamily: "inherit"
+                    }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "color",
+                    value: editingChtStatusColor,
+                    onChange: (e) => setEditingChtStatusColor(e.target.value),
+                    style: { width: 36, height: 36, border: `1px solid ${t.border}`, borderRadius: 6, cursor: "pointer", padding: 2 }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { primary: true, darkMode, t, onClick: () => handleUpdateChtStatus(status.id), disabled: savingChtStatus, style: { fontSize: 12 }, children: savingChtStatus ? "Saving..." : "Save" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Btn, { ghost: true, darkMode, t, onClick: () => setEditingChtStatusId(null), style: { fontSize: 12 }, children: "Cancel" })
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
+                  {
+                    style: {
+                      width: 16,
+                      height: 16,
+                      borderRadius: "50%",
+                      background: status.color || "#6b7280",
+                      flexShrink: 0
+                    }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1, fontWeight: 500, color: t.text }, children: status.name }),
+                status.is_default && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10, padding: "2px 6px", borderRadius: 4, background: t.accentSoft, color: t.accent, fontWeight: 600 }, children: "Default" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { darkMode, t, onClick: () => {
+                  setEditingChtStatusId(status.id);
+                  setEditingChtStatusName(status.name);
+                  setEditingChtStatusColor(status.color || "#6b7280");
+                }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(EditIcon, {}) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SmallBtn, { darkMode, t, onClick: () => handleDeleteChtStatus(status), style: { color: darkMode ? "#f87171" : "#ef4444" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TrashIcon, { size: 14 }) })
+              ] })
+            },
+            status.id
+          ))
+        ] })
+      ] })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       AddUserModal,
@@ -57254,35 +58936,2362 @@ function AdminPage({
     )
   ] });
 }
-function CHTDashboardPage({ loggedInUser, t, darkMode }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "calc(100vh - 54px)",
-    padding: 40
-  }, children: [
+function CHTDashboardPage({ loggedInUser, t, darkMode, openInquiryId, onInquiryOpened }) {
+  var _a2, _b, _c, _d, _e;
+  const [inquiries, setInquiries] = reactExports.useState([]);
+  const [statuses, setStatuses] = reactExports.useState([]);
+  const [users, setUsers] = reactExports.useState([]);
+  const [loading, setLoading] = reactExports.useState(false);
+  const [showModal, setShowModal] = reactExports.useState(false);
+  const [selectedInquiry, setSelectedInquiry] = reactExports.useState(null);
+  const [responses, setResponses] = reactExports.useState([]);
+  const [loadingResponses, setLoadingResponses] = reactExports.useState(false);
+  const [showStatusUpdate, setShowStatusUpdate] = reactExports.useState(false);
+  const [selectedStatusId, setSelectedStatusId] = reactExports.useState("");
+  const [responseText, setResponseText] = reactExports.useState("");
+  const [submittingResponse, setSubmittingResponse] = reactExports.useState(false);
+  const [invoiceNumber, setInvoiceNumber] = reactExports.useState("");
+  const [notes, setNotes] = reactExports.useState("");
+  const [submitting, setSubmitting] = reactExports.useState(false);
+  const [error, setError] = reactExports.useState("");
+  const [decisionFilter, setDecisionFilter] = reactExports.useState("all");
+  const [dateFilter, setDateFilter] = reactExports.useState("today");
+  const [userFilter, setUserFilter] = reactExports.useState("");
+  const [userSearch, setUserSearch] = reactExports.useState("");
+  const [showUserDropdown, setShowUserDropdown] = reactExports.useState(false);
+  const userDropdownRef = reactExports.useRef(null);
+  const [quickEditInquiryId, setQuickEditInquiryId] = reactExports.useState(null);
+  const [quickEditStatusId, setQuickEditStatusId] = reactExports.useState("");
+  const [quickEditResponse, setQuickEditResponse] = reactExports.useState("");
+  const [quickEditSubmitting, setQuickEditSubmitting] = reactExports.useState(false);
+  const [quickEditError, setQuickEditError] = reactExports.useState("");
+  const [statusUpdateError, setStatusUpdateError] = reactExports.useState("");
+  const canSubmitInquiries = (_a2 = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a2.includes("cht_inquiry_submit");
+  const canViewAllInquiries = (_b = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _b.includes("cht_inquiry_view_all");
+  const canAcceptInquiries = (_c = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _c.includes("cht_inquiry_accept");
+  const canViewOwnInquiries = (_d = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _d.includes("cht_inquiry_view");
+  const canViewInquiries = canViewOwnInquiries || canViewAllInquiries;
+  const canViewMetrics = (_e = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _e.includes("cht_view_metrics");
+  const chtAccent = "#f59e0b";
+  const chtAccentDark = "#d97706";
+  const loadInquiries = reactExports.useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getCreditHoldInquiries();
+      setInquiries(data.inquiries || []);
+    } catch (err) {
+      console.error("Failed to load inquiries:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  useSocket({
+    onChtInquiriesChanged: () => {
+      if (canViewInquiries) {
+        loadInquiries();
+      }
+    }
+  });
+  reactExports.useEffect(() => {
+    if (canViewInquiries) {
+      loadInquiries();
+      loadStatuses();
+      loadUsers();
+    }
+  }, [canViewInquiries, loadInquiries]);
+  reactExports.useEffect(() => {
+    if (openInquiryId && inquiries.length > 0) {
+      const inquiry = inquiries.find((i) => i.id === openInquiryId);
+      if (inquiry) {
+        handleSelectInquiry(inquiry);
+        if (onInquiryOpened) onInquiryOpened();
+      }
+    }
+  }, [openInquiryId, inquiries]);
+  reactExports.useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
+        setShowUserDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+  const loadStatuses = async () => {
+    try {
+      const data = await getCreditHoldStatuses();
+      setStatuses(data.statuses || []);
+    } catch (err) {
+      console.error("Failed to load statuses:", err);
+    }
+  };
+  const loadUsers = async () => {
+    try {
+      const data = await getUsers();
+      const uniqueSubmitters = /* @__PURE__ */ new Map();
+      (inquiries || []).forEach((inq) => {
+        if (inq.user_id && inq.submitted_by && !uniqueSubmitters.has(inq.user_id)) {
+          uniqueSubmitters.set(inq.user_id, { id: inq.user_id, name: inq.submitted_by });
+        }
+      });
+      if (data.users) {
+        setUsers(data.users.map((u) => ({ id: u.id, name: u.name || u.display_name || u.email })));
+      } else {
+        setUsers(Array.from(uniqueSubmitters.values()));
+      }
+    } catch (err) {
+      console.error("Failed to load users:", err);
+    }
+  };
+  const loadResponses = async (inquiryId) => {
+    setLoadingResponses(true);
+    try {
+      const data = await getCreditHoldInquiryResponses(inquiryId);
+      setResponses(data.responses || []);
+    } catch (err) {
+      console.error("Failed to load responses:", err);
+    } finally {
+      setLoadingResponses(false);
+    }
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!invoiceNumber.trim()) {
+      setError("Invoice number is required");
+      return;
+    }
+    setSubmitting(true);
+    setError("");
+    try {
+      const data = await createCreditHoldInquiry(invoiceNumber.trim(), notes.trim());
+      setInquiries((prev) => [data.inquiry, ...prev]);
+      setShowModal(false);
+      setInvoiceNumber("");
+      setNotes("");
+    } catch (err) {
+      setError(err.message || "Failed to submit inquiry");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  const handleAccept = async (inquiryId) => {
+    try {
+      const data = await acceptCreditHoldInquiry(inquiryId);
+      setInquiries(
+        (prev) => prev.map((inq) => inq.id === inquiryId ? data.inquiry : inq)
+      );
+      if ((selectedInquiry == null ? void 0 : selectedInquiry.id) === inquiryId) {
+        setSelectedInquiry(data.inquiry);
+      }
+    } catch (err) {
+      console.error("Failed to accept inquiry:", err);
+    }
+  };
+  const handleStatusUpdate = async () => {
+    if (!selectedStatusId || !responseText.trim()) return;
+    setSubmittingResponse(true);
+    setStatusUpdateError("");
+    try {
+      const data = await respondToCreditHoldInquiry(selectedInquiry.id, selectedStatusId, responseText);
+      setInquiries(
+        (prev) => prev.map((inq) => inq.id === selectedInquiry.id ? data.inquiry : inq)
+      );
+      setSelectedInquiry(data.inquiry);
+      await loadResponses(selectedInquiry.id);
+      setShowStatusUpdate(false);
+      setSelectedStatusId("");
+      setResponseText("");
+    } catch (err) {
+      console.error("Failed to update status:", err);
+      setStatusUpdateError(err.message || "Failed to update decision. This inquiry may have already been finalized.");
+    } finally {
+      setSubmittingResponse(false);
+    }
+  };
+  const handleSelectInquiry = (inquiry) => {
+    setSelectedInquiry(inquiry);
+    setResponses([]);
+    setShowStatusUpdate(false);
+    setSelectedStatusId("");
+    setResponseText("");
+    setStatusUpdateError("");
+    setQuickEditError("");
+    if (canAcceptInquiries || canViewAllInquiries) {
+      loadResponses(inquiry.id);
+    }
+  };
+  const handleQuickEditDecision = async () => {
+    if (!quickEditInquiryId || !quickEditStatusId) return;
+    setQuickEditSubmitting(true);
+    setQuickEditError("");
+    try {
+      const data = await respondToCreditHoldInquiry(quickEditInquiryId, quickEditStatusId, quickEditResponse);
+      setInquiries(
+        (prev) => prev.map((inq) => inq.id === quickEditInquiryId ? data.inquiry : inq)
+      );
+      setQuickEditInquiryId(null);
+      setQuickEditStatusId("");
+      setQuickEditResponse("");
+    } catch (err) {
+      console.error("Failed to update decision:", err);
+      setQuickEditError(err.message || "Failed to update decision. This inquiry may have already been finalized.");
+    } finally {
+      setQuickEditSubmitting(false);
+    }
+  };
+  const handleQuickAssign = async (inquiryId, e) => {
+    e.stopPropagation();
+    try {
+      const data = await acceptCreditHoldInquiry(inquiryId);
+      setInquiries(
+        (prev) => prev.map((inq) => inq.id === inquiryId ? data.inquiry : inq)
+      );
+    } catch (err) {
+      console.error("Failed to assign inquiry:", err);
+    }
+  };
+  const getFilteredInquiries = () => {
+    let filtered = canViewAllInquiries ? [...inquiries] : inquiries.filter((i) => i.submitted_by === (loggedInUser == null ? void 0 : loggedInUser.name) || i.user_id === (loggedInUser == null ? void 0 : loggedInUser.id));
+    if (decisionFilter && decisionFilter !== "all") {
+      filtered = filtered.filter((i) => String(i.status_id) === decisionFilter);
+    }
+    const now = /* @__PURE__ */ new Date();
+    if (dateFilter === "today") {
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      filtered = filtered.filter((i) => new Date(i.created_at) >= today);
+    } else if (dateFilter === "month") {
+      const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      filtered = filtered.filter((i) => new Date(i.created_at) >= firstOfMonth);
+    } else if (dateFilter === "year") {
+      const firstOfYear = new Date(now.getFullYear(), 0, 1);
+      filtered = filtered.filter((i) => new Date(i.created_at) >= firstOfYear);
+    }
+    if (userFilter) {
+      filtered = filtered.filter((i) => i.user_id === userFilter);
+    }
+    return filtered;
+  };
+  const filteredInquiries = getFilteredInquiries();
+  const getStatusColor = (statusColor) => {
+    return statusColor || (darkMode ? "#6b7280" : "#9ca3af");
+  };
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+  };
+  const formatDateTime = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  };
+  const formatTimeToClose = (createdAt, decisionAt) => {
+    if (!decisionAt) return null;
+    const start = new Date(createdAt);
+    const end = new Date(decisionAt);
+    const diffMs = end - start;
+    const diffSeconds = Math.floor(diffMs / 1e3);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays > 0) {
+      const remainingHours = diffHours % 24;
+      const remainingMinutes = diffMinutes % 60;
+      const remainingSeconds = diffSeconds % 60;
+      if (remainingHours > 0 && remainingMinutes > 0) {
+        return `${diffDays}d ${remainingHours}h ${remainingMinutes}m ${remainingSeconds}s`;
+      } else if (remainingHours > 0) {
+        return `${diffDays}d ${remainingHours}h ${remainingSeconds}s`;
+      } else if (remainingMinutes > 0) {
+        return `${diffDays}d ${remainingMinutes}m ${remainingSeconds}s`;
+      }
+      return `${diffDays}d ${remainingSeconds}s`;
+    }
+    if (diffHours > 0) {
+      const remainingMinutes = diffMinutes % 60;
+      const remainingSeconds = diffSeconds % 60;
+      return `${diffHours}h ${remainingMinutes}m ${remainingSeconds}s`;
+    }
+    if (diffMinutes > 0) {
+      const remainingSeconds = diffSeconds % 60;
+      return `${diffMinutes}m ${remainingSeconds}s`;
+    }
+    return `${diffSeconds}s`;
+  };
+  const getStatusBadge = (statusName, statusColor) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+    fontSize: 11,
+    fontWeight: 600,
+    padding: "3px 8px",
+    borderRadius: 6,
+    background: getStatusColor(statusColor) + "20",
+    color: getStatusColor(statusColor),
+    whiteSpace: "nowrap"
+  }, children: statusName || "Pending" });
+  const filteredUsers = users.filter(
+    (u) => {
+      var _a3;
+      return (_a3 = u.name) == null ? void 0 : _a3.toLowerCase().includes(userSearch.toLowerCase());
+    }
+  );
+  const getSelectedUserName = () => {
+    if (!userFilter) return "All Users";
+    const user = users.find((u) => u.id === userFilter);
+    return (user == null ? void 0 : user.name) || "All Users";
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: `
+        .inquiry-row { transition: background 0.1s ease; cursor: pointer; }
+        .inquiry-row:hover { background: ${darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)"}; }
+      ` }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, overflow: "auto", padding: 24 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: 1100, margin: "0 auto" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { fontSize: 20, fontWeight: 600, margin: 0, color: t.text }, children: "Credit Hold Inquiry" }),
+        canSubmitInquiries && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => setShowModal(true),
+            style: {
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "8px 14px",
+              background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+              border: "none",
+              borderRadius: 8,
+              color: "white",
+              fontWeight: 600,
+              fontSize: 13,
+              cursor: "pointer",
+              fontFamily: "inherit"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(PlusIcon, { size: 14 }),
+              " New Inquiry"
+            ]
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Decision" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: decisionFilter,
+              onChange: (e) => setDecisionFilter(e.target.value),
+              style: {
+                padding: "8px 12px",
+                border: `1px solid ${t.border}`,
+                borderRadius: 6,
+                fontSize: 13,
+                background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                color: t.text,
+                outline: "none",
+                fontFamily: "inherit",
+                minWidth: 140
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: "All Decisions" }),
+                statuses.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: s.id, children: s.name }, s.id))
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 4 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Date" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: dateFilter,
+              onChange: (e) => setDateFilter(e.target.value),
+              style: {
+                padding: "8px 12px",
+                border: `1px solid ${t.border}`,
+                borderRadius: 6,
+                fontSize: 13,
+                background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                color: t.text,
+                outline: "none",
+                fontFamily: "inherit",
+                minWidth: 120
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: "All Time" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "today", children: "Today" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "month", children: "This Month" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "year", children: "This Year" })
+              ]
+            }
+          )
+        ] }),
+        canViewAllInquiries && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 4, position: "relative" }, ref: userDropdownRef, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Submitted By" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              onClick: () => setShowUserDropdown(!showUserDropdown),
+              style: {
+                padding: "8px 12px",
+                border: `1px solid ${t.border}`,
+                borderRadius: 6,
+                fontSize: 13,
+                background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                color: t.text,
+                fontFamily: "inherit",
+                minWidth: 180,
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, children: getSelectedUserName() }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, {})
+              ]
+            }
+          ),
+          showUserDropdown && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            marginTop: 4,
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: 8,
+            boxShadow: darkMode ? "0 8px 24px rgba(0,0,0,0.4)" : "0 8px 24px rgba(0,0,0,0.15)",
+            zIndex: 100,
+            maxHeight: 280,
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 8, borderBottom: `1px solid ${t.border}` }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  placeholder: "Search users...",
+                  value: userSearch,
+                  onChange: (e) => setUserSearch(e.target.value),
+                  style: {
+                    width: "100%",
+                    padding: "6px 8px 6px 28px",
+                    border: `1px solid ${t.border}`,
+                    borderRadius: 6,
+                    fontSize: 12,
+                    background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                    color: t.text,
+                    outline: "none",
+                    fontFamily: "inherit"
+                  }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", color: t.textMuted }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SearchIcon, { size: 14 }) })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { overflow: "auto", flex: 1 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  onClick: () => {
+                    setUserFilter("");
+                    setShowUserDropdown(false);
+                    setUserSearch("");
+                  },
+                  style: {
+                    padding: "8px 12px",
+                    cursor: "pointer",
+                    fontSize: 13,
+                    background: !userFilter ? t.accentSoft : "transparent",
+                    color: !userFilter ? chtAccent : t.text,
+                    fontWeight: !userFilter ? 600 : 400
+                  },
+                  children: "All Users"
+                }
+              ),
+              filteredUsers.map((user) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  onClick: () => {
+                    setUserFilter(user.id);
+                    setShowUserDropdown(false);
+                    setUserSearch("");
+                  },
+                  style: {
+                    padding: "8px 12px",
+                    cursor: "pointer",
+                    fontSize: 13,
+                    background: userFilter === user.id ? t.accentSoft : "transparent",
+                    color: userFilter === user.id ? chtAccent : t.text,
+                    fontWeight: userFilter === user.id ? 600 : 400
+                  },
+                  children: user.name
+                },
+                user.id
+              )),
+              filteredUsers.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 12, color: t.textMuted, fontSize: 12, textAlign: "center" }, children: "No users found" })
+            ] })
+          ] })
+        ] }),
+        (decisionFilter !== "all" || dateFilter !== "all" || userFilter) && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "flex-end" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => {
+              setDecisionFilter("all");
+              setDateFilter("all");
+              setUserFilter("");
+            },
+            style: {
+              padding: "8px 12px",
+              border: `1px solid ${t.border}`,
+              borderRadius: 6,
+              fontSize: 12,
+              background: "transparent",
+              color: t.textMuted,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              whiteSpace: "nowrap"
+            },
+            children: "Clear Filters"
+          }
+        ) })
+      ] }),
+      loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: 60, color: t.textMuted }, children: "Loading..." }) : filteredInquiries.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        textAlign: "center",
+        padding: 80,
+        color: t.textMuted,
+        background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+        borderRadius: 12
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 48, marginBottom: 16 }, children: "📋" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: 15 }, children: "No inquiries found" })
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: t.surface, border: `1px solid ${t.border}`, borderRadius: 12, overflow: "hidden", minHeight: 1144 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          display: "grid",
+          gridTemplateColumns: canViewMetrics ? "1fr 120px 120px 120px 80px 100px" : "1fr 120px 120px 120px 100px",
+          gap: 12,
+          padding: "12px 16px",
+          borderBottom: `1px solid ${t.border}`,
+          fontSize: 11,
+          fontWeight: 600,
+          color: t.textDim,
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "Invoice Number" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "Decision" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "Submitted By" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "Submitted" }),
+          canViewMetrics && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "Time to Close" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "right" }, children: "Assigned To" })
+        ] }),
+        filteredInquiries.map((inquiry, idx) => {
+          const isLocked = inquiry.decision_at !== null;
+          const showDropdownAbove = idx >= 4;
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "inquiry-row",
+              style: {
+                display: "grid",
+                gridTemplateColumns: canViewMetrics ? "1fr 120px 120px 120px 80px 100px" : "1fr 120px 120px 120px 100px",
+                gap: 12,
+                padding: "14px 16px",
+                borderBottom: idx < filteredInquiries.length - 1 ? `1px solid ${t.border}` : "none",
+                alignItems: "center"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600, color: t.text }, children: inquiry.invoice_number }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { onClick: (e) => e.stopPropagation(), children: canAcceptInquiries && !isLocked ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      onClick: (e) => {
+                        e.stopPropagation();
+                        setQuickEditInquiryId(quickEditInquiryId === inquiry.id ? null : inquiry.id);
+                        setQuickEditStatusId(String(inquiry.status_id || ""));
+                        setQuickEditResponse("");
+                      },
+                      style: {
+                        background: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4
+                      },
+                      children: [
+                        getStatusBadge(inquiry.status_name, inquiry.status_color),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { size: 12, style: { color: t.textMuted } })
+                      ]
+                    }
+                  ),
+                  quickEditInquiryId === inquiry.id && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "div",
+                    {
+                      onClick: (e) => e.stopPropagation(),
+                      style: {
+                        position: "absolute",
+                        bottom: showDropdownAbove ? "100%" : "auto",
+                        top: showDropdownAbove ? "auto" : "100%",
+                        left: 0,
+                        marginBottom: showDropdownAbove ? 4 : 0,
+                        marginTop: showDropdownAbove ? 0 : 4,
+                        background: t.surface,
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 8,
+                        boxShadow: darkMode ? "0 8px 24px rgba(0,0,0,0.4)" : "0 8px 24px rgba(0,0,0,0.15)",
+                        zIndex: 200,
+                        minWidth: 200,
+                        padding: 8
+                      },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: t.textMuted, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Change Decision" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "select",
+                          {
+                            value: quickEditStatusId,
+                            onChange: (e) => setQuickEditStatusId(e.target.value),
+                            style: {
+                              width: "100%",
+                              padding: "6px 8px",
+                              border: `1px solid ${t.border}`,
+                              borderRadius: 6,
+                              fontSize: 12,
+                              background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                              color: t.text,
+                              outline: "none",
+                              fontFamily: "inherit",
+                              marginBottom: 8
+                            },
+                            children: statuses.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: s.id, children: s.name }, s.id))
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "textarea",
+                          {
+                            placeholder: "Add response (optional)...",
+                            value: quickEditResponse,
+                            onChange: (e) => setQuickEditResponse(e.target.value),
+                            rows: 2,
+                            style: {
+                              width: "100%",
+                              padding: "6px 8px",
+                              border: `1px solid ${t.border}`,
+                              borderRadius: 6,
+                              fontSize: 12,
+                              background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                              color: t.text,
+                              outline: "none",
+                              fontFamily: "inherit",
+                              resize: "vertical",
+                              marginBottom: 8,
+                              boxSizing: "border-box"
+                            }
+                          }
+                        ),
+                        quickEditError && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, color: t.error, marginBottom: 8 }, children: quickEditError }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 6 }, children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "button",
+                            {
+                              onClick: () => {
+                                setQuickEditInquiryId(null);
+                                setQuickEditStatusId("");
+                                setQuickEditResponse("");
+                              },
+                              style: {
+                                flex: 1,
+                                padding: "6px 10px",
+                                background: "transparent",
+                                border: `1px solid ${t.border}`,
+                                borderRadius: 6,
+                                color: t.textMuted,
+                                fontSize: 12,
+                                cursor: "pointer",
+                                fontFamily: "inherit"
+                              },
+                              children: "Cancel"
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "button",
+                            {
+                              onClick: handleQuickEditDecision,
+                              disabled: !quickEditStatusId || quickEditSubmitting,
+                              style: {
+                                flex: 1,
+                                padding: "6px 10px",
+                                background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+                                border: "none",
+                                borderRadius: 6,
+                                color: "white",
+                                fontSize: 12,
+                                fontWeight: 600,
+                                cursor: quickEditSubmitting || !quickEditStatusId ? "not-allowed" : "pointer",
+                                fontFamily: "inherit",
+                                opacity: !quickEditStatusId ? 0.5 : 1
+                              },
+                              children: quickEditSubmitting ? "Saving..." : "Save"
+                            }
+                          )
+                        ] })
+                      ]
+                    }
+                  )
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 4 }, children: [
+                  getStatusBadge(inquiry.status_name, inquiry.status_color),
+                  isLocked && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 10, color: t.textDim, marginLeft: 2 }, children: "🔒" })
+                ] }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, color: t.textMuted }, children: inquiry.submitted_by }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, color: t.textMuted }, children: formatDate(inquiry.created_at) }),
+                canViewMetrics && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, color: t.textMuted }, children: formatTimeToClose(inquiry.created_at, inquiry.decision_at) || "—" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, textAlign: "right" }, children: inquiry.assigned_to_name ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: t.text }, children: inquiry.assigned_to_name }) : canAcceptInquiries && !isLocked ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: (e) => handleQuickAssign(inquiry.id, e),
+                    style: {
+                      padding: "4px 8px",
+                      background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+                      border: "none",
+                      borderRadius: 4,
+                      color: "white",
+                      fontSize: 10,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      whiteSpace: "nowrap"
+                    },
+                    children: "Assign to Me"
+                  }
+                ) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: t.textMuted }, children: "—" }) })
+              ]
+            },
+            inquiry.id
+          );
+        })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: 12, fontSize: 12, color: t.textMuted }, children: [
+        "Showing ",
+        filteredInquiries.length,
+        " of ",
+        inquiries.length,
+        " inquiries"
+      ] })
+    ] }) }),
+    showModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        style: {
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1e3
+        },
+        onClick: () => !submitting && setShowModal(false),
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            style: {
+              background: t.surface,
+              borderRadius: 12,
+              width: "100%",
+              maxWidth: 440,
+              boxShadow: darkMode ? "0 20px 50px rgba(0,0,0,0.5)" : "0 20px 50px rgba(0,0,0,0.2)"
+            },
+            onClick: (e) => e.stopPropagation(),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "16px 20px",
+                borderBottom: `1px solid ${t.border}`
+              }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { margin: 0, fontSize: 16, fontWeight: 600, color: t.text }, children: "New Credit Hold Inquiry" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => !submitting && setShowModal(false),
+                    style: {
+                      background: "transparent",
+                      border: "none",
+                      cursor: submitting ? "not-allowed" : "pointer",
+                      color: t.textMuted,
+                      padding: 4,
+                      opacity: submitting ? 0.5 : 1
+                    },
+                    disabled: submitting,
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { size: 18 })
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 20 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: {
+                    display: "block",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: t.textMuted,
+                    marginBottom: 6
+                  }, children: "Invoice Number *" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "text",
+                      value: invoiceNumber,
+                      onChange: (e) => setInvoiceNumber(e.target.value),
+                      placeholder: "Enter invoice number",
+                      autoFocus: true,
+                      style: {
+                        width: "100%",
+                        padding: "10px 12px",
+                        border: `1px solid ${error && !invoiceNumber.trim() ? t.error : t.border}`,
+                        borderRadius: 8,
+                        fontSize: 14,
+                        background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                        color: t.text,
+                        outline: "none",
+                        fontFamily: "inherit",
+                        boxSizing: "border-box"
+                      },
+                      disabled: submitting
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: {
+                    display: "block",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: t.textMuted,
+                    marginBottom: 6
+                  }, children: "Notes" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "textarea",
+                    {
+                      value: notes,
+                      onChange: (e) => setNotes(e.target.value),
+                      placeholder: "Additional details (optional)",
+                      rows: 4,
+                      style: {
+                        width: "100%",
+                        padding: "10px 12px",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 8,
+                        fontSize: 14,
+                        background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                        color: t.text,
+                        outline: "none",
+                        fontFamily: "inherit",
+                        resize: "vertical",
+                        boxSizing: "border-box"
+                      },
+                      disabled: submitting
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: {
+                    display: "block",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: t.textMuted,
+                    marginBottom: 6
+                  }, children: "Submitted By" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                    padding: "10px 12px",
+                    background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                    borderRadius: 8,
+                    fontSize: 14,
+                    color: t.text
+                  }, children: (loggedInUser == null ? void 0 : loggedInUser.name) || "Unknown User" })
+                ] }),
+                error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                  padding: "10px 12px",
+                  background: darkMode ? "rgba(239,68,68,0.1)" : "rgba(239,68,68,0.1)",
+                  border: `1px solid ${t.error}`,
+                  borderRadius: 8,
+                  color: t.error,
+                  fontSize: 13,
+                  marginBottom: 16
+                }, children: error })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 10,
+                padding: "16px 20px",
+                borderTop: `1px solid ${t.border}`
+              }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => !submitting && setShowModal(false),
+                    style: {
+                      padding: "8px 16px",
+                      background: "transparent",
+                      border: `1px solid ${t.border}`,
+                      borderRadius: 8,
+                      color: t.textMuted,
+                      fontSize: 13,
+                      fontWeight: 500,
+                      cursor: submitting ? "not-allowed" : "pointer",
+                      fontFamily: "inherit",
+                      opacity: submitting ? 0.5 : 1
+                    },
+                    disabled: submitting,
+                    children: "Cancel"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "submit",
+                    style: {
+                      padding: "8px 16px",
+                      background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+                      border: "none",
+                      borderRadius: 8,
+                      color: "white",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: submitting ? "not-allowed" : "pointer",
+                      fontFamily: "inherit",
+                      opacity: submitting ? 0.7 : 1
+                    },
+                    disabled: submitting,
+                    children: submitting ? "Submitting..." : "Submit Inquiry"
+                  }
+                )
+              ] })
+            ] })
+          }
+        )
+      }
+    ),
+    selectedInquiry && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        style: {
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1e3
+        },
+        onClick: () => setSelectedInquiry(null),
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            style: {
+              background: t.surface,
+              borderRadius: 12,
+              width: "100%",
+              maxWidth: 560,
+              maxHeight: "90vh",
+              overflow: "auto",
+              boxShadow: darkMode ? "0 20px 50px rgba(0,0,0,0.5)" : "0 20px 50px rgba(0,0,0,0.2)"
+            },
+            onClick: (e) => e.stopPropagation(),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                padding: 20,
+                borderBottom: `1px solid ${t.border}`
+              }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { margin: 0, fontSize: 18, fontWeight: 600, color: t.text }, children: selectedInquiry.invoice_number }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: 8 }, children: getStatusBadge(selectedInquiry.status_name, selectedInquiry.status_color) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: () => setSelectedInquiry(null),
+                    style: {
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      color: t.textMuted,
+                      padding: 4
+                    },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { size: 20 })
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 20 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Submitted By" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, color: t.text }, children: selectedInquiry.submitted_by })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Submitted On" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, color: t.text }, children: formatDateTime(selectedInquiry.created_at) })
+                  ] })
+                ] }),
+                selectedInquiry.assigned_to_name && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Assigned To" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, color: t.text }, children: selectedInquiry.assigned_to_name })
+                ] }),
+                selectedInquiry.notes && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Notes" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                    fontSize: 14,
+                    color: t.text,
+                    padding: 12,
+                    background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                    borderRadius: 8,
+                    whiteSpace: "pre-wrap"
+                  }, children: selectedInquiry.notes })
+                ] }),
+                canAcceptInquiries && showStatusUpdate && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16, padding: 16, background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)", borderRadius: 8 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 12 }, children: "Update Decision" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 12 }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 11, fontWeight: 600, color: t.textMuted, marginBottom: 4, display: "block" }, children: "New Decision *" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        value: selectedStatusId,
+                        onChange: (e) => setSelectedStatusId(e.target.value),
+                        style: {
+                          width: "100%",
+                          padding: "8px 12px",
+                          border: `1px solid ${t.border}`,
+                          borderRadius: 6,
+                          fontSize: 13,
+                          background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                          color: t.text,
+                          outline: "none",
+                          fontFamily: "inherit"
+                        },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "Select decision..." }),
+                          statuses.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: s.id, children: s.name }, s.id))
+                        ]
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 12 }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: 11, fontWeight: 600, color: t.textMuted, marginBottom: 4, display: "block" }, children: "Response" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "textarea",
+                      {
+                        value: responseText,
+                        onChange: (e) => setResponseText(e.target.value),
+                        placeholder: "Enter your response (optional)...",
+                        rows: 3,
+                        style: {
+                          width: "100%",
+                          padding: "8px 12px",
+                          border: `1px solid ${t.border}`,
+                          borderRadius: 6,
+                          fontSize: 13,
+                          background: darkMode ? "rgba(255,255,255,0.05)" : "#fff",
+                          color: t.text,
+                          outline: "none",
+                          fontFamily: "inherit",
+                          resize: "vertical",
+                          boxSizing: "border-box"
+                        }
+                      }
+                    )
+                  ] }),
+                  statusUpdateError && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginBottom: 12, padding: "8px 12px", background: darkMode ? "rgba(239,68,68,0.1)" : "rgba(239,68,68,0.1)", border: `1px solid ${t.error}`, borderRadius: 6, color: t.error, fontSize: 12 }, children: statusUpdateError }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: 8 }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        onClick: handleStatusUpdate,
+                        disabled: !selectedStatusId || submittingResponse,
+                        style: {
+                          padding: "8px 16px",
+                          background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+                          border: "none",
+                          borderRadius: 6,
+                          color: "white",
+                          fontSize: 13,
+                          fontWeight: 600,
+                          cursor: submittingResponse ? "not-allowed" : "pointer",
+                          fontFamily: "inherit",
+                          opacity: !selectedStatusId ? 0.5 : 1
+                        },
+                        children: submittingResponse ? "Updating..." : "Update Decision"
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        onClick: () => {
+                          setShowStatusUpdate(false);
+                          setSelectedStatusId("");
+                          setResponseText("");
+                        },
+                        style: {
+                          padding: "8px 16px",
+                          background: "transparent",
+                          border: `1px solid ${t.border}`,
+                          borderRadius: 6,
+                          color: t.textMuted,
+                          fontSize: 13,
+                          fontWeight: 500,
+                          cursor: "pointer",
+                          fontFamily: "inherit"
+                        },
+                        children: "Cancel"
+                      }
+                    )
+                  ] })
+                ] }),
+                responses.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }, children: "Response History" }),
+                  loadingResponses ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: t.textMuted, fontSize: 13 }, children: "Loading..." }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 12 }, children: responses.map((r) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 12, background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)", borderRadius: 8 }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 600, color: t.text }, children: r.user_name }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                        r.status_name && getStatusBadge(r.status_name, r.status_color),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 11, color: t.textMuted }, children: formatDateTime(r.created_at) })
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, color: t.text, whiteSpace: "pre-wrap" }, children: r.response })
+                  ] }, r.id)) })
+                ] }),
+                canAcceptInquiries && !selectedInquiry.assigned_to && !showStatusUpdate && !selectedInquiry.decision_at && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: () => handleAccept(selectedInquiry.id),
+                    style: {
+                      width: "100%",
+                      padding: "12px 16px",
+                      background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+                      border: "none",
+                      borderRadius: 8,
+                      color: "white",
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      marginTop: 8
+                    },
+                    children: "Accept & Assign to Me"
+                  }
+                ),
+                canAcceptInquiries && selectedInquiry.assigned_to && !showStatusUpdate && !selectedInquiry.decision_at && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: () => setShowStatusUpdate(true),
+                    style: {
+                      width: "100%",
+                      padding: "12px 16px",
+                      background: "transparent",
+                      border: `1px solid ${chtAccent}`,
+                      borderRadius: 8,
+                      color: chtAccent,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      marginTop: 8
+                    },
+                    children: "Update Decision"
+                  }
+                ),
+                selectedInquiry.decision_at && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: 16, padding: 12, background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)", borderRadius: 8, textAlign: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, color: t.textMuted }, children: "This inquiry has been finalized and cannot be modified." }) })
+              ] })
+            ]
+          }
+        )
+      }
+    )
+  ] });
+}
+function DCVPage({ t, darkMode, selectedCustomer, setPage, setActiveFolderId, initialRepairOrderSlsId, setInitialRepairOrderSlsId, initialTab = "timeline", setSelectedFile, setViewingFileId }) {
+  var _a2, _b, _c, _d;
+  const theme = getTheme(darkMode);
+  const [activeTab, setActiveTab] = reactExports.useState(initialTab);
+  const [timeline, setTimeline] = reactExports.useState([]);
+  const [timelineLoading, setTimelineLoading] = reactExports.useState(false);
+  const [timelinePage, setTimelinePage] = reactExports.useState(1);
+  const [timelineTotalPages, setTimelineTotalPages] = reactExports.useState(1);
+  const [timelineTotal, setTimelineTotal] = reactExports.useState(0);
+  const [timelineFilter, setTimelineFilter] = reactExports.useState(null);
+  const [repairOrders, setRepairOrders] = reactExports.useState([]);
+  const [serviceLoading, setServiceLoading] = reactExports.useState(false);
+  const [servicePage, setServicePage] = reactExports.useState(1);
+  const [serviceTotalPages, setServiceTotalPages] = reactExports.useState(1);
+  const [serviceTotal, setServiceTotal] = reactExports.useState(0);
+  const [serviceFilter, setServiceFilter] = reactExports.useState(null);
+  const [serviceSearch, setServiceSearch] = reactExports.useState("");
+  const [selectedRepairOrder, setSelectedRepairOrder] = reactExports.useState(null);
+  const [vinDetails, setVinDetails] = reactExports.useState(null);
+  const [vinLoading, setVinLoading] = reactExports.useState(false);
+  const pageSize = 20;
+  const customer = selectedCustomer;
+  reactExports.useEffect(() => {
+    if (customer && activeTab === "timeline") {
+      setTimelineLoading(true);
+      getDcvCustomerTimeline(customer.id, timelinePage, pageSize, timelineFilter).then((data) => {
+        setTimeline(data.events || []);
+        setTimelineTotal(data.total || 0);
+        setTimelineTotalPages(data.totalPages || 1);
+      }).catch(console.error).finally(() => setTimelineLoading(false));
+    }
+  }, [customer, activeTab, timelinePage, timelineFilter]);
+  reactExports.useEffect(() => {
+    if (customer && activeTab === "service") {
+      setServiceLoading(true);
+      getDcvRepairOrders(customer.id, servicePage, pageSize, serviceFilter, serviceSearch).then((data) => {
+        setRepairOrders(data.repairOrders || []);
+        setServiceTotal(data.total || 0);
+        setServiceTotalPages(data.totalPages || 1);
+      }).catch(console.error).finally(() => setServiceLoading(false));
+    }
+  }, [customer, activeTab, servicePage, serviceFilter, serviceSearch]);
+  reactExports.useEffect(() => {
+    if (customer) {
+      setTimelinePage(1);
+      setServicePage(1);
+      setSelectedRepairOrder(null);
+      setVinDetails(null);
+      setServiceSearch("");
+    }
+  }, [customer]);
+  reactExports.useEffect(() => {
+    if (initialRepairOrderSlsId && customer && activeTab === "service" && repairOrders.length > 0) {
+      const matchingRO = repairOrders.find((ro) => ro.slsId === initialRepairOrderSlsId);
+      if (matchingRO) {
+        setSelectedRepairOrder(matchingRO);
+        setInitialRepairOrderSlsId(null);
+      }
+    }
+  }, [initialRepairOrderSlsId, customer, activeTab, repairOrders, setInitialRepairOrderSlsId]);
+  reactExports.useEffect(() => {
+    setTimelinePage(1);
+  }, [timelineFilter]);
+  reactExports.useEffect(() => {
+    setServicePage(1);
+  }, [serviceFilter]);
+  reactExports.useEffect(() => {
+    setServicePage(1);
+  }, [serviceSearch]);
+  reactExports.useEffect(() => {
+    if (selectedRepairOrder && selectedRepairOrder.vin) {
+      setVinLoading(true);
+      getDcvVinLookup(selectedRepairOrder.vin).then((data) => {
+        setVinDetails(data);
+      }).catch((err) => {
+        console.error("[DCV] VIN lookup error:", err);
+        setVinDetails({ error: "Failed to decode VIN" });
+      }).finally(() => setVinLoading(false));
+    } else {
+      setVinDetails(null);
+    }
+  }, [selectedRepairOrder]);
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "N/A";
+    return date.toLocaleDateString(void 0, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  };
+  const formatAddress = (addr1, addr2, city, state, post) => {
+    const parts2 = [addr1, addr2, city, state, post].filter(Boolean);
+    return parts2.length > 0 ? parts2.join(", ") : "N/A";
+  };
+  const formatPhoneForTel = (phone) => {
+    if (!phone) return null;
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 10) {
+      return `+1${digits}`;
+    } else if (digits.length === 11 && digits.startsWith("1")) {
+      return `+${digits}`;
+    }
+    return `+1${digits}`;
+  };
+  const openGoogleMaps = (addr1, addr2, city, state, post) => {
+    const parts2 = [addr1, addr2, city, state, post].filter(Boolean);
+    if (parts2.length === 0) return;
+    const address = parts2.join(", ");
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, "_blank");
+  };
+  const tabs = [
+    { id: "timeline", label: "Timeline" },
+    { id: "service", label: "Service" },
+    { id: "parts", label: "Parts" }
+  ];
+  const filterOptions = [
+    { id: null, label: "All Time" },
+    { id: "day", label: "Last 24 Hours" },
+    { id: "month", label: "Last Month" },
+    { id: "year", label: "Last Year" }
+  ];
+  const getEventIcon = (type) => {
+    switch (type) {
+      case "folder_created":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(FolderIcon, { size: 16 });
+      case "file_uploaded":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(FileIcon, { size: 16 });
+      default:
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(ClockIcon, { size: 16 });
+    }
+  };
+  const getEventColor = (type) => {
+    switch (type) {
+      case "folder_created":
+        return "#0891b2";
+      case "file_uploaded":
+        return "#10b981";
+      default:
+        return "#8b5cf6";
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", minHeight: "calc(100vh - 55px)", marginTop: 55, background: darkMode ? "#0d1117" : "#f6f8fa" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-      width: 80,
-      height: 80,
-      borderRadius: 20,
-      background: "linear-gradient(135deg,#f59e0b,#d97706)",
+      width: 360,
+      minWidth: 360,
+      borderRight: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
+      background: darkMode ? "rgba(15,17,20,0.95)" : "#fff",
+      overflowY: "auto",
+      flexShrink: 0
+    }, children: customer ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 20 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          width: 56,
+          height: 56,
+          borderRadius: "50%",
+          background: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          fontSize: 20,
+          fontWeight: 700,
+          flexShrink: 0
+        }, children: ((_b = (_a2 = customer.name) == null ? void 0 : _a2.charAt(0)) == null ? void 0 : _b.toUpperCase()) || "C" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 18, fontWeight: 700, color: theme.text, marginBottom: 4 }, children: customer.name || "Unknown Customer" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 13, color: theme.textMuted, display: "flex", alignItems: "center", gap: 6 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CreditCardIcon, { size: 12 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: customer.cusId || "No ID" })
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }, children: "Customer ID" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, color: theme.text, fontFamily: "monospace", background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)", padding: "8px 12px", borderRadius: 6, border: `1px solid ${theme.border}` }, children: customer.cusId || "N/A" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }, children: "Name" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, color: theme.text }, children: customer.name || "N/A" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MapPinIcon, { size: 12, style: { marginRight: 4, verticalAlign: "middle" } }),
+          "Address"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            onClick: () => openGoogleMaps(customer.addr1, customer.addr2, customer.city, customer.state, customer.post),
+            style: { fontSize: 14, color: theme.text, lineHeight: 1.6, cursor: "pointer", textDecoration: "underline", textDecorationColor: darkMode ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)" },
+            children: formatAddress(customer.addr1, customer.addr2, customer.city, customer.state, customer.post)
+          }
+        ),
+        customer.county && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, color: theme.textMuted, marginTop: 4 }, children: customer.county })
+      ] }),
+      (customer.phoneHome || customer.phoneWork || customer.phoneOther) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(PhoneIcon, { size: 12, style: { marginRight: 4, verticalAlign: "middle" } }),
+          "Phone Numbers"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 6 }, children: [
+          customer.phoneHome && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 13, color: theme.text }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: theme.textMuted, marginRight: 8 }, children: "Home:" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `tel:${formatPhoneForTel(customer.phoneHome)}`, style: { color: "#0891b2", textDecoration: "none" }, children: customer.phoneHome })
+          ] }),
+          customer.phoneWork && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 13, color: theme.text }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: theme.textMuted, marginRight: 8 }, children: "Work:" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `tel:${formatPhoneForTel(customer.phoneWork)}`, style: { color: "#0891b2", textDecoration: "none" }, children: customer.phoneWork })
+          ] }),
+          customer.phoneOther && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 13, color: theme.text }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: theme.textMuted, marginRight: 8 }, children: "Other:" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `tel:${formatPhoneForTel(customer.phoneOther)}`, style: { color: "#0891b2", textDecoration: "none" }, children: customer.phoneOther })
+          ] })
+        ] })
+      ] }),
+      (customer.emailHome || customer.emailWork || customer.emailOther) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MailIcon, { size: 12, style: { marginRight: 4, verticalAlign: "middle" } }),
+          "Email"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 6 }, children: [
+          customer.emailHome && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 13, color: theme.text }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: theme.textMuted, marginRight: 8 }, children: "Home:" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `mailto:${customer.emailHome}`, style: { color: "#0891b2", textDecoration: "none" }, children: customer.emailHome })
+          ] }),
+          customer.emailWork && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 13, color: theme.text }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: theme.textMuted, marginRight: 8 }, children: "Work:" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `mailto:${customer.emailWork}`, style: { color: "#0891b2", textDecoration: "none" }, children: customer.emailWork })
+          ] }),
+          customer.emailOther && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 13, color: theme.text }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: theme.textMuted, marginRight: 8 }, children: "Other:" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: `mailto:${customer.emailOther}`, style: { color: "#0891b2", textDecoration: "none" }, children: customer.emailOther })
+          ] })
+        ] })
+      ] }),
+      customer.billCusId && customer.billCusId !== customer.cusId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 20 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(BuildingIcon, { size: 12, style: { marginRight: 4, verticalAlign: "middle" } }),
+          "Billing Address"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 13, color: theme.text, marginBottom: 4 }, children: [
+          "ID: ",
+          customer.billCusId
+        ] }),
+        customer.billAddr1 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            onClick: () => openGoogleMaps(customer.billAddr1, customer.billAddr2, customer.billCity, customer.billState, customer.billPost),
+            style: { fontSize: 13, color: theme.text, cursor: "pointer", textDecoration: "underline", textDecorationColor: darkMode ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)" },
+            children: formatAddress(customer.billAddr1, customer.billAddr2, customer.billCity, customer.billState, customer.billPost)
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        marginTop: 24,
+        paddingTop: 16,
+        borderTop: `1px solid ${theme.border}`
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, color: theme.textMuted, display: "flex", alignItems: "center", gap: 6 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ClockIcon, { size: 12 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+            "Created: ",
+            formatDate(customer.dateCreate)
+          ] })
+        ] }),
+        customer.dateUpdate && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, color: theme.textMuted, marginTop: 4, display: "flex", alignItems: "center", gap: 6 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ClockIcon, { size: 12 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+            "Updated: ",
+            formatDate(customer.dateUpdate)
+          ] })
+        ] })
+      ] })
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
       display: "flex",
+      flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      color: "white",
-      fontSize: 24,
-      fontWeight: 800,
-      marginBottom: 24
-    }, children: "CHT" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { fontSize: 28, fontWeight: 700, margin: "0 0 12px", color: t.text }, children: "Credit Hold Tracker" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 15, color: t.textMuted, margin: 0 }, children: "Manage and track credit holds across your organization" })
+      height: "100%",
+      padding: 40,
+      textAlign: "center"
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        width: 64,
+        height: 64,
+        borderRadius: "50%",
+        background: darkMode ? "rgba(139,92,246,0.1)" : "rgba(139,92,246,0.05)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 16
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(UsersIcon, { size: 28, style: { color: "#8b5cf6" } }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 15, fontWeight: 600, color: theme.text, marginBottom: 8 }, children: "No Customer Selected" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, color: theme.textMuted, maxWidth: 240 }, children: "Search for a customer using the search bar above to view their details." })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }, children: customer ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        display: "flex",
+        alignItems: "center",
+        borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
+        padding: "0 24px",
+        background: darkMode ? "rgba(15,17,20,0.95)" : "#fff"
+      }, children: tabs.map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          onClick: () => setActiveTab(tab.id),
+          style: {
+            padding: "16px 20px",
+            background: "transparent",
+            border: "none",
+            borderBottom: activeTab === tab.id ? `2px solid #8b5cf6` : "2px solid transparent",
+            color: activeTab === tab.id ? "#8b5cf6" : theme.textMuted,
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: "pointer",
+            fontFamily: "inherit",
+            transition: "all 0.15s"
+          },
+          children: tab.label
+        },
+        tab.id
+      )) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, overflow: "auto", padding: 24 }, children: [
+        activeTab === "timeline" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 12 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: filterOptions.map((filter) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => setTimelineFilter(filter.id),
+                style: {
+                  padding: "6px 12px",
+                  background: timelineFilter === filter.id ? "#8b5cf6" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                  border: `1px solid ${timelineFilter === filter.id ? "#8b5cf6" : darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                  borderRadius: 6,
+                  color: timelineFilter === filter.id ? "#fff" : theme.textMuted,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  transition: "all 0.15s"
+                },
+                children: filter.label
+              },
+              filter.id || "all"
+            )) }),
+            timelineTotal > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 12, color: theme.textMuted }, children: [
+                (timelinePage - 1) * pageSize + 1,
+                "-",
+                Math.min(timelinePage * pageSize, timelineTotal),
+                " of ",
+                timelineTotal
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 4 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: () => setTimelinePage(Math.max(1, timelinePage - 1)),
+                    disabled: timelinePage === 1,
+                    style: {
+                      padding: 6,
+                      background: timelinePage === 1 ? "transparent" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                      border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                      borderRadius: 4,
+                      color: timelinePage === 1 ? theme.textMuted : theme.text,
+                      cursor: timelinePage === 1 ? "not-allowed" : "pointer",
+                      opacity: timelinePage === 1 ? 0.5 : 1,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeftIcon, {})
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 12, color: theme.text, padding: "0 8px" }, children: [
+                  "Page ",
+                  timelinePage,
+                  " of ",
+                  timelineTotalPages
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: () => setTimelinePage(Math.min(timelineTotalPages, timelinePage + 1)),
+                    disabled: timelinePage === timelineTotalPages,
+                    style: {
+                      padding: 6,
+                      background: timelinePage === timelineTotalPages ? "transparent" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                      border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                      borderRadius: 4,
+                      color: timelinePage === timelineTotalPages ? theme.textMuted : theme.text,
+                      cursor: timelinePage === timelineTotalPages ? "not-allowed" : "pointer",
+                      opacity: timelinePage === timelineTotalPages ? 0.5 : 1,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRightIcon, {})
+                  }
+                )
+              ] })
+            ] })
+          ] }),
+          timelineLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: 60, color: theme.textMuted }, children: "Loading timeline..." }) : timeline.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: 60 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: 64,
+              height: 64,
+              borderRadius: "50%",
+              background: darkMode ? "rgba(139,92,246,0.1)" : "rgba(139,92,246,0.05)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 16px"
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ClockIcon, { size: 28, style: { color: "#8b5cf6" } }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 15, fontWeight: 600, color: theme.text, marginBottom: 8 }, children: timelineFilter ? `No Activity in ${((_c = filterOptions.find((f) => f.id === timelineFilter)) == null ? void 0 : _c.label) || "Selected Period"}` : "No Activity Yet" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, color: theme.textMuted }, children: "Timeline events will appear here when folders or files are created for this customer." })
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 12 }, children: timeline.map((event, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              onClick: () => {
+                var _a3, _b2;
+                if (event.type === "folder_created" && ((_a3 = event.metadata) == null ? void 0 : _a3.folderId)) {
+                  setActiveFolderId(event.metadata.folderId);
+                  setPage("folder-detail");
+                } else if (event.type === "file_uploaded" && ((_b2 = event.metadata) == null ? void 0 : _b2.fileId)) {
+                  setSelectedFile(event.metadata.fileId);
+                  setViewingFileId(event.metadata.fileId);
+                  setPage("file-detail");
+                }
+              },
+              style: {
+                display: "flex",
+                gap: 16,
+                padding: 16,
+                background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+                borderRadius: 12,
+                border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+                cursor: event.type === "folder_created" || event.type === "file_uploaded" ? "pointer" : "default",
+                transition: "all 0.15s"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                  width: 40,
+                  height: 40,
+                  borderRadius: 10,
+                  background: `${getEventColor(event.type)}15`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: getEventColor(event.type),
+                  flexShrink: 0
+                }, children: getEventIcon(event.type) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 600, color: theme.text, marginBottom: 4 }, children: event.title }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, color: theme.textMuted, marginBottom: 8 }, children: event.description }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, color: darkMode ? "#6b7280" : "#9ca3af", display: "flex", alignItems: "center", gap: 4 }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(ClockIcon, { size: 12 }),
+                    formatDate(event.timestamp)
+                  ] })
+                ] })
+              ]
+            },
+            `${event.type}-${event.id}-${index}`
+          )) })
+        ] }),
+        activeTab === "service" && !selectedRepairOrder && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginBottom: 16 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                placeholder: "Search repair orders...",
+                value: serviceSearch,
+                onChange: (e) => setServiceSearch(e.target.value),
+                style: {
+                  width: "100%",
+                  padding: "10px 12px 10px 36px",
+                  background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                  border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                  borderRadius: 8,
+                  color: theme.text,
+                  fontSize: 14,
+                  fontFamily: "inherit",
+                  outline: "none",
+                  transition: "all 0.15s"
+                }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: theme.textMuted, pointerEvents: "none" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SearchIcon, { size: 16 }) })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 12 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: filterOptions.map((filter) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => setServiceFilter(filter.id),
+                style: {
+                  padding: "6px 12px",
+                  background: serviceFilter === filter.id ? "#f59e0b" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                  border: `1px solid ${serviceFilter === filter.id ? "#f59e0b" : darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                  borderRadius: 6,
+                  color: serviceFilter === filter.id ? "#fff" : theme.textMuted,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  transition: "all 0.15s"
+                },
+                children: filter.label
+              },
+              filter.id || "all"
+            )) }),
+            serviceTotal > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 12, color: theme.textMuted }, children: [
+                (servicePage - 1) * pageSize + 1,
+                "-",
+                Math.min(servicePage * pageSize, serviceTotal),
+                " of ",
+                serviceTotal
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 4 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: () => setServicePage(Math.max(1, servicePage - 1)),
+                    disabled: servicePage === 1,
+                    style: {
+                      padding: 6,
+                      background: servicePage === 1 ? "transparent" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                      border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                      borderRadius: 4,
+                      color: servicePage === 1 ? theme.textMuted : theme.text,
+                      cursor: servicePage === 1 ? "not-allowed" : "pointer",
+                      opacity: servicePage === 1 ? 0.5 : 1,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeftIcon, {})
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: 12, color: theme.text, padding: "0 8px" }, children: [
+                  "Page ",
+                  servicePage,
+                  " of ",
+                  serviceTotalPages
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: () => setServicePage(Math.min(serviceTotalPages, servicePage + 1)),
+                    disabled: servicePage === serviceTotalPages,
+                    style: {
+                      padding: 6,
+                      background: servicePage === serviceTotalPages ? "transparent" : darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                      border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                      borderRadius: 4,
+                      color: servicePage === serviceTotalPages ? theme.textMuted : theme.text,
+                      cursor: servicePage === serviceTotalPages ? "not-allowed" : "pointer",
+                      opacity: servicePage === serviceTotalPages ? 0.5 : 1,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRightIcon, {})
+                  }
+                )
+              ] })
+            ] })
+          ] }),
+          serviceLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: 60, color: theme.textMuted }, children: "Loading repair orders..." }) : repairOrders.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: 60 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: 64,
+              height: 64,
+              borderRadius: "50%",
+              background: darkMode ? "rgba(245,158,11,0.1)" : "rgba(245,158,11,0.05)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 16px"
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(WrenchIcon, { size: 28, style: { color: "#f59e0b" } }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 15, fontWeight: 600, color: theme.text, marginBottom: 8 }, children: serviceFilter ? `No Repair Orders in ${((_d = filterOptions.find((f) => f.id === serviceFilter)) == null ? void 0 : _d.label) || "Selected Period"}` : "No Repair Orders" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, color: theme.textMuted }, children: "Repair orders will appear here when service records are synced from your DMS." })
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 12 }, children: repairOrders.map((ro) => {
+            var _a3, _b2;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                onClick: () => setSelectedRepairOrder(ro),
+                style: {
+                  display: "flex",
+                  gap: 16,
+                  padding: 16,
+                  background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+                  borderRadius: 12,
+                  border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+                  cursor: "pointer",
+                  transition: "all 0.15s"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
+                    background: "rgba(245,158,11,0.15)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#f59e0b",
+                    flexShrink: 0
+                  }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(WrenchIcon, { size: 16 }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 14, fontWeight: 600, color: theme.text, marginBottom: 4 }, children: [
+                      "Repair Order: ",
+                      ro.slsId
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 8, fontSize: 13, color: theme.textMuted }, children: [
+                      ro.vin && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                        "VIN: ",
+                        ro.vin
+                      ] }),
+                      ro.tag && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                        "Tag: ",
+                        ro.tag
+                      ] }),
+                      ro.odomIn && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                        "Odom In: ",
+                        (_a3 = ro.odomIn) == null ? void 0 : _a3.toLocaleString()
+                      ] }),
+                      ro.odomOut && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                        "Odom Out: ",
+                        (_b2 = ro.odomOut) == null ? void 0 : _b2.toLocaleString()
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", gap: 12, fontSize: 12, color: darkMode ? "#6b7280" : "#9ca3af" }, children: [
+                      ro.locationName && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "center", gap: 4 }, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(MapPinIcon, { size: 12 }),
+                        ro.locationName
+                      ] }),
+                      ro.folderName && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "center", gap: 4 }, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(FolderIcon, { size: 12 }),
+                        ro.folderName
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "center", gap: 4 }, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(ClockIcon, { size: 12 }),
+                        formatDate(ro.dateCreate)
+                      ] })
+                    ] })
+                  ] })
+                ]
+              },
+              ro.id
+            );
+          }) })
+        ] }),
+        activeTab === "service" && selectedRepairOrder && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: () => setSelectedRepairOrder(null),
+              style: {
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "8px 16px",
+                background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+                borderRadius: 8,
+                color: theme.text,
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                marginBottom: 20,
+                transition: "all 0.15s"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeftIcon, {}),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Back to Repair Orders" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            display: "flex",
+            gap: 16,
+            padding: 20,
+            background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+            borderRadius: 12,
+            border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+            marginBottom: 20
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              background: "rgba(245,158,11,0.15)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#f59e0b",
+              flexShrink: 0
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(WrenchIcon, { size: 24 }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 18, fontWeight: 700, color: theme.text, marginBottom: 8 }, children: [
+                "Repair Order: ",
+                selectedRepairOrder.slsId
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexWrap: "wrap", gap: 16, fontSize: 13, color: theme.textMuted }, children: [
+                selectedRepairOrder.tag && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  "Tag: ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { color: theme.text }, children: selectedRepairOrder.tag })
+                ] }),
+                selectedRepairOrder.locationName && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  "Location: ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { color: theme.text }, children: selectedRepairOrder.locationName })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  "Created: ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { color: theme.text }, children: formatDate(selectedRepairOrder.dateCreate) })
+                ] })
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: 16,
+            marginBottom: 20
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+              padding: 16,
+              background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+              borderRadius: 12,
+              border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }, children: "Odometer In" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 16, fontWeight: 600, color: theme.text }, children: selectedRepairOrder.odomIn ? selectedRepairOrder.odomIn.toLocaleString() : "N/A" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+              padding: 16,
+              background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+              borderRadius: 12,
+              border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }, children: "Odometer Out" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 16, fontWeight: 600, color: theme.text }, children: selectedRepairOrder.odomOut ? selectedRepairOrder.odomOut.toLocaleString() : "N/A" })
+            ] })
+          ] }),
+          selectedRepairOrder.folderId && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: () => {
+                setActiveFolderId(selectedRepairOrder.folderId);
+                setPage("folder-detail");
+              },
+              style: {
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "12px 20px",
+                background: "linear-gradient(135deg, #0891b2, #0e7490)",
+                border: "none",
+                borderRadius: 8,
+                color: "white",
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                marginBottom: 20,
+                transition: "all 0.15s"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(FolderIcon, { size: 16 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  "View Folder: ",
+                  selectedRepairOrder.folderName || "View Folder"
+                ] })
+              ]
+            }
+          ),
+          selectedRepairOrder.vin && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            padding: 20,
+            background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+            borderRadius: 12,
+            border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: "rgba(139,92,246,0.15)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#8b5cf6"
+              }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(CarIcon, { size: 18 }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 600, color: theme.text }, children: "Vehicle Information" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 12, color: theme.textMuted, fontFamily: "monospace" }, children: [
+                  "VIN: ",
+                  selectedRepairOrder.vin
+                ] })
+              ] })
+            ] }),
+            vinLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center", padding: 20, color: theme.textMuted }, children: "Looking up VIN..." }) : vinDetails ? vinDetails.error && vinDetails.error !== "0" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, color: theme.textMuted, textAlign: "center", padding: 20 }, children: vinDetails.error || "Unable to decode VIN" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+              gap: 12
+            }, children: [
+              vinDetails.modelYear && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Year" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: theme.text }, children: vinDetails.modelYear })
+              ] }),
+              vinDetails.make && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Make" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: theme.text }, children: vinDetails.make })
+              ] }),
+              vinDetails.model && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Model" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: theme.text }, children: vinDetails.model })
+              ] }),
+              vinDetails.trim && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Trim" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: theme.text }, children: vinDetails.trim })
+              ] }),
+              vinDetails.bodyClass && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Body Class" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: theme.text }, children: vinDetails.bodyClass })
+              ] }),
+              vinDetails.vehicleType && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Vehicle Type" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: theme.text }, children: vinDetails.vehicleType })
+              ] }),
+              vinDetails.doors && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Doors" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: theme.text }, children: vinDetails.doors })
+              ] }),
+              vinDetails.engineModel && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Engine" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: theme.text }, children: vinDetails.engineModel })
+              ] }),
+              vinDetails.engineCylinders && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Cylinders" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: theme.text }, children: vinDetails.engineCylinders })
+              ] }),
+              vinDetails.displacementL && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Displacement" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 14, fontWeight: 500, color: theme.text }, children: [
+                  vinDetails.displacementL,
+                  "L"
+                ] })
+              ] }),
+              vinDetails.fuelTypePrimary && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Fuel Type" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: theme.text }, children: vinDetails.fuelTypePrimary })
+              ] }),
+              vinDetails.manufacturer && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Manufacturer" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: theme.text }, children: vinDetails.manufacturer })
+              ] }),
+              vinDetails.plantCountry && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 11, fontWeight: 600, color: darkMode ? "#6b7280" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }, children: "Plant Country" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: theme.text }, children: vinDetails.plantCountry })
+              ] })
+            ] }) : null
+          ] })
+        ] }),
+        activeTab === "parts" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: 60 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            background: darkMode ? "rgba(16,185,129,0.1)" : "rgba(16,185,129,0.05)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto 16px"
+          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(FolderIcon, { size: 28, style: { color: "#10b981" } }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 15, fontWeight: 600, color: theme.text, marginBottom: 8 }, children: "Parts History" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, color: theme.textMuted }, children: "Parts records will appear here once connected to your DMS." })
+        ] })
+      ] })
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100%",
+      minHeight: 500
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          style: {
+            width: 80,
+            height: 80,
+            borderRadius: 16,
+            background: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 24
+          },
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "white", fontSize: 28, fontWeight: 800 }, children: "DCV" })
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { fontSize: 28, fontWeight: 700, margin: "0 0 12px", color: theme.text }, children: "Dealer Customer Vision" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 15, color: theme.textMuted, margin: 0, textAlign: "center", maxWidth: 500 }, children: "Search for a customer in the navbar above to view their information." })
+    ] }) })
+  ] });
+}
+function SettingsPage({ darkMode, setDarkMode, t }) {
+  const [watchFolderEnabled, setWatchFolderEnabled] = reactExports.useState(false);
+  const [autoUploadEnabled, setAutoUploadEnabled] = reactExports.useState(false);
+  const [watchedFolderPath, setWatchedFolderPath] = reactExports.useState(null);
+  const [watchedFolderHandle, setWatchedFolderHandle] = reactExports.useState(null);
+  const [folderPermissionStatus, setFolderPermissionStatus] = reactExports.useState(null);
+  reactExports.useEffect(() => {
+    const savedWatchFolder = localStorage.getItem("dda_watch_folder_enabled");
+    const savedAutoUpload = localStorage.getItem("dda_auto_upload_enabled");
+    const savedFolderPath = localStorage.getItem("dda_watched_folder_path");
+    if (savedWatchFolder === "true") setWatchFolderEnabled(true);
+    if (savedAutoUpload === "true") setAutoUploadEnabled(true);
+    if (savedFolderPath) setWatchedFolderPath(savedFolderPath);
+  }, []);
+  const handleSelectFolder = async () => {
+    if (!("showDirectoryPicker" in window)) {
+      alert("Your browser does not support folder access. Please use Chrome, Edge, or another Chromium-based browser.");
+      return;
+    }
+    try {
+      const handle = await window.showDirectoryPicker({ mode: "read" });
+      const permission = await handle.requestPermission({ mode: "read" });
+      if (permission === "granted") {
+        setWatchedFolderHandle(handle);
+        setWatchedFolderPath(handle.name);
+        setWatchFolderEnabled(true);
+        setFolderPermissionStatus("granted");
+        localStorage.setItem("dda_watch_folder_enabled", "true");
+        localStorage.setItem("dda_watched_folder_path", handle.name);
+        localStorage.setItem("dda_watched_folder_name", handle.name);
+        window.dispatchEvent(new CustomEvent("watchFolderChanged", {
+          detail: { handle, path: handle.name, enabled: true, autoUpload: autoUploadEnabled }
+        }));
+      } else {
+        setFolderPermissionStatus("denied");
+        alert("Permission denied. Please allow access to the folder.");
+      }
+    } catch (err) {
+      if (err.name !== "AbortError") {
+        console.error("Error selecting folder:", err);
+        alert("Failed to select folder. Please try again.");
+      }
+    }
+  };
+  const handleDisableWatchFolder = async () => {
+    setWatchFolderEnabled(false);
+    setAutoUploadEnabled(false);
+    setWatchedFolderPath(null);
+    setWatchedFolderHandle(null);
+    setFolderPermissionStatus(null);
+    localStorage.removeItem("dda_watch_folder_enabled");
+    localStorage.removeItem("dda_auto_upload_enabled");
+    localStorage.removeItem("dda_watched_folder_path");
+    localStorage.removeItem("dda_watched_folder_name");
+    window.dispatchEvent(new CustomEvent("watchFolderChanged", {
+      detail: { handle: null, path: null, enabled: false, autoUpload: false }
+    }));
+  };
+  const handleToggleAutoUpload = () => {
+    const newValue = !autoUploadEnabled;
+    setAutoUploadEnabled(newValue);
+    localStorage.setItem("dda_auto_upload_enabled", newValue.toString());
+    window.dispatchEvent(new CustomEvent("autoUploadChanged", {
+      detail: { enabled: newValue }
+    }));
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 24, maxWidth: 800, margin: "0 auto" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { fontSize: 24, fontWeight: 700, marginBottom: 24, color: t.text }, children: "Settings" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+      background: t.surface,
+      border: `1px solid ${t.border}`,
+      borderRadius: 12,
+      overflow: "hidden",
+      marginBottom: 16
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        padding: "16px 20px",
+        borderBottom: `1px solid ${t.border}`,
+        background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)"
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { fontSize: 14, fontWeight: 600, margin: 0, color: t.text }, children: "Appearance" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "16px 20px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: t.text }, children: "Dark Mode" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, color: t.textMuted, marginTop: 4 }, children: "Switch between light and dark themes" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => setDarkMode(!darkMode),
+            style: {
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "8px 16px",
+              background: darkMode ? "linear-gradient(135deg, #f59e0b, #d97706)" : "linear-gradient(135deg, #3b82f6, #2563eb)",
+              border: "none",
+              borderRadius: 8,
+              color: "white",
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+              fontFamily: "inherit"
+            },
+            children: [
+              darkMode ? /* @__PURE__ */ jsxRuntimeExports.jsx(SunIcon, { size: 16 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(MoonIcon, { size: 16 }),
+              darkMode ? "Light Mode" : "Dark Mode"
+            ]
+          }
+        )
+      ] }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+      background: t.surface,
+      border: `1px solid ${t.border}`,
+      borderRadius: 12,
+      overflow: "hidden"
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        padding: "16px 20px",
+        borderBottom: `1px solid ${t.border}`,
+        background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)"
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { fontSize: 14, fontWeight: 600, margin: 0, color: t.text }, children: "Upload Folder Watch" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "16px 20px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 16 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: t.text, marginBottom: 8 }, children: "Watch Folder" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, color: t.textMuted, marginBottom: 12 }, children: "Select a folder to monitor for new files. Files will appear in the Upload page for quick bulk upload." }),
+          watchFolderEnabled && watchedFolderPath ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            padding: "10px 12px",
+            background: darkMode ? "rgba(34,197,94,0.1)" : "rgba(34,197,94,0.05)",
+            border: `1px solid ${darkMode ? "rgba(34,197,94,0.3)" : "rgba(34,197,94,0.2)"}`,
+            borderRadius: 8
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 18 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, fontSize: 13, color: t.text, fontWeight: 500 }, children: watchedFolderPath }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: handleSelectFolder,
+                style: {
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "6px 12px",
+                  background: t.accent,
+                  border: "none",
+                  borderRadius: 6,
+                  color: "white",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  fontFamily: "inherit"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshIcon, { size: 14 }),
+                  "Change"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: handleDisableWatchFolder,
+                style: {
+                  padding: "6px 12px",
+                  background: "transparent",
+                  border: `1px solid ${t.border}`,
+                  borderRadius: 6,
+                  color: t.textMuted,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  fontFamily: "inherit"
+                },
+                children: "Disable"
+              }
+            )
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: handleSelectFolder,
+              style: {
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "10px 16px",
+                background: t.accent,
+                border: "none",
+                borderRadius: 8,
+                color: "white",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                fontFamily: "inherit"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(FolderClosedIcon, { size: 16 }),
+                "Select Folder"
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          paddingTop: 16,
+          borderTop: `1px solid ${t.border}`
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 500, color: t.text }, children: "Auto Upload" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 12, color: t.textMuted, marginTop: 4 }, children: "Automatically upload new files detected in the watched folder" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: handleToggleAutoUpload,
+              disabled: !watchFolderEnabled,
+              style: {
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "8px 16px",
+                background: autoUploadEnabled ? "linear-gradient(135deg, #10b981, #059669)" : darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+                border: `1px solid ${autoUploadEnabled ? "transparent" : t.border}`,
+                borderRadius: 8,
+                color: watchFolderEnabled ? autoUploadEnabled ? "white" : t.textMuted : t.textDim,
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: watchFolderEnabled ? "pointer" : "not-allowed",
+                fontFamily: "inherit",
+                opacity: watchFolderEnabled ? 1 : 0.5
+              },
+              children: autoUploadEnabled ? "Enabled" : "Disabled"
+            }
+          )
+        ] })
+      ] })
+    ] })
   ] });
 }
 function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
   var _a2;
-  const isAdmin2 = (_a2 = loggedInUser == null ? void 0 : loggedInUser.groups) == null ? void 0 : _a2.includes("Administrator");
+  const isAdmin = (_a2 = loggedInUser == null ? void 0 : loggedInUser.groups) == null ? void 0 : _a2.includes("Administrator");
   const [logoUrl, setLogoUrl] = reactExports.useState(null);
   const [customApps, setCustomApps] = reactExports.useState([]);
   reactExports.useEffect(() => {
@@ -57313,6 +61322,24 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
       onClick: () => setPage("dashboard")
     },
     {
+      id: "dcv",
+      name: "Dealer Customer Vision",
+      permission: "view_dcv",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        width: 56,
+        height: 56,
+        borderRadius: 14,
+        background: "linear-gradient(135deg,#8b5cf6,#6d28d9)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        fontSize: 16,
+        fontWeight: 800
+      }, children: "DCV" }),
+      onClick: () => setPage("dcv")
+    },
+    {
       id: "cht",
       name: "Credit Hold Tracker",
       permission: "view_cht",
@@ -57328,7 +61355,7 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
         fontSize: 16,
         fontWeight: 800
       }, children: "CHT" }),
-      onClick: () => setPage("cht-dashboard")
+      onClick: () => setPage("cht")
     },
     {
       id: "help",
@@ -57370,7 +61397,7 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
         window.open(app.link, "_blank");
       }
     })),
-    ...isAdmin2 ? [{
+    ...isAdmin ? [{
       id: "admin",
       name: "Admin Center",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
@@ -57396,7 +61423,9 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
     justifyContent: "center",
     minHeight: "calc(100vh - 55px)",
     animation: "fadeIn 0.3s ease",
-    paddingTop: 20
+    padding: "20px 200px",
+    boxSizing: "border-box",
+    width: "100%"
   }, children: [
     logoUrl && /* @__PURE__ */ jsxRuntimeExports.jsx(
       "img",
@@ -57406,7 +61435,7 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
         onError: () => setLogoUrl(null),
         style: {
           height: 240,
-          maxWidth: 1120,
+          maxWidth: "100%",
           objectFit: "contain",
           marginBottom: 24
         }
@@ -57414,10 +61443,11 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { fontSize: 28, fontWeight: 700, margin: "0 0 48px", color: t.text }, children: "Applications" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-      display: "flex",
+      display: "grid",
       gap: 32,
-      flexWrap: "wrap",
-      justifyContent: "center"
+      gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+      width: "100%",
+      maxWidth: 1400
     }, children: apps.map((app) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
@@ -57428,8 +61458,8 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
           alignItems: "center",
           justifyContent: "center",
           gap: 14,
-          width: 200,
-          height: 200,
+          width: "100%",
+          aspectRatio: "1 / 1",
           background: t.surface,
           border: `1px solid ${t.border}`,
           borderRadius: 16,
@@ -57448,7 +61478,7 @@ function LandingPage({ setPage, t, darkMode, loggedInUser, onOpenHelpTicket }) {
         },
         children: [
           app.icon,
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 600, color: t.text }, children: app.name })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 14, fontWeight: 600, color: t.text, textAlign: "center", padding: "0 10px" }, children: app.name })
         ]
       },
       app.id
@@ -57559,7 +61589,7 @@ function LandingNavbar({ darkMode, setDarkMode, loggedInUser, setPage, setShowCh
               ] }),
               [
                 { l: "My Account", i: /* @__PURE__ */ jsxRuntimeExports.jsx(UserIcon, {}) },
-                { l: "Change Password", i: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, {}) },
+                ...(loggedInUser == null ? void 0 : loggedInUser.authProvider) !== "saml" ? [{ l: "Change Password", i: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, {}) }] : [],
                 { l: "My Subscriptions", i: /* @__PURE__ */ jsxRuntimeExports.jsx(BellIcon, {}) },
                 { l: "Settings", i: /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, {}) }
               ].map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -57575,6 +61605,9 @@ function LandingNavbar({ darkMode, setDarkMode, loggedInUser, setPage, setShowCh
                     }
                     if (item.l === "My Subscriptions") {
                       setShowSubscriptionsModal(true);
+                    }
+                    if (item.l === "Settings") {
+                      setPage("settings");
                     }
                   },
                   className: "folder-select-item",
@@ -57626,7 +61659,7 @@ function LandingNavbar({ darkMode, setDarkMode, loggedInUser, setPage, setShowCh
           }
         )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertsDropdown, { darkMode, onNavigate: (alert2) => {
+      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertsDropdown, { darkMode, currentUserId: loggedInUser == null ? void 0 : loggedInUser.id, onNavigate: (alert2) => {
         if (alert2.file_id) {
           setPage("dashboard");
           setTimeout(() => {
@@ -57634,28 +61667,7 @@ function LandingNavbar({ darkMode, setDarkMode, loggedInUser, setPage, setShowCh
             setTimeout(() => setPage("file-detail"), 100);
           }, 100);
         }
-      } }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          onClick: () => setDarkMode(!darkMode),
-          style: {
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            color: darkMode ? "#c9d1d9" : "#57606a",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 8,
-            borderRadius: 8,
-            transition: "background 0.2s"
-          },
-          onMouseEnter: (e) => e.currentTarget.style.background = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
-          onMouseLeave: (e) => e.currentTarget.style.background = "transparent",
-          children: darkMode ? /* @__PURE__ */ jsxRuntimeExports.jsx(SunIcon, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(MoonIcon, {})
-        }
-      )
+      } })
     ] })
   ] });
 }
@@ -57677,12 +61689,16 @@ function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setSh
       setPage("landing");
       setShowAppsDropdown(false);
     } },
-    { id: "dda", name: "Dealer Document Archive", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${t.accent},${t.accent})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "DDA" }), onClick: () => {
+    { id: "dda", name: "Dealer Document Archive", permission: "view_dda", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${t.accent},${t.accent})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "DDA" }), onClick: () => {
       setPage("dashboard");
       setShowAppsDropdown(false);
     } },
-    { id: "cht", name: "Credit Hold Tracker", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "CHT" }), onClick: () => {
-      setPage("cht-dashboard");
+    { id: "dcv", name: "Dealer Customer Vision", permission: "view_dcv", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "DCV" }), onClick: () => {
+      setPage("dcv");
+      setShowAppsDropdown(false);
+    } },
+    { id: "cht", name: "Credit Hold Tracker", permission: "view_cht", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "CHT" }), onClick: () => {
+      setPage("cht");
       setShowAppsDropdown(false);
     } },
     { id: "help", name: "Submit Help Ticket", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TicketIcon, { size: 14 }) }), onClick: () => {
@@ -57704,6 +61720,10 @@ function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setSh
       setShowAppsDropdown(false);
     } }
   ];
+  const filteredApps = apps.filter((app) => {
+    var _a3;
+    return !app.permission || ((_a3 = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a3.includes(app.permission));
+  });
   const navActiveBg = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)";
   const surfaceBg = darkMode ? "rgba(15,17,20,0.98)" : "#fff";
   reactExports.useEffect(() => {
@@ -57731,7 +61751,7 @@ function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setSh
     backdropFilter: "blur(12px)",
     zIndex: 100
   }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8, color: darkMode ? "#e5e7eb" : "#1f2937" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8, color: darkMode ? "#e5e7eb" : "#1f2937", cursor: "pointer" }, onClick: () => setPage("landing"), children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, { size: 16 }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 700, letterSpacing: "-0.03em" }, children: "Admin Center" })
     ] }),
@@ -57817,7 +61837,7 @@ function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setSh
               ] }),
               [
                 { l: "My Account", i: /* @__PURE__ */ jsxRuntimeExports.jsx(UserIcon, {}) },
-                { l: "Change Password", i: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, {}) },
+                ...(loggedInUser == null ? void 0 : loggedInUser.authProvider) !== "saml" ? [{ l: "Change Password", i: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, {}) }] : [],
                 { l: "My Subscriptions", i: /* @__PURE__ */ jsxRuntimeExports.jsx(BellIcon, {}) },
                 { l: "Settings", i: /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, {}) }
               ].map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -57833,6 +61853,9 @@ function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setSh
                     }
                     if (item.l === "My Subscriptions") {
                       setShowSubscriptionsModal(true);
+                    }
+                    if (item.l === "Settings") {
+                      setPage("settings");
                     }
                   },
                   className: "folder-select-item",
@@ -57884,6 +61907,15 @@ function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setSh
           }
         )
       ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertsDropdown, { darkMode, currentUserId: loggedInUser == null ? void 0 : loggedInUser.id, onNavigate: (alert2) => {
+        if (alert2.file_id) {
+          setPage("dashboard");
+          setTimeout(() => {
+            setPage("folders");
+            setTimeout(() => setPage("file-detail"), 100);
+          }, 100);
+        }
+      } }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
@@ -57922,7 +61954,7 @@ function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setSh
               padding: 8,
               animation: "fadeIn 0.15s ease"
             },
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4 }, children: apps.map((app) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4 }, children: filteredApps.map((app) => /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
               {
                 onClick: app.onClick,
@@ -57946,45 +61978,16 @@ function AdminNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setSh
             )) })
           }
         )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertsDropdown, { darkMode, onNavigate: (alert2) => {
-        if (alert2.file_id) {
-          setPage("dashboard");
-          setTimeout(() => {
-            setPage("folders");
-            setTimeout(() => setPage("file-detail"), 100);
-          }, 100);
-        }
-      } }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          onClick: () => setDarkMode(!darkMode),
-          style: {
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            color: darkMode ? "#c9d1d9" : "#57606a",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 8,
-            borderRadius: 8,
-            transition: "background 0.2s"
-          },
-          onMouseEnter: (e) => e.currentTarget.style.background = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
-          onMouseLeave: (e) => e.currentTarget.style.background = "transparent",
-          children: darkMode ? /* @__PURE__ */ jsxRuntimeExports.jsx(SunIcon, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(MoonIcon, {})
-        }
-      )
+      ] })
     ] })
   ] });
 }
-function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket }) {
-  var _a2;
+function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket, onOpenInquiry, onShowToast }) {
+  var _a2, _b, _c, _d, _e, _f, _g;
   const [showProfileMenu, setShowProfileMenu] = reactExports.useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = reactExports.useState(false);
   const [customApps, setCustomApps] = reactExports.useState([]);
+  const isAdmin = (_a2 = loggedInUser == null ? void 0 : loggedInUser.groups) == null ? void 0 : _a2.includes("Administrator");
   const chtAccent = "#f59e0b";
   const chtAccentDark = "#d97706";
   const t = {
@@ -57992,19 +61995,26 @@ function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShow
     textMuted: darkMode ? "#94a3b8" : "#57606a",
     text: darkMode ? "#e5e7eb" : "#1f2937",
     border: darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
-    surface: darkMode ? "#0d1117" : "#fff"
+    surface: darkMode ? "#0d1117" : "#fff",
+    navActive: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"
   };
+  const canViewInquiries = ((_b = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _b.includes("cht_inquiry_view")) || ((_c = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _c.includes("cht_inquiry_view_all")) || ((_d = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _d.includes("cht_inquiry_submit"));
+  ((_e = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _e.includes("cht_inquiry_view_all")) || ((_f = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _f.includes("cht_inquiry_accept"));
   const apps = [
     { id: "home", name: "Home", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(HomeIcon, { size: 20 }), onClick: () => {
       setPage("landing");
       setShowAppsDropdown(false);
     } },
-    { id: "dda", name: "Dealer Document Archive", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#88c0d0,#88c0d0)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "DDA" }), onClick: () => {
+    { id: "dda", name: "Dealer Document Archive", permission: "view_dda", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#88c0d0,#88c0d0)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "DDA" }), onClick: () => {
       setPage("dashboard");
       setShowAppsDropdown(false);
     } },
-    { id: "cht", name: "Credit Hold Tracker", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "CHT" }), onClick: () => {
-      setPage("cht-dashboard");
+    { id: "dcv", name: "Dealer Customer Vision", permission: "view_dcv", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "DCV" }), onClick: () => {
+      setPage("dcv");
+      setShowAppsDropdown(false);
+    } },
+    { id: "cht", name: "Credit Hold Tracker", permission: "view_cht", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "CHT" }), onClick: () => {
+      setPage("cht");
       setShowAppsDropdown(false);
     } },
     { id: "help", name: "Submit Help Ticket", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TicketIcon, { size: 14 }) }), onClick: () => {
@@ -58026,6 +62036,10 @@ function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShow
       setShowAppsDropdown(false);
     } }] : []
   ];
+  const filteredApps = apps.filter((app) => {
+    var _a3;
+    return !app.permission || ((_a3 = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a3.includes(app.permission));
+  });
   const navActiveBg = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)";
   reactExports.useEffect(() => {
     getCustomApps().then(setCustomApps).catch(() => {
@@ -58053,22 +62067,46 @@ function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShow
     top: 0,
     zIndex: 100
   }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "center", gap: 12 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { onClick: () => setPage("cht-dashboard"), style: { display: "flex", alignItems: "center", gap: 9, cursor: "pointer" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-        width: 28,
-        height: 28,
-        borderRadius: 7,
-        background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "white",
-        fontSize: 9,
-        fontWeight: 800,
-        letterSpacing: "-0.02em"
-      }, children: "CHT" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 700, letterSpacing: "-0.03em", color: t.text }, children: "Credit Hold Tracker" })
-    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { onClick: () => setPage("landing"), style: { display: "flex", alignItems: "center", gap: 9, cursor: "pointer" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          width: 28,
+          height: 28,
+          borderRadius: 7,
+          background: `linear-gradient(135deg,${chtAccent},${chtAccentDark})`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          fontSize: 9,
+          fontWeight: 800,
+          letterSpacing: "-0.02em"
+        }, children: "CHT" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 700, letterSpacing: "-0.03em", color: t.text }, children: "Credit Hold Tracker" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: 2, marginLeft: 8 }, children: canViewInquiries && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          onClick: () => setPage("cht"),
+          style: {
+            background: page === "cht" ? t.navActive : "transparent",
+            color: page === "cht" ? chtAccent : t.textMuted,
+            border: "none",
+            borderRadius: 8,
+            padding: "7px 14px",
+            cursor: "pointer",
+            fontSize: 13,
+            fontWeight: 600,
+            display: "flex",
+            alignItems: "center",
+            gap: 7,
+            fontFamily: "inherit",
+            borderBottom: page === "cht" ? `2px solid ${chtAccent}` : "2px solid transparent"
+          },
+          children: "Credit Hold Inquiry"
+        }
+      ) })
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 10, flexShrink: 0, position: "relative", zIndex: 2 }, children: [
       loggedInUser && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -58133,12 +62171,13 @@ function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShow
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "10px 12px 8px", borderBottom: `1px solid ${t.border}`, marginBottom: 4 }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 600, color: t.text }, children: loggedInUser.name }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 10.5, color: darkMode ? "#6b7280" : "#9ca3af", marginTop: 2 }, children: (_a2 = loggedInUser.groups) == null ? void 0 : _a2.join(", ") })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 10.5, color: darkMode ? "#6b7280" : "#9ca3af", marginTop: 2 }, children: (_g = loggedInUser.groups) == null ? void 0 : _g.join(", ") })
               ] }),
               [
                 { l: "My Account", i: /* @__PURE__ */ jsxRuntimeExports.jsx(UserIcon, {}) },
-                { l: "Change Password", i: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, {}) },
-                { l: "My Subscriptions", i: /* @__PURE__ */ jsxRuntimeExports.jsx(BellIcon, {}) }
+                ...(loggedInUser == null ? void 0 : loggedInUser.authProvider) !== "saml" ? [{ l: "Change Password", i: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, {}) }] : [],
+                { l: "My Subscriptions", i: /* @__PURE__ */ jsxRuntimeExports.jsx(BellIcon, {}) },
+                { l: "Settings", i: /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, {}) }
               ].map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "div",
                 {
@@ -58152,6 +62191,9 @@ function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShow
                     }
                     if (item.l === "My Subscriptions") {
                       setShowSubscriptionsModal(true);
+                    }
+                    if (item.l === "Settings") {
+                      setPage("settings");
                     }
                   },
                   className: "folder-select-item",
@@ -58203,6 +62245,16 @@ function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShow
           }
         )
       ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertsDropdown, { darkMode, currentUserId: loggedInUser == null ? void 0 : loggedInUser.id, onShowToast, onNavigate: (alert2) => {
+        var _a3;
+        const isCHT = alert2.type === "cht_inquiry_assigned" || alert2.type === "cht_inquiry_updated" || alert2.notification_type === "cht_inquiry_assigned" || alert2.notification_type === "cht_inquiry_updated";
+        if (isCHT) {
+          setPage("cht");
+          if (((_a3 = alert2.data) == null ? void 0 : _a3.inquiryId) && onOpenInquiry) {
+            setTimeout(() => onOpenInquiry(alert2.data.inquiryId), 100);
+          }
+        }
+      } }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
@@ -58241,7 +62293,7 @@ function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShow
               padding: 8,
               animation: "fadeIn 0.15s ease"
             },
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4 }, children: apps.map((app) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4 }, children: filteredApps.map((app) => /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
               {
                 onClick: app.onClick,
@@ -58265,26 +62317,458 @@ function CHTNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShow
             )) })
           }
         )
+      ] })
+    ] })
+  ] });
+}
+function DCVNavbar({ darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket, onSelectCustomer }) {
+  var _a2, _b, _c;
+  const [showProfileMenu, setShowProfileMenu] = reactExports.useState(false);
+  const [showAppsDropdown, setShowAppsDropdown] = reactExports.useState(false);
+  const [customApps, setCustomApps] = reactExports.useState([]);
+  const [searchQuery, setSearchQuery] = reactExports.useState("");
+  const [searchResults, setSearchResults] = reactExports.useState([]);
+  const [searching, setSearching] = reactExports.useState(false);
+  const [showSearchResults, setShowSearchResults] = reactExports.useState(false);
+  const searchRef = reactExports.useRef(null);
+  const searchTimeoutRef = reactExports.useRef(null);
+  const isAdmin = (_a2 = loggedInUser == null ? void 0 : loggedInUser.groups) == null ? void 0 : _a2.includes("Administrator");
+  const dcvAccent = "#8b5cf6";
+  const dcvAccentDark = "#6d28d9";
+  const t = {
+    accent: dcvAccent,
+    accentSoft: darkMode ? "rgba(139,92,246,0.15)" : "rgba(139,92,246,0.08)"
+  };
+  const apps = [
+    { id: "home", name: "Home", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(HomeIcon, { size: 20 }), onClick: () => {
+      setPage("landing");
+      setShowAppsDropdown(false);
+    } },
+    { id: "dda", name: "Dealer Document Archive", permission: "view_dda", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#0891b2,#0e7490)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "DDA" }), onClick: () => {
+      setPage("dashboard");
+      setShowAppsDropdown(false);
+    } },
+    { id: "dcv", name: "Dealer Customer Vision", permission: "view_dcv", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: `linear-gradient(135deg,${dcvAccent},${dcvAccentDark})`, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "DCV" }), onClick: () => {
+      setPage("dcv");
+      setShowAppsDropdown(false);
+    } },
+    { id: "cht", name: "Credit Hold Tracker", permission: "view_cht", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: "CHT" }), onClick: () => {
+      setPage("cht");
+      setShowAppsDropdown(false);
+    } },
+    { id: "help", name: "Submit Help Ticket", icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TicketIcon, { size: 14 }) }), onClick: () => {
+      setShowAppsDropdown(false);
+      onOpenHelpTicket == null ? void 0 : onOpenHelpTicket();
+    } },
+    ...customApps.map((app) => ({
+      id: app.id,
+      name: app.name,
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg, #88c0d0, #5b9bd5)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }, children: app.abbreviation || app.name.substring(0, 2).toUpperCase() }),
+      onClick: () => {
+        window.open(app.link, "_blank");
+        setShowAppsDropdown(false);
+      }
+    })),
+    ...isAdmin ? [{ id: "admin", name: "Admin Center", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, { size: 20 }), onClick: () => {
+      setPage("admin");
+      setAdminSection == null ? void 0 : setAdminSection("users");
+      setShowAppsDropdown(false);
+    } }] : []
+  ];
+  const filteredApps = apps.filter((app) => {
+    var _a3;
+    return !app.permission || ((_a3 = loggedInUser == null ? void 0 : loggedInUser.permissions) == null ? void 0 : _a3.includes(app.permission));
+  });
+  const navActiveBg = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)";
+  const surfaceBg = darkMode ? "rgba(15,17,20,0.98)" : "#fff";
+  reactExports.useEffect(() => {
+    getCustomApps().then(setCustomApps).catch(() => {
+    });
+  }, []);
+  reactExports.useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSearchResults(false);
+      }
+      setShowAppsDropdown(false);
+    };
+    if (showAppsDropdown || showSearchResults) {
+      setTimeout(() => document.addEventListener("click", handleClickOutside), 0);
+    }
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [showAppsDropdown, showSearchResults]);
+  reactExports.useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    if (searchQuery.trim().length < 1) {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    }
+    searchTimeoutRef.current = setTimeout(async () => {
+      setSearching(true);
+      setShowSearchResults(true);
+      try {
+        const results = await searchDcvCustomers(searchQuery);
+        setSearchResults(results);
+      } catch (err) {
+        console.error("Search error:", err);
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery]);
+  const handleSelectCustomer = (customer) => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setShowSearchResults(false);
+    if (onSelectCustomer) {
+      onSelectCustomer(customer);
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 55,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "0 20px",
+    gap: 12,
+    borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
+    background: darkMode ? "rgba(13,17,23,0.95)" : "rgba(255,255,255,0.95)",
+    backdropFilter: "blur(12px)",
+    zIndex: 100
+  }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8, color: darkMode ? "#e5e7eb" : "#1f2937", cursor: "pointer" }, onClick: () => setPage("landing"), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        width: 24,
+        height: 24,
+        borderRadius: 6,
+        background: `linear-gradient(135deg,${dcvAccent},${dcvAccentDark})`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        fontSize: 8,
+        fontWeight: 800
+      }, children: "DCV" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 15, fontWeight: 700, letterSpacing: "-0.03em" }, children: "Dealer Customer Vision" })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "center", gap: 12, flex: 1, maxWidth: 400, margin: "0 20px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { ref: searchRef, style: { position: "relative", width: "100%" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: darkMode ? "#6b7280" : "#9ca3af", display: "flex", alignItems: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SearchIcon, { size: 16 }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            placeholder: "Search customers by ID or name...",
+            value: searchQuery,
+            onChange: (e) => setSearchQuery(e.target.value),
+            onFocus: () => searchQuery.trim().length >= 1 && setShowSearchResults(true),
+            style: {
+              width: "100%",
+              padding: "8px 12px 8px 36px",
+              fontSize: 13,
+              border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+              borderRadius: 8,
+              background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+              color: darkMode ? "#e5e7eb" : "#1f2937",
+              fontFamily: "inherit",
+              outline: "none"
+            }
+          }
+        )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertsDropdown, { darkMode, onNavigate: () => {
-      } }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          onClick: () => setDarkMode(!darkMode),
-          style: {
-            background: t.surface,
-            border: `1px solid ${t.border}`,
-            borderRadius: 7,
-            padding: 6,
-            cursor: "pointer",
-            color: t.textMuted,
-            display: "flex",
-            alignItems: "center"
+      showSearchResults && (searching || searchResults.length > 0 || searchQuery.trim().length >= 1) && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        position: "absolute",
+        top: "calc(100% + 4px)",
+        left: 0,
+        right: 0,
+        background: surfaceBg,
+        border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+        borderRadius: 8,
+        boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
+        maxHeight: 300,
+        overflowY: "auto",
+        zIndex: 200
+      }, children: searching ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 16, textAlign: "center", color: darkMode ? "#6b7280" : "#9ca3af", fontSize: 13 }, children: "Searching..." }) : searchResults.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 16, textAlign: "center", color: darkMode ? "#6b7280" : "#9ca3af", fontSize: 13 }, children: "No customers found" }) : searchResults.map((customer) => {
+        var _a3, _b2;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            onClick: () => handleSelectCustomer(customer),
+            style: {
+              padding: "10px 12px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}`,
+              transition: "background 0.15s"
+            },
+            onMouseEnter: (e) => e.currentTarget.style.background = darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+            onMouseLeave: (e) => e.currentTarget.style.background = "transparent",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: `linear-gradient(135deg,${dcvAccent},${dcvAccentDark})`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                fontSize: 11,
+                fontWeight: 700,
+                flexShrink: 0
+              }, children: ((_b2 = (_a3 = customer.name) == null ? void 0 : _a3.charAt(0)) == null ? void 0 : _b2.toUpperCase()) || "C" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 600, color: darkMode ? "#e5e7eb" : "#1f2937", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: customer.name || "Unknown" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: 11, color: darkMode ? "#6b7280" : "#9ca3af" }, children: [
+                  "ID: ",
+                  customer.cusId
+                ] })
+              ] })
+            ]
           },
-          children: darkMode ? /* @__PURE__ */ jsxRuntimeExports.jsx(SunIcon, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(MoonIcon, {})
+          customer.id
+        );
+      }) })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 10, position: "relative" }, children: [
+      loggedInUser && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            onClick: (e) => {
+              e.stopPropagation();
+              setShowProfileMenu(!showProfileMenu);
+            },
+            style: {
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              cursor: "pointer",
+              padding: "4px 8px",
+              borderRadius: 8,
+              background: showProfileMenu ? navActiveBg : "transparent"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  style: {
+                    width: 28,
+                    height: 28,
+                    borderRadius: "50%",
+                    background: loggedInUser.avatarUrl ? "transparent" : darkMode ? "rgba(139,92,246,0.15)" : "rgba(139,92,246,0.08)",
+                    color: dcvAccent,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    overflow: "hidden"
+                  },
+                  children: [
+                    loggedInUser.avatarUrl ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "img",
+                      {
+                        src: loggedInUser.avatarUrl,
+                        alt: loggedInUser.name || "User",
+                        style: { width: "100%", height: "100%", objectFit: "cover" },
+                        onError: (e) => {
+                          e.target.style.display = "none";
+                          e.target.nextSibling.style.display = "flex";
+                        }
+                      }
+                    ) : null,
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: loggedInUser.avatarUrl ? "none" : "flex" }, children: ((_b = loggedInUser.name) == null ? void 0 : _b.charAt(0)) || "U" })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: 12, fontWeight: 500, color: darkMode ? "#94a3b8" : "#57606a" }, children: loggedInUser.name || "User" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, {})
+            ]
+          }
+        ),
+        showProfileMenu && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            onClick: (e) => e.stopPropagation(),
+            style: {
+              position: "absolute",
+              top: "calc(100% + 6px)",
+              right: 0,
+              zIndex: 200,
+              background: surfaceBg,
+              border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+              borderRadius: 10,
+              boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
+              padding: 4,
+              minWidth: 200,
+              animation: "fadeIn 0.15s ease"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "10px 12px 8px", borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`, marginBottom: 4 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 13, fontWeight: 600, color: darkMode ? "#e5e7eb" : "#1f2937" }, children: loggedInUser.name }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: 10.5, color: darkMode ? "#6b7280" : "#9ca3af", marginTop: 2 }, children: (_c = loggedInUser.groups) == null ? void 0 : _c.join(", ") })
+              ] }),
+              [
+                { l: "My Account", i: /* @__PURE__ */ jsxRuntimeExports.jsx(UserIcon, {}) },
+                ...(loggedInUser == null ? void 0 : loggedInUser.authProvider) !== "saml" ? [{ l: "Change Password", i: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldIcon, {}) }] : [],
+                { l: "My Subscriptions", i: /* @__PURE__ */ jsxRuntimeExports.jsx(BellIcon, {}) },
+                { l: "Settings", i: /* @__PURE__ */ jsxRuntimeExports.jsx(GearIcon, {}) }
+              ].map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  onClick: () => {
+                    setShowProfileMenu(false);
+                    if (item.l === "Change Password") {
+                      setShowChangePassword(true);
+                      setChangePasswordForm({ current: "", new: "", confirm: "" });
+                      setChangePasswordError("");
+                      setChangePasswordSuccess("");
+                    }
+                    if (item.l === "My Subscriptions") {
+                      setShowSubscriptionsModal(true);
+                    }
+                    if (item.l === "Settings") {
+                      setPage("settings");
+                    }
+                  },
+                  className: "folder-select-item",
+                  style: {
+                    padding: "8px 12px",
+                    borderRadius: 7,
+                    cursor: "pointer",
+                    fontSize: 13,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    color: darkMode ? "#e5e7eb" : "#1f2937",
+                    fontWeight: 500
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: darkMode ? "#6b7280" : "#9ca3af" }, children: item.i }),
+                    " ",
+                    item.l
+                  ]
+                },
+                item.l
+              )),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { borderTop: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`, marginTop: 4, paddingTop: 4 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  onClick: () => {
+                    setShowProfileMenu(false);
+                    handleLogout();
+                  },
+                  className: "folder-select-item",
+                  style: {
+                    padding: "8px 12px",
+                    borderRadius: 7,
+                    cursor: "pointer",
+                    fontSize: 13,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    color: darkMode ? "#f87171" : "#ef4444",
+                    fontWeight: 500
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(LogOutIcon, {}),
+                    " Sign Out"
+                  ]
+                }
+              ) })
+            ]
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(AlertsDropdown, { darkMode, currentUserId: loggedInUser == null ? void 0 : loggedInUser.id, onNavigate: (alert2) => {
+        if (alert2.file_id) {
+          setPage("dashboard");
+          setTimeout(() => {
+            setPage("folders");
+            setTimeout(() => setPage("file-detail"), 100);
+          }, 100);
         }
-      )
+      } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => setShowAppsDropdown(!showAppsDropdown),
+            style: {
+              background: showAppsDropdown ? navActiveBg : "transparent",
+              border: "none",
+              cursor: "pointer",
+              color: darkMode ? "#c9d1d9" : "#57606a",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 8,
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: "inherit",
+              transition: "background 0.2s"
+            },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(AppsIcon, { size: 14 })
+          }
+        ),
+        showAppsDropdown && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              top: "calc(100% + 6px)",
+              right: 0,
+              zIndex: 200,
+              background: surfaceBg,
+              border: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+              borderRadius: 12,
+              boxShadow: darkMode ? "0 8px 30px rgba(0,0,0,0.4)" : "0 8px 30px rgba(0,0,0,0.12)",
+              padding: 8,
+              animation: "fadeIn 0.15s ease"
+            },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4 }, children: filteredApps.map((app) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                onClick: app.onClick,
+                title: app.name,
+                style: {
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "transparent",
+                  transition: "background 0.15s"
+                },
+                onMouseEnter: (e) => e.currentTarget.style.background = t.accentSoft,
+                onMouseLeave: (e) => e.currentTarget.style.background = "transparent",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: t.accent, display: "flex", alignItems: "center" }, children: app.icon })
+              },
+              app.id
+            )) })
+          }
+        )
+      ] })
     ] })
   ] });
 }
@@ -58310,7 +62794,7 @@ function Toast({ toasts, removeToast, darkMode }) {
   reactExports.useEffect(() => {
     if (toasts.length > prevToastCount.current) {
       const newToasts = toasts.slice(prevToastCount.current);
-      const hasSoundToast = newToasts.some((t2) => t2.type !== "delete" && t2.type !== "create");
+      const hasSoundToast = newToasts.some((t2) => t2.type !== "delete" && t2.type !== "create" && t2.type !== "cht");
       if (hasSoundToast) {
         playNotificationSound();
       }
@@ -58358,13 +62842,20 @@ function ToastItem({ toast, onClose, darkMode }) {
     setIsExiting(true);
     setTimeout(onClose, 200);
   };
+  const handleClick = () => {
+    if (toast.onClick) {
+      toast.onClick();
+    }
+    handleClose();
+  };
   const typeColors = {
     delete: { border: "#ef4444", bg: darkMode ? "rgba(239, 68, 68, 0.1)" : "rgba(239, 68, 68, 0.05)" },
     create: { border: "#22c55e", bg: darkMode ? "rgba(34, 197, 94, 0.1)" : "rgba(34, 197, 94, 0.05)" },
     upload: { border: "#3b82f6", bg: darkMode ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.05)" },
     error: { border: "#ef4444", bg: darkMode ? "rgba(239, 68, 68, 0.1)" : "rgba(239, 68, 68, 0.05)" },
     success: { border: "#22c55e", bg: darkMode ? "rgba(34, 197, 94, 0.1)" : "rgba(34, 197, 94, 0.05)" },
-    info: { border: "#3b82f6", bg: darkMode ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.05)" }
+    info: { border: "#3b82f6", bg: darkMode ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.05)" },
+    cht: { border: "#f59e0b", bg: darkMode ? "rgba(245, 158, 11, 0.1)" : "rgba(245, 158, 11, 0.05)" }
   };
   const typeStyle = typeColors[toast.type] || { border: darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)" };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -58382,11 +62873,11 @@ function ToastItem({ toast, onClose, darkMode }) {
         flexDirection: "column",
         gap: 4,
         animation: isExiting ? "toastOut 0.2s ease forwards" : "toastIn 0.3s ease",
-        cursor: "pointer",
+        cursor: toast.onClick ? "pointer" : "default",
         position: "relative",
         overflow: "hidden"
       },
-      onClick: handleClose,
+      onClick: toast.onClick ? handleClick : void 0,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "div",
@@ -58462,9 +62953,17 @@ function ToastItem({ toast, onClose, darkMode }) {
     }
   );
 }
+function getThemeCookie() {
+  const match = document.cookie.match(/(?:^|;)\s*theme\s*=\s*([^;]+)/);
+  if (match) return match[1] === "dark";
+  return true;
+}
+function setThemeCookie(isDark) {
+  document.cookie = `theme=${isDark ? "dark" : "light"}; path=/; max-age=31536000`;
+}
 function AppInner() {
   var _a2;
-  const [darkMode, setDarkMode] = reactExports.useState(true);
+  const [darkMode, setDarkMode] = reactExports.useState(getThemeCookie());
   const [isLoggedIn, setIsLoggedIn] = reactExports.useState(false);
   const [loginForm, setLoginForm] = reactExports.useState({ username: "", password: "" });
   const [loginError, setLoginError] = reactExports.useState("");
@@ -58492,6 +62991,14 @@ function AppInner() {
   const [stagedSuggestions, setStagedSuggestions] = reactExports.useState({});
   const [pendingUploads, setPendingUploads] = reactExports.useState({});
   reactExports.useRef(null);
+  const [watchedFolderHandle, setWatchedFolderHandle] = reactExports.useState(null);
+  const [watchedFolderPath, setWatchedFolderPath] = reactExports.useState(null);
+  const [watchFolderEnabled, setWatchFolderEnabled] = reactExports.useState(false);
+  const [autoUploadEnabled, setAutoUploadEnabled] = reactExports.useState(false);
+  const [watchedFiles, setWatchedFiles] = reactExports.useState([]);
+  const [isScanning, setIsScanning] = reactExports.useState(false);
+  const [lastScanTime, setLastScanTime] = reactExports.useState(null);
+  const scanIntervalRef = reactExports.useRef(null);
   const [folderSearch, setFolderSearch] = reactExports.useState("");
   const [creatingSubfolder, setCreatingSubfolder] = reactExports.useState(false);
   const [newSubfolderName, setNewSubfolderName] = reactExports.useState("");
@@ -58539,15 +63046,167 @@ function AppInner() {
   const [adminSetPasswordLoading, setAdminSetPasswordLoading] = reactExports.useState(false);
   const [showSubscriptionsModal, setShowSubscriptionsModal] = reactExports.useState(false);
   const [showHelpTicketModal, setShowHelpTicketModal] = reactExports.useState(false);
+  const [selectedCustomer, setSelectedCustomer] = reactExports.useState(null);
+  const [initialRepairOrderSlsId, setInitialRepairOrderSlsId] = reactExports.useState(null);
+  const [dcvInitialTab, setDcvInitialTab] = reactExports.useState("timeline");
   const [toasts, setToasts] = reactExports.useState([]);
   const toastIdCounter = reactExports.useRef(0);
-  const addToast = reactExports.useCallback((title, message, duration, type) => {
+  const addToast = reactExports.useCallback((title, message, duration, type, onClick) => {
     const id = ++toastIdCounter.current;
-    setToasts((prev) => [...prev, { id, title, message, duration: duration || 5e3, type }]);
+    setToasts((prev) => [...prev, { id, title, message, duration: duration || 5e3, type, onClick }]);
   }, []);
   const removeToast = reactExports.useCallback((id) => {
     setToasts((prev) => prev.filter((t2) => t2.id !== id));
   }, []);
+  reactExports.useEffect(() => {
+    const handleWatchFolderChanged = (e) => {
+      const { handle, path, enabled, autoUpload } = e.detail;
+      setWatchedFolderHandle(enabled ? handle : null);
+      setWatchedFolderPath(enabled ? path : null);
+      setWatchFolderEnabled(enabled);
+      setAutoUploadEnabled(autoUpload || false);
+      if (!enabled) {
+        setWatchedFiles([]);
+        if (scanIntervalRef.current) {
+          clearInterval(scanIntervalRef.current);
+          scanIntervalRef.current = null;
+        }
+      }
+    };
+    const handleAutoUploadChanged = (e) => {
+      setAutoUploadEnabled(e.detail.enabled);
+    };
+    window.addEventListener("watchFolderChanged", handleWatchFolderChanged);
+    window.addEventListener("autoUploadChanged", handleAutoUploadChanged);
+    const savedEnabled = localStorage.getItem("dda_watch_folder_enabled");
+    const savedAutoUpload = localStorage.getItem("dda_auto_upload_enabled");
+    const savedPath = localStorage.getItem("dda_watched_folder_path");
+    if (savedEnabled === "true") {
+      setWatchFolderEnabled(true);
+      if (savedPath) setWatchedFolderPath(savedPath);
+      if (savedAutoUpload === "true") setAutoUploadEnabled(true);
+    }
+    return () => {
+      window.removeEventListener("watchFolderChanged", handleWatchFolderChanged);
+      window.removeEventListener("autoUploadChanged", handleAutoUploadChanged);
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current);
+      }
+    };
+  }, []);
+  const scanWatchedFolder = reactExports.useCallback(async () => {
+    if (!watchedFolderHandle || !watchFolderEnabled) return;
+    setIsScanning(true);
+    const files2 = [];
+    const validExtensions = [".pdf", ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"];
+    try {
+      const permission = await watchedFolderHandle.queryPermission({ mode: "read" });
+      if (permission !== "granted") {
+        const requestPermission = await watchedFolderHandle.requestPermission({ mode: "read" });
+        if (requestPermission !== "granted") {
+          setIsScanning(false);
+          return;
+        }
+      }
+      async function scanDirectory(dirHandle, path = "") {
+        for await (const entry of dirHandle.values()) {
+          if (entry.kind === "file") {
+            const lowerName = entry.name.toLowerCase();
+            const dotIdx = lowerName.lastIndexOf(".");
+            const ext = dotIdx >= 0 ? lowerName.slice(dotIdx) : "";
+            if (!lowerName.startsWith(".") && validExtensions.includes(ext)) {
+              try {
+                const file = await entry.getFile();
+                files2.push({
+                  name: entry.name,
+                  path: path ? `${path}/${entry.name}` : entry.name,
+                  size: file.size,
+                  type: file.type,
+                  file,
+                  handle: entry,
+                  lastModified: file.lastModified
+                });
+              } catch (err) {
+                console.error(`Failed to read file ${entry.name}:`, err);
+              }
+            }
+          } else if (entry.kind === "directory") {
+            await scanDirectory(entry, path ? `${path}/${entry.name}` : entry.name);
+          }
+        }
+      }
+      await scanDirectory(watchedFolderHandle);
+      setWatchedFiles(files2);
+      setLastScanTime(/* @__PURE__ */ new Date());
+    } catch (err) {
+      console.error("Error scanning folder:", err);
+    } finally {
+      setIsScanning(false);
+    }
+  }, [watchedFolderHandle, watchFolderEnabled]);
+  reactExports.useEffect(() => {
+    if (watchFolderEnabled && !isScanning) {
+      scanWatchedFolder();
+      if (autoUploadEnabled && !scanIntervalRef.current) {
+        scanIntervalRef.current = setInterval(scanWatchedFolder, 1e4);
+      } else if (!autoUploadEnabled && scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current);
+        scanIntervalRef.current = null;
+      }
+    }
+    return () => {
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current);
+        scanIntervalRef.current = null;
+      }
+    };
+  }, [watchFolderEnabled, autoUploadEnabled, scanWatchedFolder, isScanning]);
+  const autoUploadWatchedFiles = reactExports.useCallback(async (files2) => {
+    if (!files2 || files2.length === 0) return;
+    let successCount = 0;
+    for (const wf of files2) {
+      try {
+        const id = uid();
+        const v = validateFile(wf.file);
+        if (!v.valid) {
+          console.log(`Skipping invalid file: ${wf.name}`);
+          continue;
+        }
+        const isImage = isImageFile(wf.file);
+        const isPdf = isPdfFile(wf.file);
+        let text = null;
+        let pages = 0;
+        if (isPdf) {
+          try {
+            const result = await extractTextFromPDF(wf.file);
+            text = result.text;
+            pages = result.pages;
+          } catch (err) {
+            console.error(`Failed to extract PDF text for ${wf.name}:`, err);
+          }
+        }
+        await uploadFile(wf.file, null, text, pages);
+        successCount++;
+        setWatchedFiles((prev) => prev.filter((f) => f.name !== wf.name || f.path !== wf.path));
+      } catch (err) {
+        console.error(`Failed to auto-upload ${wf.name}:`, err);
+      }
+    }
+    if (successCount > 0) {
+      addToast("Auto-uploaded", `${successCount} file${successCount !== 1 ? "s" : ""} uploaded from watched folder`, 5e3, "upload");
+      getUnsortedFiles().then((rows) => {
+        setUnsortedFiles(rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: null, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 })));
+      }).catch(console.error);
+    }
+  }, [addToast]);
+  reactExports.useEffect(() => {
+    if (autoUploadEnabled && watchedFiles.length > 0 && !isScanning) {
+      const timer = setTimeout(() => {
+        autoUploadWatchedFiles(watchedFiles);
+      }, 1e3);
+      return () => clearTimeout(timer);
+    }
+  }, [autoUploadEnabled, watchedFiles, isScanning, autoUploadWatchedFiles]);
   const isPopStateRef = reactExports.useRef(false);
   const isInitialMount = reactExports.useRef(true);
   const pageToPath = reactExports.useCallback((page2, activeFolderId2, activeLocation2, activeDepartment2, viewingFileId2, adminSection2) => {
@@ -58570,10 +63229,10 @@ function AppInner() {
         return "/upload";
       case "admin":
         return `/admin/${adminSection2 || "users"}`;
-      case "cht-dashboard":
+      case "cht":
         return "/credit-hold";
-      case "cht-detail":
-        return "/credit-hold/detail";
+      case "dcv":
+        return "/customer-vision";
       default:
         return "/";
     }
@@ -58605,7 +63264,9 @@ function AppInner() {
         if (rest[0]) return { page: "admin", adminSection: rest[0] };
         return { page: "admin", adminSection: "users" };
       case "credit-hold":
-        return { page: "cht-dashboard" };
+        return { page: "cht" };
+      case "customer-vision":
+        return { page: "dcv" };
       default:
         return { page: "landing" };
     }
@@ -58681,7 +63342,16 @@ function AppInner() {
       setViewingFileIdFromAlert(null);
     }
   }, [viewingFileIdFromAlert]);
+  const [chtInquiryIdFromAlert, setChtInquiryIdFromAlert] = reactExports.useState(null);
+  reactExports.useEffect(() => {
+    if (chtInquiryIdFromAlert) {
+      setPage("cht");
+    }
+  }, [chtInquiryIdFromAlert]);
   const t = getTheme(darkMode);
+  reactExports.useEffect(() => {
+    setThemeCookie(darkMode);
+  }, [darkMode]);
   reactExports.useEffect(() => {
     if (!showDeptDropdown) return;
     const h = () => setShowDeptDropdown(false);
@@ -58697,7 +63367,7 @@ function AppInner() {
   reactExports.useEffect(() => {
     if (isAuthenticated()) {
       getMe().then((user) => {
-        setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl, customAppIds: user.customAppIds || [] });
+        setLoggedInUser({ id: user.id, name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl, customAppIds: user.customAppIds || [] });
         setIsLoggedIn(true);
         const redirect = sessionStorage.getItem("redirectAfterLogin");
         if (redirect) {
@@ -58775,7 +63445,7 @@ function AppInner() {
   reactExports.useEffect(() => {
     if (!isLoggedIn || page !== "admin" || adminSection !== "users") return;
     getUsers().then((users) => {
-      setAdminUsers(users.map((u) => ({ name: u.display_name, email: u.email, groups: u.groups || [], status: u.status === "active" ? "Active" : "Inactive", id: u.id, groupIds: u.groupIds || [] })));
+      setAdminUsers(users.map((u) => ({ name: u.display_name, email: u.email, groups: u.groups || [], status: u.status === "active" ? "Active" : "Inactive", id: u.id, groupIds: u.groupIds || [], authProvider: u.auth_provider || "local" })));
     }).catch(console.error);
   }, [isLoggedIn, page, adminSection]);
   reactExports.useEffect(() => {
@@ -58903,13 +63573,15 @@ function AppInner() {
   const handleNotificationCreated = reactExports.useCallback((data) => {
     if (!isLoggedIn) return;
     const notification = data.notification || data;
+    if (notification.type === "cht_inquiry_assigned" || notification.type === "cht_inquiry_updated") {
+      return;
+    }
     addToast(
       `New file uploaded`,
       `${notification.file_name} was uploaded by ${notification.created_by_name} to ${notification.item_name || "a subscribed location"}`,
       void 0,
       "upload"
     );
-    markNotificationRead(notification.id).catch(console.error);
   }, [isLoggedIn, addToast]);
   useSocket({
     onLocationsChanged: handleLocationsChanged,
@@ -59016,7 +63688,7 @@ function AppInner() {
     setLoginLoading(true);
     try {
       const user = await login(loginForm.username.trim(), loginForm.password.trim());
-      setLoggedInUser({ name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl, customAppIds: user.customAppIds || [] });
+      setLoggedInUser({ id: user.id, name: user.displayName, groups: user.groups, permissions: user.permissions, avatarUrl: user.avatarUrl, customAppIds: user.customAppIds || [] });
       setIsLoggedIn(true);
       setLoginForm({ username: "", password: "" });
       const redirect = sessionStorage.getItem("redirectAfterLogin");
@@ -59217,36 +63889,186 @@ function AppInner() {
       handleUploadFiles(e.dataTransfer.files);
       return;
     }
-    for (const item of items) {
+    const itemsArray = Array.from(items);
+    const entries = [];
+    for (const item of itemsArray) {
       const entry = ((_a3 = item.webkitGetAsEntry) == null ? void 0 : _a3.call(item)) || ((_b = item.getAsEntry) == null ? void 0 : _b.call(item));
-      if (!entry) continue;
-      if (entry.isFile) {
-        const file = await new Promise((resolve, reject) => {
-          entry.file(resolve, reject);
-        });
-        processFile(file, null);
-      } else if (entry.isDirectory) {
-        const skipCount = { value: 0 };
-        const allFiles = await readDirectoryContents(entry, "", skipCount);
-        const folderName = entry.name;
-        try {
-          const created = await createFolder(folderName, activeLocation, activeDepartment, null);
-          setFolders((p) => [...p, { id: created.id, name: created.name, locationId: created.location_id || created.locationId, departmentId: created.department_id || created.departmentId, parentId: null, createdAt: created.created_at }]);
-          const msg = skipCount.value > 0 ? `"${folderName}" created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} (${skipCount.value} skipped)` : `"${folderName}" has been created with ${allFiles.length} file${allFiles.length !== 1 ? "s" : ""}`;
-          addToast("Folder created", msg, 4e3, "create");
-          for (const { file } of allFiles) {
-            processFile(file, created.id);
-          }
-        } catch (err) {
-          console.error("Failed to create folder:", err);
-          addToast("Error", `Failed to create folder "${folderName}"`, 4e3, "error");
-        }
+      if (entry) {
+        entries.push(entry);
       }
+    }
+    console.log(`Collected ${entries.length} entries from ${itemsArray.length} items`);
+    const folderCache = /* @__PURE__ */ new Map();
+    const createdFolders = [];
+    const getOrCreateFolder = async (name, parentId) => {
+      const cacheKey = parentId ? `${parentId}:${name}` : `root:${name}`;
+      if (folderCache.has(cacheKey)) return folderCache.get(cacheKey);
+      try {
+        const existingFolder = await findFolder(name, activeLocation, activeDepartment, parentId);
+        if (existingFolder && existingFolder.id) {
+          folderCache.set(cacheKey, existingFolder.id);
+          return existingFolder.id;
+        }
+      } catch (err) {
+      }
+      try {
+        const created = await createFolder(name, activeLocation, activeDepartment, parentId);
+        folderCache.set(cacheKey, created.id);
+        createdFolders.push({
+          id: created.id,
+          name: created.name,
+          locationId: created.location_id || created.locationId,
+          departmentId: created.department_id || created.departmentId,
+          parentId: created.parent_id || created.parentId || null,
+          createdAt: created.created_at
+        });
+        return created.id;
+      } catch (createErr) {
+        try {
+          const existingFolder = await findFolder(name, activeLocation, activeDepartment, parentId);
+          if (existingFolder && existingFolder.id) {
+            folderCache.set(cacheKey, existingFolder.id);
+            return existingFolder.id;
+          }
+        } catch (findErr) {
+        }
+        console.error("Failed to create folder:", createErr);
+        throw createErr;
+      }
+    };
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      console.log(`Processing entry ${i + 1} of ${entries.length}: ${entry.name}`);
+      try {
+        if (entry.isFile) {
+          const file = await new Promise((resolve, reject) => {
+            entry.file(resolve, reject);
+          });
+          processFile(file, null);
+        } else if (entry.isDirectory) {
+          const skipCount = { value: 0 };
+          const allFiles = await readDirectoryContents(entry, "", skipCount);
+          const folderName = entry.name;
+          const rootFolderId = await getOrCreateFolder(folderName, null);
+          for (const { file, path } of allFiles) {
+            const pathParts = path.split("/");
+            let currentFolderId = rootFolderId;
+            if (pathParts.length > 1) {
+              for (let j = 0; j < pathParts.length - 1; j++) {
+                currentFolderId = await getOrCreateFolder(pathParts[j], currentFolderId);
+              }
+            }
+            processFile(file, currentFolderId);
+          }
+          const msg = skipCount.value > 0 ? `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} uploaded to "${folderName}" (${skipCount.value} skipped)` : `${allFiles.length} file${allFiles.length !== 1 ? "s" : ""} uploaded to "${folderName}"`;
+          addToast("Upload complete", msg, 4e3, "create");
+        }
+      } catch (err) {
+        const folderName = (entry == null ? void 0 : entry.name) || "unknown";
+        console.error(`Failed to process "${folderName}":`, err);
+        addToast("Error", `Failed to process "${folderName}": ${err.message || "Unknown error"}`, 6e3, "error");
+      }
+    }
+    if (createdFolders.length > 0) {
+      setFolders((p) => {
+        const existingIds = new Set(p.map((f) => f.id));
+        const newFolders = createdFolders.filter((f) => !existingIds.has(f.id));
+        return [...p, ...newFolders];
+      });
     }
   }, [processFile, handleUploadFiles, activeDepartment, activeLocation, addToast, setFolders]);
   const handleDeptFiles = reactExports.useCallback((fl) => {
     handleUploadFiles(fl);
   }, [handleUploadFiles]);
+  const handleBulkFolderUpload = reactExports.useCallback(async (fileList) => {
+    if (!activeDepartment || !activeLocation) return;
+    const validExtensions = [".pdf", ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"];
+    const folderCache = /* @__PURE__ */ new Map();
+    const processFilesFromList = async () => {
+      const fileData = Array.from(fileList).filter((f) => {
+        const lowerName = f.name.toLowerCase();
+        const dotIdx = lowerName.lastIndexOf(".");
+        const ext = dotIdx >= 0 ? lowerName.slice(dotIdx) : "";
+        return !lowerName.startsWith(".") && validExtensions.includes(ext);
+      });
+      const pathMap = /* @__PURE__ */ new Map();
+      for (const file of fileData) {
+        const relPath = file.webkitRelativePath || file.name;
+        pathMap.set(relPath, file);
+      }
+      const uniquePaths = [...pathMap.keys()].sort();
+      const getFolderPathParts = (relPath) => {
+        const parts2 = relPath.split("/");
+        return parts2.slice(0, -1);
+      };
+      const allFolderPaths = /* @__PURE__ */ new Set();
+      for (const relPath of uniquePaths) {
+        const folderParts = getFolderPathParts(relPath);
+        let currentPath = "";
+        for (const part of folderParts) {
+          currentPath = currentPath ? `${currentPath}/${part}` : part;
+          allFolderPaths.add(currentPath);
+        }
+      }
+      const sortedFolderPaths = [...allFolderPaths].sort((a, b) => a.split("/").length - b.split("/").length);
+      const createOrFindFolder = async (folderPath) => {
+        if (folderCache.has(folderPath)) return folderCache.get(folderPath);
+        const parts2 = folderPath.split("/");
+        let parentId = null;
+        let currentPath = "";
+        for (const part of parts2) {
+          currentPath = currentPath ? `${currentPath}/${part}` : part;
+          if (folderCache.has(currentPath)) {
+            parentId = folderCache.get(currentPath);
+            continue;
+          }
+          try {
+            const existing = await findFolder(part, activeLocation, activeDepartment, parentId);
+            folderCache.set(currentPath, existing.id);
+            parentId = existing.id;
+          } catch {
+            try {
+              const created = await createFolder(part, activeLocation, activeDepartment, parentId);
+              setFolders((p) => [...p, {
+                id: created.id,
+                name: created.name,
+                locationId: created.location_id || created.locationId,
+                departmentId: created.department_id || created.departmentId,
+                parentId: created.parent_id || created.parentId || null,
+                createdAt: created.created_at
+              }]);
+              folderCache.set(currentPath, created.id);
+              parentId = created.id;
+            } catch (err) {
+              console.error("Failed to create folder:", err);
+              return null;
+            }
+          }
+        }
+        return folderCache.get(folderPath);
+      };
+      for (const folderPath of sortedFolderPaths) {
+        await createOrFindFolder(folderPath);
+      }
+      let filesUploaded = 0;
+      for (const file of fileData) {
+        const relPath = file.webkitRelativePath || file.name;
+        const folderParts = getFolderPathParts(relPath);
+        const folderPath = folderParts.join("/");
+        let targetFolderId = null;
+        if (folderPath) {
+          const fid = await createOrFindFolder(folderPath);
+          targetFolderId = fid;
+        }
+        processFile(file, targetFolderId);
+        filesUploaded++;
+      }
+      if (filesUploaded > 0) {
+        addToast("Upload complete", `${filesUploaded} file${filesUploaded !== 1 ? "s" : ""} uploaded`, 4e3, "create");
+      }
+    };
+    processFilesFromList();
+  }, [activeDepartment, activeLocation, processFile, setFolders, addToast]);
   const removeFile = async (id) => {
     const file = files.find((f) => f.id === id);
     try {
@@ -59317,10 +64139,18 @@ function AppInner() {
     setCreatingDeptFolder(false);
   };
   const handleDeleteFolder = (folder) => {
-    subfoldersOf(folder.id);
-    const fileCount = allFilesInFolderRecursive(folder.id);
-    const hasFiles = fileCount > 0;
-    const message = hasFiles ? `"${folder.name}" contains ${fileCount} file${fileCount !== 1 ? "s" : ""}. What would you like to do with the files?` : `Delete the folder "${folder.name}"? This cannot be undone.`;
+    const childFolders = subfoldersOf(folder.id);
+    const loadedFileCount = allFilesInFolderRecursive(folder.id);
+    const countFilesRecursive = (f) => {
+      const direct = f.fileCount || 0;
+      const subs = subfoldersOf(f.id);
+      return direct + subs.reduce((sum, sub) => sum + countFilesRecursive(sub), 0);
+    };
+    const totalFileCount = countFilesRecursive(folder);
+    const hasFiles = totalFileCount > 0 || loadedFileCount > 0;
+    const displayFileCount = Math.max(totalFileCount, loadedFileCount);
+    const hasSubfolders = childFolders.length > 0;
+    const message = hasFiles ? `"${folder.name}" contains ${displayFileCount} file${displayFileCount !== 1 ? "s" : ""}. What would you like to do with the files?` : hasSubfolders ? `"${folder.name}" contains ${childFolders.length} subfolder${childFolders.length !== 1 ? "s" : ""}. Delete the folder?` : `Delete the folder "${folder.name}"? This cannot be undone.`;
     const getAllDescendants = (pid) => {
       const ch = subfoldersOf(pid);
       let all = [];
@@ -59348,7 +64178,7 @@ function AppInner() {
             setPage("folders");
           }
         }
-        addToast("Folder deleted", `"${folder.name}" has been deleted`, 4e3, "delete");
+        addToast("Folder deleted", `"${folder.name}" has been deleted. Files moved to Unsorted.`, 4e3, "delete");
       } catch (err) {
         console.error(err);
       }
@@ -59387,12 +64217,32 @@ function AppInner() {
         onConfirm: doDeleteAll
       });
     };
+    const doDeleteEmptyFolder = async () => {
+      try {
+        for (const desc of descendants) {
+          await deleteFolder(desc.id).catch(console.error);
+        }
+        await deleteFolder(folder.id);
+        setFolders((p) => p.filter((f) => !allFolderIds.has(f.id)));
+        if (activeFolderId === folder.id || allFolderIds.has(activeFolderId)) {
+          if (folder.parentId) setActiveFolderId(folder.parentId);
+          else {
+            setActiveFolderId(null);
+            setPage("folders");
+          }
+        }
+        addToast("Folder deleted", `"${folder.name}" has been deleted`, 4e3, "delete");
+      } catch (err) {
+        console.error(err);
+      }
+    };
     setWarningModal({
       title: "Delete Folder",
       message,
       onConfirmUnlink: hasFiles ? doUnlink : void 0,
-      onConfirmDeleteAll: doDeleteAll,
-      onDeleteAllClick: handleDeleteAllClick
+      onConfirmDeleteAll: hasFiles ? doDeleteAll : void 0,
+      onDeleteAllClick: hasFiles ? handleDeleteAllClick : void 0,
+      onConfirm: hasFiles ? void 0 : doDeleteEmptyFolder
     });
   };
   const handleDeleteLocation = (loc) => {
@@ -59538,17 +64388,20 @@ function AppInner() {
     /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: `@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} @keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}} @keyframes toastIn{from{opacity:0;transform:translateX(100px)}to{opacity:1;transform:translateX(0)}} @keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(100px)}} .file-card:hover{transform:translateY(-1px);box-shadow:${t.cardShadow}} .folder-row:hover{transform:translateY(-1px);box-shadow:${t.cardShadow};border-color:${darkMode ? "#3a3f47" : t.accent}!important} .icon-btn:hover{color:${t.text}!important;background:${t.accentSoft}} .folder-select-item:hover{background:${t.accentSoft}!important} .nav-tab:hover{background:${t.navActive}} .admin-menu-item:hover{background:${t.accentSoft}} ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:${t.scrollThumb};border-radius:3px} input::placeholder{color:${t.textDim}}` }),
     page === "landing" && /* @__PURE__ */ jsxRuntimeExports.jsx(LandingNavbar, { darkMode, setDarkMode, loggedInUser, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal }),
     page === "admin" && /* @__PURE__ */ jsxRuntimeExports.jsx(AdminNavbar, { darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket: () => setShowHelpTicketModal(true) }),
-    page.startsWith("cht-") && /* @__PURE__ */ jsxRuntimeExports.jsx(CHTNavbar, { darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket: () => setShowHelpTicketModal(true) }),
-    page !== "landing" && page !== "admin" && !page.startsWith("cht-") && /* @__PURE__ */ jsxRuntimeExports.jsx(Navbar, { page, setPage, darkMode, setDarkMode, isLoggedIn, loggedInUser, locations, departments, folders, files, unsortedFiles, stagedFiles, activeLocation, setActiveLocation, activeDepartment, setActiveDepartment, setActiveFolderId, setSelectedFile, setViewingFileId, setFolderSearch, expandedLocations, setExpandedLocations, showDeptDropdown, setShowDeptDropdown, showProfileMenu, setShowProfileMenu, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, setAdminSection, handleLogout, foldersInLocation, foldersInDepartment, deptsInLocation, filesInFolder, setShowSubscriptionsModal, setViewingFileIdFromAlert, onOpenHelpTicket: () => setShowHelpTicketModal(true), dashboardData, t }),
+    page === "cht" && /* @__PURE__ */ jsxRuntimeExports.jsx(CHTNavbar, { darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket: () => setShowHelpTicketModal(true), onOpenInquiry: (inquiryId) => setChtInquiryIdFromAlert(inquiryId), onShowToast: (toast) => addToast(toast.title, toast.message, toast.duration || 5e3, toast.type || "cht", toast.onClick) }),
+    page === "dcv" && /* @__PURE__ */ jsxRuntimeExports.jsx(DCVNavbar, { darkMode, setDarkMode, loggedInUser, page, setPage, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, handleLogout, setShowSubscriptionsModal, setAdminSection, onOpenHelpTicket: () => setShowHelpTicketModal(true), onSelectCustomer: (customer) => setSelectedCustomer(customer) }),
+    page !== "landing" && page !== "admin" && page !== "cht" && page !== "dcv" && /* @__PURE__ */ jsxRuntimeExports.jsx(Navbar, { page, setPage, darkMode, setDarkMode, isLoggedIn, loggedInUser, locations, departments, folders, files, unsortedFiles, stagedFiles, activeLocation, setActiveLocation, activeDepartment, setActiveDepartment, setActiveFolderId, setSelectedFile, setViewingFileId, setFolderSearch, expandedLocations, setExpandedLocations, showDeptDropdown, setShowDeptDropdown, showProfileMenu, setShowProfileMenu, setShowChangePassword, setChangePasswordForm, setChangePasswordError, setChangePasswordSuccess, setAdminSection, handleLogout, foldersInLocation, foldersInDepartment, deptsInLocation, filesInFolder, setShowSubscriptionsModal, setViewingFileIdFromAlert, onOpenHelpTicket: () => setShowHelpTicketModal(true), dashboardData, t }),
     page === "landing" && /* @__PURE__ */ jsxRuntimeExports.jsx(LandingPage, { setPage, t, darkMode, loggedInUser, onOpenHelpTicket: () => setShowHelpTicketModal(true) }),
-    page === "cht-dashboard" && /* @__PURE__ */ jsxRuntimeExports.jsx(CHTDashboardPage, { loggedInUser, t, darkMode }),
+    page === "cht" && /* @__PURE__ */ jsxRuntimeExports.jsx(CHTDashboardPage, { loggedInUser, t, darkMode, openInquiryId: chtInquiryIdFromAlert, onInquiryOpened: () => setChtInquiryIdFromAlert(null) }),
+    page === "dcv" && /* @__PURE__ */ jsxRuntimeExports.jsx(DCVPage, { t, darkMode, selectedCustomer, setPage, setActiveFolderId, initialRepairOrderSlsId, setInitialRepairOrderSlsId, initialTab: dcvInitialTab, setSelectedFile, setViewingFileId }),
+    page === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsPage, { darkMode, setDarkMode, t }),
     page === "dashboard" && /* @__PURE__ */ jsxRuntimeExports.jsx(DashboardPage, { dashboardData, loggedInUser, locations, departments, setPage, setActiveFolderId, setActiveLocation, setActiveDepartment, setViewingFileId, t, darkMode }),
     page === "folders-browse" && /* @__PURE__ */ jsxRuntimeExports.jsx(FoldersBrowsePage, { locations, departments, deptsInLocation, setActiveLocation, setActiveDepartment, setActiveFolderId, setFolderSearch, setSelectedFile, setPage, subscriptions, setSubscriptions, t, darkMode }),
-    page === "folders" && /* @__PURE__ */ jsxRuntimeExports.jsx(FoldersPage, { currentLocation, currentDept, currentDeptFolders, folderSearch, setFolderSearch, creatingDeptFolder, setCreatingDeptFolder, newDeptFolderName, setNewDeptFolderName, createDeptFolder, setActiveFolderId, setPage, setCreatingSubfolder, handleDeleteFolder, subscriptions, setSubscriptions, loggedInUser, t, darkMode, handleDeptDrop, deptDragOver, setDeptDragOver, handleDeptFiles }),
-    page === "folder-detail" && /* @__PURE__ */ jsxRuntimeExports.jsx(FolderDetailPage, { activeFolder, activeFolderId, filesInFolder, subfoldersOf, allFilesInFolderRecursive, getBreadcrumb, locations, departments, folders, setActiveFolderId, setPage, setSelectedFile, setViewingFileId, setRenamingFileId, setRenamingFileName, copyText, removeFile, handleDeleteFolder, creatingSubfolder, setCreatingSubfolder, newSubfolderName, setNewSubfolderName, createSubfolder, folderDetailDragOver, setFolderDetailDragOver, handleFolderDetailDrop, handleFolderDetailFiles, subscriptions, setSubscriptions, loggedInUser, t, darkMode }),
-    page === "file-detail" && /* @__PURE__ */ jsxRuntimeExports.jsx(FileDetailPage, { viewingFileId, files, folders, locations, departments, getBreadcrumb, setViewingFileId, setActiveFolderId, setPage, setRenamingFileId, setRenamingFileName, removeFile, loggedInUser, t, darkMode }),
+    page === "folders" && /* @__PURE__ */ jsxRuntimeExports.jsx(FoldersPage, { currentLocation, currentDept, currentDeptFolders, folderSearch, setFolderSearch, creatingDeptFolder, setCreatingDeptFolder, newDeptFolderName, setNewDeptFolderName, createDeptFolder, setActiveFolderId, setPage, setCreatingSubfolder, handleDeleteFolder, subscriptions, setSubscriptions, loggedInUser, t, darkMode, handleDeptDrop, deptDragOver, setDeptDragOver, handleDeptFiles, handleBulkFolderUpload }),
+    page === "folder-detail" && /* @__PURE__ */ jsxRuntimeExports.jsx(FolderDetailPage, { activeFolder, activeFolderId, filesInFolder, subfoldersOf, allFilesInFolderRecursive, getBreadcrumb, locations, departments, folders, setActiveFolderId, setActiveLocation, setActiveDepartment, setPage, setSelectedFile, setViewingFileId, setRenamingFileId, setRenamingFileName, copyText, removeFile, handleDeleteFolder, creatingSubfolder, setCreatingSubfolder, newSubfolderName, setNewSubfolderName, createSubfolder, folderDetailDragOver, setFolderDetailDragOver, handleFolderDetailDrop, handleFolderDetailFiles, subscriptions, setSubscriptions, loggedInUser, t, darkMode, setSelectedCustomer, setInitialRepairOrderSlsId, setDcvInitialTab }),
+    page === "file-detail" && /* @__PURE__ */ jsxRuntimeExports.jsx(FileDetailPage, { viewingFileId, files, folders, locations, departments, getBreadcrumb, setViewingFileId, setActiveFolderId, setPage, setRenamingFileId, setRenamingFileName, removeFile, loggedInUser, t, darkMode, activeFolderId }),
     page === "unsorted" && /* @__PURE__ */ jsxRuntimeExports.jsx(UnsortedPage, { unsortedFiles, folders, locations, departments, deptsInLocation, handleMoveFile, removeFile, setUnsortedFiles, setWarningModal, loggedInUser, t, darkMode }),
-    page === "upload" && /* @__PURE__ */ jsxRuntimeExports.jsx(UploadPage, { stagedFiles, setStagedFiles, stagedFolderAssignments, setStagedFolderAssignments, stagedSuggestions, setStagedSuggestions, folders, locations, departments, deptsInLocation, handleDrop, handleUploadFiles, dragOver, setDragOver, uploadAllStaged, removeStagedFile, t, darkMode }),
+    page === "upload" && /* @__PURE__ */ jsxRuntimeExports.jsx(UploadPage, { stagedFiles, setStagedFiles, stagedFolderAssignments, setStagedFolderAssignments, stagedSuggestions, setStagedSuggestions, folders, locations, departments, deptsInLocation, handleDrop, handleUploadFiles, dragOver, setDragOver, uploadAllStaged, removeStagedFile, t, darkMode, watchedFiles, setWatchedFiles, watchedFolderPath, watchFolderEnabled, autoUploadEnabled, scanWatchedFolder, isScanning, lastScanTime }),
     page === "admin" && /* @__PURE__ */ jsxRuntimeExports.jsx(AdminPage, { adminSection, setAdminSection, setPage, adminUsers, setAdminUsers, setAdminSetPasswordUserId, setAdminSetPasswordForm, setAdminSetPasswordError, setAdminSetPasswordSuccess, securityGroups, setSecurityGroups, editingGroupId, setEditingGroupId, addingGroup, setAddingGroup, newGroupName, setNewGroupName, newGroupDesc, setNewGroupDesc, setWarningModal, loggedInUser, locations, setLocations, addingLocation, setAddingLocation, newLocationName, setNewLocationName, newLocationCode, setNewLocationCode, editingLocationId, setEditingLocationId, editingLocationName, setEditingLocationName, editingLocationCode, setEditingLocationCode, foldersInLocation, filesInFolder, handleDeleteLocation, departments, setDepartments, deptsInLocation, foldersInDepartment, addingDept, setAddingDept, addingDeptLocId, setAddingDeptLocId, newDeptName, setNewDeptName, editingDeptId, setEditingDeptId, editingDeptName, setEditingDeptName, handleDeleteDept, auditLog, auditFilterUser, setAuditFilterUser, auditFilterAction, setAuditFilterAction, auditFilterDate, setAuditFilterDate, locationAccess, setLocationAccess, departmentAccess, setDepartmentAccess, subscriptions, setSubscriptions, totalPermissionCount, setTotalPermissionCount, t, darkMode, addToast }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(RenameModal, { renamingFileId, renamingFileName, setRenamingFileId, setRenamingFileName, renameFile: renameFile$1, t, darkMode }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(WarningModal, { warningModal, setWarningModal, t, darkMode }),
@@ -59580,4 +64433,4 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-BKmLJzVX.js.map
+//# sourceMappingURL=index-BW5SO2YY.js.map

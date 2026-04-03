@@ -4,6 +4,62 @@ const router = express.Router();
 const db = require('../config/db');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 
+// Get customer by cus_id (DMS ID)
+router.get('/by-cus-id/:cusId', requireAuth, requirePermission('view_dcv'), async (req, res) => {
+  try {
+    const { cusId } = req.params;
+    
+    const [rows] = await db.execute(
+      `SELECT id, cus_id, name, addr1, addr2, city, county, state, post, country,
+              bill_cus_id, bill_addr1, bill_addr2, bill_city, bill_county, bill_state, bill_post, bill_country,
+              phone_home, phone_work, phone_other, email_home, email_work, email_other,
+              emp_id, date_create, date_update
+       FROM company_customer 
+       WHERE cus_id = ? AND dms_deleted = FALSE
+       LIMIT 1`,
+      [cusId]
+    );
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+    
+    const row = rows[0];
+    res.json({
+      id: row.id,
+      cusId: row.cus_id,
+      name: row.name,
+      addr1: row.addr1,
+      addr2: row.addr2,
+      city: row.city,
+      county: row.county,
+      state: row.state,
+      post: row.post,
+      country: row.country,
+      billCusId: row.bill_cus_id,
+      billAddr1: row.bill_addr1,
+      billAddr2: row.bill_addr2,
+      billCity: row.bill_city,
+      billCounty: row.bill_county,
+      billState: row.bill_state,
+      billPost: row.bill_post,
+      billCountry: row.bill_country,
+      phoneHome: row.phone_home,
+      phoneWork: row.phone_work,
+      phoneOther: row.phone_other,
+      emailHome: row.email_home,
+      emailWork: row.email_work,
+      emailOther: row.email_other,
+      empId: row.emp_id,
+      dateCreate: row.date_create,
+      dateUpdate: row.date_update,
+    });
+  } catch (err) {
+    console.error('[DCV] Get customer by cus_id error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Search customers by Cus_Id or Name (fuzzy search)
 router.get('/search', requireAuth, requirePermission('view_dcv'), async (req, res) => {
   try {

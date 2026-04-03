@@ -3,7 +3,7 @@ import { getTheme } from "../theme";
 import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon, FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon, WrenchIcon, CarIcon, SearchIcon } from "../components/Icons";
 import * as api from "../api";
 
-export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setActiveFolderId }) {
+export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setActiveFolderId, initialRepairOrderSlsId, setInitialRepairOrderSlsId }) {
   const theme = getTheme(darkMode);
   const [activeTab, setActiveTab] = useState("timeline");
   
@@ -68,6 +68,16 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
       setServiceSearch("");
     }
   }, [customer]);
+
+  useEffect(() => {
+    if (initialRepairOrderSlsId && customer && activeTab === "service" && repairOrders.length > 0) {
+      const matchingRO = repairOrders.find(ro => ro.slsId === initialRepairOrderSlsId);
+      if (matchingRO) {
+        setSelectedRepairOrder(matchingRO);
+        setInitialRepairOrderSlsId(null);
+      }
+    }
+  }, [initialRepairOrderSlsId, customer, activeTab, repairOrders, setInitialRepairOrderSlsId]);
 
   useEffect(() => {
     setTimelinePage(1);

@@ -611,6 +611,10 @@ export async function getDcvCustomer(id) {
   return request(`/dcv/${id}`);
 }
 
+export async function getDcvCustomerByCusId(cusId) {
+  return request(`/dcv/by-cus-id/${encodeURIComponent(cusId)}`);
+}
+
 export async function getDcvCustomerTimeline(id, page = 1, pageSize = 20, filterType = null) {
   let url = `/dcv/${id}/timeline?page=${page}&pageSize=${pageSize}`;
   if (filterType) {

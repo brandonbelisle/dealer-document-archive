@@ -2,6 +2,7 @@ import { useRef, useEffect } from "react";
 import { fmtSize } from "../utils/helpers";
 import { Btn, SmallBtn } from "../components/ui/Btn";
 import SubscribeButton from "../components/SubscribeButton";
+import * as api from "../api";
 import {
   FolderClosedIcon,
   FolderOpenIcon,
@@ -14,6 +15,7 @@ import {
   CopyIcon,
   TrashIcon,
   ChevronRightIcon,
+  UsersIcon,
 } from "../components/Icons";
 
 export default function FolderDetailPage({
@@ -51,6 +53,8 @@ export default function FolderDetailPage({
   loggedInUser,
   t,
   darkMode,
+  setSelectedCustomer,
+  setInitialRepairOrderSlsId,
 }) {
   const canDeleteFiles = loggedInUser?.permissions?.includes("deleteFiles");
   const canDeleteFolders = loggedInUser?.permissions?.includes("deleteFolders");
@@ -88,6 +92,32 @@ export default function FolderDetailPage({
       return { type: "document", label: "Document", icon: FileDocIcon };
     }
     return { type: "other", label: "Other", icon: FileDocIcon };
+  };
+
+  const handleOpenDCV = async () => {
+    if (!activeFolder?.cus_id) return;
+    
+    try {
+      const cusId = activeFolder.cus_id;
+      const customer = await api.getDcvCustomerByCusId(cusId);
+      
+      // Extract RO number from folder name - use last number after first 10 chars
+      let roNumber = activeFolder.name;
+      if (roNumber.length > 10) {
+        const prefix = roNumber.substring(0, 10);
+        const suffix = roNumber.substring(10);
+        const match = suffix.match(/:(\d+)/);
+        if (match) {
+          roNumber = `${prefix}:${match[1]}`;
+        }
+      }
+      
+      setSelectedCustomer(customer);
+      setInitialRepairOrderSlsId(roNumber);
+      setPage("dcv");
+    } catch (err) {
+      console.error("Failed to open DCV:", err);
+    }
   };
 
   return (
@@ -276,6 +306,30 @@ export default function FolderDetailPage({
             onUnsubscribe={handleUnsubscribe}
             t={t}
           />
+          {activeFolder.cus_id && (
+            <button
+              onClick={handleOpenDCV}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 12px",
+                background: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
+                border: "none",
+                borderRadius: 6,
+                color: "white",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                transition: "all 0.15s",
+              }}
+              title="Open in Dealer Customer Vision"
+            >
+              <UsersIcon size={14} />
+              <span>DCV</span>
+            </button>
+          )}
         </div>
         <div style={{ display: "flex", gap: 6 }}>
           {!creatingSubfolder && (

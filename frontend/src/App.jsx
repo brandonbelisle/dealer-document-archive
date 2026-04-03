@@ -333,13 +333,18 @@ useEffect(() => {
 const autoUploadWatchedFiles = useCallback(async (files) => {
   if (!files || files.length === 0) return;
   
+  console.log('Auto-upload triggered with', files.length, 'files');
+  console.log('Auto-upload enabled:', autoUploadEnabled);
+  console.log('Watched folder handle exists:', !!watchedFolderHandle);
+  console.log('Handled folder handle exists:', !!handledFolderHandle);
+  
   let successCount = 0;
   for (const wf of files) {
     try {
       const id = uid();
       const v = validateFile(wf.file);
       if (!v.valid) {
-        console.log(`Skipping invalid file: ${wf.name}`);
+        console.log(`Skipping invalid file: ${wf.name}`, v.error);
         continue;
       }
       
@@ -359,10 +364,13 @@ const autoUploadWatchedFiles = useCallback(async (files) => {
         }
       }
       
+      console.log('Uploading file:', wf.name);
       await api.uploadFile(wf.file, null, text, pages);
+      console.log('Successfully uploaded:', wf.name);
       successCount++;
 
       if (handledFolderHandle && wf.handle) {
+        console.log('Moving file to handled folder:', wf.name);
         try {
           const destFileHandle = await handledFolderHandle.getFileHandle(wf.name, { create: true });
           const writable = await destFileHandle.createWritable();
@@ -379,6 +387,7 @@ const autoUploadWatchedFiles = useCallback(async (files) => {
           } else {
             await watchedFolderHandle.removeEntry(wf.name);
           }
+          console.log('Successfully moved to handled folder:', wf.name);
         } catch (moveErr) {
           console.error(`Failed to move ${wf.name} to handled folder:`, moveErr);
         }

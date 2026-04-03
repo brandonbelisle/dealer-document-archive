@@ -47,21 +47,24 @@ try {
 
 # Check WiX
 $wixPath = $env:WIX
+$pathDirs = $env:PATH -split ';'
 $candidatePaths = @(
-    $env:PATH -split ';',
     "C:\Program Files (x86)\WiX Toolset v3.14\bin",
     "C:\Program Files (x86)\WiX Toolset v3.11\bin",
     "C:\Program Files\WiX Toolset v3.14\bin",
     "C:\Program Files\WiX Toolset v3.11\bin"
-)
+) + $pathDirs
 
 $candleExe = $null
 foreach ($p in $candidatePaths) {
-    if ($p) {
-        $candidate = Join-Path $p "candle.exe"
-        if (Test-Path $candidate) {
-            $candleExe = $candidate
-            break
+    if ($p -and $p.Trim()) {
+        $trimmedPath = $p.Trim()
+        if (Test-Path $trimmedPath) {
+            $candidate = Join-Path $trimmedPath "candle.exe"
+            if (Test-Path $candidate) {
+                $candleExe = $candidate
+                break
+            }
         }
     }
 }

@@ -3,7 +3,7 @@ import { getTheme } from "../theme";
 import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon, FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon, WrenchIcon, CarIcon, SearchIcon } from "../components/Icons";
 import * as api from "../api";
 
-export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setActiveFolderId, initialRepairOrderSlsId, setInitialRepairOrderSlsId, initialTab = "timeline" }) {
+export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setActiveFolderId, initialRepairOrderSlsId, setInitialRepairOrderSlsId, initialTab = "timeline", setSelectedFile, setViewingFileId }) {
   const theme = getTheme(darkMode);
   const [activeTab, setActiveTab] = useState(initialTab);
   
@@ -539,6 +539,16 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
                       {timeline.map((event, index) => (
                         <div
                           key={`${event.type}-${event.id}-${index}`}
+                          onClick={() => {
+                            if (event.type === "folder_created" && event.metadata?.folderId) {
+                              setActiveFolderId(event.metadata.folderId);
+                              setPage("folder-detail");
+                            } else if (event.type === "file_uploaded" && event.metadata?.fileId) {
+                              setSelectedFile(event.metadata.fileId);
+                              setViewingFileId(event.metadata.fileId);
+                              setPage("file-detail");
+                            }
+                          }}
                           style={{
                             display: "flex",
                             gap: 16,
@@ -546,6 +556,8 @@ export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setAct
                             background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
                             borderRadius: 12,
                             border: `1px solid ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+                            cursor: (event.type === "folder_created" || event.type === "file_uploaded") ? "pointer" : "default",
+                            transition: "all 0.15s",
                           }}
                         >
                           <div style={{

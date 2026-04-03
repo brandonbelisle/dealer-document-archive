@@ -350,7 +350,7 @@ const autoUploadWatchedFiles = useCallback(async (files) => {
       
       if (isPdf) {
         try {
-          const result = await extractTextFromPDF(wf.file);
+          const result = await extractTextFromPDF(wf.file, () => {});
           text = result.text;
           pages = result.pages;
         } catch (err) {
@@ -358,8 +358,30 @@ const autoUploadWatchedFiles = useCallback(async (files) => {
         }
       }
       
-      console.log('Uploading file:', wf.name);
-      await api.uploadFile(wf.file, null, text, pages);
+      const r10Pattern = /R10[A-Za-z0-9]{7}/;
+      const match = wf.name.match(r10Pattern);
+      let folderId = null;
+      
+      if (match) {
+        const roNumber = match[0];
+        console.log('Found RO number:', roNumber, 'in file:', wf.name);
+        
+        const matchingFolder = folders.find(f => 
+          f.name && f.name.toUpperCase() === roNumber.toUpperCase()
+        );
+        
+        if (matchingFolder) {
+          folderId = matchingFolder.id;
+          console.log('Found matching folder:', matchingFolder.name, 'ID:', matchingFolder.id);
+        } else {
+          console.log('No matching folder found for RO number:', roNumber, '- uploading to Unsorted');
+        }
+      } else {
+        console.log('No RO number found in filename:', wf.name, '- uploading to Unsorted');
+      }
+      
+      console.log('Uploading file:', wf.name, 'to', folderId ? `folder ${folderId}` : 'Unsorted');
+      await api.uploadFile(wf.file, folderId, text, pages);
       console.log('Successfully uploaded:', wf.name);
       successCount++;
 
@@ -398,8 +420,9 @@ const autoUploadWatchedFiles = useCallback(async (files) => {
   if (successCount > 0) {
     addToast("Auto-uploaded", `${successCount} file${successCount !== 1 ? "s" : ""} uploaded from watched folder`, 5000, "upload");
     api.getUnsortedFiles().then((rows) => { setUnsortedFiles(rows.map((f) => ({ id: f.id, name: f.name, size: Number(f.file_size_bytes || 0), type: f.mime_type || "application/pdf", pages: Number(f.page_count || 0), status: f.status, text: f.extracted_text, folderId: null, fileStoragePath: f.file_storage_path, uploadedAt: f.uploaded_at || null, uploadedBy: f.uploaded_by_name || f.uploaded_by || null, error: f.error_message, progress: f.status === "done" ? 100 : 0 }))); }).catch(console.error);
+    api.getFolders({}).then((rows) => { const norm = rows.map((f) => ({ id: f.id, name: f.name, locationId: f.location_id || f.locationId, departmentId: f.department_id || f.departmentId, parentId: f.parent_id || f.parentId || null, createdAt: f.created_at, fileCount: Number(f.fileCount || 0), subfolderCount: Number(f.subfolderCount || 0) })); setFolders(norm); }).catch(console.error);
   }
-}, [addToast, handledFolderHandle, watchedFolderHandle]);
+}, [addToast, handledFolderHandle, watchedFolderHandle, folders]);
 
 useEffect(() => {
   if (!watchFolderEnabled) {

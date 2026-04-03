@@ -95,14 +95,14 @@ export default function FolderDetailPage({
   };
 
   const handleOpenDCV = async () => {
-    if (!activeFolder?.cus_id) return;
+    const folderName = activeFolder?.name;
+    if (!folderName) return;
     
     try {
-      const cusId = activeFolder.cus_id;
-      const customer = await api.getDcvCustomerByCusId(cusId);
+      let customer = null;
+      let roNumber = folderName;
       
-      // Extract RO number from folder name - use last number after first 10 chars
-      let roNumber = activeFolder.name;
+      // Extract RO number - use last number after first 10 chars
       if (roNumber.length > 10) {
         const prefix = roNumber.substring(0, 10);
         const suffix = roNumber.substring(10);
@@ -112,11 +112,34 @@ export default function FolderDetailPage({
         }
       }
       
-      setSelectedCustomer(customer);
-      setInitialRepairOrderSlsId(roNumber);
-      setPage("dcv");
+      // Try to get customer from folder's cus_id first
+      if (activeFolder.cus_id) {
+        try {
+          customer = await api.getDcvCustomerByCusId(activeFolder.cus_id);
+        } catch (err) {
+          console.log("Customer not found via cus_id, trying RO lookup...");
+        }
+      }
+      
+      // Fallback: look up customer from repair orders using folder name
+      if (!customer) {
+        try {
+          customer = await api.getDcvCustomerByRO(folderName);
+        } catch (err) {
+          console.error("Failed to find customer via RO:", err);
+          alert("No customer found for this repair order.");
+          return;
+        }
+      }
+      
+      if (customer) {
+        setSelectedCustomer(customer);
+        setInitialRepairOrderSlsId(roNumber);
+        setPage("dcv");
+      }
     } catch (err) {
       console.error("Failed to open DCV:", err);
+      alert("Failed to open customer view.");
     }
   };
 
@@ -306,30 +329,28 @@ export default function FolderDetailPage({
             onUnsubscribe={handleUnsubscribe}
             t={t}
           />
-          {activeFolder.cus_id && (
-            <button
-              onClick={handleOpenDCV}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "6px 12px",
-                background: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
-                border: "none",
-                borderRadius: 6,
-                color: "white",
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: "pointer",
-                fontFamily: "inherit",
-                transition: "all 0.15s",
-              }}
-              title="Open in Dealer Customer Vision"
-            >
-              <UsersIcon size={14} />
-              <span>DCV</span>
-            </button>
-          )}
+          <button
+            onClick={handleOpenDCV}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              background: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
+              border: "none",
+              borderRadius: 6,
+              color: "white",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              transition: "all 0.15s",
+            }}
+            title="Open in Dealer Customer Vision"
+          >
+            <UsersIcon size={14} />
+            <span>DCV</span>
+          </button>
         </div>
         <div style={{ display: "flex", gap: 6 }}>
           {!creatingSubfolder && (

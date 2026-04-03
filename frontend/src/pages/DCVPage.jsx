@@ -3,9 +3,9 @@ import { getTheme } from "../theme";
 import { UsersIcon, MapPinIcon, BuildingIcon, MailIcon, PhoneIcon, ClockIcon, CreditCardIcon, FolderIcon, FileIcon, ChevronLeftIcon, ChevronRightIcon, WrenchIcon, CarIcon, SearchIcon } from "../components/Icons";
 import * as api from "../api";
 
-export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setActiveFolderId, initialRepairOrderSlsId, setInitialRepairOrderSlsId }) {
+export default function DCVPage({ t, darkMode, selectedCustomer, setPage, setActiveFolderId, initialRepairOrderSlsId, setInitialRepairOrderSlsId, initialTab = "timeline" }) {
   const theme = getTheme(darkMode);
-  const [activeTab, setActiveTab] = useState("timeline");
+  const [activeTab, setActiveTab] = useState(initialTab);
   
   // Timeline state
   const [timeline, setTimeline] = useState([]);

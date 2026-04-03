@@ -55,6 +55,7 @@ export default function FolderDetailPage({
   darkMode,
   setSelectedCustomer,
   setInitialRepairOrderSlsId,
+  setDcvInitialTab,
 }) {
   const canDeleteFiles = loggedInUser?.permissions?.includes("deleteFiles");
   const canDeleteFolders = loggedInUser?.permissions?.includes("deleteFolders");
@@ -135,6 +136,7 @@ export default function FolderDetailPage({
       if (customer) {
         setSelectedCustomer(customer);
         setInitialRepairOrderSlsId(roNumber);
+        setDcvInitialTab("service");
         setPage("dcv");
       }
     } catch (err) {

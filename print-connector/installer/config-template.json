@@ -1,0 +1,29 @@
+{
+  "dda": {
+    "baseUrl": "http://your-dda-server:3000",
+    "username": "your-username",
+    "password": "your-password",
+    "defaultFolderId": null,
+    "locationId": null,
+    "departmentId": null,
+    "uploadTimeout": 120000
+  },
+  "watcher": {
+    "watchPath": "C:\\DDA_Print_Output",
+    "processedPath": "C:\\DDA_Print_Output\\processed",
+    "failedPath": "C:\\DDA_Print_Output\\failed",
+    "fileExtensions": [".pdf", ".png", ".jpg", ".jpeg"],
+    "stabilityThreshold": 2000,
+    "pollInterval": 1000
+  },
+  "logging": {
+    "level": "info",
+    "file": "logs/dda-connector.log",
+    "console": true
+  },
+  "notifications": {
+    "enabled": true,
+    "showSuccess": true,
+    "showError": true
+  }
+}

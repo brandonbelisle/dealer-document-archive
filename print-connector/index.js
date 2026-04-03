@@ -6,7 +6,9 @@ const DDAClient = require('./dda-client');
 const FileWatcher = require('./watcher');
 
 const APP_NAME = 'DDA Print Connector';
-const isWindowsService = process.env.WINSER_SERVICE === 'true';
+const isService = process.argv.includes('--service') || 
+                   process.argv.includes('--install') || 
+                   process.env.WINSER_SERVICE === 'true';
 
 function createLogger(config) {
   const logPath = path.join(__dirname, config.logging.file || 'logs/dda-connector.log');
@@ -25,7 +27,7 @@ function createLogger(config) {
     })
   ];
 
-  if (config.logging.console && !isWindowsService) {
+  if (config.logging.console !== false && !isService) {
     transports.push(
       new winston.transports.Console({
         format: winston.format.combine(
@@ -66,7 +68,6 @@ function createNotifier(config) {
       showError: config.notifications.showError !== false
     };
   } catch (err) {
-    console.warn('node-notifier not available:', err.message);
     return null;
   }
 }
@@ -75,7 +76,7 @@ async function validateConfig(config, logger) {
   const errors = [];
 
   if (!config.dda.baseUrl) {
-    errors.push('DDA base URL isrequired');
+    errors.push('DDA base URL is required');
   }
 
   if (!config.dda.username) {
@@ -108,11 +109,18 @@ class Connector {
     this.ddaClient = null;
     this.watcher = null;
     this.isRunning = false;
+    this.isShuttingDown = false;
   }
 
   async start() {
+    if (this.isRunning) {
+      return;
+    }
+
     try {
-      console.log(`Starting ${APP_NAME}...`);
+      if (!isService) {
+        console.log(`Starting ${APP_NAME}...`);
+      }
       
       this.config = loadConfig();
       ensureDirectories();
@@ -126,6 +134,12 @@ class Connector {
       
       if (!await validateConfig(this.config, this.logger)) {
         this.logger.error('Invalid configuration. Please check config/local.json');
+        this.logger.error('');
+        this.logger.error('Required settings:');
+        this.logger.error('  dda.baseUrl: DDA server URL');
+        this.logger.error('  dda.username: DDA login username');
+        this.logger.error('  dda.password: DDA login password');
+        this.logger.error('  watcher.watchPath: Folder to watch for PDFs');
         process.exit(1);
       }
 
@@ -142,12 +156,16 @@ class Connector {
       this.logger.info('Authenticating with DDA...');
       await this.ddaClient.authenticate();
       
+      this.logger.info('Loading folder structure for RO matching...');
+      await this.ddaClient.loadFolderStructure();
+      
       this.watcher = new FileWatcher(this.config, this.ddaClient, this.logger, this.notifier);
       this.watcher.start();
       
       this.isRunning = true;
       this.logger.info(`${APP_NAME} started successfully`);
       
+      // Handle shutdown signals
       process.on('SIGINT', () => this.shutdown());
       process.on('SIGTERM', () => this.shutdown());
       
@@ -159,10 +177,11 @@ class Connector {
   }
 
   async shutdown() {
-    if (!this.isRunning) {
+    if (this.isShuttingDown || !this.isRunning) {
       return;
     }
 
+    this.isShuttingDown = true;
     this.logger.info('Shutting down...');
     this.isRunning = false;
 
@@ -171,12 +190,28 @@ class Connector {
     }
 
     this.logger.info(`${APP_NAME} stopped`);
-    process.exit(0);
+    
+    // Exit cleanly
+    setTimeout(() => process.exit(0), 1000);
   }
 }
 
+// Main entry point
 if (require.main === module) {
   const connector = new Connector();
+  
+  // Handle uncaught exceptions
+  process.on('uncaughtException', (err) => {
+    const logger = connector.logger || console;
+    logger.error('Uncaught exception:', err);
+    connector.shutdown();
+  });
+  
+  process.on('unhandledRejection', (reason, promise) => {
+    const logger = connector.logger || console;
+    logger.error('Unhandled rejection:', reason);
+  });
+  
   connector.start();
 }
 

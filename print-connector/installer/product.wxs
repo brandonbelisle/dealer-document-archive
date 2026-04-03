@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  
+  <?define ProductName = "DDA Print Connector" ?>
+  <?define ProductVersion = "1.0.0" ?>
+  <?define Manufacturer = "Dealer Document Archive" ?>
+  <?define UpgradeCode = "B5D4E3F2-A1B2-C3D4-E5F6-1234567890AB" ?>
+  
+  <Product Id="*" 
+           Name="$(var.ProductName)" 
+           Language="1033"
+           Version="$(var.ProductVersion)"
+           Manufacturer="$(var.Manufacturer)"
+           UpgradeCode="$(var.UpgradeCode)">
+    
+    <Package InstallerVersion="200" 
+             Compressed="yes" 
+             InstallScope="perMachine"
+             Platform="x64"/>
+    
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed."/>
+    <MediaTemplate EmbedCab="yes"/>
+    
+    <!-- Feature -->
+    <Feature Id="MainFeature" Title="DDA Print Connector" Level="1">
+      <ComponentGroupRef Id="ApplicationFiles"/>
+      <ComponentGroupRef Id="ConfigFiles"/>
+    </Feature>
+    
+    <!-- Directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="DDA Print Connector">
+          <Directory Id="ConfigFolder" Name="config"/>
+          <Directory Id="LogsFolder" Name="logs"/>
+        </Directory>
+      </Directory>
+    </Directory>
+    
+    <!-- Application files -->
+    <ComponentGroup Id="ApplicationFiles" Directory="INSTALLFOLDER">
+      <Component Id="MainExecutable" Guid="A1B2C3D4-E5F6-7890-1234-567890ABCDEF">
+        <File Id="DDAConnectorExe" 
+              Source="dist/dda-print-connector.exe" 
+              KeyPath="yes"/>
+        
+        <!-- Windows Service -->
+        <ServiceInstall Id="ServiceInstaller"
+                        Type="ownProcess"
+                        Name="DDAPrintConnector"
+                        DisplayName="DDA Print Connector"
+                        Description="Monitors a folder for PDF files and uploads them to Dealer Document Archive with RO number matching"
+                        Start="auto"
+                        ErrorControl="normal"
+                        Arguments="--service"/>
+        
+        <ServiceControl Id="StartService" 
+                        Start="install" 
+                        Stop="both" 
+                        Remove="uninstall" 
+                        Name="DDAPrintConnector" 
+                        Wait="yes"/>
+      </Component>
+    </ComponentGroup>
+    
+    <!-- Config files -->
+    <ComponentGroup Id="ConfigFiles" Directory="ConfigFolder">
+      <Component Id="DefaultConfig" Guid="B2C3D4E5-F6A7-8901-2345-67890ABCDEF0">
+        <File Id="DefaultConfigFile" 
+              Source="config/default.json" 
+              KeyPath="yes"/>
+      </Component>
+    </ComponentGroup>
+    
+  </Product>
+</Wix>

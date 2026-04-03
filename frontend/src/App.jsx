@@ -4,6 +4,7 @@ import { getTheme } from "./theme";
 import { extractTextFromPDF, uid, extractRO, copyText, ACCEPTED_TYPE, ACCEPTED_IMAGE_TYPES, ACCEPTED_EXTENSIONS, isImageFile, isPdfFile, isValidFileType, MAX_FILE_SIZE } from "./utils/helpers";
 import { DEFAULT_LOCATIONS, DEFAULT_DEPARTMENTS } from "./constants";
 import { useSocket } from "./hooks/useSocket";
+import { saveHandle, getHandle, removeHandle, requestPermission } from "./utils/fileHandles";
 import ErrorBoundary from "./components/ErrorBoundary";
 import LoginScreen from "./components/LoginScreen";
 import Navbar from "./components/Navbar";
@@ -172,12 +173,18 @@ const removeToast = useCallback((id) => {
 
 // ── Watched folder event listeners ─────────────────────────
 useEffect(() => {
-  const handleWatchFolderChanged = (e) => {
+  const handleWatchFolderChanged = async (e) => {
     const { handle, path, enabled, autoUpload } = e.detail;
     setWatchedFolderHandle(enabled ? handle : null);
     setWatchedFolderPath(enabled ? path : null);
     setWatchFolderEnabled(enabled);
     setAutoUploadEnabled(autoUpload || false);
+    
+    if (enabled && handle) {
+      await saveHandle('watchedFolder', handle);
+    } else {
+      await removeHandle('watchedFolder');
+    }
     
     if (!enabled) {
       setWatchedFiles([]);
@@ -192,30 +199,50 @@ useEffect(() => {
     setAutoUploadEnabled(e.detail.enabled);
   };
 
-  const handleHandledFolderChanged = (e) => {
+  const handleHandledFolderChanged = async (e) => {
     const { handle, path } = e.detail;
     setHandledFolderHandle(handle || null);
     setHandledFolderPath(path || null);
+    
+    if (handle) {
+      await saveHandle('handledFolder', handle);
+    } else {
+      await removeHandle('handledFolder');
+    }
   };
   
   window.addEventListener('watchFolderChanged', handleWatchFolderChanged);
   window.addEventListener('autoUploadChanged', handleAutoUploadChanged);
   window.addEventListener('handledFolderChanged', handleHandledFolderChanged);
   
-  const savedEnabled = localStorage.getItem('dda_watch_folder_enabled');
-  const savedAutoUpload = localStorage.getItem('dda_auto_upload_enabled');
-  const savedPath = localStorage.getItem('dda_watched_folder_path');
-  const savedHandledFolderPath = localStorage.getItem('dda_handled_folder_path');
-  
-  if (savedEnabled === 'true') {
-    setWatchFolderEnabled(true);
-    if (savedPath) setWatchedFolderPath(savedPath);
-    if (savedAutoUpload === 'true') setAutoUploadEnabled(true);
-  }
+  const init = async () => {
+    const savedEnabled = localStorage.getItem('dda_watch_folder_enabled');
+    const savedAutoUpload = localStorage.getItem('dda_auto_upload_enabled');
+    const savedPath = localStorage.getItem('dda_watched_folder_path');
+    const savedHandledFolderPath = localStorage.getItem('dda_handled_folder_path');
+    
+    if (savedEnabled === 'true') {
+      setWatchFolderEnabled(true);
+      if (savedPath) setWatchedFolderPath(savedPath);
+      if (savedAutoUpload === 'true') setAutoUploadEnabled(true);
+      
+      const savedWatchHandle = await getHandle('watchedFolder');
+      if (savedWatchHandle && await requestPermission(savedWatchHandle)) {
+        setWatchedFolderHandle(savedWatchHandle);
+      }
+    }
 
-  if (savedHandledFolderPath) {
-    setHandledFolderPath(savedHandledFolderPath);
-  }
+    if (savedHandledFolderPath) {
+      setHandledFolderPath(savedHandledFolderPath);
+      
+      const savedHandledHandle = await getHandle('handledFolder');
+      if (savedHandledHandle && await requestPermission(savedHandledHandle)) {
+        setHandledFolderHandle(savedHandledHandle);
+      }
+    }
+  };
+  
+  init();
   
   return () => {
     window.removeEventListener('watchFolderChanged', handleWatchFolderChanged);
@@ -288,8 +315,8 @@ useEffect(() => {
     scanWatchedFolder();
     
     if (autoUploadEnabled && !scanIntervalRef.current) {
-      scanIntervalRef.current = setInterval(scanWatchedFolder, 10000);
-    } else if (!autoUploadEnabled &&scanIntervalRef.current) {
+      scanIntervalRef.current = setInterval(scanWatchedFolder, 60000);
+    } else if (!autoUploadEnabled && scanIntervalRef.current) {
       clearInterval(scanIntervalRef.current);
       scanIntervalRef.current = null;
     }

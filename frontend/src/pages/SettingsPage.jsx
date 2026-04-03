@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SunIcon, MoonIcon, FolderClosedIcon, RefreshIcon } from "../components/Icons";
+import { saveHandle, getHandle, removeHandle, requestPermission } from "../utils/fileHandles";
 
 export default function SettingsPage({ darkMode, setDarkMode, t }) {
   const [watchFolderEnabled, setWatchFolderEnabled] = useState(false);
@@ -20,6 +21,20 @@ export default function SettingsPage({ darkMode, setDarkMode, t }) {
     if (savedAutoUpload === 'true') setAutoUploadEnabled(true);
     if (savedFolderPath) setWatchedFolderPath(savedFolderPath);
     if (savedHandledFolderPath) setHandledFolderPath(savedHandledFolderPath);
+
+    const initHandles = async () => {
+      const savedWatchHandle = await getHandle('watchedFolder');
+      if (savedWatchHandle && await requestPermission(savedWatchHandle)) {
+        setWatchedFolderHandle(savedWatchHandle);
+      }
+      
+      const savedHandledHandle = await getHandle('handledFolder');
+      if (savedHandledHandle && await requestPermission(savedHandledHandle)) {
+        setHandledFolderHandle(savedHandledHandle);
+      }
+    };
+    
+    initHandles();
   }, []);
 
   const handleSelectFolder = async () => {
@@ -41,6 +56,8 @@ export default function SettingsPage({ darkMode, setDarkMode, t }) {
         localStorage.setItem('dda_watch_folder_enabled', 'true');
         localStorage.setItem('dda_watched_folder_path', handle.name);
         localStorage.setItem('dda_watched_folder_name', handle.name);
+        
+        await saveHandle('watchedFolder', handle);
         
         window.dispatchEvent(new CustomEvent('watchFolderChanged', { 
           detail: { handle, path: handle.name, enabled: true, autoUpload: autoUploadEnabled }
@@ -68,6 +85,8 @@ export default function SettingsPage({ darkMode, setDarkMode, t }) {
     localStorage.removeItem('dda_auto_upload_enabled');
     localStorage.removeItem('dda_watched_folder_path');
     localStorage.removeItem('dda_watched_folder_name');
+    
+    await removeHandle('watchedFolder');
     
     window.dispatchEvent(new CustomEvent('watchFolderChanged', { 
       detail: { handle: null, path: null, enabled: false, autoUpload: false }
@@ -100,6 +119,8 @@ export default function SettingsPage({ darkMode, setDarkMode, t }) {
         
         localStorage.setItem('dda_handled_folder_path', handle.name);
         
+        await saveHandle('handledFolder', handle);
+        
         window.dispatchEvent(new CustomEvent('handledFolderChanged', { 
           detail: { handle, path: handle.name }
         }));
@@ -114,10 +135,12 @@ export default function SettingsPage({ darkMode, setDarkMode, t }) {
     }
   };
 
-  const handleClearHandledFolder = () => {
+  const handleClearHandledFolder = async () => {
     setHandledFolderPath(null);
     setHandledFolderHandle(null);
     localStorage.removeItem('dda_handled_folder_path');
+    
+    await removeHandle('handledFolder');
     
     window.dispatchEvent(new CustomEvent('handledFolderChanged', { 
       detail: { handle: null, path: null }

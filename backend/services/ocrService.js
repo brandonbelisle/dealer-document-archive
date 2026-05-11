@@ -29,25 +29,132 @@ const FIELD_PATTERNS = {
   po_number: [
     /(?:purchase\s*order|p\.?o\.?\s*(?:#|no\.?)?)[:\s]*([A-Z0-9\-]{3,20})/i,
     /(?:po\s*(?:#|no\.?)?)[:\s]*([A-Z0-9\-]{3,20})/i,
+    /\bPO\s*#?\s*[:\s]*([A-Z0-9\-]{3,20})/i,
+    /\bP\.O\.\s*#?\s*[:\s]*([A-Z0-9\-]{3,20})/i,
   ],
 };
+
+/**
+ * Detect if a page starts a new invoice based on text content
+ */
+function isInvoiceStartPage(text) {
+  const lowerText = text.toLowerCase();
+  // Strong indicators of a new invoice page
+  const indicators = [
+    /invoice\s*(#|no|number)/i,
+    /invoice\s*date/i,
+    /bill\s*to/i,
+    /sold\s*to/i,
+    /ship\s*to/i,
+    /remit\s*to/i,
+    /invoice\s*total/i,
+    /^\s*invoice\s*$/im,
+  ];
+
+  let score = 0;
+  for (const pattern of indicators) {
+    if (pattern.test(text)) score++;
+  }
+
+  // If we have 2+ indicators, likely an invoice start
+  return score >= 2;
+}
+
+/**
+ * Analyze PDF pages and detect split points for multi-invoice documents
+ * @returns {Array<{startPage: number, endPage: number, text: string}>}
+ */
+async function detectPDFSplits(fileBuffer) {
+  const data = new Uint8Array(fileBuffer);
+  const doc = await pdfjsLib.getDocument({ data }).promise;
+  const numPages = doc.numPages;
+
+  // Extract text from each page
+  const pageTexts = [];
+  for (let i = 1; i <= numPages; i++) {
+    const page = await doc.getPage(i);
+    const textContent = await page.getTextContent();
+    const text = textContent.items.map(item => item.str).join(' ');
+    pageTexts.push({ page: i, text });
+    page.cleanup();
+  }
+
+  // Detect invoice start pages
+  const splitPoints = [0]; // Always start at page 0
+  for (let i = 0; i < pageTexts.length; i++) {
+    if (i === 0) continue; // First page is always a start
+    if (isInvoiceStartPage(pageTexts[i].text)) {
+      splitPoints.push(i);
+    }
+  }
+
+  // If only one split point, no splitting needed
+  if (splitPoints.length <= 1) {
+    return [{
+      startPage: 1,
+      endPage: numPages,
+      text: pageTexts.map(p => `--- Page ${p.page} ---\n${p.text}`).join('\n\n'),
+    }];
+  }
+
+  // Create segments
+  const segments = [];
+  for (let i = 0; i < splitPoints.length; i++) {
+    const startIdx = splitPoints[i];
+    const endIdx = (i + 1 < splitPoints.length) ? splitPoints[i + 1] : pageTexts.length;
+    const segmentPages = pageTexts.slice(startIdx, endIdx);
+    segments.push({
+      startPage: segmentPages[0].page,
+      endPage: segmentPages[segmentPages.length - 1].page,
+      text: segmentPages.map(p => `--- Page ${p.page} ---\n${p.text}`).join('\n\n'),
+    });
+  }
+
+  return segments;
+}
 
 /**
  * Main entry point: process a document buffer and extract text + fields
  * @param {Buffer} fileBuffer - The file content
  * @param {string} mimeType - MIME type of the file
- * @returns {Promise<{text: string, pages: number, fields: Array}>}
+ * @returns {Promise<{text: string, pages: number, fields: Array, segments?: Array}>}
  */
 async function processDocument(fileBuffer, mimeType) {
   let text = '';
   let pages = 0;
   let isScanned = false;
+  let segments = null;
 
   if (mimeType === 'application/pdf') {
-    const pdfResult = await processPDF(fileBuffer);
-    text = pdfResult.text;
-    pages = pdfResult.pages;
-    isScanned = pdfResult.isScanned;
+    // Try text extraction first
+    try {
+      const parsed = await pdfParse(fileBuffer);
+      if (parsed.text && parsed.text.trim().length > 100 && parsed.numpages > 1) {
+        // Multi-page PDF - check for splits
+        const splits = await detectPDFSplits(fileBuffer);
+        if (splits.length > 1) {
+          segments = splits;
+          // Use first segment as primary
+          text = splits[0].text;
+          pages = splits[0].endPage - splits[0].startPage + 1;
+          isScanned = false;
+        } else {
+          text = parsed.text.trim();
+          pages = parsed.numpages;
+          isScanned = false;
+        }
+      } else {
+        text = parsed.text.trim();
+        pages = parsed.numpages;
+        isScanned = false;
+      }
+    } catch (err) {
+      // Scanned PDF - OCR each page
+      const ocrResult = await ocrPDFPages(fileBuffer);
+      text = ocrResult.text;
+      pages = ocrResult.pages;
+      isScanned = true;
+    }
   } else if (mimeType.startsWith('image/')) {
     const ocrResult = await performOCR(fileBuffer);
     text = ocrResult.text;
@@ -64,6 +171,7 @@ async function processDocument(fileBuffer, mimeType) {
     pages,
     isScanned,
     fields,
+    segments,
   };
 }
 

@@ -7,8 +7,8 @@ const { v4: uuidv4 } = require('uuid');
 const db = require('../config/db');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
-const { processDocument, generateDuplicateKey } = require('../services/ocrService');
-const { uploadBlob, deleteBlob } = require('../config/azure-storage');
+const { processDocument, extractInvoiceFields, generateDuplicateKey } = require('../services/ocrService');
+const { uploadBlob, deleteBlob, generateSasUrl } = require('../config/azure-storage');
 const socket = require('../socket');
 
 // ── Workflow Status Configuration ───────────────────────────
@@ -208,6 +208,19 @@ router.get('/documents/:id', requireAuth, requirePermission('view_ap'), async (r
       [id]
     );
 
+    // Generate preview URL
+    let previewUrl = null;
+    if (d.file_storage_path) {
+      try {
+        const blobName = d.file_storage_path.includes('/') 
+          ? d.file_storage_path.split('/').pop().split('?')[0] 
+          : d.file_storage_path;
+        previewUrl = await generateSasUrl(blobName, 60);
+      } catch (urlErr) {
+        console.error('Failed to generate preview URL:', urlErr.message);
+      }
+    }
+
     res.json({
       document: {
         id: d.id,
@@ -231,6 +244,7 @@ router.get('/documents/:id', requireAuth, requirePermission('view_ap'), async (r
           size: d.file_size_bytes,
           pages: d.page_count,
           storagePath: d.file_storage_path,
+          previewUrl: previewUrl,
         },
         uploadedBy: d.uploaded_by_name,
         extractedFields: fields.map(f => ({
@@ -290,7 +304,7 @@ router.post('/upload', requireAuth, requirePermission('ap_upload'), upload.singl
     );
 
     // Run OCR asynchronously (don't block response)
-    processAndExtract(apDocId, fileId, file.buffer, file.mimetype, req.user);
+    processAndExtract(apDocId, fileId, file.buffer, file.mimetype, req.user, file.originalname);
 
     await logAudit('AP Document Uploaded', `File: ${file.originalname}`, req.user, req.ip);
 
@@ -366,7 +380,7 @@ router.delete('/documents/:id', requireAuth, requirePermission('ap_upload'), asy
 router.put('/documents/:id', requireAuth, requirePermission('ap_review'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { documentType, status, isDuplicate, duplicateOfId } = req.body;
+    const { documentType, status, isDuplicate, duplicateOfId, vendorName, invoiceNumber, invoiceDate, invoiceAmount, poNumber } = req.body;
 
     // Validate document exists
     const [docs] = await db.execute(
@@ -407,12 +421,31 @@ router.put('/documents/:id', requireAuth, requirePermission('ap_review'), async 
       });
     }
 
-    await db.execute(
-      `UPDATE ap_documents
-       SET document_type = ?, status = ?, is_duplicate_flag = ?, duplicate_of_id = ?, updated_at = NOW()
-       WHERE id = ?`,
-      [newType, newStatus, newIsDuplicate, newDuplicateOfId, id]
-    );
+    // Build update query dynamically
+    const updates = [];
+    const params = [];
+
+    if (documentType) { updates.push('document_type = ?'); params.push(documentType); }
+    if (status) { updates.push('status = ?'); params.push(status); }
+    if (isDuplicate !== undefined) { updates.push('is_duplicate_flag = ?'); params.push(isDuplicate ? 1 : 0); }
+    if (duplicateOfId !== undefined) { updates.push('duplicate_of_id = ?'); params.push(duplicateOfId); }
+    if (vendorName !== undefined) { updates.push('vendor_name = ?'); params.push(vendorName || null); }
+    if (invoiceNumber !== undefined) { updates.push('invoice_number = ?'); params.push(invoiceNumber || null); }
+    if (invoiceDate !== undefined) { updates.push('invoice_date = ?'); params.push(invoiceDate || null); }
+    if (invoiceAmount !== undefined) {
+      const cleanAmt = invoiceAmount ? parseFloat(invoiceAmount) : null;
+      updates.push('invoice_amount = ?'); params.push(cleanAmt);
+    }
+    if (poNumber !== undefined) { updates.push('po_number = ?'); params.push(poNumber || null); }
+
+    if (updates.length > 0) {
+      updates.push('updated_at = NOW()');
+      params.push(id);
+      await db.execute(
+        `UPDATE ap_documents SET ${updates.join(', ')} WHERE id = ?`,
+        params
+      );
+    }
 
     // Log status history
     if (status && status !== doc.status) {
@@ -584,158 +617,227 @@ router.get('/documents/:id/excede', requireAuth, requirePermission('view_ap'), a
   }
 });
 
+// ── Helper: Save extracted fields ──────────────────────────
+async function saveExtractedFields(apDocId, fields) {
+  for (const field of fields) {
+    await db.execute(
+      `INSERT INTO ap_extracted_fields (id, document_id, field_name, value, confidence_score)
+       VALUES (UUID(), ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE value = ?, confidence_score = ?`,
+      [apDocId, field.field, field.value, field.confidence, field.value, field.confidence]
+    );
+  }
+}
+
+// ── Helper: Update ap_document with extracted data ─────────
+async function updateDocumentWithResults(apDocId, documentType, status, fields, text) {
+  const cleanAmount = (val) => {
+    if (!val) return null;
+    const cleaned = val.replace(/[$,\s]/g, '');
+    const num = parseFloat(cleaned);
+    return isNaN(num) ? null : num;
+  };
+
+  const cleanDate = (val) => {
+    if (!val) return null;
+    const match = val.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
+    if (match) {
+      let [_, m, d, y] = match;
+      if (y.length === 2) y = '20' + y;
+      return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+    }
+    if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
+    return null;
+  };
+
+  const amountField = fields.find(f => f.field === 'invoice_amount');
+  const dateField = fields.find(f => f.field === 'invoice_date');
+
+  await db.execute(
+    `UPDATE ap_documents
+     SET status = ?,
+         document_type = ?,
+         vendor_name = ?,
+         invoice_number = ?,
+         invoice_date = ?,
+         invoice_amount = ?,
+         po_number = ?,
+         extracted_text = ?
+     WHERE id = ?`,
+    [
+      status,
+      documentType,
+      fields.find(f => f.field === 'vendor_name')?.value || null,
+      fields.find(f => f.field === 'invoice_number')?.value || null,
+      cleanDate(dateField?.value),
+      cleanAmount(amountField?.value),
+      fields.find(f => f.field === 'po_number')?.value || null,
+      text.substring(0, 65535),
+      apDocId,
+    ]
+  );
+
+  await saveExtractedFields(apDocId, fields);
+}
+
+// ── Helper: Check for duplicate invoices ───────────────────
+async function checkDuplicate(apDocId, fields) {
+  const cleanAmount = (val) => {
+    if (!val) return null;
+    const cleaned = val.replace(/[$,\s]/g, '');
+    return parseFloat(cleaned) || null;
+  };
+  const cleanDate = (val) => {
+    if (!val) return null;
+    const match = val.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
+    if (match) {
+      let [_, m, d, y] = match;
+      if (y.length === 2) y = '20' + y;
+      return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+    }
+    if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
+    return null;
+  };
+
+  const vendorName = fields.find(f => f.field === 'vendor_name')?.value;
+  const invoiceNum = fields.find(f => f.field === 'invoice_number')?.value;
+  const invoiceDate = cleanDate(fields.find(f => f.field === 'invoice_date')?.value);
+  const invoiceAmt = cleanAmount(fields.find(f => f.field === 'invoice_amount')?.value);
+
+  const dupKey = generateDuplicateKey(vendorName, invoiceNum, invoiceDate, invoiceAmt);
+
+  if (dupKey) {
+    const [existingDups] = await db.execute(
+      `SELECT id FROM ap_documents
+       WHERE id != ?
+         AND document_type = 'invoice'
+         AND is_duplicate_flag = 0
+         AND vendor_name IS NOT NULL
+         AND invoice_number IS NOT NULL
+         AND (
+           (vendor_name = ? AND invoice_number = ? AND invoice_date = ? AND invoice_amount = ?)
+           OR (
+             LOWER(REPLACE(vendor_name, ' ', '')) = LOWER(REPLACE(?, ' ', ''))
+             AND LOWER(REPLACE(invoice_number, ' ', '')) = LOWER(REPLACE(?, ' ', ''))
+             AND invoice_date = ?
+             AND ABS(invoice_amount - ?) < 0.01
+           )
+         )
+       LIMIT 1`,
+      [apDocId, vendorName, invoiceNum, invoiceDate, invoiceAmt, vendorName, invoiceNum, invoiceDate, invoiceAmt]
+    );
+
+    if (existingDups.length > 0) {
+      await db.execute(
+        'UPDATE ap_documents SET is_duplicate_flag = 1, duplicate_of_id = ? WHERE id = ?',
+        [existingDups[0].id, apDocId]
+      );
+      console.log(`Duplicate detected: AP document ${apDocId} matches ${existingDups[0].id}`);
+    }
+  }
+}
+
 // ── Background processing: OCR and field extraction ─────────
-async function processAndExtract(apDocId, fileId, fileBuffer, mimeType, user) {
+async function processAndExtract(apDocId, fileId, fileBuffer, mimeType, user, originalName) {
   try {
     console.log(`Starting OCR processing for AP document ${apDocId}`);
 
     // Run OCR
     const result = await processDocument(fileBuffer, mimeType);
 
-    // Determine document type and workflow status based on field extraction
-    const hasInvoiceFields = result.fields.some(f =>
-      ['invoice_number', 'invoice_amount', 'invoice_date'].includes(f.field)
-    );
-    const hasVendorField = result.fields.some(f => f.field === 'vendor_name');
-    
-    // Classification logic:
-    // - If we have strong invoice indicators (inv # + amount + date) → invoice
-    // - If we have vendor but no invoice fields → likely non-invoice
-    // - Otherwise → unknown (needs review)
-    let documentType;
-    if (hasInvoiceFields && hasVendorField) {
-      documentType = 'invoice';
-    } else if (!hasInvoiceFields && hasVendorField) {
-      documentType = 'non_invoice';
-    } else if (hasInvoiceFields && !hasVendorField) {
-      // Could be invoice but no vendor detected
-      documentType = 'invoice';
-    } else {
-      documentType = 'unknown';
-    }
-
-    // Auto-route to review queue if not clearly an invoice
-    const status = (documentType === 'invoice') ? 'extracted' : 'reviewing';
-
-    // Clean extracted values for database storage
-    const cleanAmount = (val) => {
-      if (!val) return null;
-      const cleaned = val.replace(/[$,\s]/g, '');
-      const num = parseFloat(cleaned);
-      return isNaN(num) ? null : num;
-    };
-
-    const cleanDate = (val) => {
-      if (!val) return null;
-      // Try common date formats: MM/DD/YYYY, MM-DD-YYYY, M/D/YY, etc.
-      const match = val.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
-      if (match) {
-        let [_, m, d, y] = match;
-        if (y.length === 2) y = '20' + y;
-        return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-      }
-      // Try YYYY-MM-DD
-      if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
-      return null;
-    };
-
-    const amountField = result.fields.find(f => f.field === 'invoice_amount');
-    const dateField = result.fields.find(f => f.field === 'invoice_date');
-
-    // Update ap_documents with results
-    await db.execute(
-      `UPDATE ap_documents
-       SET status = ?,
-           document_type = ?,
-           vendor_name = ?,
-           invoice_number = ?,
-           invoice_date = ?,
-           invoice_amount = ?,
-           po_number = ?,
-           extracted_text = ?
-       WHERE id = ?`,
-      [
-        status,
-        documentType,
-        result.fields.find(f => f.field === 'vendor_name')?.value || null,
-        result.fields.find(f => f.field === 'invoice_number')?.value || null,
-        cleanDate(dateField?.value),
-        cleanAmount(amountField?.value),
-        result.fields.find(f => f.field === 'po_number')?.value || null,
-        result.text.substring(0, 65535), // Truncate if too long
-        apDocId,
-      ]
-    );
-
     // Update file page count
     await db.execute(
       'UPDATE files SET page_count = ? WHERE id = ?',
-      [result.pages, fileId]
+      [result.pages || 1, fileId]
     );
 
-    // Insert extracted fields
-    for (const field of result.fields) {
-      await db.execute(
-        `INSERT INTO ap_extracted_fields (id, document_id, field_name, value, confidence_score)
-         VALUES (UUID(), ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE value = ?, confidence_score = ?`,
-        [apDocId, field.field, field.value, field.confidence, field.value, field.confidence]
-      );
-    }
+    // Handle PDF splits (multiple invoices in one PDF)
+    if (result.segments && result.segments.length > 1) {
+      console.log(`PDF splitting detected ${result.segments.length} invoices in document ${apDocId}`);
 
-    // Check for duplicate invoices
-    if (documentType === 'invoice') {
-      const vendorName = result.fields.find(f => f.field === 'vendor_name')?.value;
-      const invoiceNum = result.fields.find(f => f.field === 'invoice_number')?.value;
-      const invoiceDate = cleanDate(dateField?.value);
-      const invoiceAmt = cleanAmount(amountField?.value);
+      // Process each segment as a separate document
+      for (let i = 0; i < result.segments.length; i++) {
+        const segment = result.segments[i];
+        const segmentFields = extractInvoiceFields(segment.text);
 
-      const dupKey = generateDuplicateKey(vendorName, invoiceNum, invoiceDate, invoiceAmt);
-
-      if (dupKey) {
-        const [existingDups] = await db.execute(
-          `SELECT id FROM ap_documents
-           WHERE id != ?
-             AND document_type = 'invoice'
-             AND is_duplicate_flag = 0
-             AND vendor_name IS NOT NULL
-             AND invoice_number IS NOT NULL
-             AND (
-               (vendor_name = ? AND invoice_number = ? AND invoice_date = ? AND invoice_amount = ?)
-               OR (
-                 LOWER(REPLACE(vendor_name, ' ', '')) = LOWER(REPLACE(?, ' ', ''))
-                 AND LOWER(REPLACE(invoice_number, ' ', '')) = LOWER(REPLACE(?, ' ', ''))
-                 AND invoice_date = ?
-                 AND ABS(invoice_amount - ?) < 0.01
-               )
-             )
-           LIMIT 1`,
-          [apDocId, vendorName, invoiceNum, invoiceDate, invoiceAmt, vendorName, invoiceNum, invoiceDate, invoiceAmt]
+        // Determine document type for this segment
+        const hasInvoiceFields = segmentFields.some(f =>
+          ['invoice_number', 'invoice_amount', 'invoice_date'].includes(f.field)
         );
+        const hasVendorField = segmentFields.some(f => f.field === 'vendor_name');
 
-        if (existingDups.length > 0) {
+        let documentType;
+        if (hasInvoiceFields && hasVendorField) {
+          documentType = 'invoice';
+        } else if (!hasInvoiceFields && hasVendorField) {
+          documentType = 'non_invoice';
+        } else if (hasInvoiceFields && !hasVendorField) {
+          documentType = 'invoice';
+        } else {
+          documentType = 'unknown';
+        }
+
+        const status = (documentType === 'invoice') ? 'extracted' : 'reviewing';
+
+        if (i === 0) {
+          // First segment uses the original document ID
+          await updateDocumentWithResults(apDocId, documentType, status, segmentFields, segment.text);
+          if (documentType === 'invoice') await checkDuplicate(apDocId, segmentFields);
+        } else {
+          // Create additional document records for subsequent segments
+          const segmentDocId = uuidv4();
           await db.execute(
-            'UPDATE ap_documents SET is_duplicate_flag = 1, duplicate_of_id = ? WHERE id = ?',
-            [existingDups[0].id, apDocId]
+            `INSERT INTO ap_documents (id, file_id, status, document_type, vendor_name, invoice_number,
+             invoice_date, invoice_amount, po_number, extracted_text, created_by, is_duplicate_flag)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+            [
+              segmentDocId, fileId, status, documentType,
+              segmentFields.find(f => f.field === 'vendor_name')?.value || null,
+              segmentFields.find(f => f.field === 'invoice_number')?.value || null,
+              segmentFields.find(f => f.field === 'invoice_date')?.value || null,
+              segmentFields.find(f => f.field === 'invoice_amount')?.value || null,
+              segmentFields.find(f => f.field === 'po_number')?.value || null,
+              segment.text.substring(0, 65535),
+              user.id,
+            ]
           );
-          console.log(`Duplicate detected: AP document ${apDocId} matches ${existingDups[0].id}`);
+          await saveExtractedFields(segmentDocId, segmentFields);
+          if (documentType === 'invoice') await checkDuplicate(segmentDocId, segmentFields);
+          console.log(`Created split document ${segmentDocId} for pages ${segment.startPage}-${segment.endPage}`);
         }
       }
+    } else {
+      // Single document (no splits)
+      const hasInvoiceFields = result.fields.some(f =>
+        ['invoice_number', 'invoice_amount', 'invoice_date'].includes(f.field)
+      );
+      const hasVendorField = result.fields.some(f => f.field === 'vendor_name');
+
+      let documentType;
+      if (hasInvoiceFields && hasVendorField) {
+        documentType = 'invoice';
+      } else if (!hasInvoiceFields && hasVendorField) {
+        documentType = 'non_invoice';
+      } else if (hasInvoiceFields && !hasVendorField) {
+        documentType = 'invoice';
+      } else {
+        documentType = 'unknown';
+      }
+
+      const status = (documentType === 'invoice') ? 'extracted' : 'reviewing';
+
+      await updateDocumentWithResults(apDocId, documentType, status, result.fields, result.text);
+      if (documentType === 'invoice') await checkDuplicate(apDocId, result.fields);
     }
 
     console.log(`OCR processing completed for AP document ${apDocId}`);
-
-    // Emit socket event for real-time updates
     socket.apDocumentsChanged();
   } catch (err) {
     console.error(`OCR processing failed for AP document ${apDocId}:`, err);
-
-    // Update status to error
     await db.execute(
       'UPDATE ap_documents SET status = ? WHERE id = ?',
-      ['uploaded', apDocId] // Keep as uploaded so user can retry
+      ['uploaded', apDocId]
     );
-
     socket.apDocumentsChanged();
   }
 }

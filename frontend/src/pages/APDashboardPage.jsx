@@ -18,6 +18,14 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
   const [statusHistory, setStatusHistory] = useState([]);
   const [excedeStatus, setExcedeStatus] = useState(null);
   const [checkingExcede, setCheckingExcede] = useState(false);
+  const [editingFields, setEditingFields] = useState(false);
+  const [editForm, setEditForm] = useState({
+    vendorName: '',
+    invoiceNumber: '',
+    invoiceDate: '',
+    invoiceAmount: '',
+    poNumber: '',
+  });
   const fileInputRef = useRef(null);
 
   const apAccent = "#22c55e";
@@ -150,17 +158,60 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
     setDetailLoading(true);
     setStatusHistory([]);
     setExcedeStatus(null);
+    setEditingFields(false);
     try {
       const [docData, historyData] = await Promise.all([
         api.getAPDocument(doc.id),
         api.getAPDocumentHistory(doc.id),
       ]);
-      setDetailDoc(docData.document);
+      const document = docData.document;
+      setDetailDoc(document);
       setStatusHistory(historyData.history || []);
+      setEditForm({
+        vendorName: document.vendorName || '',
+        invoiceNumber: document.invoiceNumber || '',
+        invoiceDate: document.invoiceDate || '',
+        invoiceAmount: document.invoiceAmount || '',
+        poNumber: document.poNumber || '',
+      });
     } catch (err) {
       console.error("Failed to load document detail:", err);
     } finally {
       setDetailLoading(false);
+    }
+  };
+
+  const saveFieldEdits = async () => {
+    if (!detailDoc) return;
+    try {
+      await api.updateAPDocument(detailDoc.id, {
+        vendorName: editForm.vendorName,
+        invoiceNumber: editForm.invoiceNumber,
+        invoiceDate: editForm.invoiceDate,
+        invoiceAmount: editForm.invoiceAmount,
+        poNumber: editForm.poNumber,
+      });
+      setDetailDoc(prev => ({
+        ...prev,
+        vendorName: editForm.vendorName,
+        invoiceNumber: editForm.invoiceNumber,
+        invoiceDate: editForm.invoiceDate,
+        invoiceAmount: editForm.invoiceAmount,
+        poNumber: editForm.poNumber,
+      }));
+      setDocuments(prev => prev.map(d => d.id === detailDoc.id ? {
+        ...d,
+        vendorName: editForm.vendorName,
+        invoiceNumber: editForm.invoiceNumber,
+        invoiceDate: editForm.invoiceDate,
+        invoiceAmount: editForm.invoiceAmount,
+        poNumber: editForm.poNumber,
+      } : d));
+      setEditingFields(false);
+      addToast?.("Updated", "Fields updated successfully", 5000, "success");
+    } catch (err) {
+      console.error("Failed to save field edits:", err);
+      addToast?.("Error", "Failed to save field edits", 5000, "error");
     }
   };
 
@@ -853,44 +904,155 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
                     </div>
                   )}
 
+                  {/* File Preview */}
+                  {detailDoc.file?.previewUrl && (
+                    <div style={{ marginBottom: 20 }}>
+                      <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        Document Preview
+                      </h4>
+                      <div style={{
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 8,
+                        overflow: "hidden",
+                        height: 400,
+                        background: darkMode ? "#0d1117" : "#f6f8fa",
+                      }}>
+                        <iframe
+                          src={detailDoc.file.previewUrl}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            border: "none",
+                          }}
+                          title="Document Preview"
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   {/* Extracted Fields */}
                   <div style={{ marginBottom: 20 }}>
-                    <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                      Extracted Fields
-                    </h4>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                      {[
-                        { label: "Vendor Name", key: "vendor_name", value: detailDoc.vendorName },
-                        { label: "Invoice Number", key: "invoice_number", value: detailDoc.invoiceNumber },
-                        { label: "Invoice Date", key: "invoice_date", value: formatDate(detailDoc.invoiceDate) },
-                        { label: "Invoice Amount", key: "invoice_amount", value: formatAmount(detailDoc.invoiceAmount) },
-                        { label: "PO Number", key: "po_number", value: detailDoc.poNumber },
-                      ].map(field => {
-                        const extractedField = detailDoc.extractedFields?.find(f => f.field === field.key);
-                        return (
-                          <div key={field.key} style={{
-                            padding: 12,
-                            borderRadius: 8,
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                      <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        Extracted Fields
+                      </h4>
+                      {canReview && (
+                        <button
+                          onClick={() => setEditingFields(!editingFields)}
+                          style={{
+                            padding: "4px 12px",
+                            borderRadius: 6,
                             border: `1px solid ${t.border}`,
-                            background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
-                          }}>
-                            <div style={{ fontSize: 11, color: t.textMuted, marginBottom: 4 }}>{field.label}</div>
-                            <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>
-                              {field.value || "—"}
-                            </div>
-                            {extractedField && (
-                              <div style={{
-                                fontSize: 10,
-                                color: getConfidenceColor(extractedField.confidence),
-                                marginTop: 4,
-                              }}>
-                                {extractedField.confidence}% confidence
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                            background: t.surface,
+                            color: t.textMuted,
+                            fontSize: 11,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          {editingFields ? "Cancel" : "Edit Fields"}
+                        </button>
+                      )}
                     </div>
+
+                    {editingFields ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        {[
+                          { label: "Vendor Name", key: "vendorName", type: "text" },
+                          { label: "Invoice Number", key: "invoiceNumber", type: "text" },
+                          { label: "Invoice Date", key: "invoiceDate", type: "date" },
+                          { label: "Invoice Amount", key: "invoiceAmount", type: "number" },
+                          { label: "PO Number", key: "poNumber", type: "text" },
+                        ].map(field => (
+                          <div key={field.key}>
+                            <label style={{ fontSize: 11, color: t.textMuted, marginBottom: 4, display: "block" }}>
+                              {field.label}
+                            </label>
+                            <input
+                              type={field.type}
+                              value={editForm[field.key]}
+                              onChange={(e) => setEditForm(prev => ({ ...prev, [field.key]: e.target.value }))}
+                              style={{
+                                padding: "8px 12px",
+                                borderRadius: 6,
+                                border: `1px solid ${t.border}`,
+                                background: t.surface,
+                                color: t.text,
+                                fontSize: 13,
+                                width: "100%",
+                                outline: "none",
+                              }}
+                            />
+                          </div>
+                        ))}
+                        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                          <button
+                            onClick={saveFieldEdits}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: 6,
+                              border: "none",
+                              background: "#22c55e",
+                              color: "white",
+                              fontSize: 13,
+                              fontWeight: 600,
+                              cursor: "pointer",
+                            }}
+                          >
+                            Save Changes
+                          </button>
+                          <button
+                            onClick={() => setEditingFields(false)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: 6,
+                              border: `1px solid ${t.border}`,
+                              background: t.surface,
+                              color: t.text,
+                              fontSize: 13,
+                              fontWeight: 600,
+                              cursor: "pointer",
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        {[
+                          { label: "Vendor Name", key: "vendor_name", value: detailDoc.vendorName },
+                          { label: "Invoice Number", key: "invoice_number", value: detailDoc.invoiceNumber },
+                          { label: "Invoice Date", key: "invoice_date", value: formatDate(detailDoc.invoiceDate) },
+                          { label: "Invoice Amount", key: "invoice_amount", value: formatAmount(detailDoc.invoiceAmount) },
+                          { label: "PO Number", key: "po_number", value: detailDoc.poNumber },
+                        ].map(field => {
+                          const extractedField = detailDoc.extractedFields?.find(f => f.field === field.key);
+                          return (
+                            <div key={field.key} style={{
+                              padding: 12,
+                              borderRadius: 8,
+                              border: `1px solid ${t.border}`,
+                              background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                            }}>
+                              <div style={{ fontSize: 11, color: t.textMuted, marginBottom: 4 }}>{field.label}</div>
+                              <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>
+                                {field.value || "—"}
+                              </div>
+                              {extractedField && (
+                                <div style={{
+                                  fontSize: 10,
+                                  color: getConfidenceColor(extractedField.confidence),
+                                  marginTop: 4,
+                                }}>
+                                  {extractedField.confidence}% confidence
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
 
                   {/* Excede Lookup */}

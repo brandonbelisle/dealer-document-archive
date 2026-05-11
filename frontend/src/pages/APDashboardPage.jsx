@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import * as api from "../api";
 import { useSocket } from "../hooks/useSocket";
-import { UploadCloudIcon, TrashIcon, SearchIcon, FileDocIcon, AlertTriangleIcon, CheckIcon, ClockIcon } from "../components/Icons";
+import { UploadCloudIcon, TrashIcon, SearchIcon, FileDocIcon, AlertTriangleIcon, CheckIcon, ClockIcon, EyeIcon, XIcon } from "../components/Icons";
 
 export default function APDashboardPage({ loggedInUser, t, darkMode, addToast }) {
   const [documents, setDocuments] = useState([]);
@@ -9,13 +9,17 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all"); // all, invoices, review
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [detailDoc, setDetailDoc] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   const apAccent = "#22c55e";
   const apAccentDark = "#16a34a";
 
   const canUpload = loggedInUser?.permissions?.includes("ap_upload");
+  const canReview = loggedInUser?.permissions?.includes("ap_review");
 
   const loadDocuments = useCallback(async () => {
     setLoading(true);
@@ -85,7 +89,6 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
     try {
       const result = await api.uploadAPDocument(file);
       addToast?.("Uploaded", `${file.name} is being processed`, 5000, "upload");
-      // Immediately add a placeholder to the list
       setDocuments(prev => [{
         id: result.documentId,
         fileId: result.fileId,
@@ -126,7 +129,39 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
     }
   };
 
+  const handleUpdateDocument = async (id, updates) => {
+    try {
+      await api.updateAPDocument(id, updates);
+      setDocuments(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));
+      addToast?.("Updated", "Document updated", 5000, "success");
+    } catch (err) {
+      console.error("Failed to update:", err);
+      addToast?.("Error", "Failed to update document", 5000, "error");
+    }
+  };
+
+  const openDetail = async (doc) => {
+    setDetailDoc(doc);
+    setDetailLoading(true);
+    try {
+      const data = await api.getAPDocument(doc.id);
+      setDetailDoc(data.document);
+    } catch (err) {
+      console.error("Failed to load document detail:", err);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
   const filteredDocuments = documents.filter(d => {
+    // Filter by tab
+    if (activeFilter === "invoices") {
+      if (d.documentType !== 'invoice') return false;
+    } else if (activeFilter === "review") {
+      if (d.status !== 'reviewing') return false;
+    }
+
+    // Filter by search
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
     return (
@@ -188,11 +223,37 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
     );
   };
 
+  const getTypeBadge = (type) => {
+    const styles = {
+      invoice: { bg: "#22c55e", label: "Invoice" },
+      non_invoice: { bg: "#8b5cf6", label: "Non-Invoice" },
+      unknown: { bg: "#6b7280", label: "Unknown" },
+    };
+    const s = styles[type] || { bg: "#6b7280", label: type };
+    return (
+      <span style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        padding: "2px 8px",
+        borderRadius: 12,
+        fontSize: 11,
+        fontWeight: 600,
+        color: "white",
+        background: s.bg,
+      }}>
+        {s.label}
+      </span>
+    );
+  };
+
   const getConfidenceColor = (score) => {
     if (score >= 80) return "#22c55e";
     if (score >= 50) return "#f59e0b";
     return "#ef4444";
   };
+
+  const reviewCount = documents.filter(d => d.status === 'reviewing').length;
 
   return (
     <div style={{ padding: "24px 32px", maxWidth: 1400, margin: "0 auto" }}>
@@ -225,6 +286,44 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
             />
           </div>
         </div>
+      </div>
+
+      {/* Filter Tabs */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+        {[
+          { id: "all", label: "All Documents", count: documents.length },
+          { id: "invoices", label: "Invoices", count: documents.filter(d => d.documentType === 'invoice').length },
+          { id: "review", label: "Review Queue", count: reviewCount },
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveFilter(tab.id)}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 8,
+              border: `1px solid ${activeFilter === tab.id ? apAccent : t.border}`,
+              background: activeFilter === tab.id ? (darkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.08)") : t.surface,
+              color: activeFilter === tab.id ? apAccent : t.textMuted,
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            {tab.label}
+            <span style={{
+              padding: "1px 6px",
+              borderRadius: 10,
+              fontSize: 11,
+              background: activeFilter === tab.id ? apAccent : t.border,
+              color: activeFilter === tab.id ? "white" : t.textMuted,
+            }}>
+              {tab.count}
+            </span>
+          </button>
+        ))}
       </div>
 
       {/* Upload Zone */}
@@ -272,7 +371,9 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
       }}>
         <div style={{
           display: "grid",
-          gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr 100px 120px",
+          gridTemplateColumns: activeFilter === "review" 
+            ? "2fr 1fr 1fr 100px 100px 120px" 
+            : "2fr 1fr 1fr 1fr 1fr 1fr 100px 120px",
           gap: 12,
           padding: "12px 16px",
           borderBottom: `1px solid ${t.border}`,
@@ -283,11 +384,12 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
           letterSpacing: "0.05em",
         }}>
           <div>File</div>
-          <div>Vendor</div>
-          <div>Invoice #</div>
-          <div>Date</div>
-          <div>Amount</div>
-          <div>PO #</div>
+          {activeFilter !== "review" && <div>Vendor</div>}
+          {activeFilter !== "review" && <div>Invoice #</div>}
+          {activeFilter !== "review" && <div>Date</div>}
+          {activeFilter !== "review" && <div>Amount</div>}
+          {activeFilter !== "review" && <div>PO #</div>}
+          {activeFilter === "review" && <div>Detected Type</div>}
           <div>Status</div>
           <div style={{ textAlign: "right" }}>Actions</div>
         </div>
@@ -308,7 +410,9 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
               key={doc.id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr 100px 120px",
+                gridTemplateColumns: activeFilter === "review" 
+                  ? "2fr 1fr 1fr 100px 100px 120px" 
+                  : "2fr 1fr 1fr 1fr 1fr 1fr 100px 120px",
                 gap: 12,
                 padding: "12px 16px",
                 borderBottom: `1px solid ${t.border}`,
@@ -327,32 +431,52 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
                 </div>
               </div>
 
-              <div>
-                {doc.vendorName ? (
-                  <div>
-                    <div style={{ fontWeight: 500 }}>{doc.vendorName}</div>
-                    {doc.extractedFields?.find(f => f.field === 'vendor_name') && (
-                      <div style={{
-                        fontSize: 10,
-                        color: getConfidenceColor(doc.extractedFields.find(f => f.field === 'vendor_name').confidence),
-                      }}>
-                        {doc.extractedFields.find(f => f.field === 'vendor_name').confidence}% confidence
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <span style={{ color: t.textMuted }}>—</span>
-                )}
-              </div>
+              {activeFilter !== "review" && (
+                <div>
+                  {doc.vendorName ? (
+                    <div>
+                      <div style={{ fontWeight: 500 }}>{doc.vendorName}</div>
+                      {doc.extractedFields?.find(f => f.field === 'vendor_name') && (
+                        <div style={{
+                          fontSize: 10,
+                          color: getConfidenceColor(doc.extractedFields.find(f => f.field === 'vendor_name').confidence),
+                        }}>
+                          {doc.extractedFields.find(f => f.field === 'vendor_name').confidence}% confidence
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <span style={{ color: t.textMuted }}>—</span>
+                  )}
+                </div>
+              )}
 
-              <div>{doc.invoiceNumber || <span style={{ color: t.textMuted }}>—</span>}</div>
-              <div>{formatDate(doc.invoiceDate)}</div>
-              <div>{formatAmount(doc.invoiceAmount)}</div>
-              <div>{doc.poNumber || <span style={{ color: t.textMuted }}>—</span>}</div>
+              {activeFilter !== "review" && <div>{doc.invoiceNumber || <span style={{ color: t.textMuted }}>—</span>}</div>}
+              {activeFilter !== "review" && <div>{formatDate(doc.invoiceDate)}</div>}
+              {activeFilter !== "review" && <div>{formatAmount(doc.invoiceAmount)}</div>}
+              {activeFilter !== "review" && <div>{doc.poNumber || <span style={{ color: t.textMuted }}>—</span>}</div>}
+
+              {activeFilter === "review" && (
+                <div>{getTypeBadge(doc.documentType)}</div>
+              )}
 
               <div>{getStatusBadge(doc.status)}</div>
 
               <div style={{ textAlign: "right", display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                <button
+                  onClick={() => openDetail(doc)}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: t.textMuted,
+                    cursor: "pointer",
+                    padding: 4,
+                    borderRadius: 4,
+                  }}
+                  title="View Details"
+                >
+                  <EyeIcon size={14} />
+                </button>
                 {canUpload && (
                   <button
                     onClick={() => setDeleteConfirmId(doc.id)}
@@ -374,6 +498,292 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
           ))
         )}
       </div>
+
+      {/* Document Detail Modal */}
+      {detailDoc && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.6)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1000,
+          padding: 24,
+        }}
+        onClick={() => setDetailDoc(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: t.surface,
+              border: `1px solid ${t.border}`,
+              borderRadius: 12,
+              maxWidth: 800,
+              width: "100%",
+              maxHeight: "90vh",
+              overflow: "auto",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{
+              padding: "16px 20px",
+              borderBottom: `1px solid ${t.border}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, color: t.text }}>{detailDoc.file?.name || "Document Details"}</h3>
+                <div style={{ fontSize: 12, color: t.textMuted, marginTop: 4 }}>
+                  {formatSize(detailDoc.file?.size)} · {detailDoc.file?.pages || 0} pages · Uploaded {formatDate(detailDoc.createdAt)}
+                </div>
+              </div>
+              <button
+                onClick={() => setDetailDoc(null)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: t.textMuted,
+                  cursor: "pointer",
+                  padding: 4,
+                }}
+              >
+                <XIcon size={20} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: 20 }}>
+              {detailLoading ? (
+                <div style={{ textAlign: "center", padding: 40, color: t.textMuted }}>Loading details...</div>
+              ) : (
+                <>
+                  {/* Status and Type */}
+                  <div style={{ display: "flex", gap: 12, marginBottom: 20, alignItems: "center" }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: t.textMuted, marginBottom: 4 }}>STATUS</div>
+                      {getStatusBadge(detailDoc.status)}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, color: t.textMuted, marginBottom: 4 }}>TYPE</div>
+                      {getTypeBadge(detailDoc.documentType)}
+                    </div>
+                  </div>
+
+                  {/* Review Actions */}
+                  {canReview && detailDoc.status === 'reviewing' && (
+                    <div style={{
+                      background: darkMode ? "rgba(245,158,11,0.1)" : "rgba(245,158,11,0.05)",
+                      border: `1px solid ${darkMode ? "rgba(245,158,11,0.3)" : "rgba(245,158,11,0.2)"}`,
+                      borderRadius: 8,
+                      padding: 16,
+                      marginBottom: 20,
+                    }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 8 }}>
+                        This document needs review
+                      </div>
+                      <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 12 }}>
+                        The system could not confidently classify this document. Please review and classify it.
+                      </div>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button
+                          onClick={() => handleUpdateDocument(detailDoc.id, { documentType: 'invoice', status: 'extracted' })}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: 6,
+                            border: "none",
+                            background: "#22c55e",
+                            color: "white",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Mark as Invoice
+                        </button>
+                        <button
+                          onClick={() => handleUpdateDocument(detailDoc.id, { documentType: 'non_invoice', status: 'extracted' })}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: 6,
+                            border: `1px solid ${t.border}`,
+                            background: t.surface,
+                            color: t.text,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Mark as Non-Invoice
+                        </button>
+                        <button
+                          onClick={() => handleUpdateDocument(detailDoc.id, { status: 'rejected' })}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: 6,
+                            border: "none",
+                            background: "#ef4444",
+                            color: "white",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Workflow Actions for extracted documents */}
+                  {canReview && detailDoc.status === 'extracted' && (
+                    <div style={{
+                      background: darkMode ? "rgba(34,197,94,0.1)" : "rgba(34,197,94,0.05)",
+                      border: `1px solid ${darkMode ? "rgba(34,197,94,0.3)" : "rgba(34,197,94,0.2)"}`,
+                      borderRadius: 8,
+                      padding: 16,
+                      marginBottom: 20,
+                    }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 8 }}>
+                        Workflow Actions
+                      </div>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button
+                          onClick={() => handleUpdateDocument(detailDoc.id, { status: 'approved' })}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: 6,
+                            border: "none",
+                            background: "#10b981",
+                            color: "white",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleUpdateDocument(detailDoc.id, { status: 'posted' })}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: 6,
+                            border: "none",
+                            background: "#0891b2",
+                            color: "white",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Mark Posted
+                        </button>
+                        <button
+                          onClick={() => handleUpdateDocument(detailDoc.id, { status: 'rejected' })}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: 6,
+                            border: "none",
+                            background: "#ef4444",
+                            color: "white",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Reject
+                        </button>
+                        <button
+                          onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: 6,
+                            border: `1px solid ${t.border}`,
+                            background: t.surface,
+                            color: t.text,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Archive
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Extracted Fields */}
+                  <div style={{ marginBottom: 20 }}>
+                    <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                      Extracted Fields
+                    </h4>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      {[
+                        { label: "Vendor Name", key: "vendor_name", value: detailDoc.vendorName },
+                        { label: "Invoice Number", key: "invoice_number", value: detailDoc.invoiceNumber },
+                        { label: "Invoice Date", key: "invoice_date", value: formatDate(detailDoc.invoiceDate) },
+                        { label: "Invoice Amount", key: "invoice_amount", value: formatAmount(detailDoc.invoiceAmount) },
+                        { label: "PO Number", key: "po_number", value: detailDoc.poNumber },
+                      ].map(field => {
+                        const extractedField = detailDoc.extractedFields?.find(f => f.field === field.key);
+                        return (
+                          <div key={field.key} style={{
+                            padding: 12,
+                            borderRadius: 8,
+                            border: `1px solid ${t.border}`,
+                            background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                          }}>
+                            <div style={{ fontSize: 11, color: t.textMuted, marginBottom: 4 }}>{field.label}</div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>
+                              {field.value || "—"}
+                            </div>
+                            {extractedField && (
+                              <div style={{
+                                fontSize: 10,
+                                color: getConfidenceColor(extractedField.confidence),
+                                marginTop: 4,
+                              }}>
+                                {extractedField.confidence}% confidence
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Extracted Text Preview */}
+                  {detailDoc.extractedText && (
+                    <div>
+                      <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        Extracted Text
+                      </h4>
+                      <pre style={{
+                        background: darkMode ? "#0d1117" : "#f6f8fa",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 8,
+                        padding: 12,
+                        fontSize: 12,
+                        color: t.text,
+                        maxHeight: 200,
+                        overflow: "auto",
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                        margin: 0,
+                      }}>
+                        {detailDoc.extractedText}
+                      </pre>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmId && (

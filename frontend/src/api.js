@@ -663,3 +663,10 @@ export async function getAPDocument(id) {
 export async function deleteAPDocument(id) {
   return request(`/ap/documents/${id}`, { method: 'DELETE' });
 }
+
+export async function updateAPDocument(id, updates) {
+  return request(`/ap/documents/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(updates),
+  });
+}

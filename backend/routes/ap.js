@@ -341,6 +341,63 @@ router.delete('/documents/:id', requireAuth, requirePermission('ap_upload'), asy
   }
 });
 
+// ── PUT /api/ap/documents/:id ───────────────────────────────
+// Update document type and/or workflow status
+router.put('/documents/:id', requireAuth, requirePermission('ap_review'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { documentType, status } = req.body;
+
+    // Validate document exists
+    const [docs] = await db.execute(
+      'SELECT id, file_id, document_type, status FROM ap_documents WHERE id = ?',
+      [id]
+    );
+
+    if (docs.length === 0) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
+    const doc = docs[0];
+
+    // Validate document_type if provided
+    const validTypes = ['invoice', 'non_invoice', 'unknown'];
+    if (documentType && !validTypes.includes(documentType)) {
+      return res.status(400).json({ error: 'Invalid document type' });
+    }
+
+    // Validate status if provided
+    const validStatuses = ['uploaded', 'processing', 'classified', 'extracted', 'reviewing', 'approved', 'posted', 'rejected', 'archived'];
+    if (status && !validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const newType = documentType || doc.document_type;
+    const newStatus = status || doc.status;
+
+    await db.execute(
+      `UPDATE ap_documents
+       SET document_type = ?, status = ?, updated_at = NOW()
+       WHERE id = ?`,
+      [newType, newStatus, id]
+    );
+
+    await logAudit(
+      'AP Document Updated',
+      `Document ${id}: type=${newType}, status=${newStatus}`,
+      req.user,
+      req.ip
+    );
+
+    socket.apDocumentsChanged();
+
+    res.json({ success: true, documentId: id, documentType: newType, status: newStatus });
+  } catch (err) {
+    console.error('Failed to update AP document:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // ── Background processing: OCR and field extraction ─────────
 async function processAndExtract(apDocId, fileId, fileBuffer, mimeType, user) {
   try {
@@ -349,11 +406,30 @@ async function processAndExtract(apDocId, fileId, fileBuffer, mimeType, user) {
     // Run OCR
     const result = await processDocument(fileBuffer, mimeType);
 
-    // Determine document type based on field extraction
+    // Determine document type and workflow status based on field extraction
     const hasInvoiceFields = result.fields.some(f =>
       ['invoice_number', 'invoice_amount', 'invoice_date'].includes(f.field)
     );
-    const documentType = hasInvoiceFields ? 'invoice' : 'non_invoice';
+    const hasVendorField = result.fields.some(f => f.field === 'vendor_name');
+    
+    // Classification logic:
+    // - If we have strong invoice indicators (inv # + amount + date) → invoice
+    // - If we have vendor but no invoice fields → likely non-invoice
+    // - Otherwise → unknown (needs review)
+    let documentType;
+    if (hasInvoiceFields && hasVendorField) {
+      documentType = 'invoice';
+    } else if (!hasInvoiceFields && hasVendorField) {
+      documentType = 'non_invoice';
+    } else if (hasInvoiceFields && !hasVendorField) {
+      // Could be invoice but no vendor detected
+      documentType = 'invoice';
+    } else {
+      documentType = 'unknown';
+    }
+
+    // Auto-route to review queue if not clearly an invoice
+    const status = (documentType === 'invoice') ? 'extracted' : 'reviewing';
 
     // Clean extracted values for database storage
     const cleanAmount = (val) => {
@@ -383,7 +459,7 @@ async function processAndExtract(apDocId, fileId, fileBuffer, mimeType, user) {
     // Update ap_documents with results
     await db.execute(
       `UPDATE ap_documents
-       SET status = 'extracted',
+       SET status = ?,
            document_type = ?,
            vendor_name = ?,
            invoice_number = ?,
@@ -393,6 +469,7 @@ async function processAndExtract(apDocId, fileId, fileBuffer, mimeType, user) {
            extracted_text = ?
        WHERE id = ?`,
       [
+        status,
         documentType,
         result.fields.find(f => f.field === 'vendor_name')?.value || null,
         result.fields.find(f => f.field === 'invoice_number')?.value || null,

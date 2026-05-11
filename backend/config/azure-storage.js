@@ -202,8 +202,9 @@ async function generateSasUrl(blobName, expiresInMinutes = 60) {
 
   const credential = new StorageSharedKeyCredential(accountName, accountKey);
 
-  const startsOn = new Date();
-  const expiresOn = new Date(startsOn.getTime() + expiresInMinutes * 60 * 1000);
+  // Start 5 minutes in the past to avoid clock-skew rejection
+  const startsOn = new Date(Date.now() - 5 * 60 * 1000);
+  const expiresOn = new Date(Date.now() + expiresInMinutes * 60 * 1000);
 
   const sasParams = generateBlobSASQueryParameters(
     {

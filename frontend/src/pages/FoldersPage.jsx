@@ -14,6 +14,23 @@ import {
   UploadCloudIcon,
 } from "../components/Icons";
 
+function SortArrow({ active, dir, t }) {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        marginLeft: 6,
+        fontSize: 10,
+        color: active ? t.accent : "transparent",
+        transition: "color 0.15s",
+        userSelect: "none",
+      }}
+    >
+      {dir === "asc" ? "▲" : "▼"}
+    </span>
+  );
+}
+
 function fmtDate(d) {
   if (!d) return "—";
   const dt = new Date(d);
@@ -58,8 +75,8 @@ export default function FoldersPage({
   const canUploadFiles = loggedInUser?.permissions?.includes("uploadFiles");
   const newDeptFolderRef = useRef(null);
   const deptFileInputRef = useRef(null);
-  const [sortCol] = useState("createdAt");
-  const [sortDir] = useState("desc");
+  const [sortCol, setSortCol] = useState("name");
+  const [sortDir, setSortDir] = useState("desc");
   const [pageSize, setPageSize] = useState(25);
   const [currentPage, setCurrentPage] = useState(1);
   const [showPageSizeDropdown, setShowPageSizeDropdown] = useState(false);
@@ -109,16 +126,32 @@ export default function FoldersPage({
         .map((r) => r.folder)
     : df;
 
-const withCounts = filtered.map((folder) => ({
+  const withCounts = filtered.map((folder) => ({
     ...folder,
     _fileCount: folder.fileCount || 0,
     _subCount: folder.subfolderCount || 0,
   }));
 
+  const toggleSort = (col) => {
+    if (sortCol === col) {
+      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortCol(col);
+      setSortDir("desc");
+    }
+    setCurrentPage(1);
+  };
+
   const sorted = [...withCounts].sort((a, b) => {
-    const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-    const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-    return db - da;
+    let cmp = 0;
+    if (sortCol === "name") {
+      cmp = (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" });
+    } else if (sortCol === "files") {
+      cmp = (a._fileCount || 0) - (b._fileCount || 0);
+    } else if (sortCol === "createdAt") {
+      cmp = (a.createdAt ? new Date(a.createdAt).getTime() : 0) - (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+    }
+    return sortDir === "asc" ? cmp : -cmp;
   });
 
   // Pagination
@@ -569,31 +602,37 @@ const withCounts = filtered.map((folder) => ({
             <thead>
               <tr>
                 <th
+                  onClick={() => toggleSort("name")}
                   style={{
                     ...colHeaderStyle,
-                    color: t.textDim,
+                    color: sortCol === "name" ? t.accent : t.textDim,
                   }}
                 >
                   Name
+                  <SortArrow active={sortCol === "name"} dir={sortDir} t={t} />
                 </th>
                 <th
+                  onClick={() => toggleSort("files")}
                   style={{
                     ...colHeaderStyle,
-                    color: t.textDim,
+                    color: sortCol === "files" ? t.accent : t.textDim,
                     width: 90,
                     textAlign: "center",
                   }}
                 >
                   Files
+                  <SortArrow active={sortCol === "files"} dir={sortDir} t={t} />
                 </th>
                 <th
+                  onClick={() => toggleSort("createdAt")}
                   style={{
                     ...colHeaderStyle,
-                    color: t.textDim,
+                    color: sortCol === "createdAt" ? t.accent : t.textDim,
                     width: 180,
                   }}
                 >
                   Created
+                  <SortArrow active={sortCol === "createdAt"} dir={sortDir} t={t} />
                 </th>
                 <th
                   style={{

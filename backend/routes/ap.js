@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const db = require('../config/db');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
-const { processDocument, extractInvoiceFields, generateDuplicateKey } = require('../services/ocrService');
+const { processDocument, extractInvoiceFields, generateDuplicateKey, detectPDFSplits, splitPDF } = require('../services/ocrService');
 const { uploadBlob, deleteBlob, generateSasUrl } = require('../config/azure-storage');
 const socket = require('../socket');
 
@@ -295,7 +295,7 @@ router.post('/upload', requireAuth, requirePermission('ap_upload'), upload.singl
       [fileId, file.originalname, file.originalname, apFolderId, file.mimetype, file.size, 0, blobName, req.user.id]
     );
 
-    // Create AP document record
+    // Create AP document record for the original upload
     const apDocId = uuidv4();
     await db.execute(
       `INSERT INTO ap_documents (id, file_id, status, document_type, created_by)
@@ -303,8 +303,8 @@ router.post('/upload', requireAuth, requirePermission('ap_upload'), upload.singl
       [apDocId, fileId, req.user.id]
     );
 
-    // Run OCR asynchronously (don't block response)
-    processAndExtract(apDocId, fileId, file.buffer, file.mimetype, req.user, file.originalname);
+    // Run OCR + splitting asynchronously (don't block response)
+    processAndExtractWithSplits(apDocId, fileId, file.buffer, file.mimetype, req.user, file.originalname, apFolderId);
 
     await logAudit('AP Document Uploaded', `File: ${file.originalname}`, req.user, req.ip);
 
@@ -737,30 +737,42 @@ async function checkDuplicate(apDocId, fields) {
   }
 }
 
-// ── Background processing: OCR and field extraction ─────────
-async function processAndExtract(apDocId, fileId, fileBuffer, mimeType, user, originalName) {
+// ── Background processing: OCR, splitting, and field extraction ─────────
+async function processAndExtractWithSplits(originalApDocId, originalFileId, fileBuffer, mimeType, user, originalName, apFolderId) {
   try {
-    console.log(`Starting OCR processing for AP document ${apDocId}`);
+    console.log(`Starting OCR processing for AP document ${originalApDocId}`);
 
-    // Run OCR
+    // Run OCR (this also detects splits for text-based PDFs)
     const result = await processDocument(fileBuffer, mimeType);
 
-    // Update file page count
+    // Update file page count for the original
     await db.execute(
       'UPDATE files SET page_count = ? WHERE id = ?',
-      [result.pages || 1, fileId]
+      [result.pages || 1, originalFileId]
     );
 
-    // Handle PDF splits (multiple invoices in one PDF)
+    // If splits detected and more than 1 segment, physically split the PDF
     if (result.segments && result.segments.length > 1) {
-      console.log(`PDF splitting detected ${result.segments.length} invoices in document ${apDocId}`);
+      console.log(`PDF splitting detected ${result.segments.length} invoices. Physically splitting PDF...`);
 
-      // Process each segment as a separate document
+      // Get original file info for deletion
+      const [origFiles] = await db.execute(
+        'SELECT file_storage_path FROM files WHERE id = ?',
+        [originalFileId]
+      );
+      const origStoragePath = origFiles.length > 0 ? origFiles[0].file_storage_path : null;
+
+      // Split the PDF into separate buffers
+      const splitBuffers = await splitPDF(fileBuffer, result.segments);
+      console.log(`Split PDF into ${splitBuffers.length} separate files`);
+
+      // Create a document for each split
       for (let i = 0; i < result.segments.length; i++) {
         const segment = result.segments[i];
+        const splitBuffer = splitBuffers[i];
         const segmentFields = extractInvoiceFields(segment.text);
 
-        // Determine document type for this segment
+        // Determine document type
         const hasInvoiceFields = segmentFields.some(f =>
           ['invoice_number', 'invoice_amount', 'invoice_date'].includes(f.field)
         );
@@ -776,22 +788,51 @@ async function processAndExtract(apDocId, fileId, fileBuffer, mimeType, user, or
         } else {
           documentType = 'unknown';
         }
-
         const status = (documentType === 'invoice') ? 'extracted' : 'reviewing';
 
         if (i === 0) {
-          // First segment uses the original document ID
-          await updateDocumentWithResults(apDocId, documentType, status, segmentFields, segment.text);
-          if (documentType === 'invoice') await checkDuplicate(apDocId, segmentFields);
+          // First segment: re-use the original file record but replace the blob
+          const splitName = originalName.replace(/\.pdf$/i, `_part1.pdf`);
+          const { blobName: splitBlobName } = await uploadBlob(
+            splitBuffer,
+            splitName,
+            mimeType
+          );
+
+          // Update original file record with new blob
+          await db.execute(
+            `UPDATE files SET name = ?, original_name = ?, file_size_bytes = ?, page_count = ?, file_storage_path = ?
+             WHERE id = ?`,
+            [splitName, splitName, splitBuffer.length, segment.endPage - segment.startPage + 1, splitBlobName, originalFileId]
+          );
+
+          // Update original ap_document
+          await updateDocumentWithResults(originalApDocId, documentType, status, segmentFields, segment.text);
+          if (documentType === 'invoice') await checkDuplicate(originalApDocId, segmentFields);
         } else {
-          // Create additional document records for subsequent segments
+          // Subsequent segments: create new file + ap_document records
+          const splitName = originalName.replace(/\.pdf$/i, `_part${i + 1}.pdf`);
+          const { blobName: splitBlobName } = await uploadBlob(
+            splitBuffer,
+            splitName,
+            mimeType
+          );
+
+          const splitFileId = uuidv4();
+          await db.execute(
+            `INSERT INTO files (id, name, original_name, folder_id, mime_type, file_size_bytes, page_count, file_storage_path, status, uploaded_by)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'done', ?)`,
+            [splitFileId, splitName, splitName, apFolderId, mimeType, splitBuffer.length,
+             segment.endPage - segment.startPage + 1, splitBlobName, user.id]
+          );
+
           const segmentDocId = uuidv4();
           await db.execute(
             `INSERT INTO ap_documents (id, file_id, status, document_type, vendor_name, invoice_number,
              invoice_date, invoice_amount, po_number, extracted_text, created_by, is_duplicate_flag)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
             [
-              segmentDocId, fileId, status, documentType,
+              segmentDocId, splitFileId, status, documentType,
               segmentFields.find(f => f.field === 'vendor_name')?.value || null,
               segmentFields.find(f => f.field === 'invoice_number')?.value || null,
               segmentFields.find(f => f.field === 'invoice_date')?.value || null,
@@ -806,8 +847,22 @@ async function processAndExtract(apDocId, fileId, fileBuffer, mimeType, user, or
           console.log(`Created split document ${segmentDocId} for pages ${segment.startPage}-${segment.endPage}`);
         }
       }
+
+      // Delete the original blob from Azure
+      if (origStoragePath) {
+        try {
+          const origBlobName = origStoragePath.includes('/')
+            ? origStoragePath.split('/').pop().split('?')[0]
+            : origStoragePath;
+          await deleteBlob(origBlobName);
+          console.log(`Deleted original blob: ${origBlobName}`);
+        } catch (delErr) {
+          console.error('Failed to delete original blob:', delErr.message);
+        }
+      }
+
     } else {
-      // Single document (no splits)
+      // No splits - process as single document
       const hasInvoiceFields = result.fields.some(f =>
         ['invoice_number', 'invoice_amount', 'invoice_date'].includes(f.field)
       );
@@ -826,17 +881,17 @@ async function processAndExtract(apDocId, fileId, fileBuffer, mimeType, user, or
 
       const status = (documentType === 'invoice') ? 'extracted' : 'reviewing';
 
-      await updateDocumentWithResults(apDocId, documentType, status, result.fields, result.text);
-      if (documentType === 'invoice') await checkDuplicate(apDocId, result.fields);
+      await updateDocumentWithResults(originalApDocId, documentType, status, result.fields, result.text);
+      if (documentType === 'invoice') await checkDuplicate(originalApDocId, result.fields);
     }
 
-    console.log(`OCR processing completed for AP document ${apDocId}`);
+    console.log(`OCR processing completed for AP document ${originalApDocId}`);
     socket.apDocumentsChanged();
   } catch (err) {
-    console.error(`OCR processing failed for AP document ${apDocId}:`, err);
+    console.error(`OCR processing failed for AP document ${originalApDocId}:`, err);
     await db.execute(
       'UPDATE ap_documents SET status = ? WHERE id = ?',
-      ['uploaded', apDocId]
+      ['uploaded', originalApDocId]
     );
     socket.apDocumentsChanged();
   }

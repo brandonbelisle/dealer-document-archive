@@ -66,7 +66,10 @@ function isInvoiceStartPage(text) {
  */
 async function detectPDFSplits(fileBuffer) {
   const data = new Uint8Array(fileBuffer);
-  const doc = await pdfjsLib.getDocument({ data }).promise;
+  const doc = await pdfjsLib.getDocument({
+    data,
+    useSystemFonts: true,
+  }).promise;
   const numPages = doc.numPages;
 
   // Extract text from each page
@@ -209,7 +212,10 @@ async function processPDF(fileBuffer) {
  */
 async function ocrPDFPages(fileBuffer) {
   const data = new Uint8Array(fileBuffer);
-  const doc = await pdfjsLib.getDocument({ data }).promise;
+  const doc = await pdfjsLib.getDocument({
+    data,
+    useSystemFonts: true,
+  }).promise;
   const numPages = doc.numPages;
   const worker = await createWorker('eng');
   let fullText = '';
@@ -425,9 +431,42 @@ function generateDuplicateKey(vendorName, invoiceNumber, invoiceDate, invoiceAmo
   return `${normalizedVendor}|${normalizedInvoice}|${dateStr}|${amountStr}`;
 }
 
+/**
+ * Split a PDF buffer into separate PDFs based on page ranges
+ * @param {Buffer} fileBuffer - Original PDF buffer
+ * @param {Array<{startPage: number, endPage: number}>} segments - Page ranges (1-indexed)
+ * @returns {Promise<Array<Buffer>>} - Array of PDF buffers
+ */
+async function splitPDF(fileBuffer, segments) {
+  const { PDFDocument } = require('pdf-lib');
+  const originalPdf = await PDFDocument.load(fileBuffer);
+  const splitBuffers = [];
+
+  for (const segment of segments) {
+    const newPdf = await PDFDocument.create();
+    // pdf-lib uses 0-based indexing
+    const startIdx = segment.startPage - 1;
+    const endIdx = segment.endPage - 1;
+    const pageIndices = [];
+    for (let i = startIdx; i <= endIdx; i++) {
+      pageIndices.push(i);
+    }
+    const copiedPages = await newPdf.copyPages(originalPdf, pageIndices);
+    for (const page of copiedPages) {
+      newPdf.addPage(page);
+    }
+    const bytes = await newPdf.save();
+    splitBuffers.push(Buffer.from(bytes));
+  }
+
+  return splitBuffers;
+}
+
 module.exports = {
   processDocument,
   extractInvoiceFields,
   normalizeVendorName,
   generateDuplicateKey,
+  detectPDFSplits,
+  splitPDF,
 };

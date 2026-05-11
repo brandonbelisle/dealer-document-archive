@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const db = require('../config/db');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
-const { processDocument } = require('../services/ocrService');
+const { processDocument, generateDuplicateKey } = require('../services/ocrService');
 const { uploadBlob, deleteBlob } = require('../config/azure-storage');
 const socket = require('../socket');
 
@@ -346,7 +346,7 @@ router.delete('/documents/:id', requireAuth, requirePermission('ap_upload'), asy
 router.put('/documents/:id', requireAuth, requirePermission('ap_review'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { documentType, status } = req.body;
+    const { documentType, status, isDuplicate, duplicateOfId } = req.body;
 
     // Validate document exists
     const [docs] = await db.execute(
@@ -374,12 +374,14 @@ router.put('/documents/:id', requireAuth, requirePermission('ap_review'), async 
 
     const newType = documentType || doc.document_type;
     const newStatus = status || doc.status;
+    const newIsDuplicate = isDuplicate !== undefined ? (isDuplicate ? 1 : 0) : doc.is_duplicate_flag;
+    const newDuplicateOfId = duplicateOfId !== undefined ? duplicateOfId : doc.duplicate_of_id;
 
     await db.execute(
       `UPDATE ap_documents
-       SET document_type = ?, status = ?, updated_at = NOW()
+       SET document_type = ?, status = ?, is_duplicate_flag = ?, duplicate_of_id = ?, updated_at = NOW()
        WHERE id = ?`,
-      [newType, newStatus, id]
+      [newType, newStatus, newIsDuplicate, newDuplicateOfId, id]
     );
 
     await logAudit(
@@ -495,6 +497,46 @@ async function processAndExtract(apDocId, fileId, fileBuffer, mimeType, user) {
          ON DUPLICATE KEY UPDATE value = ?, confidence_score = ?`,
         [apDocId, field.field, field.value, field.confidence, field.value, field.confidence]
       );
+    }
+
+    // Check for duplicate invoices
+    if (documentType === 'invoice') {
+      const vendorName = result.fields.find(f => f.field === 'vendor_name')?.value;
+      const invoiceNum = result.fields.find(f => f.field === 'invoice_number')?.value;
+      const invoiceDate = cleanDate(dateField?.value);
+      const invoiceAmt = cleanAmount(amountField?.value);
+
+      const dupKey = generateDuplicateKey(vendorName, invoiceNum, invoiceDate, invoiceAmt);
+
+      if (dupKey) {
+        const [existingDups] = await db.execute(
+          `SELECT id FROM ap_documents
+           WHERE id != ?
+             AND document_type = 'invoice'
+             AND is_duplicate_flag = 0
+             AND vendor_name IS NOT NULL
+             AND invoice_number IS NOT NULL
+             AND (
+               (vendor_name = ? AND invoice_number = ? AND invoice_date = ? AND invoice_amount = ?)
+               OR (
+                 LOWER(REPLACE(vendor_name, ' ', '')) = LOWER(REPLACE(?, ' ', ''))
+                 AND LOWER(REPLACE(invoice_number, ' ', '')) = LOWER(REPLACE(?, ' ', ''))
+                 AND invoice_date = ?
+                 AND ABS(invoice_amount - ?) < 0.01
+               )
+             )
+           LIMIT 1`,
+          [apDocId, vendorName, invoiceNum, invoiceDate, invoiceAmt, vendorName, invoiceNum, invoiceDate, invoiceAmt]
+        );
+
+        if (existingDups.length > 0) {
+          await db.execute(
+            'UPDATE ap_documents SET is_duplicate_flag = 1, duplicate_of_id = ? WHERE id = ?',
+            [existingDups[0].id, apDocId]
+          );
+          console.log(`Duplicate detected: AP document ${apDocId} matches ${existingDups[0].id}`);
+        }
+      }
     }
 
     console.log(`OCR processing completed for AP document ${apDocId}`);

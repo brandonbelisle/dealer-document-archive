@@ -13,6 +13,8 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [detailDoc, setDetailDoc] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [duplicateDoc, setDuplicateDoc] = useState(null);
+  const [vendorFilter, setVendorFilter] = useState(null);
   const fileInputRef = useRef(null);
 
   const apAccent = "#22c55e";
@@ -161,6 +163,11 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
       if (d.status !== 'reviewing') return false;
     }
 
+    // Filter by vendor click
+    if (vendorFilter) {
+      return (d.vendorName || "").toLowerCase() === vendorFilter.toLowerCase();
+    }
+
     // Filter by search
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
@@ -287,6 +294,40 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
           </div>
         </div>
       </div>
+
+      {/* Vendor Filter Banner */}
+      {vendorFilter && (
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "8px 12px",
+          borderRadius: 8,
+          background: darkMode ? "rgba(34,197,94,0.1)" : "rgba(34,197,94,0.05)",
+          border: `1px solid ${darkMode ? "rgba(34,197,94,0.3)" : "rgba(34,197,94,0.2)"}`,
+          marginBottom: 16,
+        }}>
+          <span style={{ fontSize: 13, color: t.text }}>
+            Showing invoices for: <strong>{vendorFilter}</strong>
+          </span>
+          <button
+            onClick={() => setVendorFilter(null)}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: apAccent,
+              cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <XIcon size={14} /> Clear filter
+          </button>
+        </div>
+      )}
 
       {/* Filter Tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
@@ -425,6 +466,19 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
                 <div style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
                   <FileDocIcon size={14} style={{ color: t.textMuted }} />
                   {doc.file?.name || "Untitled"}
+                  {doc.isDuplicate && (
+                    <span style={{
+                      padding: "1px 6px",
+                      borderRadius: 10,
+                      fontSize: 10,
+                      fontWeight: 700,
+                      background: "#ef4444",
+                      color: "white",
+                      marginLeft: 4,
+                    }}>
+                      DUPLICATE
+                    </span>
+                  )}
                 </div>
                 <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>
                   {formatSize(doc.file?.size)} · {doc.file?.pages || 0} pages
@@ -435,7 +489,25 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
                 <div>
                   {doc.vendorName ? (
                     <div>
-                      <div style={{ fontWeight: 500 }}>{doc.vendorName}</div>
+                      <button
+                        onClick={() => setVendorFilter(doc.vendorName)}
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          padding: 0,
+                          fontWeight: 500,
+                          color: apAccent,
+                          cursor: "pointer",
+                          fontSize: 13,
+                          textDecoration: "underline",
+                          textDecorationColor: "transparent",
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.textDecorationColor = apAccent}
+                        onMouseLeave={(e) => e.currentTarget.style.textDecorationColor = "transparent"}
+                        title={`Filter by ${doc.vendorName}`}
+                      >
+                        {doc.vendorName}
+                      </button>
                       {doc.extractedFields?.find(f => f.field === 'vendor_name') && (
                         <div style={{
                           fontSize: 10,
@@ -463,6 +535,22 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
               <div>{getStatusBadge(doc.status)}</div>
 
               <div style={{ textAlign: "right", display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                {doc.isDuplicate && (
+                  <button
+                    onClick={() => setDuplicateDoc(doc)}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#ef4444",
+                      cursor: "pointer",
+                      padding: 4,
+                      borderRadius: 4,
+                    }}
+                    title="View Duplicate"
+                  >
+                    <AlertTriangleIcon size={14} />
+                  </button>
+                )}
                 <button
                   onClick={() => openDetail(doc)}
                   style={{
@@ -780,6 +868,129 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
                   )}
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Duplicate Review Modal */}
+      {duplicateDoc && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.6)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1000,
+          padding: 24,
+        }}
+        onClick={() => setDuplicateDoc(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: t.surface,
+              border: `1px solid ${t.border}`,
+              borderRadius: 12,
+              maxWidth: 600,
+              width: "100%",
+              maxHeight: "90vh",
+              overflow: "auto",
+            }}
+          >
+            <div style={{
+              padding: "16px 20px",
+              borderBottom: `1px solid ${t.border}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, color: "#ef4444" }}>
+                  <AlertTriangleIcon size={16} style={{ marginRight: 6 }} />
+                  Potential Duplicate Detected
+                </h3>
+                <div style={{ fontSize: 12, color: t.textMuted, marginTop: 4 }}>
+                  This document may be a duplicate of an existing invoice
+                </div>
+              </div>
+              <button
+                onClick={() => setDuplicateDoc(null)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: t.textMuted,
+                  cursor: "pointer",
+                  padding: 4,
+                }}
+              >
+                <XIcon size={20} />
+              </button>
+            </div>
+
+            <div style={{ padding: 20 }}>
+              <div style={{
+                background: darkMode ? "rgba(239,68,68,0.1)" : "rgba(239,68,68,0.05)",
+                border: `1px solid ${darkMode ? "rgba(239,68,68,0.3)" : "rgba(239,68,68,0.2)"}`,
+                borderRadius: 8,
+                padding: 16,
+                marginBottom: 20,
+              }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 8 }}>
+                  Current Document
+                </div>
+                <div style={{ fontSize: 13, color: t.text }}>
+                  <div><strong>File:</strong> {duplicateDoc.file?.name}</div>
+                  <div><strong>Vendor:</strong> {duplicateDoc.vendorName || "—"}</div>
+                  <div><strong>Invoice #:</strong> {duplicateDoc.invoiceNumber || "—"}</div>
+                  <div><strong>Date:</strong> {formatDate(duplicateDoc.invoiceDate)}</div>
+                  <div><strong>Amount:</strong> {formatAmount(duplicateDoc.invoiceAmount)}</div>
+                </div>
+              </div>
+
+              <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 16 }}>
+                The system detected this invoice matches an existing record. Please review both documents to confirm if this is a duplicate.
+              </div>
+
+              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                <button
+                  onClick={() => {
+                    handleUpdateDocument(duplicateDoc.id, { isDuplicate: 0, duplicateOfId: null });
+                    setDuplicateDoc(null);
+                  }}
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: 8,
+                    border: `1px solid ${t.border}`,
+                    background: t.surface,
+                    color: t.text,
+                    cursor: "pointer",
+                    fontSize: 13,
+                    fontWeight: 600,
+                  }}
+                >
+                  Not a Duplicate
+                </button>
+                <button
+                  onClick={() => {
+                    handleUpdateDocument(duplicateDoc.id, { status: 'rejected' });
+                    setDuplicateDoc(null);
+                  }}
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: 8,
+                    border: "none",
+                    background: "#ef4444",
+                    color: "white",
+                    cursor: "pointer",
+                    fontSize: 13,
+                    fontWeight: 600,
+                  }}
+                >
+                  Reject Duplicate
+                </button>
+              </div>
             </div>
           </div>
         </div>

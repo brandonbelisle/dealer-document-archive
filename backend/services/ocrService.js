@@ -288,7 +288,38 @@ function guessVendorFromHeader(text) {
   return null;
 }
 
+/**
+ * Normalize a vendor name for matching purposes
+ * Removes common suffixes, punctuation, and standardizes spacing
+ */
+function normalizeVendorName(name) {
+  if (!name) return '';
+  return name
+    .toLowerCase()
+    .replace(/\b(inc\.?|llc|ltd\.?|corp\.?|corporation|company|co\.?|limited|llp|plc)\b/gi, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Generate a duplicate detection key from invoice fields
+ * Used to identify potential duplicate invoices
+ */
+function generateDuplicateKey(vendorName, invoiceNumber, invoiceDate, invoiceAmount) {
+  const normalizedVendor = normalizeVendorName(vendorName);
+  const normalizedInvoice = (invoiceNumber || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const dateStr = invoiceDate || '';
+  const amountStr = invoiceAmount ? String(parseFloat(invoiceAmount).toFixed(2)) : '';
+
+  if (!normalizedVendor || !normalizedInvoice) return null;
+
+  return `${normalizedVendor}|${normalizedInvoice}|${dateStr}|${amountStr}`;
+}
+
 module.exports = {
   processDocument,
   extractInvoiceFields,
+  normalizeVendorName,
+  generateDuplicateKey,
 };

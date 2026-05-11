@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import * as api from "../api";
 import { useSocket } from "../hooks/useSocket";
-import { UploadCloudIcon, TrashIcon, SearchIcon, FileTextIcon, AlertTriangleIcon, CheckIcon, ClockIcon } from "../components/Icons";
+import { UploadCloudIcon, TrashIcon, SearchIcon, FileDocIcon, AlertTriangleIcon, CheckIcon, ClockIcon } from "../components/Icons";
 
 export default function APDashboardPage({ loggedInUser, t, darkMode, addToast }) {
   const [documents, setDocuments] = useState([]);
@@ -298,7 +298,7 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
           </div>
         ) : filteredDocuments.length === 0 ? (
           <div style={{ padding: 40, textAlign: "center", color: t.textMuted }}>
-            <FileTextIcon size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
+            <FileDocIcon size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
             <div>No documents found</div>
             {searchQuery && <div style={{ fontSize: 12, marginTop: 4 }}>Try adjusting your search</div>}
           </div>
@@ -319,7 +319,7 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
             >
               <div>
                 <div style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
-                  <FileTextIcon size={14} style={{ color: t.textMuted }} />
+                  <FileDocIcon size={14} style={{ color: t.textMuted }} />
                   {doc.file?.name || "Untitled"}
                 </div>
                 <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>

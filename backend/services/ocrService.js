@@ -10,27 +10,58 @@ const { createCanvas } = require('canvas');
 // Invoice field extraction patterns
 const FIELD_PATTERNS = {
   vendor_name: [
-    /(?:from|vendor|seller|billed by|remit to)[:\s]*([A-Z][A-Za-z0-9\s&.,]+(?:Inc\.?|LLC|Ltd\.?|Corp\.?|Company|Co\.?)?)/i,
-    /^([A-Z][A-Za-z0-9\s&.,]{2,50}(?:Inc\.?|LLC|Ltd\.?|Corp\.?|Company|Co\.?)?)$/im,
+    // "From: ABC Corp" or "Vendor: ABC Corp"
+    /(?:from|vendor|seller|billed by|remit to|sold by|ship from)[\s:]*([A-Z][A-Za-z0-9\s&.,'\-]+(?:Inc\.?|LLC|Ltd\.?|Corp\.?|Corporation|Company|Co\.?|Limited|LLP|PLC|GmbH|LLC\.?)?)/i,
+    // "Bill To: ABC Corp" (sometimes vendor is listed as bill to)
+    /(?:bill\s*to)[\s:]*([A-Z][A-Za-z0-9\s&.,'\-]+(?:Inc\.?|LLC|Ltd\.?|Corp\.?|Corporation|Company|Co\.?|Limited|LLP|PLC|GmbH)?)/i,
+    // Line that ends with a company suffix
+    /^([A-Z][A-Za-z0-9\s&.,'\-]{2,60}(?:Inc\.?|LLC|Ltd\.?|Corp\.?|Corporation|Company|Co\.?|Limited|LLP|PLC|GmbH))/im,
+    // "ABC Supply" on its own line near top
+    /^([A-Z][A-Za-z0-9\s&.,'\-]{3,50}(?:Supply|Auto|Parts|Service|Dealer|Group|Motors|Equipment|Technologies|Systems|Solutions))/im,
   ],
   invoice_number: [
-    /(?:invoice\s*(?:#|no\.?|number)?)[:\s]*([A-Z0-9\-]{3,20})/i,
-    /(?:inv\.?\s*(?:#|no\.?)?)[:\s]*([A-Z0-9\-]{3,20})/i,
-    /(?:invoice\s*id)[:\s]*([A-Z0-9\-]{3,20})/i,
+    // Invoice # 12345
+    /(?:invoice\s*(?:#|no\.?|number|num\.?|#)?)[\s:]*([A-Z0-9\-]{2,30})/i,
+    // Inv. No. 12345
+    /(?:inv\.?\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9\-]{2,30})/i,
+    // Invoice ID: 12345
+    /(?:invoice\s*(?:id|ref|reference))[\s:]*([A-Z0-9\-]{2,30})/i,
+    // "# INV12345" or "# 12345" near invoice keyword
+    /invoice[^\n]{0,80}#\s*([A-Z0-9\-]{2,30})/i,
+    // "Invoice 12345" (no #)
+    /\binvoice\b[\s:]+([A-Z0-9][A-Z0-9\-]{1,29})/i,
+    // "Ref: 12345" or "Reference: 12345"
+    /(?:ref|reference)(?:\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9\-]{2,30})/i,
+    // Document #
+    /(?:document|doc)\s*(?:#|no\.?)[\s:]*([A-Z0-9\-]{2,30})/i,
+    // Statement #
+    /(?:statement|stmt)\s*(?:#|no\.?)[\s:]*([A-Z0-9\-]{2,30})/i,
   ],
   invoice_date: [
-    /(?:invoice\s*date|date\s*of\s*invoice|dated)[:\s]*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})/i,
-    /(?:date)[:\s]*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})/i,
+    // Invoice Date: 01/15/2024
+    /(?:invoice\s*date|date\s*of\s*invoice|dated|issue\s*date)[\s:]*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})/i,
+    // Date: 01/15/2024
+    /\bdate[\s:]*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})/i,
+    // Month name formats: January 15, 2024 or Jan 15, 2024
+    /(?:invoice\s*date|date|dated)[\s:]*(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)[\s.,]+(\d{1,2})(?:st|nd|rd|th)?[,\s]+(\d{4})/i,
+    // 15 January 2024
+    /(?:invoice\s*date|date|dated)[\s:]*(\d{1,2})(?:st|nd|rd|th)?[\s.,]+(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)[,\s]+(\d{4})/i,
+    // ISO format: 2024-01-15
+    /(?:invoice\s*date|date|dated)[\s:]*(\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2})/i,
   ],
   invoice_amount: [
-    /(?:total\s*amount|amount\s*due|balance\s*due|total\s*due|grand\s*total)[:\s]*[$]?\s*([\d,]+\.\d{2})/i,
-    /(?:total)[:\s]*[$]?\s*([\d,]+\.\d{2})/i,
+    /(?:total\s*amount|amount\s*due|balance\s*due|total\s*due|grand\s*total|net\s*due)[\s:]*[$]?\s*([\d,]+\.\d{2})/i,
+    /(?:total|balance)[\s:]*[$]?\s*([\d,]+\.\d{2})/i,
+    /(?:amount\s*due|due)[\s:]*[$]?\s*([\d,]+\.\d{2})/i,
+    /\$\s*([\d,]+\.\d{2})(?:\s*(?:USD|usd))?\s*(?:total|due|balance)/i,
   ],
   po_number: [
-    /(?:purchase\s*order|p\.?o\.?\s*(?:#|no\.?)?)[:\s]*([A-Z0-9\-]{3,20})/i,
-    /(?:po\s*(?:#|no\.?)?)[:\s]*([A-Z0-9\-]{3,20})/i,
-    /\bPO\s*#?\s*[:\s]*([A-Z0-9\-]{3,20})/i,
-    /\bP\.O\.\s*#?\s*[:\s]*([A-Z0-9\-]{3,20})/i,
+    /(?:purchase\s*order|p\.?o\.?\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9\-]{2,30})/i,
+    /(?:po\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9\-]{2,30})/i,
+    /\bPO\s*#?\s*[:\s]*([A-Z0-9\-]{2,30})/i,
+    /\bP\.O\.\s*#?\s*[:\s]*([A-Z0-9\-]{2,30})/i,
+    /(?:order\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9\-]{2,30})/i,
+    /(?:customer\s*po|cust\s*po)[\s:]*([A-Z0-9\-]{2,30})/i,
   ],
 };
 
@@ -279,7 +310,26 @@ function extractInvoiceFields(text) {
     for (const pattern of patterns) {
       const match = text.match(pattern);
       if (match) {
-        const value = match[1].trim();
+        let value;
+        // Handle month-name date formats with multiple capture groups
+        if (fieldName === 'invoice_date' && match.length > 2) {
+          if (match[2] && match[3]) {
+            // "January 15, 2024" format: match[1]=month, match[2]=day, match[3]=year
+            value = `${match[1]} ${match[2]}, ${match[3]}`;
+          } else if (match[1] && match[2] && match[3]) {
+            // Re-check which groups are populated
+            const groups = match.slice(1).filter(g => g);
+            if (groups.length >= 3) {
+              value = groups.join(' ');
+            } else {
+              value = match[1].trim();
+            }
+          } else {
+            value = match[1].trim();
+          }
+        } else {
+          value = match[1].trim();
+        }
         const confidence = calculateConfidence(fieldName, value, text, pattern);
         if (confidence > bestConfidence) {
           bestConfidence = confidence;
@@ -374,26 +424,41 @@ function checkKeywordProximity(fieldName, value, fullText) {
  * Guess vendor name from document header (first few lines)
  */
 function guessVendorFromHeader(text) {
-  // Look for company name patterns in header
   const lines = text.split(/[\n\r]+/).map(l => l.trim()).filter(l => l.length > 2);
 
-  for (const line of lines.slice(0, 5)) {
+  // First pass: look for explicit "From:" or "Bill To:" or "Vendor:" lines
+  for (const line of lines.slice(0, 10)) {
+    const lower = line.toLowerCase();
+    if (/(from|vendor|billed by|remit to|sold by)[:\s]+([A-Z][A-Za-z0-9\s&.,'\-]{2,60})/i.test(line)) {
+      const m = line.match(/(?:from|vendor|billed by|remit to|sold by)[:\s]+([A-Z][A-Za-z0-9\s&.,'\-]{2,60})/i);
+      if (m && m[1] && m[1].length > 2) {
+        return m[1].replace(/\s+/g, ' ').trim();
+      }
+    }
+  }
+
+  // Second pass: look for company suffixes
+  const companySuffix = /\b(inc\.?|llc\.?|ltd\.?|corp\.?|corporation|company|co\.?|limited|llp|plc|gmbh|group|supply|auto|parts|motors|dealership|services)\b/i;
+
+  for (const line of lines.slice(0, 8)) {
+    const lower = line.toLowerCase();
     // Skip lines that are obviously not company names
-    if (/^(date|invoice|bill|to|from|page|\d+|[\$\#])/.test(line.toLowerCase())) continue;
+    if (/^(date|invoice|bill|to|from|page|\d+|[\$\#]|ship|sold|remit|amount|total|qty)/.test(lower)) continue;
     if (line.length < 3 || line.length > 80) continue;
     if (/^\d{1,2}[\/\-.]\d{1,2}/.test(line)) continue; // Skip dates
+    if (/^\d{5,}/.test(line)) continue; // Skip long numbers
 
-    // Look for company indicators
-    if (/\b(inc\.?|llc|ltd\.?|corp\.?|company|co\.?)\b/i.test(line)) {
+    if (companySuffix.test(line)) {
       return line.replace(/\s+/g, ' ').trim();
     }
   }
 
   // Fallback: return first substantial line that looks like a name
-  for (const line of lines.slice(0, 3)) {
+  for (const line of lines.slice(0, 5)) {
+    const lower = line.toLowerCase();
     if (line.length > 3 && line.length < 60 && /^[A-Z]/.test(line)) {
       const cleaned = line.replace(/\s+/g, ' ').trim();
-      if (!/^(tel|fax|email|www|http|page|date|invoice)/i.test(cleaned)) {
+      if (!/^(tel|fax|email|www|http|page|date|invoice|ship|sold|amount|total|qty|\d)/i.test(cleaned)) {
         return cleaned;
       }
     }

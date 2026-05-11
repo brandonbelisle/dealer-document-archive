@@ -536,9 +536,24 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
               }}
             >
               <div>
-                <div style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+                <div
+                  onClick={() => openDetail(doc)}
+                  style={{
+                    fontWeight: 600,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    cursor: "pointer",
+                  }}
+                  title="Click to view details"
+                >
                   <FileDocIcon size={14} style={{ color: t.textMuted }} />
-                  {doc.file?.name || "Untitled"}
+                  <span style={{ textDecoration: "underline", textDecorationColor: "transparent", transition: "text-decoration-color 0.15s" }}
+                    onMouseEnter={(e) => e.currentTarget.style.textDecorationColor = apAccent}
+                    onMouseLeave={(e) => e.currentTarget.style.textDecorationColor = "transparent"}
+                  >
+                    {doc.file?.name || "Untitled"}
+                  </span>
                   {doc.isDuplicate && (
                     <span style={{
                       padding: "1px 6px",
@@ -680,10 +695,10 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
               background: t.surface,
               border: `1px solid ${t.border}`,
               borderRadius: 12,
-              maxWidth: 800,
+              maxWidth: 1200,
               width: "100%",
               maxHeight: "90vh",
-              overflow: "auto",
+              overflow: "hidden",
               display: "flex",
               flexDirection: "column",
             }}
@@ -717,62 +732,91 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
             </div>
 
             {/* Modal Body */}
-            <div style={{ padding: 20 }}>
+            <div style={{ display: "flex", flexDirection: "row", overflow: "hidden", flex: 1, minHeight: 0 }}>
               {detailLoading ? (
-                <div style={{ textAlign: "center", padding: 40, color: t.textMuted }}>Loading details...</div>
+                <div style={{ textAlign: "center", padding: 40, color: t.textMuted, width: "100%" }}>Loading details...</div>
               ) : (
                 <>
-                  {/* Status and Type */}
-                  <div style={{ display: "flex", gap: 12, marginBottom: 20, alignItems: "center" }}>
-                    <div>
-                      <div style={{ fontSize: 11, color: t.textMuted, marginBottom: 4 }}>STATUS</div>
-                      {getStatusBadge(detailDoc.status)}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 11, color: t.textMuted, marginBottom: 4 }}>TYPE</div>
-                      {getTypeBadge(detailDoc.documentType)}
-                    </div>
-                  </div>
-
-                  {/* Workflow Actions */}
-                  {canReview && detailDoc.status !== 'archived' && detailDoc.status !== 'processing' && detailDoc.status !== 'uploaded' && (
-                    <div style={{
-                      background: darkMode ? "rgba(34,197,94,0.1)" : "rgba(34,197,94,0.05)",
-                      border: `1px solid ${darkMode ? "rgba(34,197,94,0.3)" : "rgba(34,197,94,0.2)"}`,
-                      borderRadius: 8,
-                      padding: 16,
-                      marginBottom: 20,
-                    }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 8 }}>
-                        Workflow Actions
+                  {/* Left Panel - Details */}
+                  <div style={{ flex: "0 0 45%", overflow: "auto", padding: 20, borderRight: `1px solid ${t.border}` }}>
+                    {/* Status and Type */}
+                    <div style={{ display: "flex", gap: 12, marginBottom: 20, alignItems: "center" }}>
+                      <div>
+                        <div style={{ fontSize: 11, color: t.textMuted, marginBottom: 4 }}>STATUS</div>
+                        {getStatusBadge(detailDoc.status)}
                       </div>
+                      <div>
+                        <div style={{ fontSize: 11, color: t.textMuted, marginBottom: 4 }}>TYPE</div>
+                        {getTypeBadge(detailDoc.documentType)}
+                      </div>
+                    </div>
 
-                      {/* Reviewing status actions */}
-                      {detailDoc.status === 'reviewing' && (
-                        <>
-                          <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 12 }}>
-                            This document needs review. Please classify it.
-                          </div>
+                    {/* Workflow Actions */}
+                    {canReview && detailDoc.status !== 'archived' && detailDoc.status !== 'processing' && detailDoc.status !== 'uploaded' && (
+                      <div style={{
+                        background: darkMode ? "rgba(34,197,94,0.1)" : "rgba(34,197,94,0.05)",
+                        border: `1px solid ${darkMode ? "rgba(34,197,94,0.3)" : "rgba(34,197,94,0.2)"}`,
+                        borderRadius: 8,
+                        padding: 16,
+                        marginBottom: 20,
+                      }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 8 }}>
+                          Workflow Actions
+                        </div>
+
+                        {/* Reviewing status actions */}
+                        {detailDoc.status === 'reviewing' && (
+                          <>
+                            <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 12 }}>
+                              This document needs review. Please classify it.
+                            </div>
+                            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                              <button
+                                onClick={() => handleUpdateDocument(detailDoc.id, { documentType: 'invoice', status: 'extracted' })}
+                                style={{
+                                  padding: "6px 12px", borderRadius: 6, border: "none",
+                                  background: "#22c55e", color: "white",
+                                  fontSize: 12, fontWeight: 600, cursor: "pointer",
+                                }}
+                              >
+                                Mark as Invoice
+                              </button>
+                              <button
+                                onClick={() => handleUpdateDocument(detailDoc.id, { documentType: 'non_invoice', status: 'extracted' })}
+                                style={{
+                                  padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
+                                  background: t.surface, color: t.text,
+                                  fontSize: 12, fontWeight: 600, cursor: "pointer",
+                                }}
+                              >
+                                Mark as Non-Invoice
+                              </button>
+                              <button
+                                onClick={() => handleUpdateDocument(detailDoc.id, { status: 'rejected' })}
+                                style={{
+                                  padding: "6px 12px", borderRadius: 6, border: "none",
+                                  background: "#ef4444", color: "white",
+                                  fontSize: 12, fontWeight: 600, cursor: "pointer",
+                                }}
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          </>
+                        )}
+
+                        {/* Extracted status actions */}
+                        {detailDoc.status === 'extracted' && (
                           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                             <button
-                              onClick={() => handleUpdateDocument(detailDoc.id, { documentType: 'invoice', status: 'extracted' })}
+                              onClick={() => handleUpdateDocument(detailDoc.id, { status: 'approved' })}
                               style={{
                                 padding: "6px 12px", borderRadius: 6, border: "none",
-                                background: "#22c55e", color: "white",
+                                background: "#10b981", color: "white",
                                 fontSize: 12, fontWeight: 600, cursor: "pointer",
                               }}
                             >
-                              Mark as Invoice
-                            </button>
-                            <button
-                              onClick={() => handleUpdateDocument(detailDoc.id, { documentType: 'non_invoice', status: 'extracted' })}
-                              style={{
-                                padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
-                                background: t.surface, color: t.text,
-                                fontSize: 12, fontWeight: 600, cursor: "pointer",
-                              }}
-                            >
-                              Mark as Non-Invoice
+                              Approve
                             </button>
                             <button
                               onClick={() => handleUpdateDocument(detailDoc.id, { status: 'rejected' })}
@@ -784,161 +828,233 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
                             >
                               Reject
                             </button>
+                            <button
+                              onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
+                              style={{
+                                padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
+                                background: t.surface, color: t.text,
+                                fontSize: 12, fontWeight: 600, cursor: "pointer",
+                              }}
+                            >
+                              Archive
+                            </button>
                           </div>
-                        </>
-                      )}
+                        )}
 
-                      {/* Extracted status actions */}
-                      {detailDoc.status === 'extracted' && (
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                          <button
-                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'approved' })}
-                            style={{
-                              padding: "6px 12px", borderRadius: 6, border: "none",
-                              background: "#10b981", color: "white",
-                              fontSize: 12, fontWeight: 600, cursor: "pointer",
-                            }}
-                          >
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'rejected' })}
-                            style={{
-                              padding: "6px 12px", borderRadius: 6, border: "none",
-                              background: "#ef4444", color: "white",
-                              fontSize: 12, fontWeight: 600, cursor: "pointer",
-                            }}
-                          >
-                            Reject
-                          </button>
-                          <button
-                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
-                            style={{
-                              padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
-                              background: t.surface, color: t.text,
-                              fontSize: 12, fontWeight: 600, cursor: "pointer",
-                            }}
-                          >
-                            Archive
-                          </button>
-                        </div>
-                      )}
+                        {/* Approved status actions */}
+                        {detailDoc.status === 'approved' && (
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            <button
+                              onClick={() => handleUpdateDocument(detailDoc.id, { status: 'posted' })}
+                              style={{
+                                padding: "6px 12px", borderRadius: 6, border: "none",
+                                background: "#0891b2", color: "white",
+                                fontSize: 12, fontWeight: 600, cursor: "pointer",
+                              }}
+                            >
+                              Mark Posted
+                            </button>
+                            <button
+                              onClick={() => handleUpdateDocument(detailDoc.id, { status: 'rejected' })}
+                              style={{
+                                padding: "6px 12px", borderRadius: 6, border: "none",
+                                background: "#ef4444", color: "white",
+                                fontSize: 12, fontWeight: 600, cursor: "pointer",
+                              }}
+                            >
+                              Reject
+                            </button>
+                            <button
+                              onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
+                              style={{
+                                padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
+                                background: t.surface, color: t.text,
+                                fontSize: 12, fontWeight: 600, cursor: "pointer",
+                              }}
+                            >
+                              Archive
+                            </button>
+                          </div>
+                        )}
 
-                      {/* Approved status actions */}
-                      {detailDoc.status === 'approved' && (
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                          <button
-                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'posted' })}
-                            style={{
-                              padding: "6px 12px", borderRadius: 6, border: "none",
-                              background: "#0891b2", color: "white",
-                              fontSize: 12, fontWeight: 600, cursor: "pointer",
-                            }}
-                          >
-                            Mark Posted
-                          </button>
-                          <button
-                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'rejected' })}
-                            style={{
-                              padding: "6px 12px", borderRadius: 6, border: "none",
-                              background: "#ef4444", color: "white",
-                              fontSize: 12, fontWeight: 600, cursor: "pointer",
-                            }}
-                          >
-                            Reject
-                          </button>
-                          <button
-                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
-                            style={{
-                              padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
-                              background: t.surface, color: t.text,
-                              fontSize: 12, fontWeight: 600, cursor: "pointer",
-                            }}
-                          >
-                            Archive
-                          </button>
-                        </div>
-                      )}
+                        {/* Posted status actions */}
+                        {detailDoc.status === 'posted' && (
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            <button
+                              onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
+                              style={{
+                                padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
+                                background: t.surface, color: t.text,
+                                fontSize: 12, fontWeight: 600, cursor: "pointer",
+                              }}
+                            >
+                              Archive
+                            </button>
+                          </div>
+                        )}
 
-                      {/* Posted status actions */}
-                      {detailDoc.status === 'posted' && (
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                          <button
-                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
-                            style={{
-                              padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
-                              background: t.surface, color: t.text,
-                              fontSize: 12, fontWeight: 600, cursor: "pointer",
-                            }}
-                          >
-                            Archive
-                          </button>
-                        </div>
-                      )}
-
-                      {/* Rejected status actions */}
-                      {detailDoc.status === 'rejected' && (
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                          <button
-                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'uploaded' })}
-                            style={{
-                              padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
-                              background: t.surface, color: t.text,
-                              fontSize: 12, fontWeight: 600, cursor: "pointer",
-                            }}
-                          >
-                            Reprocess
-                          </button>
-                          <button
-                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
-                            style={{
-                              padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
-                              background: t.surface, color: t.text,
-                              fontSize: 12, fontWeight: 600, cursor: "pointer",
-                            }}
-                          >
-                            Archive
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* File Preview */}
-                  {detailDoc.file?.previewUrl && (
-                    <div style={{ marginBottom: 20 }}>
-                      <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                        Document Preview
-                      </h4>
-                      <div style={{
-                        border: `1px solid ${t.border}`,
-                        borderRadius: 8,
-                        overflow: "hidden",
-                        height: 400,
-                        background: darkMode ? "#0d1117" : "#f6f8fa",
-                      }}>
-                        <iframe
-                          src={detailDoc.file.previewUrl}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            border: "none",
-                          }}
-                          title="Document Preview"
-                        />
+                        {/* Rejected status actions */}
+                        {detailDoc.status === 'rejected' && (
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            <button
+                              onClick={() => handleUpdateDocument(detailDoc.id, { status: 'uploaded' })}
+                              style={{
+                                padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
+                                background: t.surface, color: t.text,
+                                fontSize: 12, fontWeight: 600, cursor: "pointer",
+                              }}
+                            >
+                              Reprocess
+                            </button>
+                            <button
+                              onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
+                              style={{
+                                padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
+                                background: t.surface, color: t.text,
+                                fontSize: 12, fontWeight: 600, cursor: "pointer",
+                              }}
+                            >
+                              Archive
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Extracted Fields */}
-                  <div style={{ marginBottom: 20 }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                      <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                        Extracted Fields
-                      </h4>
-                      {canReview && (
+                    {/* Extracted Fields */}
+                    <div style={{ marginBottom: 20 }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                        <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                          Extracted Fields
+                        </h4>
+                        {canReview && (
+                          <button
+                            onClick={() => setEditingFields(!editingFields)}
+                            style={{
+                              padding: "4px 12px",
+                              borderRadius: 6,
+                              border: `1px solid ${t.border}`,
+                              background: t.surface,
+                              color: t.textMuted,
+                              fontSize: 11,
+                              fontWeight: 600,
+                              cursor: "pointer",
+                            }}
+                          >
+                            {editingFields ? "Cancel" : "Edit Fields"}
+                          </button>
+                        )}
+                      </div>
+
+                      {editingFields ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                          {[
+                            { label: "Vendor Name", key: "vendorName", type: "text" },
+                            { label: "Invoice Number", key: "invoiceNumber", type: "text" },
+                            { label: "Invoice Date", key: "invoiceDate", type: "date" },
+                            { label: "Invoice Amount", key: "invoiceAmount", type: "number" },
+                            { label: "PO Number", key: "poNumber", type: "text" },
+                          ].map(field => (
+                            <div key={field.key}>
+                              <label style={{ fontSize: 11, color: t.textMuted, marginBottom: 4, display: "block" }}>
+                                {field.label}
+                              </label>
+                              <input
+                                type={field.type}
+                                value={editForm[field.key]}
+                                onChange={(e) => setEditForm(prev => ({ ...prev, [field.key]: e.target.value }))}
+                                style={{
+                                  padding: "8px 12px",
+                                  borderRadius: 6,
+                                  border: `1px solid ${t.border}`,
+                                  background: t.surface,
+                                  color: t.text,
+                                  fontSize: 13,
+                                  width: "100%",
+                                  outline: "none",
+                                }}
+                              />
+                            </div>
+                          ))}
+                          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                            <button
+                              onClick={saveFieldEdits}
+                              style={{
+                                padding: "8px 16px",
+                                borderRadius: 6,
+                                border: "none",
+                                background: "#22c55e",
+                                color: "white",
+                                fontSize: 13,
+                                fontWeight: 600,
+                                cursor: "pointer",
+                              }}
+                            >
+                              Save Changes
+                            </button>
+                            <button
+                              onClick={() => setEditingFields(false)}
+                              style={{
+                                padding: "8px 16px",
+                                borderRadius: 6,
+                                border: `1px solid ${t.border}`,
+                                background: t.surface,
+                                color: t.text,
+                                fontSize: 13,
+                                fontWeight: 600,
+                                cursor: "pointer",
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                          {[
+                            { label: "Vendor Name", key: "vendor_name", value: detailDoc.vendorName },
+                            { label: "Invoice Number", key: "invoice_number", value: detailDoc.invoiceNumber },
+                            { label: "Invoice Date", key: "invoice_date", value: formatDate(detailDoc.invoiceDate) },
+                            { label: "Invoice Amount", key: "invoice_amount", value: formatAmount(detailDoc.invoiceAmount) },
+                            { label: "PO Number", key: "po_number", value: detailDoc.poNumber },
+                          ].map(field => {
+                            const extractedField = detailDoc.extractedFields?.find(f => f.field === field.key);
+                            return (
+                              <div key={field.key} style={{
+                                padding: 12,
+                                borderRadius: 8,
+                                border: `1px solid ${t.border}`,
+                                background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                              }}>
+                                <div style={{ fontSize: 11, color: t.textMuted, marginBottom: 4 }}>{field.label}</div>
+                                <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>
+                                  {field.value || "—"}
+                                </div>
+                                {extractedField && (
+                                  <div style={{
+                                    fontSize: 10,
+                                    color: getConfidenceColor(extractedField.confidence),
+                                    marginTop: 4,
+                                  }}>
+                                    {extractedField.confidence}% confidence
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Excede Lookup */}
+                    <div style={{ marginBottom: 20 }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                        <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                          Excede Status
+                        </h4>
                         <button
-                          onClick={() => setEditingFields(!editingFields)}
+                          onClick={() => checkExcede(detailDoc.id)}
+                          disabled={checkingExcede}
                           style={{
                             padding: "4px 12px",
                             borderRadius: 6,
@@ -948,231 +1064,126 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
                             fontSize: 11,
                             fontWeight: 600,
                             cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
                           }}
                         >
-                          {editingFields ? "Cancel" : "Edit Fields"}
+                          {checkingExcede ? "Checking..." : "Check Excede"}
                         </button>
-                      )}
-                    </div>
-
-                    {editingFields ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        {[
-                          { label: "Vendor Name", key: "vendorName", type: "text" },
-                          { label: "Invoice Number", key: "invoiceNumber", type: "text" },
-                          { label: "Invoice Date", key: "invoiceDate", type: "date" },
-                          { label: "Invoice Amount", key: "invoiceAmount", type: "number" },
-                          { label: "PO Number", key: "poNumber", type: "text" },
-                        ].map(field => (
-                          <div key={field.key}>
-                            <label style={{ fontSize: 11, color: t.textMuted, marginBottom: 4, display: "block" }}>
-                              {field.label}
-                            </label>
-                            <input
-                              type={field.type}
-                              value={editForm[field.key]}
-                              onChange={(e) => setEditForm(prev => ({ ...prev, [field.key]: e.target.value }))}
-                              style={{
-                                padding: "8px 12px",
-                                borderRadius: 6,
-                                border: `1px solid ${t.border}`,
-                                background: t.surface,
-                                color: t.text,
-                                fontSize: 13,
-                                width: "100%",
-                                outline: "none",
-                              }}
-                            />
-                          </div>
-                        ))}
-                        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                          <button
-                            onClick={saveFieldEdits}
-                            style={{
-                              padding: "8px 16px",
-                              borderRadius: 6,
-                              border: "none",
-                              background: "#22c55e",
-                              color: "white",
-                              fontSize: 13,
-                              fontWeight: 600,
-                              cursor: "pointer",
-                            }}
-                          >
-                            Save Changes
-                          </button>
-                          <button
-                            onClick={() => setEditingFields(false)}
-                            style={{
-                              padding: "8px 16px",
-                              borderRadius: 6,
-                              border: `1px solid ${t.border}`,
-                              background: t.surface,
-                              color: t.text,
-                              fontSize: 13,
-                              fontWeight: 600,
-                              cursor: "pointer",
-                            }}
-                          >
-                            Cancel
-                          </button>
-                        </div>
                       </div>
-                    ) : (
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                        {[
-                          { label: "Vendor Name", key: "vendor_name", value: detailDoc.vendorName },
-                          { label: "Invoice Number", key: "invoice_number", value: detailDoc.invoiceNumber },
-                          { label: "Invoice Date", key: "invoice_date", value: formatDate(detailDoc.invoiceDate) },
-                          { label: "Invoice Amount", key: "invoice_amount", value: formatAmount(detailDoc.invoiceAmount) },
-                          { label: "PO Number", key: "po_number", value: detailDoc.poNumber },
-                        ].map(field => {
-                          const extractedField = detailDoc.extractedFields?.find(f => f.field === field.key);
-                          return (
-                            <div key={field.key} style={{
-                              padding: 12,
-                              borderRadius: 8,
-                              border: `1px solid ${t.border}`,
-                              background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
-                            }}>
-                              <div style={{ fontSize: 11, color: t.textMuted, marginBottom: 4 }}>{field.label}</div>
-                              <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>
-                                {field.value || "—"}
+
+                      {excedeStatus && (
+                        <div style={{
+                          padding: 12,
+                          borderRadius: 8,
+                          border: `1px solid ${t.border}`,
+                          background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                        }}>
+                          {!excedeStatus.checked ? (
+                            <div style={{ fontSize: 13, color: t.textMuted }}>
+                              {excedeStatus.message || "Not checked"}
+                            </div>
+                          ) : excedeStatus.error ? (
+                            <div style={{ fontSize: 13, color: "#ef4444" }}>
+                              Error: {excedeStatus.error}
+                            </div>
+                          ) : excedeStatus.found ? (
+                            <div>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "#22c55e", marginBottom: 4 }}>
+                                <CheckIcon size={12} /> Found in Excede
                               </div>
-                              {extractedField && (
-                                <div style={{
-                                  fontSize: 10,
-                                  color: getConfidenceColor(extractedField.confidence),
-                                  marginTop: 4,
-                                }}>
-                                  {extractedField.confidence}% confidence
+                              {excedeStatus.excedeData && (
+                                <div style={{ fontSize: 12, color: t.textMuted }}>
+                                  <div>Vendor: {excedeStatus.excedeData.VendorName || "—"}</div>
+                                  <div>Invoice: {excedeStatus.excedeData.InvoiceNo || "—"}</div>
+                                  <div>Posted: {excedeStatus.excedeData.PostedDate ? new Date(excedeStatus.excedeData.PostedDate).toLocaleDateString() : "—"}</div>
                                 </div>
                               )}
                             </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Excede Lookup */}
-                  <div style={{ marginBottom: 20 }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                      <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                        Excede Status
-                      </h4>
-                      <button
-                        onClick={() => checkExcede(detailDoc.id)}
-                        disabled={checkingExcede}
-                        style={{
-                          padding: "4px 12px",
-                          borderRadius: 6,
-                          border: `1px solid ${t.border}`,
-                          background: t.surface,
-                          color: t.textMuted,
-                          fontSize: 11,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 4,
-                        }}
-                      >
-                        {checkingExcede ? "Checking..." : "Check Excede"}
-                      </button>
+                          ) : (
+                            <div style={{ fontSize: 13, color: t.textMuted }}>
+                              Not found in Excede
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
-                    {excedeStatus && (
-                      <div style={{
-                        padding: 12,
-                        borderRadius: 8,
-                        border: `1px solid ${t.border}`,
-                        background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
-                      }}>
-                        {!excedeStatus.checked ? (
-                          <div style={{ fontSize: 13, color: t.textMuted }}>
-                            {excedeStatus.message || "Not checked"}
-                          </div>
-                        ) : excedeStatus.error ? (
-                          <div style={{ fontSize: 13, color: "#ef4444" }}>
-                            Error: {excedeStatus.error}
-                          </div>
-                        ) : excedeStatus.found ? (
-                          <div>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: "#22c55e", marginBottom: 4 }}>
-                              <CheckIcon size={12} /> Found in Excede
-                            </div>
-                            {excedeStatus.excedeData && (
-                              <div style={{ fontSize: 12, color: t.textMuted }}>
-                                <div>Vendor: {excedeStatus.excedeData.VendorName || "—"}</div>
-                                <div>Invoice: {excedeStatus.excedeData.InvoiceNo || "—"}</div>
-                                <div>Posted: {excedeStatus.excedeData.PostedDate ? new Date(excedeStatus.excedeData.PostedDate).toLocaleDateString() : "—"}</div>
+                    {/* Status History */}
+                    {statusHistory.length > 0 && (
+                      <div style={{ marginBottom: 20 }}>
+                        <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                          Status History
+                        </h4>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          {statusHistory.map((entry, idx) => (
+                            <div key={idx} style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 12,
+                              padding: "8px 12px",
+                              borderRadius: 6,
+                              border: `1px solid ${t.border}`,
+                              background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                            }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <span style={{ fontSize: 12, color: t.textMuted }}>{entry.old_status}</span>
+                                <span style={{ fontSize: 11, color: t.textMuted }}>→</span>
+                                <span style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{entry.new_status}</span>
                               </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div style={{ fontSize: 13, color: t.textMuted }}>
-                            Not found in Excede
-                          </div>
-                        )}
+                              <div style={{ marginLeft: "auto", fontSize: 11, color: t.textMuted }}>
+                                {entry.changed_by_name || "System"} · {formatDate(entry.changed_at)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Extracted Text Preview */}
+                    {detailDoc.extractedText && (
+                      <div>
+                        <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                          Extracted Text
+                        </h4>
+                        <pre style={{
+                          background: darkMode ? "#0d1117" : "#f6f8fa",
+                          border: `1px solid ${t.border}`,
+                          borderRadius: 8,
+                          padding: 12,
+                          fontSize: 12,
+                          color: t.text,
+                          maxHeight: 200,
+                          overflow: "auto",
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                          margin: 0,
+                        }}>
+                          {detailDoc.extractedText}
+                        </pre>
                       </div>
                     )}
                   </div>
 
-                  {/* Status History */}
-                  {statusHistory.length > 0 && (
-                    <div style={{ marginBottom: 20 }}>
-                      <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                        Status History
-                      </h4>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        {statusHistory.map((entry, idx) => (
-                          <div key={idx} style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 12,
-                            padding: "8px 12px",
-                            borderRadius: 6,
-                            border: `1px solid ${t.border}`,
-                            background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
-                          }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                              <span style={{ fontSize: 12, color: t.textMuted }}>{entry.old_status}</span>
-                              <span style={{ fontSize: 11, color: t.textMuted }}>→</span>
-                              <span style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{entry.new_status}</span>
-                            </div>
-                            <div style={{ marginLeft: "auto", fontSize: 11, color: t.textMuted }}>
-                              {entry.changed_by_name || "System"} · {formatDate(entry.changed_at)}
-                            </div>
-                          </div>
-                        ))}
+                  {/* Right Panel - Preview */}
+                  <div style={{ flex: "0 0 55%", display: "flex", flexDirection: "column", overflow: "hidden", background: darkMode ? "#0d1117" : "#f6f8fa" }}>
+                    {detailDoc.file?.previewUrl ? (
+                      <iframe
+                        src={detailDoc.file.previewUrl}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          border: "none",
+                        }}
+                        title="Document Preview"
+                      />
+                    ) : (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: t.textMuted, fontSize: 13 }}>
+                        No preview available
                       </div>
-                    </div>
-                  )}
-
-                  {/* Extracted Text Preview */}
-                  {detailDoc.extractedText && (
-                    <div>
-                      <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                        Extracted Text
-                      </h4>
-                      <pre style={{
-                        background: darkMode ? "#0d1117" : "#f6f8fa",
-                        border: `1px solid ${t.border}`,
-                        borderRadius: 8,
-                        padding: 12,
-                        fontSize: 12,
-                        color: t.text,
-                        maxHeight: 200,
-                        overflow: "auto",
-                        whiteSpace: "pre-wrap",
-                        wordBreak: "break-word",
-                        margin: 0,
-                      }}>
-                        {detailDoc.extractedText}
-                      </pre>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </>
               )}
             </div>

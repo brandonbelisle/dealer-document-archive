@@ -8,7 +8,6 @@ const db = require('../config/db');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { logAudit } = require('../middleware/audit');
 const { processDocument, extractInvoiceFields, generateDuplicateKey, detectPDFSplits, splitPDF } = require('../services/ocrService');
-const { compareExtraction, isAIEnabled } = require('../services/aiExtractService');
 const { uploadBlob, deleteBlob, generateSasUrl } = require('../config/azure-storage');
 const socket = require('../socket');
 
@@ -897,70 +896,5 @@ async function processAndExtractWithSplits(originalApDocId, originalFileId, file
     socket.apDocumentsChanged();
   }
 }
-
-// ── POST /api/ap/test-extraction ────────────────────────────
-// Admin endpoint: compare regex vs AI extraction on raw text
-router.post('/test-extraction', requireAuth, requirePermission('ap_review'), async (req, res) => {
-  try {
-    const { text } = req.body;
-    if (!text || typeof text !== 'string') {
-      return res.status(400).json({ error: 'text is required' });
-    }
-
-    const result = await compareExtraction(text);
-    res.json({
-      aiEnabled: isAIEnabled(),
-      regex: result.regex,
-      ai: result.ai,
-      aiRaw: result.aiRaw,
-      aiError: result.aiError,
-    });
-  } catch (err) {
-    console.error('Test extraction failed:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ── POST /api/ap/compare/:id ────────────────────────────────
-// Admin endpoint: compare regex vs AI on an existing document
-router.post('/compare/:id', requireAuth, requirePermission('ap_review'), async (req, res) => {
-  try {
-    const [docs] = await db.execute(
-      'SELECT extracted_text FROM ap_documents WHERE id = ?',
-      [req.params.id]
-    );
-    if (docs.length === 0) {
-      return res.status(404).json({ error: 'Document not found' });
-    }
-
-    const text = docs[0].extracted_text || '';
-    if (!text.trim()) {
-      return res.status(400).json({ error: 'Document has no extracted text' });
-    }
-
-    const result = await compareExtraction(text);
-    res.json({
-      aiEnabled: isAIEnabled(),
-      documentId: req.params.id,
-      regex: result.regex,
-      ai: result.ai,
-      aiRaw: result.aiRaw,
-      aiError: result.aiError,
-    });
-  } catch (err) {
-    console.error('Compare extraction failed:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ── GET /api/ap/ai-status ───────────────────────────────────
-// Check if AI extraction is configured and available
-router.get('/ai-status', requireAuth, requirePermission('view_ap'), async (req, res) => {
-  res.json({
-    enabled: isAIEnabled(),
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-    apiKeyConfigured: !!process.env.OPENAI_API_KEY,
-  });
-});
 
 module.exports = router;

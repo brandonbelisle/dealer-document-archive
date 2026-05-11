@@ -184,23 +184,7 @@ async function processDocument(fileBuffer, mimeType) {
     throw new Error(`Unsupported file type: ${mimeType}`);
   }
 
-  let fields;
-  const { isAIEnabled, extractWithAI } = require('./aiExtractService');
-  if (isAIEnabled()) {
-    try {
-      fields = await extractWithAI(text);
-      // Blend AI confidence with source confidence
-      fields = fields.map(f => ({
-        ...f,
-        confidence: Math.round(Math.min(f.confidence, sourceConfidence)),
-      }));
-    } catch (aiErr) {
-      console.error('[AI] Extraction failed, falling back to regex:', aiErr.message);
-      fields = extractInvoiceFields(text, sourceConfidence);
-    }
-  } else {
-    fields = extractInvoiceFields(text, sourceConfidence);
-  }
+  const fields = extractInvoiceFields(text, sourceConfidence);
 
   return { text, pages, sourceConfidence, fields, segments };
 }

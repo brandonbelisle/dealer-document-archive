@@ -900,7 +900,7 @@ async function processAndExtractWithSplits(originalApDocId, originalFileId, file
 
 // ── POST /api/ap/test-extraction ────────────────────────────
 // Admin endpoint: compare regex vs AI extraction on raw text
-router.post('/test-extraction', requireAuth, requirePermission('manage_ap'), async (req, res) => {
+router.post('/test-extraction', requireAuth, requirePermission('ap_review'), async (req, res) => {
   try {
     const { text } = req.body;
     if (!text || typeof text !== 'string') {
@@ -923,7 +923,7 @@ router.post('/test-extraction', requireAuth, requirePermission('manage_ap'), asy
 
 // ── POST /api/ap/compare/:id ────────────────────────────────
 // Admin endpoint: compare regex vs AI on an existing document
-router.post('/compare/:id', requireAuth, requirePermission('manage_ap'), async (req, res) => {
+router.post('/compare/:id', requireAuth, requirePermission('ap_review'), async (req, res) => {
   try {
     const [docs] = await db.execute(
       'SELECT extracted_text FROM ap_documents WHERE id = ?',

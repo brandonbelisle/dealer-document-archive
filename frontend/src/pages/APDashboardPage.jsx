@@ -15,6 +15,9 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
   const [detailLoading, setDetailLoading] = useState(false);
   const [duplicateDoc, setDuplicateDoc] = useState(null);
   const [vendorFilter, setVendorFilter] = useState(null);
+  const [statusHistory, setStatusHistory] = useState([]);
+  const [excedeStatus, setExcedeStatus] = useState(null);
+  const [checkingExcede, setCheckingExcede] = useState(false);
   const fileInputRef = useRef(null);
 
   const apAccent = "#22c55e";
@@ -145,13 +148,32 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
   const openDetail = async (doc) => {
     setDetailDoc(doc);
     setDetailLoading(true);
+    setStatusHistory([]);
+    setExcedeStatus(null);
     try {
-      const data = await api.getAPDocument(doc.id);
-      setDetailDoc(data.document);
+      const [docData, historyData] = await Promise.all([
+        api.getAPDocument(doc.id),
+        api.getAPDocumentHistory(doc.id),
+      ]);
+      setDetailDoc(docData.document);
+      setStatusHistory(historyData.history || []);
     } catch (err) {
       console.error("Failed to load document detail:", err);
     } finally {
       setDetailLoading(false);
+    }
+  };
+
+  const checkExcede = async (docId) => {
+    setCheckingExcede(true);
+    try {
+      const data = await api.checkAPDocumentExcede(docId);
+      setExcedeStatus(data);
+    } catch (err) {
+      console.error("Failed to check Excede:", err);
+      addToast?.("Error", "Failed to check Excede", 5000, "error");
+    } finally {
+      setCheckingExcede(false);
     }
   };
 
@@ -661,73 +683,8 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
                     </div>
                   </div>
 
-                  {/* Review Actions */}
-                  {canReview && detailDoc.status === 'reviewing' && (
-                    <div style={{
-                      background: darkMode ? "rgba(245,158,11,0.1)" : "rgba(245,158,11,0.05)",
-                      border: `1px solid ${darkMode ? "rgba(245,158,11,0.3)" : "rgba(245,158,11,0.2)"}`,
-                      borderRadius: 8,
-                      padding: 16,
-                      marginBottom: 20,
-                    }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 8 }}>
-                        This document needs review
-                      </div>
-                      <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 12 }}>
-                        The system could not confidently classify this document. Please review and classify it.
-                      </div>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <button
-                          onClick={() => handleUpdateDocument(detailDoc.id, { documentType: 'invoice', status: 'extracted' })}
-                          style={{
-                            padding: "6px 12px",
-                            borderRadius: 6,
-                            border: "none",
-                            background: "#22c55e",
-                            color: "white",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                          }}
-                        >
-                          Mark as Invoice
-                        </button>
-                        <button
-                          onClick={() => handleUpdateDocument(detailDoc.id, { documentType: 'non_invoice', status: 'extracted' })}
-                          style={{
-                            padding: "6px 12px",
-                            borderRadius: 6,
-                            border: `1px solid ${t.border}`,
-                            background: t.surface,
-                            color: t.text,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                          }}
-                        >
-                          Mark as Non-Invoice
-                        </button>
-                        <button
-                          onClick={() => handleUpdateDocument(detailDoc.id, { status: 'rejected' })}
-                          style={{
-                            padding: "6px 12px",
-                            borderRadius: 6,
-                            border: "none",
-                            background: "#ef4444",
-                            color: "white",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                          }}
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Workflow Actions for extracted documents */}
-                  {canReview && detailDoc.status === 'extracted' && (
+                  {/* Workflow Actions */}
+                  {canReview && detailDoc.status !== 'archived' && detailDoc.status !== 'processing' && detailDoc.status !== 'uploaded' && (
                     <div style={{
                       background: darkMode ? "rgba(34,197,94,0.1)" : "rgba(34,197,94,0.05)",
                       border: `1px solid ${darkMode ? "rgba(34,197,94,0.3)" : "rgba(34,197,94,0.2)"}`,
@@ -738,68 +695,161 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
                       <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 8 }}>
                         Workflow Actions
                       </div>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <button
-                          onClick={() => handleUpdateDocument(detailDoc.id, { status: 'approved' })}
-                          style={{
-                            padding: "6px 12px",
-                            borderRadius: 6,
-                            border: "none",
-                            background: "#10b981",
-                            color: "white",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                          }}
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleUpdateDocument(detailDoc.id, { status: 'posted' })}
-                          style={{
-                            padding: "6px 12px",
-                            borderRadius: 6,
-                            border: "none",
-                            background: "#0891b2",
-                            color: "white",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                          }}
-                        >
-                          Mark Posted
-                        </button>
-                        <button
-                          onClick={() => handleUpdateDocument(detailDoc.id, { status: 'rejected' })}
-                          style={{
-                            padding: "6px 12px",
-                            borderRadius: 6,
-                            border: "none",
-                            background: "#ef4444",
-                            color: "white",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                          }}
-                        >
-                          Reject
-                        </button>
-                        <button
-                          onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
-                          style={{
-                            padding: "6px 12px",
-                            borderRadius: 6,
-                            border: `1px solid ${t.border}`,
-                            background: t.surface,
-                            color: t.text,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                          }}
-                        >
-                          Archive
-                        </button>
-                      </div>
+
+                      {/* Reviewing status actions */}
+                      {detailDoc.status === 'reviewing' && (
+                        <>
+                          <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 12 }}>
+                            This document needs review. Please classify it.
+                          </div>
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            <button
+                              onClick={() => handleUpdateDocument(detailDoc.id, { documentType: 'invoice', status: 'extracted' })}
+                              style={{
+                                padding: "6px 12px", borderRadius: 6, border: "none",
+                                background: "#22c55e", color: "white",
+                                fontSize: 12, fontWeight: 600, cursor: "pointer",
+                              }}
+                            >
+                              Mark as Invoice
+                            </button>
+                            <button
+                              onClick={() => handleUpdateDocument(detailDoc.id, { documentType: 'non_invoice', status: 'extracted' })}
+                              style={{
+                                padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
+                                background: t.surface, color: t.text,
+                                fontSize: 12, fontWeight: 600, cursor: "pointer",
+                              }}
+                            >
+                              Mark as Non-Invoice
+                            </button>
+                            <button
+                              onClick={() => handleUpdateDocument(detailDoc.id, { status: 'rejected' })}
+                              style={{
+                                padding: "6px 12px", borderRadius: 6, border: "none",
+                                background: "#ef4444", color: "white",
+                                fontSize: 12, fontWeight: 600, cursor: "pointer",
+                              }}
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Extracted status actions */}
+                      {detailDoc.status === 'extracted' && (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                          <button
+                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'approved' })}
+                            style={{
+                              padding: "6px 12px", borderRadius: 6, border: "none",
+                              background: "#10b981", color: "white",
+                              fontSize: 12, fontWeight: 600, cursor: "pointer",
+                            }}
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'rejected' })}
+                            style={{
+                              padding: "6px 12px", borderRadius: 6, border: "none",
+                              background: "#ef4444", color: "white",
+                              fontSize: 12, fontWeight: 600, cursor: "pointer",
+                            }}
+                          >
+                            Reject
+                          </button>
+                          <button
+                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
+                            style={{
+                              padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
+                              background: t.surface, color: t.text,
+                              fontSize: 12, fontWeight: 600, cursor: "pointer",
+                            }}
+                          >
+                            Archive
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Approved status actions */}
+                      {detailDoc.status === 'approved' && (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                          <button
+                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'posted' })}
+                            style={{
+                              padding: "6px 12px", borderRadius: 6, border: "none",
+                              background: "#0891b2", color: "white",
+                              fontSize: 12, fontWeight: 600, cursor: "pointer",
+                            }}
+                          >
+                            Mark Posted
+                          </button>
+                          <button
+                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'rejected' })}
+                            style={{
+                              padding: "6px 12px", borderRadius: 6, border: "none",
+                              background: "#ef4444", color: "white",
+                              fontSize: 12, fontWeight: 600, cursor: "pointer",
+                            }}
+                          >
+                            Reject
+                          </button>
+                          <button
+                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
+                            style={{
+                              padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
+                              background: t.surface, color: t.text,
+                              fontSize: 12, fontWeight: 600, cursor: "pointer",
+                            }}
+                          >
+                            Archive
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Posted status actions */}
+                      {detailDoc.status === 'posted' && (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                          <button
+                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
+                            style={{
+                              padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
+                              background: t.surface, color: t.text,
+                              fontSize: 12, fontWeight: 600, cursor: "pointer",
+                            }}
+                          >
+                            Archive
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Rejected status actions */}
+                      {detailDoc.status === 'rejected' && (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                          <button
+                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'uploaded' })}
+                            style={{
+                              padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
+                              background: t.surface, color: t.text,
+                              fontSize: 12, fontWeight: 600, cursor: "pointer",
+                            }}
+                          >
+                            Reprocess
+                          </button>
+                          <button
+                            onClick={() => handleUpdateDocument(detailDoc.id, { status: 'archived' })}
+                            style={{
+                              padding: "6px 12px", borderRadius: 6, border: `1px solid ${t.border}`,
+                              background: t.surface, color: t.text,
+                              fontSize: 12, fontWeight: 600, cursor: "pointer",
+                            }}
+                          >
+                            Archive
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -842,6 +892,101 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
                       })}
                     </div>
                   </div>
+
+                  {/* Excede Lookup */}
+                  <div style={{ marginBottom: 20 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                      <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        Excede Status
+                      </h4>
+                      <button
+                        onClick={() => checkExcede(detailDoc.id)}
+                        disabled={checkingExcede}
+                        style={{
+                          padding: "4px 12px",
+                          borderRadius: 6,
+                          border: `1px solid ${t.border}`,
+                          background: t.surface,
+                          color: t.textMuted,
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                        }}
+                      >
+                        {checkingExcede ? "Checking..." : "Check Excede"}
+                      </button>
+                    </div>
+
+                    {excedeStatus && (
+                      <div style={{
+                        padding: 12,
+                        borderRadius: 8,
+                        border: `1px solid ${t.border}`,
+                        background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                      }}>
+                        {!excedeStatus.checked ? (
+                          <div style={{ fontSize: 13, color: t.textMuted }}>
+                            {excedeStatus.message || "Not checked"}
+                          </div>
+                        ) : excedeStatus.error ? (
+                          <div style={{ fontSize: 13, color: "#ef4444" }}>
+                            Error: {excedeStatus.error}
+                          </div>
+                        ) : excedeStatus.found ? (
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: "#22c55e", marginBottom: 4 }}>
+                              <CheckIcon size={12} /> Found in Excede
+                            </div>
+                            {excedeStatus.excedeData && (
+                              <div style={{ fontSize: 12, color: t.textMuted }}>
+                                <div>Vendor: {excedeStatus.excedeData.VendorName || "—"}</div>
+                                <div>Invoice: {excedeStatus.excedeData.InvoiceNo || "—"}</div>
+                                <div>Posted: {excedeStatus.excedeData.PostedDate ? new Date(excedeStatus.excedeData.PostedDate).toLocaleDateString() : "—"}</div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: 13, color: t.textMuted }}>
+                            Not found in Excede
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Status History */}
+                  {statusHistory.length > 0 && (
+                    <div style={{ marginBottom: 20 }}>
+                      <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        Status History
+                      </h4>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {statusHistory.map((entry, idx) => (
+                          <div key={idx} style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 12,
+                            padding: "8px 12px",
+                            borderRadius: 6,
+                            border: `1px solid ${t.border}`,
+                            background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                          }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <span style={{ fontSize: 12, color: t.textMuted }}>{entry.old_status}</span>
+                              <span style={{ fontSize: 11, color: t.textMuted }}>→</span>
+                              <span style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{entry.new_status}</span>
+                            </div>
+                            <div style={{ marginLeft: "auto", fontSize: 11, color: t.textMuted }}>
+                              {entry.changed_by_name || "System"} · {formatDate(entry.changed_at)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Extracted Text Preview */}
                   {detailDoc.extractedText && (

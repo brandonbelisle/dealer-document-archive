@@ -11,6 +11,26 @@ const { processDocument, generateDuplicateKey } = require('../services/ocrServic
 const { uploadBlob, deleteBlob } = require('../config/azure-storage');
 const socket = require('../socket');
 
+// ── Workflow Status Configuration ───────────────────────────
+// Defines valid status transitions for AP documents
+const WORKFLOW_STATES = {
+  uploaded: { next: ['processing', 'rejected'] },
+  processing: { next: ['classified', 'extracted', 'reviewing', 'uploaded', 'rejected'] },
+  classified: { next: ['extracted', 'reviewing', 'rejected'] },
+  extracted: { next: ['reviewing', 'approved', 'rejected', 'archived'] },
+  reviewing: { next: ['extracted', 'approved', 'rejected', 'archived'] },
+  approved: { next: ['posted', 'rejected', 'archived'] },
+  posted: { next: ['archived'] },
+  rejected: { next: ['uploaded', 'archived'] },
+  archived: { next: [] },
+};
+
+function isValidTransition(currentStatus, newStatus) {
+  if (currentStatus === newStatus) return true;
+  const allowedNext = WORKFLOW_STATES[currentStatus]?.next || [];
+  return allowedNext.includes(newStatus);
+}
+
 const router = express.Router();
 
 // Configure multer for memory storage
@@ -377,12 +397,31 @@ router.put('/documents/:id', requireAuth, requirePermission('ap_review'), async 
     const newIsDuplicate = isDuplicate !== undefined ? (isDuplicate ? 1 : 0) : doc.is_duplicate_flag;
     const newDuplicateOfId = duplicateOfId !== undefined ? duplicateOfId : doc.duplicate_of_id;
 
+    // Validate workflow transition
+    if (status && !isValidTransition(doc.status, status)) {
+      return res.status(400).json({
+        error: `Invalid workflow transition from "${doc.status}" to "${status}"`,
+        currentStatus: doc.status,
+        requestedStatus: status,
+        allowedTransitions: WORKFLOW_STATES[doc.status]?.next || [],
+      });
+    }
+
     await db.execute(
       `UPDATE ap_documents
        SET document_type = ?, status = ?, is_duplicate_flag = ?, duplicate_of_id = ?, updated_at = NOW()
        WHERE id = ?`,
       [newType, newStatus, newIsDuplicate, newDuplicateOfId, id]
     );
+
+    // Log status history
+    if (status && status !== doc.status) {
+      await db.execute(
+        `INSERT INTO ap_status_history (id, document_id, old_status, new_status, changed_by, changed_at)
+         VALUES (UUID(), ?, ?, ?, ?, NOW())`,
+        [id, doc.status, status, req.user.id]
+      );
+    }
 
     await logAudit(
       'AP Document Updated',
@@ -396,6 +435,151 @@ router.put('/documents/:id', requireAuth, requirePermission('ap_review'), async 
     res.json({ success: true, documentId: id, documentType: newType, status: newStatus });
   } catch (err) {
     console.error('Failed to update AP document:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── GET /api/ap/documents/:id/history ───────────────────────
+// Get status change history for a document
+router.get('/documents/:id/history', requireAuth, requirePermission('view_ap'), async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [history] = await db.execute(
+      `SELECT h.id, h.old_status, h.new_status, h.changed_at,
+              u.display_name as changed_by_name
+       FROM ap_status_history h
+       LEFT JOIN users u ON h.changed_by = u.id
+       WHERE h.document_id = ?
+       ORDER BY h.changed_at DESC`,
+      [id]
+    );
+
+    res.json({ history });
+  } catch (err) {
+    console.error('Failed to get status history:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── GET /api/ap/documents/:id/excede ────────────────────────
+// Check if invoice exists in Excede (read-only lookup)
+router.get('/documents/:id/excede', requireAuth, requirePermission('view_ap'), async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Get document details
+    const [docs] = await db.execute(
+      `SELECT vendor_name, invoice_number, invoice_date, invoice_amount
+       FROM ap_documents WHERE id = ?`,
+      [id]
+    );
+
+    if (docs.length === 0) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
+    const doc = docs[0];
+
+    // Get DMS settings
+    const [settings] = await db.execute('SELECT * FROM dms_settings WHERE id = 1');
+
+    if (settings.length === 0 || !settings[0].server) {
+      return res.json({
+        checked: false,
+        message: 'Excede connection not configured',
+        found: false,
+      });
+    }
+
+    const dms = settings[0];
+
+    // Decrypt password
+    const crypto = require('crypto');
+    const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-32-chars!!';
+    let password = '';
+    if (dms.password_encrypted) {
+      const [ivHex, data] = dms.password_encrypted.split(':');
+      const iv = Buffer.from(ivHex, 'hex');
+      const key = crypto.scryptSync(ENCRYPTION_KEY, 'salt', 32);
+      const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+      password = decipher.update(data, 'hex', 'utf8') + decipher.final('utf8');
+    }
+
+    // Connect to Excede and query
+    const sql = require('mssql');
+    const config = {
+      server: dms.server,
+      port: dms.port || 1433,
+      database: dms.database_name,
+      user: dms.username,
+      password: password,
+      options: {
+        trustServerCertificate: Boolean(dms.trust_certificate),
+        encrypt: Boolean(dms.encrypt_connection),
+      },
+      connectionTimeout: 10000,
+      requestTimeout: 10000,
+    };
+
+    let found = false;
+    let excedeData = null;
+
+    try {
+      await sql.connect(config);
+
+      // Query for matching invoice - adjust table/column names as needed for Excede schema
+      const query = `
+        SELECT TOP 1
+          VendorID,
+          VendorName,
+          InvoiceNo,
+          InvoiceDate,
+          InvoiceAmount,
+          PONumber,
+          PostedDate
+        FROM APInvoices
+        WHERE (VendorName LIKE @vendor OR @vendor IS NULL)
+          AND (InvoiceNo = @invoice OR @invoice IS NULL)
+          AND (InvoiceDate = @date OR @date IS NULL)
+        ORDER BY PostedDate DESC
+      `;
+
+      const result = await sql.query(query, {
+        vendor: doc.vendor_name ? `%${doc.vendor_name}%` : null,
+        invoice: doc.invoice_number || null,
+        date: doc.invoice_date || null,
+      });
+
+      if (result.recordset.length > 0) {
+        found = true;
+        excedeData = result.recordset[0];
+      }
+
+      await sql.close();
+    } catch (dmsErr) {
+      console.error('Excede lookup failed:', dmsErr.message);
+      return res.json({
+        checked: true,
+        found: false,
+        error: 'Failed to connect to Excede',
+        details: dmsErr.message,
+      });
+    }
+
+    res.json({
+      checked: true,
+      found,
+      excedeData,
+      document: {
+        vendorName: doc.vendor_name,
+        invoiceNumber: doc.invoice_number,
+        invoiceDate: doc.invoice_date,
+        invoiceAmount: doc.invoice_amount,
+      },
+    });
+  } catch (err) {
+    console.error('Failed to check Excede:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

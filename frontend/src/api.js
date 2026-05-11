@@ -670,3 +670,11 @@ export async function updateAPDocument(id, updates) {
     body: JSON.stringify(updates),
   });
 }
+
+export async function getAPDocumentHistory(id) {
+  return request(`/ap/documents/${id}/history`);
+}
+
+export async function checkAPDocumentExcede(id) {
+  return request(`/ap/documents/${id}/excede`);
+}

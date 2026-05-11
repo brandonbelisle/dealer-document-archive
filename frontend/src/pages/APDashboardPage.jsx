@@ -327,12 +327,6 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
     );
   };
 
-  const getConfidenceColor = (score) => {
-    if (score >= 80) return "#22c55e";
-    if (score >= 50) return "#f59e0b";
-    return "#ef4444";
-  };
-
   const reviewCount = documents.filter(d => d.status === 'reviewing').length;
 
   return (
@@ -596,14 +590,6 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
                       >
                         {doc.vendorName}
                       </button>
-                      {doc.extractedFields?.find(f => f.field === 'vendor_name') && (
-                        <div style={{
-                          fontSize: 10,
-                          color: getConfidenceColor(doc.extractedFields.find(f => f.field === 'vendor_name').confidence),
-                        }}>
-                          {doc.extractedFields.find(f => f.field === 'vendor_name').confidence}% confidence
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <span style={{ color: t.textMuted }}>—</span>
@@ -1030,15 +1016,6 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
                                 <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>
                                   {field.value || "—"}
                                 </div>
-                                {extractedField && (
-                                  <div style={{
-                                    fontSize: 10,
-                                    color: getConfidenceColor(extractedField.confidence),
-                                    marginTop: 4,
-                                  }}>
-                                    {extractedField.confidence}% confidence
-                                  </div>
-                                )}
                               </div>
                             );
                           })}

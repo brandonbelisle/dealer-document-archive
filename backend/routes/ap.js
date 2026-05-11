@@ -108,7 +108,7 @@ router.get('/documents', requireAuth, requirePermission('view_ap'), async (req, 
     if (docIds.length > 0) {
       const placeholders = docIds.map(() => '?').join(',');
       const [fieldRows] = await db.execute(
-        `SELECT document_id, field_name, value, confidence_score
+        `SELECT document_id, field_name, value
          FROM ap_extracted_fields
          WHERE document_id IN (${placeholders})`,
         docIds
@@ -123,7 +123,6 @@ router.get('/documents', requireAuth, requirePermission('view_ap'), async (req, 
       fieldsByDoc[f.document_id].push({
         field: f.field_name,
         value: f.value,
-        confidence: f.confidence_score,
       });
     }
 
@@ -204,7 +203,7 @@ router.get('/documents/:id', requireAuth, requirePermission('view_ap'), async (r
 
     // Get extracted fields
     const [fields] = await db.execute(
-      'SELECT field_name, value, confidence_score FROM ap_extracted_fields WHERE document_id = ?',
+      'SELECT field_name, value FROM ap_extracted_fields WHERE document_id = ?',
       [id]
     );
 
@@ -250,7 +249,6 @@ router.get('/documents/:id', requireAuth, requirePermission('view_ap'), async (r
         extractedFields: fields.map(f => ({
           field: f.field_name,
           value: f.value,
-          confidence: f.confidence_score,
         })),
       },
     });
@@ -621,10 +619,10 @@ router.get('/documents/:id/excede', requireAuth, requirePermission('view_ap'), a
 async function saveExtractedFields(apDocId, fields) {
   for (const field of fields) {
     await db.execute(
-      `INSERT INTO ap_extracted_fields (id, document_id, field_name, value, confidence_score)
-       VALUES (UUID(), ?, ?, ?, ?)
-       ON DUPLICATE KEY UPDATE value = ?, confidence_score = ?`,
-      [apDocId, field.field, field.value, field.confidence, field.value, field.confidence]
+      `INSERT INTO ap_extracted_fields (id, document_id, field_name, value)
+       VALUES (UUID(), ?, ?, ?)
+       ON DUPLICATE KEY UPDATE value = ?`,
+      [apDocId, field.field, field.value, field.value]
     );
   }
 }
@@ -770,7 +768,7 @@ async function processAndExtractWithSplits(originalApDocId, originalFileId, file
       for (let i = 0; i < result.segments.length; i++) {
         const segment = result.segments[i];
         const splitBuffer = splitBuffers[i];
-        const segmentFields = extractInvoiceFields(segment.text, result.sourceConfidence);
+        const segmentFields = extractInvoiceFields(segment.text);
 
         // Determine document type
         const hasInvoiceFields = segmentFields.some(f =>

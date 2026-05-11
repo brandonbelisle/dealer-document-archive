@@ -12,62 +12,62 @@ const { createCanvas } = require('canvas');
 const FIELD_PATTERNS = {
   vendor_name: [
     // Explicit labels with colon/space separator
-    { pattern: /(?:from|vendor|seller|billed by|remit to|sold by|ship from)[\s:]+([A-Z][A-Za-z0-9\s&.,'\-]{2,60}(?:Inc\.?|LLC|Ltd\.?|Corp\.?|Corporation|Company|Co\.?|Limited|LLP|PLC|GmbH|LLC\.?)?)/i, weight: 1.0 },
-    { pattern: /(?:bill\s*to)[\s:]+([A-Z][A-Za-z0-9\s&.,'\-]{2,60}(?:Inc\.?|LLC|Ltd\.?|Corp\.?|Corporation|Company|Co\.?|Limited|LLP|PLC|GmbH)?)/i, weight: 0.9 },
+    /(?:from|vendor|seller|billed by|remit to|sold by|ship from)[\s:]+([A-Z][A-Za-z0-9\s&.,'\-]{2,60}(?:Inc\.?|LLC|Ltd\.?|Corp\.?|Corporation|Company|Co\.?|Limited|LLP|PLC|GmbH|LLC\.?)?)/i,
+    /(?:bill\s*to)[\s:]+([A-Z][A-Za-z0-9\s&.,'\-]{2,60}(?:Inc\.?|LLC|Ltd\.?|Corp\.?|Corporation|Company|Co\.?|Limited|LLP|PLC|GmbH)?)/i,
     // Line that ends with a company suffix
-    { pattern: /^([A-Z][A-Za-z0-9\s&.,'\-]{2,60}(?:Inc\.?|LLC|Ltd\.?|Corp\.?|Corporation|Company|Co\.?|Limited|LLP|PLC|GmbH))\.?$/im, weight: 0.85 },
+    /^([A-Z][A-Za-z0-9\s&.,'\-]{2,60}(?:Inc\.?|LLC|Ltd\.?|Corp\.?|Corporation|Company|Co\.?|Limited|LLP|PLC|GmbH))\.?$/im,
     // Industry name patterns near top
-    { pattern: /^([A-Z][A-Za-z0-9\s&.,'\-]{3,50}(?:Supply|Auto|Parts|Service|Dealer|Group|Motors|Equipment|Technologies|Systems|Solutions))/im, weight: 0.8 },
+    /^([A-Z][A-Za-z0-9\s&.,'\-]{3,50}(?:Supply|Auto|Parts|Service|Dealer|Group|Motors|Equipment|Technologies|Systems|Solutions))/im,
   ],
   invoice_number: [
     // Most explicit: "Invoice #: 12345", "Invoice No. 12345", "Invoice Number: 12345"
-    { pattern: /(?:invoice|inv)[\s]*(?:#|no\.?|number|num\.?)[\s:]*([A-Z0-9.\-_]{2,30})/i, weight: 1.0 },
+    /(?:invoice|inv)[\s]*(?:#|no\.?|number|num\.?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
     // "Invoice #12345" (no space)
-    { pattern: /(?:invoice|inv)[\s]*#([A-Z0-9.\-_]{2,30})/i, weight: 1.0 },
+    /(?:invoice|inv)[\s]*#([A-Z0-9.\-_]{2,30})/i,
     // "Invoice 12345" where number starts with a digit
-    { pattern: /(?:invoice|inv)[\s]+(\d[A-Z0-9.\-_]{1,29})(?=\s|$)/i, weight: 0.95 },
+    /(?:invoice|inv)[\s]+(\d[A-Z0-9.\-_]{1,29})(?=\s|$)/i,
     // "Inv. 12345" or "Inv: 12345"
-    { pattern: /(?:inv\.?)[\s:]*([A-Z0-9.\-_]{2,30})/i, weight: 0.85 },
+    /(?:inv\.?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
     // "Invoice Ref: 12345", "Invoice ID: 12345"
-    { pattern: /(?:invoice|inv)[\s]*(?:id|ref|reference)[\s:]*([A-Z0-9.\-_]{2,30})/i, weight: 0.9 },
+    /(?:invoice|inv)[\s]*(?:id|ref|reference)[\s:]*([A-Z0-9.\-_]{2,30})/i,
     // "INV-12345" or "INV12345"
-    { pattern: /\b(?:INV|inv)[\-_]?([A-Z0-9.\-_]{2,30})/i, weight: 0.9 },
+    /\b(?:INV|inv)[\-_]?([A-Z0-9.\-_]{2,30})/i,
     // Bare "# 12345" or "#12345" at line start
-    { pattern: /(?:^|\s)#\s*([A-Z0-9.\-_]{3,20})(?=\s|$)/im, weight: 0.8 },
+    /(?:^|\s)#\s*([A-Z0-9.\-_]{3,20})(?=\s|$)/im,
     // "No. 12345"
-    { pattern: /\bno\.?[\s:]*([A-Z0-9.\-_]{2,30})/i, weight: 0.75 },
+    /\bno\.?[\s:]*([A-Z0-9.\-_]{2,30})/i,
     // Document # / Statement #
-    { pattern: /(?:document|doc)[\s]*(?:#|no\.?)[\s:]*([A-Z0-9.\-_]{2,30})/i, weight: 0.65 },
-    { pattern: /(?:statement|stmt)[\s]*(?:#|no\.?)[\s:]*([A-Z0-9.\-_]{2,30})/i, weight: 0.65 },
+    /(?:document|doc)[\s]*(?:#|no\.?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    /(?:statement|stmt)[\s]*(?:#|no\.?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
     // Ref / Reference
-    { pattern: /(?:ref|reference)[\s]*(?:#|no\.?)?[\s:]*([A-Z0-9.\-_]{2,30})/i, weight: 0.6 },
+    /(?:ref|reference)[\s]*(?:#|no\.?)?[\s:]*([A-Z0-9.\-_]{2,30})/i,
     // "Invoice: 12345" where number starts with digit
-    { pattern: /(?:invoice|inv)[\s]*[:.][\s]*(\d[A-Z0-9.\-_]{1,29})/i, weight: 0.85 },
+    /(?:invoice|inv)[\s]*[:.][\s]*(\d[A-Z0-9.\-_]{1,29})/i,
   ],
   invoice_date: [
     // "Invoice Date: 01/15/2024" — most explicit
-    { pattern: /(?:invoice\s*date|date\s*of\s*invoice|dated|issue\s*date)[\s:]*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})/i, weight: 1.0 },
+    /(?:invoice\s*date|date\s*of\s*invoice|dated|issue\s*date)[\s:]*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})/i,
     // Month name with explicit label
-    { pattern: /(?:invoice\s*date|date|dated)[\s:]*(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)[\s.,]+(\d{1,2})(?:st|nd|rd|th)?[,\s]+(\d{4})/i, weight: 1.0 },
-    { pattern: /(?:invoice\s*date|date|dated)[\s:]*(\d{1,2})(?:st|nd|rd|th)?[\s.,]+(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)[,\s]+(\d{4})/i, weight: 1.0 },
+    /(?:invoice\s*date|date|dated)[\s:]*(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)[\s.,]+(\d{1,2})(?:st|nd|rd|th)?[,\s]+(\d{4})/i,
+    /(?:invoice\s*date|date|dated)[\s:]*(\d{1,2})(?:st|nd|rd|th)?[\s.,]+(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)[,\s]+(\d{4})/i,
     // ISO format with label
-    { pattern: /(?:invoice\s*date|date|dated)[\s:]*(\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2})/i, weight: 1.0 },
-    // Unlabeled but clear numeric date (requires nearby invoice context in confidence calc)
-    { pattern: /\bdate[\s:]*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})/i, weight: 0.7 },
+    /(?:invoice\s*date|date|dated)[\s:]*(\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2})/i,
+    // Unlabeled but clear numeric date
+    /\bdate[\s:]*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})/i,
   ],
   invoice_amount: [
-    { pattern: /(?:total\s*amount|amount\s*due|balance\s*due|total\s*due|grand\s*total|net\s*due)[\s:]*[$]?\s*([\d,]+\.\d{2})/i, weight: 1.0 },
-    { pattern: /(?:total|balance)[\s:]*[$]?\s*([\d,]+\.\d{2})/i, weight: 0.85 },
-    { pattern: /(?:amount\s*due|due)[\s:]*[$]?\s*([\d,]+\.\d{2})/i, weight: 0.9 },
-    { pattern: /\$\s*([\d,]+\.\d{2})(?:\s*(?:USD|usd))?\s*(?:total|due|balance)/i, weight: 0.85 },
+    /(?:total\s*amount|amount\s*due|balance\s*due|total\s*due|grand\s*total|net\s*due)[\s:]*[$]?\s*([\d,]+\.\d{2})/i,
+    /(?:total|balance)[\s:]*[$]?\s*([\d,]+\.\d{2})/i,
+    /(?:amount\s*due|due)[\s:]*[$]?\s*([\d,]+\.\d{2})/i,
+    /\$\s*([\d,]+\.\d{2})(?:\s*(?:USD|usd))?\s*(?:total|due|balance)/i,
   ],
   po_number: [
-    { pattern: /(?:purchase\s*order|p\.?o\.?\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9.\-_]{2,30})/i, weight: 1.0 },
-    { pattern: /(?:po\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9.\-_]{2,30})/i, weight: 0.95 },
-    { pattern: /\bPO\s*#?\s*[:\s]*([A-Z0-9.\-_]{2,30})/i, weight: 1.0 },
-    { pattern: /\bP\.O\.\s*#?\s*[:\s]*([A-Z0-9.\-_]{2,30})/i, weight: 1.0 },
-    { pattern: /(?:order\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9.\-_]{2,30})/i, weight: 0.7 },
-    { pattern: /(?:customer\s*po|cust\s*po)[\s:]*([A-Z0-9.\-_]{2,30})/i, weight: 0.85 },
+    /(?:purchase\s*order|p\.?o\.?\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    /(?:po\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    /\bPO\s*#?\s*[:\s]*([A-Z0-9.\-_]{2,30})/i,
+    /\bP\.O\.\s*#?\s*[:\s]*([A-Z0-9.\-_]{2,30})/i,
+    /(?:order\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    /(?:customer\s*po|cust\s*po)[\s:]*([A-Z0-9.\-_]{2,30})/i,
   ],
 };
 
@@ -144,12 +144,11 @@ async function detectPDFSplits(fileBuffer) {
  * Main entry point: process a document buffer and extract text + fields
  * @param {Buffer} fileBuffer
  * @param {string} mimeType
- * @returns {Promise<{text: string, pages: number, sourceConfidence: number, fields: Array, segments?: Array}>}
+ * @returns {Promise<{text: string, pages: number, fields: Array, segments?: Array}>}
  */
 async function processDocument(fileBuffer, mimeType) {
   let text = '';
   let pages = 0;
-  let sourceConfidence = 98; // Text-based PDFs: embedded text is highly reliable
   let segments = null;
 
   if (mimeType === 'application/pdf') {
@@ -173,20 +172,18 @@ async function processDocument(fileBuffer, mimeType) {
       const ocrResult = await ocrPDFPages(fileBuffer);
       text = ocrResult.text;
       pages = ocrResult.pages;
-      sourceConfidence = ocrResult.confidence;
     }
   } else if (mimeType.startsWith('image/')) {
     const ocrResult = await performOCR(fileBuffer);
     text = ocrResult.text;
     pages = 1;
-    sourceConfidence = ocrResult.confidence;
   } else {
     throw new Error(`Unsupported file type: ${mimeType}`);
   }
 
-  const fields = extractInvoiceFields(text, sourceConfidence);
+  const fields = extractInvoiceFields(text);
 
-  return { text, pages, sourceConfidence, fields, segments };
+  return { text, pages, fields, segments };
 }
 
 /**
@@ -198,7 +195,6 @@ async function ocrPDFPages(fileBuffer) {
   const numPages = doc.numPages;
   const worker = await createWorker('eng');
   let fullText = '';
-  let totalConfidence = 0;
 
   try {
     for (let i = 1; i <= numPages; i++) {
@@ -210,9 +206,8 @@ async function ocrPDFPages(fileBuffer) {
       await page.render({ canvasContext: context, viewport }).promise;
       const imageBuffer = canvas.toBuffer('image/png');
 
-      const { data: { text, confidence } } = await worker.recognize(imageBuffer);
+      const { data: { text } } = await worker.recognize(imageBuffer);
       fullText += `\n--- Page ${i} ---\n${text}`;
-      totalConfidence += confidence;
 
       page.cleanup();
     }
@@ -220,8 +215,7 @@ async function ocrPDFPages(fileBuffer) {
     await worker.terminate();
   }
 
-  const avgConfidence = numPages > 0 ? Math.round(totalConfidence / numPages) : 0;
-  return { text: fullText.trim(), pages: numPages, confidence: avgConfidence };
+  return { text: fullText.trim(), pages: numPages };
 }
 
 /**
@@ -230,8 +224,8 @@ async function ocrPDFPages(fileBuffer) {
 async function performOCR(imageBuffer) {
   const worker = await createWorker('eng');
   try {
-    const { data: { text, confidence } } = await worker.recognize(imageBuffer);
-    return { text: text.trim(), confidence };
+    const { data: { text } } = await worker.recognize(imageBuffer);
+    return { text: text.trim() };
   } finally {
     await worker.terminate();
   }
@@ -240,18 +234,17 @@ async function performOCR(imageBuffer) {
 /**
  * Extract invoice fields from raw text using regex heuristics
  * @param {string} text
- * @param {number} sourceConfidence - OCR engine confidence (0-100), or 98 for text-based PDFs
- * @returns {Array<{field: string, value: string, confidence: number}>}
+ * @returns {Array<{field: string, value: string}>}
  */
-function extractInvoiceFields(text, sourceConfidence = 98) {
+function extractInvoiceFields(text) {
   const fields = [];
   const textLines = text.split('\n');
 
-  for (const [fieldName, patternDefs] of Object.entries(FIELD_PATTERNS)) {
+  for (const [fieldName, patterns] of Object.entries(FIELD_PATTERNS)) {
     const matches = [];
 
-    for (const def of patternDefs) {
-      const match = text.match(def.pattern);
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
       if (match) {
         let value;
         if (fieldName === 'invoice_date' && match.length > 2) {
@@ -269,50 +262,14 @@ function extractInvoiceFields(text, sourceConfidence = 98) {
           continue;
         }
 
-        matches.push({ value, weight: def.weight });
+        matches.push(value);
       }
     }
 
     if (matches.length === 0) continue;
 
-    // Group by normalized value to find consensus
-    const valueGroups = new Map();
-    for (const m of matches) {
-      const norm = normalizeFieldValue(fieldName, m.value);
-      if (!valueGroups.has(norm)) {
-        valueGroups.set(norm, { values: [], totalWeight: 0 });
-      }
-      valueGroups.get(norm).values.push(m.value);
-      valueGroups.get(norm).totalWeight += m.weight;
-    }
-
-    // Pick the value with highest consensus (most patterns agreeing) and highest weight
-    let bestNorm = null;
-    let bestGroup = null;
-    for (const [norm, group] of valueGroups) {
-      if (!bestGroup || group.totalWeight > bestGroup.totalWeight ||
-          (group.totalWeight === bestGroup.totalWeight && group.values.length > bestGroup.values.length)) {
-        bestNorm = norm;
-        bestGroup = group;
-      }
-    }
-
-    const bestValue = bestGroup.values[0];
-    const consensusCount = bestGroup.values.length;
-    const maxWeight = Math.max(...patternDefs.map(d => d.weight));
-    const patternWeight = bestGroup.totalWeight / Math.max(1, maxWeight);
-
-    const confidence = calculateFieldConfidence({
-      fieldName,
-      value: bestValue,
-      fullText: text,
-      sourceConfidence,
-      patternWeight,
-      consensusCount,
-      totalPatterns: patternDefs.length,
-    });
-
-    fields.push({ field: fieldName, value: bestValue, confidence });
+    // Use the first (most specific) match
+    fields.push({ field: fieldName, value: matches[0] });
   }
 
   // Post-process: infer vendor from header if not found
@@ -322,7 +279,6 @@ function extractInvoiceFields(text, sourceConfidence = 98) {
       fields.push({
         field: 'vendor_name',
         value: vendorGuess,
-        confidence: Math.round(sourceConfidence * 0.35),
       });
     }
   }
@@ -334,209 +290,11 @@ function extractInvoiceFields(text, sourceConfidence = 98) {
       fields.push({
         field: 'invoice_number',
         value: invoiceGuess,
-        confidence: Math.round(sourceConfidence * 0.40),
       });
     }
   }
 
   return fields;
-}
-
-/**
- * Calculate meaningful confidence for an extracted field
- */
-function calculateFieldConfidence({ fieldName, value, fullText, sourceConfidence, patternWeight, consensusCount, totalPatterns }) {
-  // Start from source confidence (OCR engine confidence for scanned, 98 for text-based)
-  let confidence = sourceConfidence;
-
-  // --- Pattern Quality ---
-  // Weighted pattern score: stronger regex patterns boost confidence
-  const patternBoost = Math.round((patternWeight - 0.5) * 10); // -5 to +5
-  confidence += patternBoost;
-
-  // --- Consensus Boost ---
-  // Multiple patterns finding the same value is strong evidence
-  if (consensusCount >= 3) confidence += 8;
-  else if (consensusCount === 2) confidence += 4;
-
-  // --- Keyword Proximity ---
-  confidence += checkKeywordProximity(fieldName, value, fullText);
-
-  // --- Format Validation ---
-  const formatScore = validateFieldFormat(fieldName, value);
-  confidence += formatScore;
-
-  // --- Length Sanity Checks ---
-  if (value.length < 2) confidence -= 25;
-  else if (value.length < 3) confidence -= 15;
-  if (value.length > 80) confidence -= 10;
-
-  // --- Source-Dependent Floor/Ceiling ---
-  // Text-based PDFs should rarely drop below 80 if format is good
-  // Low OCR confidence should cap the maximum
-  if (sourceConfidence >= 95) {
-    // Text-based PDF: floor at 70, cap at 99
-    confidence = Math.max(70, Math.min(99, confidence));
-  } else if (sourceConfidence >= 80) {
-    // Good OCR: floor at 50, cap at 92
-    confidence = Math.max(50, Math.min(92, confidence));
-  } else if (sourceConfidence >= 60) {
-    // Medium OCR: floor at 35, cap at 80
-    confidence = Math.max(35, Math.min(80, confidence));
-  } else {
-    // Poor OCR: floor at 20, cap at 65
-    confidence = Math.max(20, Math.min(65, confidence));
-  }
-
-  return Math.round(confidence);
-}
-
-/**
- * Check keyword proximity — returns a score from -5 to +15
- */
-function checkKeywordProximity(fieldName, value, fullText) {
-  const keywords = {
-    vendor_name: ['vendor', 'from', 'seller', 'billed by', 'remit to', 'bill to', 'sold by'],
-    invoice_number: ['invoice', 'inv', 'invoice #', 'invoice no', 'number', 'no.', 'ref', 'reference', 'document', 'statement'],
-    invoice_date: ['invoice date', 'date of invoice', 'dated', 'issue date'],
-    invoice_amount: ['total', 'amount due', 'balance due', 'grand total', 'net due'],
-    po_number: ['purchase order', 'po', 'p.o.', 'customer po'],
-  };
-
-  const fieldKeywords = keywords[fieldName] || [];
-  const lowerText = fullText.toLowerCase();
-  const lowerValue = value.toLowerCase();
-  const valueIndex = lowerText.indexOf(lowerValue);
-
-  if (valueIndex === -1) return -5; // Value not found in text (suspicious)
-
-  const surroundingText = lowerText.substring(
-    Math.max(0, valueIndex - 80),
-    Math.min(lowerText.length, valueIndex + value.length + 80)
-  );
-
-  // Check for explicit label within 40 chars
-  for (const keyword of fieldKeywords) {
-    if (surroundingText.includes(keyword)) {
-      // Strong boost if keyword is very close
-      const kwIndex = surroundingText.indexOf(keyword);
-      const dist = Math.abs(kwIndex - valueIndex);
-      if (dist < 20) return 15;
-      if (dist < 50) return 10;
-      return 5;
-    }
-  }
-
-  // Check for partial keyword matches
-  for (const keyword of fieldKeywords) {
-    const parts = keyword.split(' ');
-    for (const part of parts) {
-      if (part.length > 2 && surroundingText.includes(part)) {
-        return 3;
-      }
-    }
-  }
-
-  return 0;
-}
-
-/**
- * Validate field format and return a score adjustment (-15 to +8)
- */
-function validateFieldFormat(fieldName, value) {
-  switch (fieldName) {
-    case 'vendor_name': {
-      // Should not be all digits
-      if (/^\d+$/.test(value)) return -20;
-      // Should not be a single word under 3 chars
-      if (value.length < 3 && !value.includes(' ')) return -15;
-      // Good: has company suffix
-      if (/\b(inc\.?|llc\.?|ltd\.?|corp\.?|corporation|company|co\.?|limited|llp|plc|gmbh|group|supply|auto|parts|motors)\b/i.test(value)) return 8;
-      // Good: reasonable length with spaces (full name)
-      if (value.length > 8 && value.includes(' ')) return 4;
-      // Okay: starts with capital letter
-      if (/^[A-Z]/.test(value)) return 2;
-      return -5;
-    }
-
-    case 'invoice_number': {
-      // Must contain digits
-      if (!/\d/.test(value)) return -25;
-      // Good: alphanumeric mix
-      if (/[A-Z]/i.test(value) && /\d/.test(value)) return 5;
-      // Good: 4+ digits
-      if (/\d{4,}/.test(value)) return 4;
-      // Okay: has digits
-      if (/\d/.test(value)) return 2;
-      return -10;
-    }
-
-    case 'invoice_date': {
-      // Numeric date format
-      if (/^\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}$/.test(value)) {
-        const parts = value.split(/[\/\-.]/);
-        const month = parseInt(parts[0], 10);
-        const day = parseInt(parts[1], 10);
-        if (month >= 1 && month <= 12 && day >= 1 && day <= 31) return 8;
-        return -5; // Invalid date
-      }
-      // Month name format
-      if (/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i.test(value)) return 8;
-      // ISO format
-      if (/^\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2}$/.test(value)) {
-        const parts = value.split(/[\/\-.]/);
-        const month = parseInt(parts[1], 10);
-        const day = parseInt(parts[2], 10);
-        if (month >= 1 && month <= 12 && day >= 1 && day <= 31) return 8;
-        return -5;
-      }
-      return -10;
-    }
-
-    case 'invoice_amount': {
-      // Should be a valid decimal amount
-      const clean = value.replace(/[$,]/g, '');
-      if (/^\d+\.\d{2}$/.test(clean)) {
-        const num = parseFloat(clean);
-        if (num > 0 && num < 10000000) return 8;
-        if (num > 0) return 4;
-      }
-      if (/^\d+$/.test(clean)) return 2; // No cents but still a number
-      return -10;
-    }
-
-    case 'po_number': {
-      // Must contain digits
-      if (!/\d/.test(value)) return -15;
-      if (/[A-Z]/i.test(value) && /\d/.test(value)) return 5;
-      if (/\d{3,}/.test(value)) return 3;
-      return 0;
-    }
-
-    default:
-      return 0;
-  }
-}
-
-/**
- * Normalize a field value for consensus comparison
- */
-function normalizeFieldValue(fieldName, value) {
-  if (!value) return '';
-  let norm = value.toLowerCase().replace(/\s+/g, ' ').trim();
-  if (fieldName === 'invoice_date') {
-    // Normalize dates: "01/15/2024" and "01-15-2024" and "01.15.2024" should match
-    norm = norm.replace(/[\-.]/g, '/');
-  }
-  if (fieldName === 'invoice_amount') {
-    // Normalize amounts: strip $ and commas
-    norm = norm.replace(/[$,]/g, '');
-  }
-  if (fieldName === 'invoice_number' || fieldName === 'po_number') {
-    // Normalize numbers: strip common prefixes
-    norm = norm.replace(/^(inv|po|doc|ref)-?/i, '');
-  }
-  return norm;
 }
 
 /**

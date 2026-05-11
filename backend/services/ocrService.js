@@ -4,8 +4,8 @@
 
 const { createWorker } = require('tesseract.js');
 const pdfParse = require('pdf-parse');
-const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js');
-const { NodeCanvasFactory } = require('./nodeCanvasFactory');
+const pdfjsLib = require('pdfjs-dist');
+const { createCanvas } = require('canvas');
 
 // Invoice field extraction patterns
 const FIELD_PATTERNS = {
@@ -111,15 +111,15 @@ async function ocrPDFPages(fileBuffer) {
       const page = await doc.getPage(i);
       const viewport = page.getViewport({ scale: 2.0 }); // Higher scale for better OCR
 
-      const canvasFactory = new NodeCanvasFactory();
-      const canvasAndContext = canvasFactory.create(viewport.width, viewport.height);
+      const canvas = createCanvas(viewport.width, viewport.height);
+      const context = canvas.getContext('2d');
 
       await page.render({
-        canvasContext: canvasAndContext.context,
+        canvasContext: context,
         viewport: viewport,
       }).promise;
 
-      const imageBuffer = canvasAndContext.canvas.toBuffer('image/png');
+      const imageBuffer = canvas.toBuffer('image/png');
       const { data: { text } } = await worker.recognize(imageBuffer);
       fullText += `\n--- Page ${i} ---\n${text}`;
 

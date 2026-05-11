@@ -17,6 +17,7 @@ export function useSocket({
   onDmsScheduleChanged,
   onNotificationCreated,
   onChtInquiriesChanged,
+  onApDocumentsChanged,
 }) {
   const handlersRef = useRef({
     onLocationsChanged,
@@ -29,6 +30,7 @@ export function useSocket({
     onDmsScheduleChanged,
     onNotificationCreated,
     onChtInquiriesChanged,
+    onApDocumentsChanged,
   });
   
   useEffect(() => {
@@ -43,6 +45,7 @@ export function useSocket({
       onDmsScheduleChanged,
       onNotificationCreated,
       onChtInquiriesChanged,
+      onApDocumentsChanged,
     };
   });
 
@@ -84,6 +87,7 @@ export function useSocket({
     const handleDmsScheduleChanged = () => handlersRef.current.onDmsScheduleChanged?.();
     const handleNotificationCreated = (data) => handlersRef.current.onNotificationCreated?.(data);
     const handleChtInquiriesChanged = () => handlersRef.current.onChtInquiriesChanged?.();
+    const handleApDocumentsChanged = () => handlersRef.current.onApDocumentsChanged?.();
 
     socket.on('locations:changed', handleLocationsChanged);
     socket.on('departments:changed', handleDepartmentsChanged);
@@ -95,6 +99,7 @@ export function useSocket({
     socket.on('dms:schedule', handleDmsScheduleChanged);
     socket.on('notification:created', handleNotificationCreated);
     socket.on('cht:inquiries:changed', handleChtInquiriesChanged);
+    socket.on('ap:documents:changed', handleApDocumentsChanged);
 
     return () => {
       connectionCount--;
@@ -109,6 +114,7 @@ export function useSocket({
         socket.off('dms:schedule', handleDmsScheduleChanged);
         socket.off('notification:created', handleNotificationCreated);
         socket.off('cht:inquiries:changed', handleChtInquiriesChanged);
+        socket.off('ap:documents:changed', handleApDocumentsChanged);
         
         if (connectionCount === 0) {
           socket.disconnect();

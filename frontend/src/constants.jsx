@@ -158,6 +158,18 @@ export const APP_PERMISSIONS = {
       { key: "view_help", label: "View App", desc: "Access Help Desk and submit tickets" },
     ],
   },
+  ap: {
+    id: "ap",
+    name: "Accounts Payable",
+    icon: "AP",
+    color: "#22c55e",
+    permissions: [
+      { key: "view_ap", label: "View App", desc: "Access Accounts Payable" },
+      { key: "ap_upload", label: "Upload Documents", desc: "Upload documents to Accounts Payable" },
+      { key: "ap_review", label: "Manage Review Queue", desc: "Manage non-invoice review queue" },
+      { key: "ap_workflow", label: "Manage Workflow", desc: "Change document workflow status" },
+    ],
+  },
   admin: {
     id: "admin",
     name: "Administration",
@@ -175,7 +187,7 @@ export const APP_PERMISSIONS = {
   },
 };
 
-export const APP_PERMISSION_TABS = ["dda", "dcv", "cht", "help", "admin"];
+export const APP_PERMISSION_TABS = ["dda", "dcv", "cht", "help", "ap", "admin"];
 
 // Legacy permission labels (for backward compatibility)
 export const PERMISSION_LABELS = {

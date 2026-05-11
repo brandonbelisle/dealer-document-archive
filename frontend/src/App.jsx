@@ -31,7 +31,9 @@ import LandingNavbar from "./components/LandingNavbar";
 import AdminNavbar from "./components/AdminNavbar";
 import CHTNavbar from "./components/CHTNavbar";
 import DCVNavbar from "./components/DCVNavbar";
+import APNavbar from "./components/APNavbar";
 import Toast from "./components/ui/Toast";
+import APDashboardPage from "./pages/APDashboardPage";
 
 function getThemeCookie() {
     const match = document.cookie.match(/(?:^|;)\s*theme\s*=\s*([^;]+)/);
@@ -480,6 +482,7 @@ const pageToPath = useCallback((page, activeFolderId, activeLocation, activeDepa
       case "admin": return `/admin/${adminSection || "users"}`;
       case "cht": return "/credit-hold";
       case "dcv": return "/customer-vision";
+      case "ap": return "/accounts-payable";
       default: return "/";
     }
   }, []);
@@ -512,6 +515,8 @@ const pathToPage = useCallback((path) => {
       return { page: "cht" };
     case "customer-vision":
       return { page: "dcv" };
+    case "accounts-payable":
+      return { page: "ap" };
     default: return { page: "landing" };
   }
 }, []);
@@ -1512,11 +1517,13 @@ const handleDeptDrop = useCallback(async (e) => {
       {page === "admin" && <AdminNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} setAdminSection={setAdminSection} onOpenHelpTicket={() => setShowHelpTicketModal(true)} />}
 {page === "cht" && <CHTNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} setAdminSection={setAdminSection} onOpenHelpTicket={() => setShowHelpTicketModal(true)} onOpenInquiry={(inquiryId) => setChtInquiryIdFromAlert(inquiryId)} onShowToast={(toast) => addToast(toast.title, toast.message, toast.duration || 5000, toast.type || 'cht', toast.onClick)} />}
       {page === "dcv" && <DCVNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} setAdminSection={setAdminSection} onOpenHelpTicket={() => setShowHelpTicketModal(true)} onSelectCustomer={(customer) => setSelectedCustomer(customer)} />}
-      {page !== "landing" && page !== "admin" && page !== "cht" && page !== "dcv" && <Navbar page={page} setPage={setPage} darkMode={darkMode} setDarkMode={setDarkMode} isLoggedIn={isLoggedIn} loggedInUser={loggedInUser} locations={locations} departments={departments} folders={folders} files={files} unsortedFiles={unsortedFiles} stagedFiles={stagedFiles} activeLocation={activeLocation} setActiveLocation={setActiveLocation} activeDepartment={activeDepartment} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setFolderSearch={setFolderSearch} expandedLocations={expandedLocations} setExpandedLocations={setExpandedLocations} showDeptDropdown={showDeptDropdown} setShowDeptDropdown={setShowDeptDropdown} showProfileMenu={showProfileMenu} setShowProfileMenu={setShowProfileMenu} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} setAdminSection={setAdminSection} handleLogout={handleLogout} foldersInLocation={foldersInLocation} foldersInDepartment={foldersInDepartment} deptsInLocation={deptsInLocation} filesInFolder={filesInFolder} setShowSubscriptionsModal={setShowSubscriptionsModal} setViewingFileIdFromAlert={setViewingFileIdFromAlert} onOpenHelpTicket={() => setShowHelpTicketModal(true)} dashboardData={dashboardData} t={t} />}
+      {page === "ap" && <APNavbar darkMode={darkMode} setDarkMode={setDarkMode} loggedInUser={loggedInUser} page={page} setPage={setPage} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} handleLogout={handleLogout} setShowSubscriptionsModal={setShowSubscriptionsModal} setAdminSection={setAdminSection} onOpenHelpTicket={() => setShowHelpTicketModal(true)} />}
+      {page !== "landing" && page !== "admin" && page !== "cht" && page !== "dcv" && page !== "ap" && <Navbar page={page} setPage={setPage} darkMode={darkMode} setDarkMode={setDarkMode} isLoggedIn={isLoggedIn} loggedInUser={loggedInUser} locations={locations} departments={departments} folders={folders} files={files} unsortedFiles={unsortedFiles} stagedFiles={stagedFiles} activeLocation={activeLocation} setActiveLocation={setActiveLocation} activeDepartment={activeDepartment} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} setFolderSearch={setFolderSearch} expandedLocations={expandedLocations} setExpandedLocations={setExpandedLocations} showDeptDropdown={showDeptDropdown} setShowDeptDropdown={setShowDeptDropdown} showProfileMenu={showProfileMenu} setShowProfileMenu={setShowProfileMenu} setShowChangePassword={setShowChangePassword} setChangePasswordForm={setChangePasswordForm} setChangePasswordError={setChangePasswordError} setChangePasswordSuccess={setChangePasswordSuccess} setAdminSection={setAdminSection} handleLogout={handleLogout} foldersInLocation={foldersInLocation} foldersInDepartment={foldersInDepartment} deptsInLocation={deptsInLocation} filesInFolder={filesInFolder} setShowSubscriptionsModal={setShowSubscriptionsModal} setViewingFileIdFromAlert={setViewingFileIdFromAlert} onOpenHelpTicket={() => setShowHelpTicketModal(true)} dashboardData={dashboardData} t={t} />}
 
 {page === "landing" && <LandingPage setPage={setPage} t={t} darkMode={darkMode} loggedInUser={loggedInUser} onOpenHelpTicket={() => setShowHelpTicketModal(true)} />}
 {page === "cht" && <CHTDashboardPage loggedInUser={loggedInUser} t={t} darkMode={darkMode} openInquiryId={chtInquiryIdFromAlert} onInquiryOpened={() => setChtInquiryIdFromAlert(null)} />}
 {page === "dcv" && <DCVPage t={t} darkMode={darkMode} selectedCustomer={selectedCustomer} setPage={setPage} setActiveFolderId={setActiveFolderId} initialRepairOrderSlsId={initialRepairOrderSlsId} setInitialRepairOrderSlsId={setInitialRepairOrderSlsId} initialTab={dcvInitialTab} setSelectedFile={setSelectedFile} setViewingFileId={setViewingFileId} />}
+{page === "ap" && <APDashboardPage loggedInUser={loggedInUser} t={t} darkMode={darkMode} addToast={addToast} />}
 {page === "settings" && <SettingsPage darkMode={darkMode} setDarkMode={setDarkMode} t={t} />}
 {page === "dashboard" && <DashboardPage dashboardData={dashboardData} loggedInUser={loggedInUser} locations={locations} departments={departments} setPage={setPage} setActiveFolderId={setActiveFolderId} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setViewingFileId={setViewingFileId} t={t} darkMode={darkMode} />}
 {page === "folders-browse" && <FoldersBrowsePage locations={locations} departments={departments} deptsInLocation={deptsInLocation} setActiveLocation={setActiveLocation} setActiveDepartment={setActiveDepartment} setActiveFolderId={setActiveFolderId} setFolderSearch={setFolderSearch} setSelectedFile={setSelectedFile} setPage={setPage} subscriptions={subscriptions} setSubscriptions={setSubscriptions} t={t} darkMode={darkMode} />}

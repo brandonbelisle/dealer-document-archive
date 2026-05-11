@@ -82,6 +82,22 @@ export default function LandingPage({ setPage, t, darkMode, loggedInUser, onOpen
       ),
       onClick: () => { if (onOpenHelpTicket) onOpenHelpTicket(); },
     },
+    {
+      id: "ap",
+      name: "Accounts Payable",
+      permission: "view_ap",
+      icon: (
+        <div style={{
+          width: 56, height: 56, borderRadius: 14,
+          background: "linear-gradient(135deg,#22c55e,#16a34a)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          color: "white", fontSize: 16, fontWeight: 800,
+        }}>
+          AP
+        </div>
+      ),
+      onClick: () => setPage("ap"),
+    },
     ...customApps
       .filter((app) => loggedInUser?.customAppIds?.includes(app.id))
       .map((app) => ({

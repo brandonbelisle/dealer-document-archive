@@ -86,6 +86,11 @@ function chtInquiriesChanged() {
   broadcast('cht:inquiries:changed', { timestamp: Date.now() });
 }
 
+// AP document events
+function apDocumentsChanged() {
+  broadcast('ap:documents:changed', { timestamp: Date.now() });
+}
+
 module.exports = {
   init,
   getIO,
@@ -101,4 +106,5 @@ module.exports = {
   notificationCreated,
   notificationCountUpdated,
   chtInquiriesChanged,
+  apDocumentsChanged,
 };

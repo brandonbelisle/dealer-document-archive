@@ -641,3 +641,25 @@ export async function getDcvRepairOrders(id, page = 1, pageSize = 20, filterType
 export async function getDcvVinLookup(vin) {
   return request(`/dcv/vin/${vin}`);
 }
+
+// ── Accounts Payable ──────────────────────────────────────
+export async function uploadAPDocument(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  return request('/ap/upload', {
+    method: 'POST',
+    body: formData,
+  });
+}
+
+export async function getAPDocuments() {
+  return request('/ap/documents');
+}
+
+export async function getAPDocument(id) {
+  return request(`/ap/documents/${id}`);
+}
+
+export async function deleteAPDocument(id) {
+  return request(`/ap/documents/${id}`, { method: 'DELETE' });
+}

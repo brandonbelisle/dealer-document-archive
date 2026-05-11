@@ -111,6 +111,9 @@ const apps = [
     { id: "cht", name: "Credit Hold Tracker", permission: "view_cht", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#f59e0b,#d97706)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>CHT</div>
     ), onClick: () => { setPage("cht"); setShowAppsDropdown(false); } },
+    { id: "ap", name: "Accounts Payable", permission: "view_ap", icon: (
+      <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#22c55e,#16a34a)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 10, fontWeight: 800 }}>AP</div>
+    ), onClick: () => { setPage("ap"); setShowAppsDropdown(false); } },
     { id: "help", name: "Submit Help Ticket", permission: "view_help", icon: (
       <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#10b981,#059669)", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
         <TicketIcon size={14} />

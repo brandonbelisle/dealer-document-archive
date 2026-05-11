@@ -355,6 +355,31 @@ async function processAndExtract(apDocId, fileId, fileBuffer, mimeType, user) {
     );
     const documentType = hasInvoiceFields ? 'invoice' : 'non_invoice';
 
+    // Clean extracted values for database storage
+    const cleanAmount = (val) => {
+      if (!val) return null;
+      const cleaned = val.replace(/[$,\s]/g, '');
+      const num = parseFloat(cleaned);
+      return isNaN(num) ? null : num;
+    };
+
+    const cleanDate = (val) => {
+      if (!val) return null;
+      // Try common date formats: MM/DD/YYYY, MM-DD-YYYY, M/D/YY, etc.
+      const match = val.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
+      if (match) {
+        let [_, m, d, y] = match;
+        if (y.length === 2) y = '20' + y;
+        return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+      }
+      // Try YYYY-MM-DD
+      if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
+      return null;
+    };
+
+    const amountField = result.fields.find(f => f.field === 'invoice_amount');
+    const dateField = result.fields.find(f => f.field === 'invoice_date');
+
     // Update ap_documents with results
     await db.execute(
       `UPDATE ap_documents
@@ -371,8 +396,8 @@ async function processAndExtract(apDocId, fileId, fileBuffer, mimeType, user) {
         documentType,
         result.fields.find(f => f.field === 'vendor_name')?.value || null,
         result.fields.find(f => f.field === 'invoice_number')?.value || null,
-        result.fields.find(f => f.field === 'invoice_date')?.value || null,
-        result.fields.find(f => f.field === 'invoice_amount')?.value || null,
+        cleanDate(dateField?.value),
+        cleanAmount(amountField?.value),
         result.fields.find(f => f.field === 'po_number')?.value || null,
         result.text.substring(0, 65535), // Truncate if too long
         apDocId,

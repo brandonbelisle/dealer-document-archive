@@ -770,7 +770,7 @@ async function processAndExtractWithSplits(originalApDocId, originalFileId, file
       for (let i = 0; i < result.segments.length; i++) {
         const segment = result.segments[i];
         const splitBuffer = splitBuffers[i];
-        const segmentFields = extractInvoiceFields(segment.text);
+        const segmentFields = extractInvoiceFields(segment.text, result.sourceConfidence);
 
         // Determine document type
         const hasInvoiceFields = segmentFields.some(f =>

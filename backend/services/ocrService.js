@@ -20,22 +20,30 @@ const FIELD_PATTERNS = {
     /^([A-Z][A-Za-z0-9\s&.,'\-]{3,50}(?:Supply|Auto|Parts|Service|Dealer|Group|Motors|Equipment|Technologies|Systems|Solutions))/im,
   ],
   invoice_number: [
-    // Invoice # 12345
-    /(?:invoice\s*(?:#|no\.?|number|num\.?|#)?)[\s:]*([A-Z0-9\-]{2,30})/i,
-    // Inv. No. 12345
-    /(?:inv\.?\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9\-]{2,30})/i,
-    // Invoice ID: 12345
-    /(?:invoice\s*(?:id|ref|reference))[\s:]*([A-Z0-9\-]{2,30})/i,
-    // "# INV12345" or "# 12345" near invoice keyword
-    /invoice[^\n]{0,80}#\s*([A-Z0-9\-]{2,30})/i,
-    // "Invoice 12345" (no #)
-    /\binvoice\b[\s:]+([A-Z0-9][A-Z0-9\-]{1,29})/i,
-    // "Ref: 12345" or "Reference: 12345"
-    /(?:ref|reference)(?:\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9\-]{2,30})/i,
-    // Document #
-    /(?:document|doc)\s*(?:#|no\.?)[\s:]*([A-Z0-9\-]{2,30})/i,
-    // Statement #
-    /(?:statement|stmt)\s*(?:#|no\.?)[\s:]*([A-Z0-9\-]{2,30})/i,
+    // "Invoice #: 12345", "Invoice No. 12345", "Invoice Number: 12345" (explicit separator)
+    /(?:invoice|inv)[\s]*(?:#|no\.?|number|num\.?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    // "Invoice #12345" (no space between # and number)
+    /(?:invoice|inv)[\s]*#([A-Z0-9.\-_]{2,30})/i,
+    // "Invoice 12345" where number starts with a digit (avoids matching "Date")
+    /(?:invoice|inv)[\s]+(\d[A-Z0-9.\-_]{1,29})(?=\s|$)/i,
+    // "Inv. 12345" or "Inv: 12345"
+    /(?:inv\.?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    // "Invoice Ref: 12345", "Invoice ID: 12345"
+    /(?:invoice|inv)[\s]*(?:id|ref|reference)[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    // "INV-12345" or "INV12345"
+    /\b(?:INV|inv)[\-_]?([A-Z0-9.\-_]{2,30})/i,
+    // Bare "# 12345" or "#12345" at line start (commonly used for invoice #)
+    /(?:^|\s)#\s*([A-Z0-9.\-_]{3,20})(?=\s|$)/im,
+    // "No. 12345" or "No: 12345"
+    /\bno\.?[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    // "Document #: 12345", "Doc #: 12345"
+    /(?:document|doc)[\s]*(?:#|no\.?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    // "Statement #: 12345"
+    /(?:statement|stmt)[\s]*(?:#|no\.?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    // "Ref: 12345", "Reference: 12345"
+    /(?:ref|reference)[\s]*(?:#|no\.?)?[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    // "Our Invoice: 12345" where number follows a colon/period
+    /(?:invoice|inv)[\s]*[:.][\s]*(\d[A-Z0-9.\-_]{1,29})/i,
   ],
   invoice_date: [
     // Invoice Date: 01/15/2024
@@ -56,12 +64,12 @@ const FIELD_PATTERNS = {
     /\$\s*([\d,]+\.\d{2})(?:\s*(?:USD|usd))?\s*(?:total|due|balance)/i,
   ],
   po_number: [
-    /(?:purchase\s*order|p\.?o\.?\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9\-]{2,30})/i,
-    /(?:po\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9\-]{2,30})/i,
-    /\bPO\s*#?\s*[:\s]*([A-Z0-9\-]{2,30})/i,
-    /\bP\.O\.\s*#?\s*[:\s]*([A-Z0-9\-]{2,30})/i,
-    /(?:order\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9\-]{2,30})/i,
-    /(?:customer\s*po|cust\s*po)[\s:]*([A-Z0-9\-]{2,30})/i,
+    /(?:purchase\s*order|p\.?o\.?\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    /(?:po\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    /\bPO\s*#?\s*[:\s]*([A-Z0-9.\-_]{2,30})/i,
+    /\bP\.O\.\s*#?\s*[:\s]*([A-Z0-9.\-_]{2,30})/i,
+    /(?:order\s*(?:#|no\.?|number)?)[\s:]*([A-Z0-9.\-_]{2,30})/i,
+    /(?:customer\s*po|cust\s*po)[\s:]*([A-Z0-9.\-_]{2,30})/i,
   ],
 };
 
@@ -330,6 +338,10 @@ function extractInvoiceFields(text) {
         } else {
           value = match[1].trim();
         }
+        // Validate invoice numbers to avoid false positives like "Date"
+        if (fieldName === 'invoice_number' && !isLikelyInvoiceNumber(value)) {
+          continue;
+        }
         const confidence = calculateConfidence(fieldName, value, text, pattern);
         if (confidence > bestConfidence) {
           bestConfidence = confidence;
@@ -361,6 +373,19 @@ function extractInvoiceFields(text) {
     }
   }
 
+  // Post-process: try to guess invoice number from header if not found
+  const invoiceField = fields.find(f => f.field === 'invoice_number');
+  if (!invoiceField) {
+    const invoiceGuess = guessInvoiceNumber(text);
+    if (invoiceGuess) {
+      fields.push({
+        field: 'invoice_number',
+        value: invoiceGuess,
+        confidence: 35, // Low confidence since it's a guess
+      });
+    }
+  }
+
   return fields;
 }
 
@@ -384,7 +409,15 @@ function calculateConfidence(fieldName, value, fullText, pattern) {
   if (value.length > 100) confidence -= 10;
 
   // Boost for common invoice format indicators
-  if (fieldName === 'invoice_number' && /\d/.test(value)) confidence += 5;
+  if (fieldName === 'invoice_number') {
+    if (/\d/.test(value)) {
+      confidence += 10; // Strong boost for numbers containing digits
+    } else {
+      confidence -= 35; // Heavy penalty for invoice numbers without digits
+    }
+    // Extra boost for numbers with mixed format (letters + digits)
+    if (/[A-Z]/i.test(value) && /\d/.test(value)) confidence += 5;
+  }
   if (fieldName === 'invoice_amount' && /^[\d,.]+$/.test(value.replace('$', ''))) confidence += 10;
   if (fieldName === 'invoice_date' && /\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}/.test(value)) confidence += 10;
 
@@ -397,7 +430,7 @@ function calculateConfidence(fieldName, value, fullText, pattern) {
 function checkKeywordProximity(fieldName, value, fullText) {
   const keywords = {
     vendor_name: ['vendor', 'from', 'seller', 'billed by', 'remit to'],
-    invoice_number: ['invoice', 'inv', 'invoice #', 'invoice no'],
+    invoice_number: ['invoice', 'inv', 'invoice #', 'invoice no', 'number', 'no.', 'ref', 'reference', 'document', 'statement'],
     invoice_date: ['invoice date', 'date', 'dated'],
     invoice_amount: ['total', 'amount due', 'balance due', 'grand total'],
     po_number: ['purchase order', 'po', 'p.o.'],
@@ -460,6 +493,58 @@ function guessVendorFromHeader(text) {
       const cleaned = line.replace(/\s+/g, ' ').trim();
       if (!/^(tel|fax|email|www|http|page|date|invoice|ship|sold|amount|total|qty|\d)/i.test(cleaned)) {
         return cleaned;
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Validate that a captured string is likely an invoice number
+ * Rejects common false positives like "Date", "Total", etc.
+ */
+function isLikelyInvoiceNumber(value) {
+  const falsePositives = ['date', 'total', 'amount', 'due', 'balance', 'number', 'page', 'of', 'from', 'to', 'ship', 'bill', 'sold', 'remit', 'vendor', 'customer', 'account', 'original', 'copy', 'paid', 'unpaid', 'overdue', 'pending', 'processed'];
+  if (falsePositives.includes(value.toLowerCase())) return false;
+  // Reject pure dates (e.g. 01/15/2024)
+  if (/^\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}$/.test(value)) return false;
+  // Reject pure amounts (e.g. 123.45)
+  if (/^\d{1,3}(,\d{3})*\.\d{2}$/.test(value)) return false;
+  // Must contain at least one digit
+  if (!/\d/.test(value)) return false;
+  return true;
+}
+
+/**
+ * Guess invoice number from document header when regex patterns fail
+ */
+function guessInvoiceNumber(text) {
+  const lines = text.split(/[\n\r]+/).map(l => l.trim()).filter(l => l.length > 0);
+  const headerLines = lines.slice(0, 25);
+
+  for (const line of headerLines) {
+    const lower = line.toLowerCase();
+    // Skip lines that are clearly not invoice numbers
+    if (/^\d{1,2}[\/\-.]\d{1,2}/.test(line)) continue; // Skip date lines
+    if (/^\$/.test(line)) continue; // Skip amount lines
+    if (lower.includes('date') && !lower.includes('invoice')) continue; // Skip "Due Date" etc.
+
+    // Look for # or No. followed by alphanumeric with digits
+    const m = line.match(/(?:#|no\.?)\s*([A-Z0-9.\-_]{2,20})/i);
+    if (m && m[1] && /\d/.test(m[1]) && isLikelyInvoiceNumber(m[1])) {
+      return m[1];
+    }
+  }
+
+  // Look for any 5-15 digit number in first 15 lines that might be an invoice number
+  for (const line of headerLines.slice(0, 15)) {
+    const lower = line.toLowerCase();
+    const m = line.match(/\b(\d{5,15})\b/);
+    if (m && m[1]) {
+      // Check if the line contains invoice-related words
+      if (lower.includes('invoice') || lower.includes('inv') || lower.includes('no') || lower.includes('#') || lower.includes('number')) {
+        return m[1];
       }
     }
   }

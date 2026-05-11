@@ -4,7 +4,7 @@
 
 const { createWorker } = require('tesseract.js');
 const pdfParse = require('pdf-parse');
-const pdfjsLib = require('pdfjs-dist');
+const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js');
 const { createCanvas } = require('canvas');
 
 // Invoice field extraction patterns

@@ -28,6 +28,15 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
   });
   const fileInputRef = useRef(null);
 
+  // AI Test state
+  const [aiTestOpen, setAiTestOpen] = useState(false);
+  const [aiTestText, setAiTestText] = useState('');
+  const [aiTestResults, setAiTestResults] = useState(null);
+  const [aiTestLoading, setAiTestLoading] = useState(false);
+  const [aiStatus, setAiStatus] = useState(null);
+  const [aiCompareLoading, setAiCompareLoading] = useState(false);
+  const [aiCompareResults, setAiCompareResults] = useState(null);
+
   const apAccent = "#22c55e";
   const apAccentDark = "#16a34a";
 
@@ -55,6 +64,8 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
 
   useEffect(() => {
     loadDocuments();
+    // Fetch AI status
+    api.getAPAIStatus().then(setAiStatus).catch(() => setAiStatus({ enabled: false }));
   }, [loadDocuments]);
 
   // Auto-poll for processing documents
@@ -365,6 +376,34 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
               }}
             />
           </div>
+          {canReview && (
+            <button
+              onClick={() => setAiTestOpen(true)}
+              style={{
+                padding: "8px 14px",
+                borderRadius: 8,
+                border: `1px solid ${t.border}`,
+                background: t.surface,
+                color: t.text,
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+              title="Test AI vs Regex extraction"
+            >
+              <span style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: aiStatus?.enabled ? "#22c55e" : "#9ca3af",
+                display: "inline-block",
+              }} />
+              AI Test
+            </button>
+          )}
         </div>
       </div>
 
@@ -1046,6 +1085,105 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
                       )}
                     </div>
 
+                    {/* AI Compare */}
+                    {canReview && aiStatus?.enabled && (
+                      <div style={{ marginBottom: 20 }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                          <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                            AI Comparison
+                          </h4>
+                          <button
+                            onClick={async () => {
+                              setAiCompareLoading(true);
+                              try {
+                                const result = await api.compareAPDocumentAI(detailDoc.id);
+                                setAiCompareResults(result);
+                              } catch (err) {
+                                addToast?.("Error", err.message, 5000, "error");
+                              } finally {
+                                setAiCompareLoading(false);
+                              }
+                            }}
+                            disabled={aiCompareLoading}
+                            style={{
+                              padding: "4px 12px",
+                              borderRadius: 6,
+                              border: `1px solid ${t.border}`,
+                              background: t.surface,
+                              color: t.textMuted,
+                              fontSize: 11,
+                              fontWeight: 600,
+                              cursor: "pointer",
+                            }}
+                          >
+                            {aiCompareLoading ? "Comparing..." : "Compare with AI"}
+                          </button>
+                        </div>
+
+                        {aiCompareResults && aiCompareResults.documentId === detailDoc.id && (
+                          <div style={{
+                            padding: 12,
+                            borderRadius: 8,
+                            border: `1px solid ${t.border}`,
+                            background: darkMode ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+                          }}>
+                            {aiCompareResults.aiError ? (
+                              <div style={{ fontSize: 12, color: "#ef4444" }}>
+                                AI Error: {aiCompareResults.aiError}
+                              </div>
+                            ) : (
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                                {[
+                                  { label: "Vendor Name", key: "vendor_name" },
+                                  { label: "Invoice Number", key: "invoice_number" },
+                                  { label: "Invoice Date", key: "invoice_date" },
+                                  { label: "Invoice Amount", key: "invoice_amount" },
+                                  { label: "PO Number", key: "po_number" },
+                                ].map(field => {
+                                  const regexField = aiCompareResults.regex?.find(f => f.field === field.key);
+                                  const aiField = aiCompareResults.ai?.find(f => f.field === field.key);
+                                  return (
+                                    <div key={field.key} style={{
+                                      padding: 10,
+                                      borderRadius: 6,
+                                      border: `1px solid ${t.border}`,
+                                      background: t.surface,
+                                    }}>
+                                      <div style={{ fontSize: 11, color: t.textMuted, marginBottom: 4 }}>{field.label}</div>
+                                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 12 }}>
+                                        <div>
+                                          <div style={{ fontSize: 10, color: t.textMuted }}>Regex</div>
+                                          <div style={{ fontWeight: 600, color: regexField ? t.text : "#ef4444" }}>
+                                            {regexField?.value || "—"}
+                                          </div>
+                                          {regexField && (
+                                            <div style={{ fontSize: 10, color: getConfidenceColor(regexField.confidence) }}>
+                                              {regexField.confidence}%
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div>
+                                          <div style={{ fontSize: 10, color: t.textMuted }}>AI</div>
+                                          <div style={{ fontWeight: 600, color: aiField ? t.text : "#ef4444" }}>
+                                            {aiField?.value || "—"}
+                                          </div>
+                                          {aiField && (
+                                            <div style={{ fontSize: 10, color: getConfidenceColor(aiField.confidence) }}>
+                                              {aiField.confidence}%
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Excede Lookup */}
                     <div style={{ marginBottom: 20 }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
@@ -1373,6 +1511,266 @@ export default function APDashboardPage({ loggedInUser, t, darkMode, addToast })
               >
                 Delete
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Test Modal */}
+      {aiTestOpen && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.6)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1000,
+          padding: 24,
+        }}
+        onClick={() => setAiTestOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: t.surface,
+              border: `1px solid ${t.border}`,
+              borderRadius: 12,
+              maxWidth: 900,
+              width: "100%",
+              maxHeight: "90vh",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{
+              padding: "16px 20px",
+              borderBottom: `1px solid ${t.border}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, color: t.text }}>
+                  Test AI Extraction
+                </h3>
+                <div style={{ fontSize: 12, color: t.textMuted, marginTop: 4 }}>
+                  Paste raw OCR text to compare regex vs AI extraction
+                </div>
+              </div>
+              <button
+                onClick={() => setAiTestOpen(false)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: t.textMuted,
+                  cursor: "pointer",
+                  padding: 4,
+                }}
+              >
+                <XIcon size={20} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: 20, overflow: "auto", flex: 1 }}>
+              <textarea
+                value={aiTestText}
+                onChange={(e) => setAiTestText(e.target.value)}
+                placeholder="Paste extracted OCR text here..."
+                style={{
+                  width: "100%",
+                  minHeight: 150,
+                  padding: 12,
+                  borderRadius: 8,
+                  border: `1px solid ${t.border}`,
+                  background: t.surface,
+                  color: t.text,
+                  fontSize: 13,
+                  fontFamily: "monospace",
+                  resize: "vertical",
+                  outline: "none",
+                  marginBottom: 16,
+                }}
+              />
+              <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+                <button
+                  onClick={async () => {
+                    if (!aiTestText.trim()) return;
+                    setAiTestLoading(true);
+                    try {
+                      const result = await api.testAPExtraction(aiTestText);
+                      setAiTestResults(result);
+                    } catch (err) {
+                      addToast?.("Error", err.message, 5000, "error");
+                    } finally {
+                      setAiTestLoading(false);
+                    }
+                  }}
+                  disabled={aiTestLoading || !aiTestText.trim()}
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: 6,
+                    border: "none",
+                    background: "#0891b2",
+                    color: "white",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: aiTestLoading || !aiTestText.trim() ? "not-allowed" : "pointer",
+                    opacity: aiTestLoading || !aiTestText.trim() ? 0.6 : 1,
+                  }}
+                >
+                  {aiTestLoading ? "Running..." : "Test Both Methods"}
+                </button>
+                <button
+                  onClick={() => { setAiTestText(''); setAiTestResults(null); }}
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: 6,
+                    border: `1px solid ${t.border}`,
+                    background: t.surface,
+                    color: t.text,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+
+              {aiTestResults && (
+                <div>
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginBottom: 16,
+                    padding: "8px 12px",
+                    borderRadius: 6,
+                    background: aiTestResults.aiEnabled
+                      ? (darkMode ? "rgba(34,197,94,0.1)" : "rgba(34,197,94,0.05)")
+                      : (darkMode ? "rgba(239,68,68,0.1)" : "rgba(239,68,68,0.05)"),
+                    border: `1px solid ${aiTestResults.aiEnabled
+                      ? (darkMode ? "rgba(34,197,94,0.3)" : "rgba(34,197,94,0.2)")
+                      : (darkMode ? "rgba(239,68,68,0.3)" : "rgba(239,68,68,0.2)")}`,
+                  }}>
+                    <div style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      background: aiTestResults.aiEnabled ? "#22c55e" : "#ef4444",
+                    }} />
+                    <span style={{ fontSize: 13, fontWeight: 600, color: t.text }}>
+                      AI Extraction {aiTestResults.aiEnabled ? "Enabled" : "Disabled"}
+                    </span>
+                    {aiTestResults.aiError && (
+                      <span style={{ fontSize: 12, color: "#ef4444", marginLeft: "auto" }}>
+                        Error: {aiTestResults.aiError}
+                      </span>
+                    )}
+                  </div>
+
+                  <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Results Comparison
+                  </h4>
+
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr 1fr",
+                    gap: 12,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: t.textMuted,
+                    padding: "8px 12px",
+                    borderBottom: `1px solid ${t.border}`,
+                    marginBottom: 8,
+                  }}>
+                    <div>Field</div>
+                    <div>Regex Result</div>
+                    <div>AI Result</div>
+                  </div>
+
+                  {[
+                    { label: "Vendor Name", key: "vendor_name" },
+                    { label: "Invoice Number", key: "invoice_number" },
+                    { label: "Invoice Date", key: "invoice_date" },
+                    { label: "Invoice Amount", key: "invoice_amount" },
+                    { label: "PO Number", key: "po_number" },
+                  ].map(field => {
+                    const regexField = aiTestResults.regex?.find(f => f.field === field.key);
+                    const aiField = aiTestResults.ai?.find(f => f.field === field.key);
+                    const match = regexField?.value && aiField?.value &&
+                      regexField.value.toLowerCase().trim() === aiField.value.toLowerCase().trim();
+
+                    return (
+                      <div key={field.key} style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr 1fr",
+                        gap: 12,
+                        padding: "10px 12px",
+                        borderRadius: 6,
+                        background: match
+                          ? (darkMode ? "rgba(34,197,94,0.08)" : "rgba(34,197,94,0.05)")
+                          : (darkMode ? "rgba(0,0,0,0.02)" : "rgba(0,0,0,0.02)"),
+                        border: `1px solid ${match
+                          ? (darkMode ? "rgba(34,197,94,0.2)" : "rgba(34,197,94,0.15)")
+                          : t.border}`,
+                        marginBottom: 8,
+                        alignItems: "center",
+                      }}>
+                        <div style={{ fontWeight: 600, color: t.text }}>{field.label}</div>
+                        <div>
+                          <div style={{ color: regexField ? t.text : "#ef4444", fontWeight: 500 }}>
+                            {regexField?.value || "—"}
+                          </div>
+                          {regexField && (
+                            <div style={{ fontSize: 10, color: getConfidenceColor(regexField.confidence), marginTop: 2 }}>
+                              {regexField.confidence}% confidence
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <div style={{ color: aiField ? t.text : "#ef4444", fontWeight: 500 }}>
+                            {aiField?.value || "—"}
+                          </div>
+                          {aiField && (
+                            <div style={{ fontSize: 10, color: getConfidenceColor(aiField.confidence), marginTop: 2 }}>
+                              {aiField.confidence}% confidence
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {/* AI Raw Response */}
+                  {aiTestResults.aiRaw && (
+                    <div style={{ marginTop: 16 }}>
+                      <h4 style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, margin: "0 0 8px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        AI Raw Response
+                      </h4>
+                      <pre style={{
+                        background: darkMode ? "#0d1117" : "#f6f8fa",
+                        border: `1px solid ${t.border}`,
+                        borderRadius: 8,
+                        padding: 12,
+                        fontSize: 11,
+                        color: t.text,
+                        maxHeight: 200,
+                        overflow: "auto",
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                        margin: 0,
+                      }}>
+                        {JSON.stringify(aiTestResults.aiRaw, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -678,3 +678,18 @@ export async function getAPDocumentHistory(id) {
 export async function checkAPDocumentExcede(id) {
   return request(`/ap/documents/${id}/excede`);
 }
+
+export async function getAPAIStatus() {
+  return request('/ap/ai-status');
+}
+
+export async function testAPExtraction(text) {
+  return request('/ap/test-extraction', {
+    method: 'POST',
+    body: JSON.stringify({ text }),
+  });
+}
+
+export async function compareAPDocumentAI(id) {
+  return request(`/ap/compare/${id}`, { method: 'POST' });
+}
